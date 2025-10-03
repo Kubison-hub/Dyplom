@@ -1,36 +1,72 @@
 using UnityEngine;
 
-public class CameraFollow : MonoBehaviour
+public class CameraFollowSmooth : MonoBehaviour
 {
-    [Header("Follow Settings")]
-    [Tooltip("Target to follow.")]
+    [Header("Target")]
     public Transform target;
 
-    [Tooltip("Offset from target position (e.g. (0,10,-10) for isometric view).")]
+    [Header("Settings")]
     public Vector3 offset = new Vector3(0, 10, -10);
-
-    [Tooltip("How fast the camera moves to target.")]
     public float followSpeed = 5f;
-
-    [Tooltip("How fast the camera rotates to look at target.")]
     public float rotationSpeed = 5f;
 
-    private void LateUpdate()
+    [Header("Cinematic Zoom")]
+    public float zoomAmount = 5f;
+    public float zoomSpeed = 2f;
+    public float zoomHeight = 2f;
+
+    private Vector3 currentOffset;
+    private bool zooming = false;
+    private float zoomProgress = 0f;       // 0 = start, 1 = zakoñczone
+    private Vector3 zoomStartOffset;
+
+    void Awake()
+    {
+        currentOffset = offset;
+    }
+
+    void LateUpdate()
     {
         if (target == null) return;
 
-        // Smooth position
-        Vector3 desiredPos = target.position + offset;
-        transform.position = Vector3.Lerp(transform.position, desiredPos, Time.deltaTime * followSpeed);
+        // obs³uga zoomu z easing
+        if (zooming)
+        {
+            zoomProgress += Time.deltaTime * zoomSpeed;
+            float t = Mathf.Clamp01(zoomProgress);
+            t = Mathf.SmoothStep(0f, 1f, t);  // easing funkcja
 
-        // Smooth rotation
-        Quaternion desiredRot = Quaternion.LookRotation(target.position - transform.position, Vector3.up);
-        transform.rotation = Quaternion.Slerp(transform.rotation, desiredRot, Time.deltaTime * rotationSpeed);
+            // interpolacja offsetu
+            currentOffset = Vector3.Lerp(zoomStartOffset, offset, t);
+
+            if (t >= 1f)
+                zooming = false;
+        }
+        else
+        {
+            // standardowe p³ynne pod¹¿anie
+            currentOffset = Vector3.Lerp(currentOffset, offset, followSpeed * Time.deltaTime);
+        }
+
+        // ruch kamery
+        Vector3 desiredPosition = target.position + currentOffset;
+        transform.position = Vector3.Lerp(transform.position, desiredPosition, followSpeed * Time.deltaTime);
+
+        // obrót kamery
+        Quaternion desiredRotation = Quaternion.LookRotation(target.position - transform.position, Vector3.up);
+        transform.rotation = Quaternion.Slerp(transform.rotation, desiredRotation, rotationSpeed * Time.deltaTime);
     }
 
-    // Called from PlayerSwitcher when active player changes
     public void SetTarget(Transform newTarget)
     {
         target = newTarget;
+        StartZoom();
+    }
+
+    private void StartZoom()
+    {
+        zooming = true;
+        zoomProgress = 0f;
+        zoomStartOffset = offset + new Vector3(0, zoomHeight, -zoomAmount);  // startowy offset dla efektu
     }
 }

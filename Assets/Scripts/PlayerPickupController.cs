@@ -27,35 +27,45 @@ public class PlayerPickupController : MonoBehaviour
                 DropObject();
             }
         }
+
+        // Jeœli trzymamy przedmiot, aktualizujemy jego pozycjê wzglêdem gracza
+        if (carriedObject != null)
+        {
+            carriedObject.UpdatePosition();
+        }
     }
 
     private void TryPickup()
     {
-        // Check nearby colliders within pickup range
         Collider[] hits = Physics.OverlapSphere(transform.position, pickupRange, pickupLayer);
 
         foreach (Collider hit in hits)
         {
             PickupableObject obj = hit.GetComponent<PickupableObject>();
-            if (obj != null && !obj.IsCarried)
+            if (obj != null)
             {
-                carriedObject = obj;
-                obj.Pickup(transform);
-                return;
+                // ignoruj jeœli ktoœ ju¿ trzyma przedmiot
+                if (!obj.IsCarried)
+                {
+                    carriedObject = obj;
+                    obj.Pickup(this.transform);
+                    return;
+                }
             }
         }
     }
+
 
     private void DropObject()
     {
         if (carriedObject != null)
         {
-            carriedObject.Drop(transform);
+            carriedObject.Drop();   // <-- bez argumentów
             carriedObject = null;
         }
     }
 
-    // Optional: visualize pickup range in editor
+    // Opcjonalnie: wizualizacja zasiêgu podnoszenia w edytorze
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.cyan;

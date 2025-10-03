@@ -3,73 +3,58 @@ using UnityEngine.AI;
 
 public class PlayerFollower : MonoBehaviour
 {
-    public enum BehaviorMode { Stay, Follow }
-    [Header("AI Behavior Settings")]
-    public BehaviorMode behaviorMode = BehaviorMode.Stay;
+    public enum FollowMode { Stay, Follow }
+    public FollowMode mode = FollowMode.Stay;
 
-    [Tooltip("Key to toggle behavior mode (Stay/Follow).")]
-    public KeyCode toggleKey = KeyCode.B;
-
-    [Tooltip("How close the follower should stay to target.")]
-    public float followDistance = 2f;
-
+    [Header("References")]
+    public Transform target;                 // ustawiany przez PlayerSwitcher
     private NavMeshAgent agent;
-    private Transform followTarget;
-    private bool isActivePlayer = false;
+    private PointAndClickController clickController;
 
-    private void Awake()
+    [Header("Settings")]
+    public float followDistance = 2f;        // jak blisko pod¹¿a
+
+    void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
-        if (agent == null)
+        clickController = GetComponent<PointAndClickController>();
+    }
+
+    void Update()
+    {
+        if (mode == FollowMode.Follow && target != null)
         {
-            Debug.LogError("PlayerFollower requires a NavMeshAgent component!");
+            // wy³¹cz klik sterowanie
+            if (clickController != null)
+                clickController.EnableInput(false);
+
+            float dist = Vector3.Distance(transform.position, target.position);
+            if (dist > followDistance && agent.isOnNavMesh)
+            {
+                agent.SetDestination(target.position);
+            }
+        }
+        else if (mode == FollowMode.Stay)
+        {
+            // zatrzymaj AI -> pozwól na klik sterowanie jeœli to postaæ aktywna
+            if (clickController != null && clickController.enabled == false)
+                clickController.EnableInput(false); // NIE aktywujemy sami, robi to Switcher
         }
     }
 
-    private void Update()
+    public void ToggleMode()
     {
-        if (isActivePlayer)
+        if (mode == FollowMode.Stay)
         {
-            // If this player is currently controlled, disable AI completely
-            if (agent != null) agent.enabled = false;
-            return;
+            mode = FollowMode.Follow;
+            Debug.Log($"{name} switched to FOLLOW mode.");
         }
-
-        // Toggle Stay/Follow mode
-        if (Input.GetKeyDown(toggleKey))
+        else
         {
-            behaviorMode = (behaviorMode == BehaviorMode.Stay) ? BehaviorMode.Follow : BehaviorMode.Stay;
-        }
-
-        if (behaviorMode == BehaviorMode.Follow && followTarget != null && agent != null)
-        {
-            agent.enabled = true;
-
-            float distance = Vector3.Distance(transform.position, followTarget.position);
-            if (distance > followDistance)
-            {
-                agent.SetDestination(followTarget.position);
-            }
-            else
-            {
+            mode = FollowMode.Stay;
+            if (agent != null && agent.isOnNavMesh)
                 agent.ResetPath();
-            }
-        }
-        else if (agent != null && agent.enabled)
-        {
-            agent.ResetPath();
-        }
-    }
-
-    public void SetActive(bool active, Transform newTarget = null)
-    {
-        isActivePlayer = active;
-        followTarget = newTarget;
-
-        if (active && agent != null)
-        {
-            agent.ResetPath();
-            agent.enabled = false; // controlled by player, not AI
+            Debug.Log($"{name} switched to STAY mode.");
         }
     }
 }
