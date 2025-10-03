@@ -164,8 +164,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5b2ca1eac4a8b4498fa983f192ea8ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  revealKey: 118
-  darkenIntensity: 100
+  highlightKey: 118
 --- !u!114 &98176335
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -181,7 +180,10 @@ MonoBehaviour:
   players:
   - {fileID: 1910985423}
   - {fileID: 868759142}
+  activeIndex: 0
   switchKey: 9
+  followToggleKey: 98
+  camFollow: {fileID: 330585547}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -291,6 +293,9 @@ MonoBehaviour:
   offset: {x: 0, y: 10, z: -10}
   followSpeed: 5
   rotationSpeed: 5
+  zoomAmount: 20
+  zoomSpeed: 2
+  zoomHeight: 2
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -523,7 +528,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pickupKey: 101
-  pickupRange: 20
+  pickupRange: 5
   pickupLayer:
     serializedVersion: 2
     m_Bits: 8
@@ -650,9 +655,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d02d9a881c82a842a25113d06e09136, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  behaviorMode: 0
-  toggleKey: 98
-  followDistance: 2
+  mode: 0
+  target: {fileID: 1910985429}
+  followDistance: 10
 --- !u!114 &868759151
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -746,6 +751,7 @@ GameObject:
   - component: {fileID: 922763240}
   - component: {fileID: 922763241}
   - component: {fileID: 922763242}
+  - component: {fileID: 922763243}
   m_Layer: 3
   m_Name: Sphere
   m_TagString: Untagged
@@ -881,11 +887,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ddaf9c4dde8d6ae459cefb18f9240cfb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  carryHeight: 2
-  dropDistance: 2
-  followSpeed: 10
-  highlightMaterial: {fileID: 0}
-  IsCarried: 0
+  holdHeight: 2
+  highlightMaterial: {fileID: 2100000, guid: 9a8ed61e31c7d8147a74d4515453af38, type: 2}
 --- !u!114 &922763242
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -898,7 +901,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bdd35962dd76b0a42807f6e1c1f1271c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightMaterial: {fileID: 2100000, guid: 9a8ed61e31c7d8147a74d4515453af38, type: 2}
+  highlightMaterial: {fileID: 2100000, guid: 7eb3fb8d2cad1154fa773a683740fbac, type: 2}
+--- !u!114 &922763243
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 922763235}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5b2ca1eac4a8b4498fa983f192ea8ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightKey: 118
 --- !u!1 &949423465 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2517239893001243315, guid: 8e9c42497c69aec408bd96c42569ed00, type: 3}
@@ -1364,7 +1380,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pickupKey: 101
-  pickupRange: 20
+  pickupRange: 5
   pickupLayer:
     serializedVersion: 2
     m_Bits: 8
@@ -1380,9 +1396,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d02d9a881c82a842a25113d06e09136, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  behaviorMode: 0
-  toggleKey: 98
-  followDistance: 2
+  mode: 0
+  target: {fileID: 868759149}
+  followDistance: 10
 --- !u!114 &1910985432
 MonoBehaviour:
   m_ObjectHideFlags: 0

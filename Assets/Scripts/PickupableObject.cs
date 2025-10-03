@@ -1,85 +1,82 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(Collider))]
 public class PickupableObject : MonoBehaviour
 {
     [Header("Pickup Settings")]
-    public float carryHeight = 2f;
-    public float dropDistance = 2f;
-    public float followSpeed = 10f;
+    public float holdHeight = 2f;  // wysokość nad graczem podczas podnoszenia
 
-    [Header("Highlight Settings")]
-    [Tooltip("Material used when object is highlighted (outline, glow, etc).")]
-    public Material highlightMaterial;
-    private Material originalMaterial;
-    private Renderer rend;
+    [Header("Highlight")]
+    public Material highlightMaterial;  // przypisz w Inspectorze żółty lub inny glow
 
-    [HideInInspector] public bool IsCarried = false;
+    private Transform holder = null;    // kto trzyma przedmiot
+    private bool isHeld = false;
 
-    private Transform carryTarget;
-    private Collider col;
+    private Renderer[] renderers;
+    private Material[] originalMaterials;
+
+    // PUBLICZNE WŁAŚCIWOŚCI
+    public bool IsCarried => isHeld;
 
     private void Awake()
     {
-        col = GetComponent<Collider>();
-        col.isTrigger = false;
-
-        rend = GetComponent<Renderer>();
-        if (rend != null)
+        renderers = GetComponentsInChildren<Renderer>();
+        originalMaterials = new Material[renderers.Length];
+        for (int i = 0; i < renderers.Length; i++)
         {
-            originalMaterial = rend.material; // cache original
+            originalMaterials[i] = renderers[i].material;
         }
     }
 
     private void Update()
     {
-        if (IsCarried && carryTarget != null)
+        // jeśli ktoś trzyma przedmiot, podążaj za nim
+        if (isHeld && holder != null)
         {
-            Vector3 targetPos = carryTarget.position + Vector3.up * carryHeight;
-            transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * followSpeed);
+            UpdatePosition();
         }
     }
+
+    // ------------------- PODNOSZENIE I UPUSZCZANIE -------------------
 
     public void Pickup(Transform player)
     {
-        IsCarried = true;
-        carryTarget = player;
-        col.enabled = false;
+        if (isHeld) return; // jeśli ktoś już trzyma, nic nie rób
 
-        Rigidbody rb = GetComponent<Rigidbody>();
-        if (rb != null) rb.isKinematic = true;
-
-        RemoveHighlight();
+        holder = player;
+        isHeld = true;
     }
 
-    public void Drop(Transform player)
+    public void Drop()
     {
-        IsCarried = false;
-        carryTarget = null;
-        col.enabled = true;
+        if (!isHeld || holder == null) return;
 
-        Rigidbody rb = GetComponent<Rigidbody>();
-        if (rb != null) rb.isKinematic = false;
-
-        Vector3 dropPos = player.position + player.forward * dropDistance;
-        dropPos.y = player.position.y;
+        // upuszczamy przedmiot przed graczem
+        Vector3 dropPos = holder.position + holder.forward * 1.5f;
         transform.position = dropPos;
+
+        holder = null;
+        isHeld = false;
     }
 
-    // 🔹 Highlight methods
-    public void ApplyHighlight()
+    public void UpdatePosition()
     {
-        if (rend != null && highlightMaterial != null)
+        if (holder != null)
         {
-            rend.material = highlightMaterial;
+            transform.position = holder.position + Vector3.up * holdHeight;
         }
     }
 
-    public void RemoveHighlight()
+    // ------------------- PODŚWIETLENIE -------------------
+
+    public void Highlight(bool on)
     {
-        if (rend != null && originalMaterial != null)
+        // jeśli nie przypisano materiału highlight, nie zmieniaj nic
+        if (highlightMaterial == null)
+            return;
+
+        for (int i = 0; i < renderers.Length; i++)
         {
-            rend.material = originalMaterial;
+            renderers[i].material = on ? highlightMaterial : originalMaterials[i];
         }
     }
 }

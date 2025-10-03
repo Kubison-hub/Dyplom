@@ -1,42 +1,44 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public class PlayerSwitcher : MonoBehaviour
 {
     [Header("Players")]
-    public GameObject[] players;
+    public GameObject[] players;        // obiekty graczy (dodaj w Inspector)
+    public int activeIndex = 0;
 
-    [Header("Switching")]
-    public KeyCode switchKey = KeyCode.Tab;
+    [Header("Controls")]
+    public KeyCode switchKey = KeyCode.Tab;      // zmiana postaci
+    public KeyCode followToggleKey = KeyCode.B;  // zmiana trybu dla nieaktywnego gracza
 
-    private int activeIndex = 0;
-    private CameraFollow camFollow;
+    [Header("Camera")]
+    public CameraFollowSmooth camFollow;         // przypisz skrypt p³ynnej kamery
 
-    private void Start()
+    void Start()
     {
-        if (players.Length == 0)
-        {
-            Debug.LogError("PlayerSwitcher: No players assigned!");
-            enabled = false;
-            return;
-        }
-
-        camFollow = Camera.main.GetComponent<CameraFollow>();
-        if (camFollow == null)
-        {
-            Debug.LogError("Main Camera must have CameraFollow script!");
-            enabled = false;
-            return;
-        }
-
-        SetActivePlayer(0);
+        SetActivePlayer(activeIndex);
     }
 
-    private void Update()
+    void Update()
     {
+        // zmiana aktywnego gracza
         if (Input.GetKeyDown(switchKey))
         {
             int nextIndex = (activeIndex + 1) % players.Length;
             SetActivePlayer(nextIndex);
+        }
+
+        // tryb pod¹¿ania dla NIEaktywnego gracza
+        if (Input.GetKeyDown(followToggleKey))
+        {
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (i == activeIndex) continue; // pomijamy aktywnego
+
+                PlayerFollower follower = players[i].GetComponent<PlayerFollower>();
+                if (follower != null)
+                    follower.ToggleMode();
+            }
         }
     }
 
@@ -46,21 +48,24 @@ public class PlayerSwitcher : MonoBehaviour
         {
             if (players[i] == null) continue;
 
-            var movement = players[i].GetComponent<PointAndClickController>(); // your movement script
-            var agent = players[i].GetComponent<UnityEngine.AI.NavMeshAgent>();
+            var controller = players[i].GetComponent<PointAndClickController>();
+            var follower = players[i].GetComponent<PlayerFollower>();
 
             bool isActive = (i == index);
 
-            if (movement != null)
-                movement.enabled = isActive;
+            // w³¹cz sterowanie klikaniem tylko dla aktywnego
+            if (controller != null)
+                controller.EnableInput(isActive);
 
-            if (agent != null)
-                agent.enabled = isActive; // disable NavMeshAgent on inactive players
+            // dla nieaktywnego ustaw target do œledzenia aktywnego
+            if (follower != null)
+                follower.target = players[index].transform;
         }
 
         activeIndex = index;
 
-        // Camera target update
-        camFollow.SetTarget(players[activeIndex].transform);
+        // ustaw nowy cel dla kamery (p³ynne przejœcie)
+        if (camFollow != null)
+            camFollow.SetTarget(players[activeIndex].transform);
     }
 }
