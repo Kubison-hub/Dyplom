@@ -6,10 +6,15 @@ using UnityEngine.EventSystems;
 [RequireComponent(typeof(NavMeshAgent))]
 public class PointAndClickController : MonoBehaviour
 {
-    public Camera cam;                      // assign Main Camera in inspector (or leave null to use Camera.main)
+    [Header("References")]
+    public Camera cam;                       // assign Main Camera in inspector (or leave null to use Camera.main)
+
+    [Header("Click Settings")]
     public LayerMask clickableLayers = ~0;   // set this to ground/interactive layers
     public float navMeshSampleRadius = 1f;   // how far to search for nearest navmesh point
+
     private NavMeshAgent agent;
+    private bool inputEnabled = true;        // controlled externally by PlayerSwitcher or FollowerAI
 
     void Awake()
     {
@@ -20,6 +25,8 @@ public class PointAndClickController : MonoBehaviour
 
     void Update()
     {
+        if (!inputEnabled) return; // inactive or AI controlling
+
         // ignore clicks over UI
         if (Input.GetMouseButtonDown(0))
         {
@@ -31,45 +38,42 @@ public class PointAndClickController : MonoBehaviour
             {
                 Vector3 target = hit.point;
 
-                // Try to sample a point on the NavMesh near the clicked position.
-                // This prevents SetDestination throwing errors for off-mesh clicks.
-                NavMeshHit navHit;
-                if (NavMesh.SamplePosition(target, out navHit, navMeshSampleRadius, NavMesh.AllAreas))
+                // Try to snap to nearest NavMesh point
+                if (NavMesh.SamplePosition(target, out NavMeshHit navHit, navMeshSampleRadius, NavMesh.AllAreas))
                 {
                     SetAgentDestination(navHit.position);
                 }
                 else
                 {
-                    // fallback: try SetDestination directly (agent may try to get as close as possible)
-                    SetAgentDestination(target);
+                    SetAgentDestination(target); // fallback
                 }
             }
         }
     }
 
-    void SetAgentDestination(Vector3 position)
+    public void SetAgentDestination(Vector3 position)
     {
         if (agent == null) return;
         if (!agent.isOnNavMesh)
         {
-            Debug.LogWarning("NavMeshAgent is not on a NavMesh. Ensure NavMesh is baked and agent is placed correctly.");
+            Debug.LogWarning($"{name}'s NavMeshAgent is not on a NavMesh.");
             return;
         }
 
-        // Option A: simple
         agent.SetDestination(position);
-
-        // Option B (safer): pre-calculate path to make sure it's reachable
-        // NavMeshPath path = new NavMeshPath();
-        // if (NavMesh.CalculatePath(agent.transform.position, position, NavMesh.AllAreas, path) && path.status == NavMeshPathStatus.PathComplete)
-        //     agent.SetPath(path);
     }
 
-    // helper to check arrival (call from elsewhere)
     public bool HasReachedDestination()
     {
         if (agent == null) return true;
         if (agent.pathPending) return false;
-        return agent.remainingDistance <= agent.stoppingDistance && (!agent.hasPath || agent.velocity.sqrMagnitude == 0f);
+        return agent.remainingDistance <= agent.stoppingDistance &&
+               (!agent.hasPath || agent.velocity.sqrMagnitude == 0f);
+    }
+
+    // === External control ===
+    public void EnableInput(bool enable)
+    {
+        inputEnabled = enable;
     }
 }

@@ -46,23 +46,21 @@ public class PlayerSwitcher : MonoBehaviour
         {
             if (players[i] == null) continue;
 
-            // Movement control
-            var movement = players[i].GetComponent<PointAndClickController>();
-            if (movement != null)
-                movement.enabled = (i == index);
+            var movement = players[i].GetComponent<PointAndClickController>(); // your movement script
+            var agent = players[i].GetComponent<UnityEngine.AI.NavMeshAgent>();
 
-            // Follower control
-            var follower = players[i].GetComponent<PlayerFollower>();
-            if (follower != null)
-            {
-                bool isActive = (i == index);
-                follower.SetActive(isActive, players[index].transform);
-            }
+            bool isActive = (i == index);
+
+            if (movement != null)
+                movement.enabled = isActive;
+
+            if (agent != null)
+                agent.enabled = isActive; // disable NavMeshAgent on inactive players
         }
 
         activeIndex = index;
 
-        // Camera follows the new active player
+        // Camera target update
         camFollow.SetTarget(players[activeIndex].transform);
     }
 }
