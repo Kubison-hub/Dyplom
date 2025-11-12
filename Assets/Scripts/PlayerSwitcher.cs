@@ -48,16 +48,23 @@ public class PlayerSwitcher : MonoBehaviour
         {
             if (players[i] == null) continue;
 
+            // Pobieramy wszystkie potrzebne komponenty
             var controller = players[i].GetComponent<PointAndClickController>();
             var follower = players[i].GetComponent<PlayerFollower>();
+            var pickup = players[i].GetComponent<PlayerPickupController>(); // <--- NOWOŒÆ
 
             bool isActive = (i == index);
 
-            // w³¹cz sterowanie klikaniem tylko dla aktywnego
+            // 1. W³¹cz sterowanie klikaniem tylko dla aktywnego
             if (controller != null)
                 controller.EnableInput(isActive);
 
-            // dla nieaktywnego ustaw target do œledzenia aktywnego
+            // 2. W³¹cz sterowanie podnoszeniem (E) tylko dla aktywnego
+            // <--- NOWOŒÆ: To naprawia b³¹d, ¿e obie postacie podnosz¹ jednoczeœnie
+            if (pickup != null)
+                pickup.EnableInput(isActive);
+
+            // 3. Dla nieaktywnego ustaw target do œledzenia aktywnego
             if (follower != null)
                 follower.target = players[index].transform;
         }
