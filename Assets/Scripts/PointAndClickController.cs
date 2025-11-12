@@ -5,6 +5,10 @@ using UnityEngine.EventSystems;
 [RequireComponent(typeof(NavMeshAgent))]
 public class PointAndClickController : MonoBehaviour
 {
+    [Header("Character Settings")]
+    [Tooltip("Zaznacz TO TYLKO dla postaci 2D (Sprite). Dla kostki 3D odznacz!")]
+    public bool is2DCharacter = false; // <--- NOWY PRZE£¥CZNIK
+
     [Header("References")]
     public Camera cam;
 
@@ -13,14 +17,12 @@ public class PointAndClickController : MonoBehaviour
     public float navMeshSampleRadius = 1f;
 
     private NavMeshAgent agent;
-    private bool inputEnabled = true; // Prywatna zmienna
+    private bool inputEnabled = true;
 
-    // --- TO JEST BRAKUJ¥CA CZÊŒÆ, KTÓRA NAPRAWI B£¥D ---
     public bool IsInputEnabled
     {
         get { return inputEnabled; }
     }
-    // ----------------------------------------------------
 
     // Przechowuje stan obrotu postaci (zak³adamy, ¿e domyœlnie patrzy w LEWO)
     private bool isFacingRight = false;
@@ -28,7 +30,16 @@ public class PointAndClickController : MonoBehaviour
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
-        agent.updateRotation = false;
+
+        // <--- ZMIANA: Wy³¹czamy rotacjê agenta TYLKO jeœli to postaæ 2D
+        if (is2DCharacter)
+        {
+            agent.updateRotation = false;
+        }
+        else
+        {
+            agent.updateRotation = true; // Postaæ 3D niech obraca siê sama
+        }
 
         if (cam == null) cam = Camera.main;
         if (cam == null) Debug.LogWarning("No Camera assigned and Camera.main is null.");
@@ -38,7 +49,6 @@ public class PointAndClickController : MonoBehaviour
     {
         if (!inputEnabled) return;
 
-        // Ignoruj klikniêcia na UI
         if (Input.GetMouseButtonDown(0))
         {
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
@@ -47,26 +57,24 @@ public class PointAndClickController : MonoBehaviour
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit, 100f, clickableLayers))
             {
-                // 1. SprawdŸ, czy klikniêty obiekt to dŸwignia (Lever)
+                // 1. SprawdŸ dŸwigniê
                 Lever lever = hit.collider.GetComponent<Lever>();
 
                 if (lever != null)
                 {
-                    // Próba interakcji z dŸwigni¹ zamiast ruchu
                     lever.AttemptInteraction(transform);
                 }
                 else
                 {
-                    // 2. Standardowe poruszanie siê
+                    // 2. Ruch
                     Vector3 target = hit.point;
-
                     if (NavMesh.SamplePosition(target, out NavMeshHit navHit, navMeshSampleRadius, NavMesh.AllAreas))
                     {
                         SetAgentDestination(navHit.position);
                     }
                     else
                     {
-                        SetAgentDestination(target); // fallback
+                        SetAgentDestination(target);
                     }
                 }
             }
@@ -75,9 +83,13 @@ public class PointAndClickController : MonoBehaviour
 
     void LateUpdate()
     {
+        // <--- ZMIANA: Jeœli to postaæ 3D, w ogóle nie ruszaj rotacji w skrypcie!
+        // Niech NavMeshAgent robi swoj¹ robotê.
+        if (!is2DCharacter) return;
+
         if (cam == null) return;
 
-        // --- Obracanie Sprite'a (Billboard + Flip) ---
+        // --- PONI¯EJ KOD TYLKO DLA POSTACI 2D ---
         Vector3 cameraForward = cam.transform.forward;
         cameraForward.y = 0;
         Quaternion baseRotation = Quaternion.LookRotation(cameraForward.normalized);
@@ -92,15 +104,13 @@ public class PointAndClickController : MonoBehaviour
             float dot = Vector3.Dot(velocity.normalized, cameraRight.normalized);
 
             if (dot > 0.1f)
-                isFacingRight = true; // Idzie w prawo
+                isFacingRight = true;
             else if (dot < -0.1f)
-                isFacingRight = false; // Idzie w lewo
+                isFacingRight = false;
         }
 
-        // Ustawienie rotacji
         transform.rotation = baseRotation;
 
-        // Odwrócenie sprite'a (zak³adaj¹c, ¿e domyœlny sprite patrzy w lewo)
         if (isFacingRight)
         {
             transform.rotation *= Quaternion.Euler(0, 180, 0);
