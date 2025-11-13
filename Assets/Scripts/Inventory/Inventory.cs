@@ -8,11 +8,18 @@ public class Inventory : MonoBehaviour
 
     private void Awake()
     {
+        if (instance != null)
+        {
+            Debug.LogWarning("Wiêcej ni¿ jedna instancja Ekwipunku!");
+            Destroy(gameObject);
+            return;
+        }
+
         instance = this;
     }
 
     public List<Item> items = new List<Item>();
-    public int maxSlots = 9;
+    public int maxSlots = 3;
 
     public event Action OnItemAdded;
 
