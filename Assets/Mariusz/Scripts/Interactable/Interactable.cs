@@ -18,7 +18,7 @@ public class Interactable : MonoBehaviour
 
         if (interactionType == InteractionType.Door)
         {
-            Door door = GetComponent<Door>();
+            DoorTrigger door = GetComponent<DoorTrigger>();
 
             if (door != null ) door.Interact(player);
             else Debug.LogError("Door not found");
@@ -47,7 +47,7 @@ public class Interactable : MonoBehaviour
     {
         if (interactionType == InteractionType.Door)
         {
-            Door door = GetComponent<Door>();
+            DoorTrigger door = GetComponent<DoorTrigger>();
 
             if (door != null) door.PerformInteraction();
             else Debug.LogError("Door not Found");

@@ -11,7 +11,7 @@ public class DoorSwitcher : MonoBehaviour
     [SerializeField] private Transform modelTransform;
 
 
-    [SerializeField] Door doorToSwitch;
+    [SerializeField] DoorTrigger doorToSwitch;
 
     private Interactable interactable;
     private PlayerInput playerInput;

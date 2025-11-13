@@ -5,10 +5,10 @@ using UnityEngine;
 /// Koreluj¹ z pomieszczeniami. Do Ka¿dych drzwi przypisane s¹ pomieszczenia których dotycz¹cz¹, dziêki czemu maj¹ wp³yw na odkrywanie pomieszczeñ i wyciemnienia.
 /// </summary>
 
-public class Door : MonoBehaviour
+public class DoorTrigger : MonoBehaviour
 {
     [Header("Drzwi")]
-    public GameObject door; 
+    public GameObject door;
     public bool isLocked = false;
     public float openAngle = 90f;
     public float openSpeed = 5f;
@@ -43,7 +43,7 @@ public class Door : MonoBehaviour
 
     public void Interact(PlayerController player)
     {
- 
+
         expectedPlayer = null;
 
         if (isLocked && !isOpen)
@@ -53,7 +53,7 @@ public class Door : MonoBehaviour
         }
 
         MovePlayerToInteractionPoint(player);
-        
+
     }
 
     private void Update()
@@ -96,13 +96,13 @@ public class Door : MonoBehaviour
     public void PerformInteraction()
     {
         Debug.Log("Perform Interaction " + gameObject.name);
-       
+
         isOpen = !isOpen;
 
         if (isOpen)
         {
             targetRotation = Quaternion.Euler(0f, currentAngleDirection * openAngle, 0f) * closedRotation;
-            
+
             RoomManager.Instance.UpdateAllRooms();
         }
         else
@@ -120,7 +120,7 @@ public class Door : MonoBehaviour
         Vector3 toPlayer = (playerTransform.position - transform.position).normalized;
         float dot = Vector3.Dot(transform.forward, toPlayer);
 
-        float angleDir = (dot > 0f) ? -1f : 1f; 
+        float angleDir = (dot > 0f) ? -1f : 1f;
         Vector3 pos = (dot > 0f) ? interactionPointFront.position : interactionPointBack.position;
 
         return (pos, angleDir);

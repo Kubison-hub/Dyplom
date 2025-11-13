@@ -86,7 +86,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1883855874983114904}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe44119b843a4394fba354fd9c3e03f0, type: 3}
+  m_Script: {fileID: 11500000, guid: 5d4496a104fd81b4b85b6ddc1cbb3857, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Door
   door: {fileID: 4954942786326982244}
@@ -97,9 +97,7 @@ MonoBehaviour:
   interactionPointBack: {fileID: 7047673328910228760}
   isOpen: 0
   isAnimating: 0
-  rooms:
-  - {fileID: 0}
-  - {fileID: 0}
+  rooms: []
 --- !u!1 &3823702963977315735
 GameObject:
   m_ObjectHideFlags: 0
@@ -198,8 +196,6 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -221,7 +217,6 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
@@ -339,8 +334,6 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -362,7 +355,6 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0

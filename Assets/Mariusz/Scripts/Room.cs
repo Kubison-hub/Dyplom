@@ -140,5 +140,5 @@ public class Room : MonoBehaviour
 public class NeighborRoom
 {
     public Room room;
-    public Door connectingDoor;
+    public DoorTrigger connectingDoor;
 }
