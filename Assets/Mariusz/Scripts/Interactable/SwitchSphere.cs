@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class SwitchSphere : MonoBehaviour
 {
-    [SerializeField] Door door;
+    [SerializeField] DoorTrigger door;
 
     private void OnTriggerExit(Collider other)
     {
