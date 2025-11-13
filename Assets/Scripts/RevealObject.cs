@@ -39,4 +39,20 @@ public class RevealObject : MonoBehaviour
             rend.materials = originalMaterials;
         }
     }
+
+    // --- DODANA METODA ---
+    // Ta funkcja-pomocnik pozwala mened¿erowi u¿ywaæ tej samej logiki
+    // co dla 'PickupableObject' (obj.Highlight(true/false)).
+    public void Highlight(bool show)
+    {
+        if (show)
+        {
+            ApplyHighlight();
+        }
+        else
+        {
+            RemoveHighlight();
+        }
+    }
+    // --- KONIEC DODANEJ METODY ---
 }

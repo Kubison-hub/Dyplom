@@ -3,19 +3,26 @@ using UnityEngine;
 public class PlayerPickupController : MonoBehaviour
 {
     [Header("Pickup Controls")]
-    [Tooltip("Key used to pick up / drop objects.")]
     public KeyCode pickupKey = KeyCode.E;
-
-    [Tooltip("Radius around player to detect objects.")]
     public float pickupRange = 2f;
-
-    [Tooltip("LayerMask for pickupable objects.")]
     public LayerMask pickupLayer;
+
+    [Tooltip("Podnieœ sferê detekcji, aby nie haczy³a o pod³ogê (dla Sprite'ów ustaw ok. 1.0)")]
+    public float verticalOffset = 1.0f;
 
     private PickupableObject carriedObject;
 
+    // --- 1. FLAGA STEROWANIA ---
+    // Domyœlnie false, ¿eby nieaktywne postacie nie krad³y przedmiotów na starcie.
+    // PlayerSwitcher w³¹czy to dla aktywnej postaci.
+    private bool inputEnabled = false;
+
     private void Update()
     {
+        // --- 2. BLOKADA ---
+        // Jeœli ta postaæ nie jest aktywna, natychmiast przerwij i nie sprawdzaj klawiszy.
+        if (!inputEnabled) return;
+
         if (Input.GetKeyDown(pickupKey))
         {
             if (carriedObject == null)
@@ -28,7 +35,6 @@ public class PlayerPickupController : MonoBehaviour
             }
         }
 
-        // Jeœli trzymamy przedmiot, aktualizujemy jego pozycjê wzglêdem gracza
         if (carriedObject != null)
         {
             carriedObject.UpdatePosition();
@@ -37,38 +43,39 @@ public class PlayerPickupController : MonoBehaviour
 
     private void TryPickup()
     {
-        Collider[] hits = Physics.OverlapSphere(transform.position, pickupRange, pickupLayer);
+        Vector3 origin = transform.position + Vector3.up * verticalOffset;
+        Collider[] hits = Physics.OverlapSphere(origin, pickupRange, pickupLayer);
 
         foreach (Collider hit in hits)
         {
             PickupableObject obj = hit.GetComponent<PickupableObject>();
-            if (obj != null)
+            if (obj != null && !obj.IsCarried)
             {
-                // ignoruj jeœli ktoœ ju¿ trzyma przedmiot
-                if (!obj.IsCarried)
-                {
-                    carriedObject = obj;
-                    obj.Pickup(this.transform);
-                    return;
-                }
+                carriedObject = obj;
+                obj.Pickup(this.transform);
+                return;
             }
         }
     }
-
 
     private void DropObject()
     {
         if (carriedObject != null)
         {
-            carriedObject.Drop();   // <-- bez argumentów
+            carriedObject.Drop();
             carriedObject = null;
         }
     }
 
-    // Opcjonalnie: wizualizacja zasiêgu podnoszenia w edytorze
+    // --- 3. METODA DLA PLAYERSWITCHERA ---
+    public void EnableInput(bool enable)
+    {
+        inputEnabled = enable;
+    }
+
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, pickupRange);
+        Gizmos.DrawWireSphere(transform.position + Vector3.up * verticalOffset, pickupRange);
     }
 }
