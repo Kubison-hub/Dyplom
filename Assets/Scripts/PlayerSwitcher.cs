@@ -1,7 +1,6 @@
 using UnityEngine;
-using UnityEngine.AI;
 
-public class PlayerSwitcher : MonoBehaviour
+public class ChangePlayer : MonoBehaviour
 {
     [Header("Players")]
     public GameObject[] players;        // obiekty graczy (dodaj w Inspector)
