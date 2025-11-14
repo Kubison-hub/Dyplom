@@ -6,8 +6,8 @@ using UnityEngine.EventSystems;
 public class PointAndClickController : MonoBehaviour
 {
     [Header("Character Settings")]
-    [Tooltip("Zaznacz TO TYLKO dla postaci 2D (Sprite). Dla kostki 3D odznacz!")]
-    public bool is2DCharacter = false; // <--- NOWY PRZE£•CZNIK
+    [Tooltip("Zaznacz dla Sprite'a 2D. Odznacz dla Cube 3D.")]
+    public bool is2DCharacter = false;
 
     [Header("References")]
     public Camera cam;
@@ -19,30 +19,21 @@ public class PointAndClickController : MonoBehaviour
     private NavMeshAgent agent;
     private bool inputEnabled = true;
 
-    public bool IsInputEnabled
-    {
-        get { return inputEnabled; }
-    }
+    // W≥aúciwoúÊ potrzebna dla PlayerSwitchera/Followera
+    public bool IsInputEnabled => inputEnabled;
 
-    // Przechowuje stan obrotu postaci (zak≥adamy, øe domyúlnie patrzy w LEWO)
     private bool isFacingRight = false;
 
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
 
-        // <--- ZMIANA: Wy≥πczamy rotacjÍ agenta TYLKO jeúli to postaÊ 2D
         if (is2DCharacter)
-        {
             agent.updateRotation = false;
-        }
         else
-        {
-            agent.updateRotation = true; // PostaÊ 3D niech obraca siÍ sama
-        }
+            agent.updateRotation = true;
 
         if (cam == null) cam = Camera.main;
-        if (cam == null) Debug.LogWarning("No Camera assigned and Camera.main is null.");
     }
 
     void Update()
@@ -51,31 +42,39 @@ public class PointAndClickController : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
+            // Ignoruj UI
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
                 return;
 
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+
             if (Physics.Raycast(ray, out RaycastHit hit, 100f, clickableLayers))
             {
-                // 1. Sprawdü düwigniÍ
+                // --- 1. SPRAWDè CZY TO DèWIGNIA ---
+                // Szukamy skryptu Lever na obiekcie lub jego rodzicu
                 Lever lever = hit.collider.GetComponent<Lever>();
+                if (lever == null) lever = hit.collider.GetComponentInParent<Lever>();
 
                 if (lever != null)
                 {
+                    // To düwignia -> prÛbuj uøyÊ
                     lever.AttemptInteraction(transform);
+
+                    // Zatrzymaj postaÊ (opcjonalnie)
+                    if (agent.hasPath) agent.ResetPath();
+                    return;
+                }
+
+                // --- 2. JEåLI NIE DèWIGNIA -> IDè TAM ---
+                Vector3 target = hit.point;
+
+                if (NavMesh.SamplePosition(target, out NavMeshHit navHit, navMeshSampleRadius, NavMesh.AllAreas))
+                {
+                    SetAgentDestination(navHit.position);
                 }
                 else
                 {
-                    // 2. Ruch
-                    Vector3 target = hit.point;
-                    if (NavMesh.SamplePosition(target, out NavMeshHit navHit, navMeshSampleRadius, NavMesh.AllAreas))
-                    {
-                        SetAgentDestination(navHit.position);
-                    }
-                    else
-                    {
-                        SetAgentDestination(target);
-                    }
+                    SetAgentDestination(target);
                 }
             }
         }
@@ -83,13 +82,10 @@ public class PointAndClickController : MonoBehaviour
 
     void LateUpdate()
     {
-        // <--- ZMIANA: Jeúli to postaÊ 3D, w ogÛle nie ruszaj rotacji w skrypcie!
-        // Niech NavMeshAgent robi swojπ robotÍ.
+        // Logika obracania Sprite'a 2D
         if (!is2DCharacter) return;
-
         if (cam == null) return;
 
-        // --- PONIØEJ KOD TYLKO DLA POSTACI 2D ---
         Vector3 cameraForward = cam.transform.forward;
         cameraForward.y = 0;
         Quaternion baseRotation = Quaternion.LookRotation(cameraForward.normalized);
@@ -103,10 +99,8 @@ public class PointAndClickController : MonoBehaviour
             cameraRight.y = 0;
             float dot = Vector3.Dot(velocity.normalized, cameraRight.normalized);
 
-            if (dot > 0.1f)
-                isFacingRight = true;
-            else if (dot < -0.1f)
-                isFacingRight = false;
+            if (dot > 0.1f) isFacingRight = true;
+            else if (dot < -0.1f) isFacingRight = false;
         }
 
         transform.rotation = baseRotation;
@@ -120,24 +114,16 @@ public class PointAndClickController : MonoBehaviour
     public void SetAgentDestination(Vector3 position)
     {
         if (agent == null) return;
-        if (!agent.isOnNavMesh)
-        {
-            Debug.LogWarning($"{name}'s NavMeshAgent is not on a NavMesh.");
-            return;
-        }
+        if (!agent.isOnNavMesh) return;
         agent.SetDestination(position);
-    }
-
-    public bool HasReachedDestination()
-    {
-        if (agent == null) return true;
-        if (agent.pathPending) return false;
-        return agent.remainingDistance <= agent.stoppingDistance &&
-               (!agent.hasPath || agent.velocity.sqrMagnitude == 0f);
     }
 
     public void EnableInput(bool enable)
     {
         inputEnabled = enable;
+        if (!enable && agent != null && agent.isOnNavMesh)
+        {
+            agent.ResetPath();
+        }
     }
 }
