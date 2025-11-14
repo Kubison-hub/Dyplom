@@ -2,48 +2,32 @@ using UnityEngine;
 
 public class Lever : MonoBehaviour
 {
-    [Header("Ustawienia DŸwigni")]
-    [Tooltip("Przeci¹gnij tutaj obiekt drzwi, które ta dŸwignia ma otworzyæ.")]
+    [Header("Ustawienia")]
+    [Tooltip("Przeci¹gnij tutaj obiekt HINGE ze skryptem Door.")]
     [SerializeField] private Door doorToOpen;
 
-    [Tooltip("Jak blisko gracz musi byæ, aby u¿yæ dŸwigni.")]
+    [Tooltip("Maksymalny dystans do u¿ycia dŸwigni.")]
     [SerializeField] private float interactDistance = 3.0f;
 
-    // Ta funkcja jest publiczna, aby PointAndClickController móg³ j¹ wywo³aæ
+    // Wywo³ywane przez PointAndClickController
     public void AttemptInteraction(Transform playerTransform)
     {
-        // SprawdŸ, czy mamy wszystkie odniesienia
         if (doorToOpen == null)
         {
-            Debug.LogError("Nie przypisano drzwi do tej dŸwigni!", this);
+            Debug.LogError("Nie przypisano drzwi do tej dŸwigni!");
             return;
         }
 
-        if (playerTransform == null)
-        {
-            Debug.LogError("Nie uda³o siê znaleŸæ gracza!", this);
-            return;
-        }
+        float dist = Vector3.Distance(transform.position, playerTransform.position);
 
-        // --- G£ÓWNA LOGIKA: SPRAWDZANIE DYSTANSU ---
-        float distance = Vector3.Distance(transform.position, playerTransform.position);
-
-        if (distance <= interactDistance)
+        if (dist <= interactDistance)
         {
-            // Sukces! Gracz jest wystarczaj¹co blisko.
-            Debug.Log("Gracz jest blisko, otwieram drzwi.");
+            Debug.Log("DŸwignia u¿yta. Otwieram drzwi.");
             doorToOpen.OpenDoor();
-
-            // Opcjonalnie: odtwórz animacjê dŸwigni lub dŸwiêk
-            // ...
         }
         else
         {
-            // Pora¿ka. Gracz jest za daleko.
-            Debug.Log("Gracz jest za daleko, aby u¿yæ dŸwigni.");
-
-            // Opcjonalnie: odtwórz dŸwiêk "zaciêcia" lub poka¿ dymek "Nie siêgam"
-            // ...
+            Debug.Log("Jesteœ za daleko od dŸwigni.");
         }
     }
 }
