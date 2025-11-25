@@ -1,13 +1,11 @@
-
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-
+using DialogueEditor; // 1. Dodano namespace do dialogów
+using UnityEngine.EventSystems; // 2. Dodano namespace do wykrywania UI
 
 /// <summary>
-/// Klasa PlayerController dzia³a w oparciu o NewPlayerInput (Unity.Events) i CharacterController (RigidBody u¿ywamy do detekcji triggerów).
-/// OnLeftClick(InputAction.CallbackContext context) pobiera Raycast Camera.main.ScreenPointToRay do wykrywana interakcji i poruszania siê.
-/// Poruszanie dzia³a na zasadzie direction i zmiennej isWalking. PlayerCharacter okreœla czy Controller jest Shelockiem czy Watsonem (dla Interakcji)
+/// Klasa PlayerController z dodan¹ blokad¹ ruchu podczas dialogów.
 /// </summary>
 
 [RequireComponent(typeof(CharacterController))]
@@ -17,7 +15,6 @@ using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
-
     public PlayerCharacter playerCharacter = PlayerCharacter.None;
 
     public float moveSpeed = 5f;
@@ -33,7 +30,6 @@ public class PlayerController : MonoBehaviour
     public bool isWalking = false;
     public bool lookAtCamera = false;
 
-
     public AudioClip[] FootstepAudioClips;
 
     //Interakcja
@@ -45,26 +41,53 @@ public class PlayerController : MonoBehaviour
         controller = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
-        if (rb.isKinematic ==  false) rb.isKinematic = true;
+        if (rb.isKinematic == false) rb.isKinematic = true;
 
         targetPosition = transform.position;
 
         if (playerCharacter == PlayerCharacter.None)
         {
             Debug.LogError("PlayerCharacter is None!");
-        }   
+        }
     }
 
     private void Update()
     {
+        // --- 3. AWARYJNE ZATRZYMANIE ---
+        // Jeœli dialog siê rozpocz¹³ (np. przez Trigger), a postaæ sz³a - zatrzymaj j¹ natychmiast.
+        if (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
+        {
+            if (isWalking)
+            {
+                isWalking = false;
+                animator.SetBool("IsWalking", false); // Wy³¹cz animacjê chodzenia
+            }
+            return; // Nie wykonuj reszty Update (HandleMovement)
+        }
+
         HandleMovement();
         HandleAnimations();
     }
 
-
     public void OnLeftClick(InputAction.CallbackContext context)
     {
         if (!context.performed) return;
+
+        // --- 4. BLOKADA KLIKANIA (INPUTU) ---
+
+        // A. SprawdŸ, czy trwa dialog. Jeœli tak - ignoruj klikniêcie.
+        if (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
+        {
+            return;
+        }
+
+        // B. SprawdŸ, czy klikamy na UI (przyciski, t³o dialogu). Jeœli tak - ignoruj klikniêcie.
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }
+
+        // --- KONIEC BLOKADY ---
 
         Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
 
@@ -85,11 +108,9 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
-
     private void HandleMovement()
     {
-        if(!isWalking) return;
+        if (!isWalking) return;
 
         Vector3 direction = (targetPosition - transform.position);
         direction.y = 0;
@@ -110,9 +131,7 @@ public class PlayerController : MonoBehaviour
         Vector3 move = direction.normalized * moveSpeed * Time.deltaTime;
         controller.Move(move);
 
-
         HandleRotation(direction);
-
     }
 
     private void HandleRotation(Vector3 direction)
@@ -124,7 +143,7 @@ public class PlayerController : MonoBehaviour
             if (lookAtCamera)
             {
                 Vector3 cameraDirection = transform.position - Camera.main.transform.position;
-                cameraDirection.y = 0; 
+                cameraDirection.y = 0;
                 targetRotation = Quaternion.LookRotation(-cameraDirection);
             }
             else
@@ -148,7 +167,6 @@ public class PlayerController : MonoBehaviour
         SceneManager.LoadScene(currentScene.name);
     }
 
-
     private void OnFootstep(AnimationEvent animationEvent)
     {
         //if (animationEvent.animatorClipInfo.weight > 0.5f)
@@ -160,9 +178,8 @@ public class PlayerController : MonoBehaviour
         //    }
         //}
     }
-
-
 }
+
 public enum PlayerCharacter
 {
     None,
