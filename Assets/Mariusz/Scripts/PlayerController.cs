@@ -1,11 +1,11 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using DialogueEditor; // 1. Dodano namespace do dialogów
-using UnityEngine.EventSystems; // 2. Dodano namespace do wykrywania UI
+using UnityEngine.EventSystems; // Potrzebne do wykrywania klikniêæ na UI
+using DialogueEditor;           // Potrzebne do integracji z systemem dialogowym
 
 /// <summary>
-/// Klasa PlayerController z dodan¹ blokad¹ ruchu podczas dialogów.
+/// Klasa PlayerController zaimplementowana z blokadami dla Dialogów, Dziennika i UI.
 /// </summary>
 
 [RequireComponent(typeof(CharacterController))]
@@ -32,7 +32,7 @@ public class PlayerController : MonoBehaviour
 
     public AudioClip[] FootstepAudioClips;
 
-    //Interakcja
+    // Interakcja
     [HideInInspector] public Vector3 targetPosition;
     public Interactable currentInteractable = null;
 
@@ -41,6 +41,8 @@ public class PlayerController : MonoBehaviour
         controller = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
+
+        // Upewniamy siê, ¿e Rigidbody nie koliduje fizycznie (u¿ywamy CharacterController)
         if (rb.isKinematic == false) rb.isKinematic = true;
 
         targetPosition = transform.position;
@@ -53,18 +55,29 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        // --- 3. AWARYJNE ZATRZYMANIE ---
-        // Jeœli dialog siê rozpocz¹³ (np. przez Trigger), a postaæ sz³a - zatrzymaj j¹ natychmiast.
-        if (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
+        // --- 1. SPRAWDZANIE BLOKAD (DIALOG / DZIENNIK) ---
+
+        // Czy trwa dialog?
+        bool dialogAktywny = (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive);
+
+        // Czy otwarty jest dziennik? (Sprawdzamy null, ¿eby nie wywali³o b³êdu jeœli nie ma Managera)
+        bool dziennikAktywny = (JournalManager.Instance != null && JournalManager.Instance.isJournalOpen);
+
+        // Jeœli któraœ z blokad jest aktywna...
+        if (dialogAktywny || dziennikAktywny)
         {
+            // ...a postaæ by³a w trakcie ruchu -> zatrzymaj j¹ natychmiast.
             if (isWalking)
             {
                 isWalking = false;
-                animator.SetBool("IsWalking", false); // Wy³¹cz animacjê chodzenia
+                animator.SetBool("IsWalking", false);
             }
-            return; // Nie wykonuj reszty Update (HandleMovement)
+
+            // Przerwij funkcjê Update (nie wykonuj ruchu)
+            return;
         }
 
+        // Jeœli brak blokad, obs³uguj ruch i animacje normalnie
         HandleMovement();
         HandleAnimations();
     }
@@ -73,21 +86,27 @@ public class PlayerController : MonoBehaviour
     {
         if (!context.performed) return;
 
-        // --- 4. BLOKADA KLIKANIA (INPUTU) ---
+        // --- 2. BLOKADA KLIKANIA MYSZK¥ ---
 
-        // A. SprawdŸ, czy trwa dialog. Jeœli tak - ignoruj klikniêcie.
+        // A. Jeœli trwa dialog -> ignoruj klikniêcie
         if (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
         {
             return;
         }
 
-        // B. SprawdŸ, czy klikamy na UI (przyciski, t³o dialogu). Jeœli tak - ignoruj klikniêcie.
+        // B. Jeœli otwarty jest dziennik -> ignoruj klikniêcie
+        if (JournalManager.Instance != null && JournalManager.Instance.isJournalOpen)
+        {
+            return;
+        }
+
+        // C. Jeœli kursor jest nad elementem UI (np. przycisk, panel) -> ignoruj klikniêcie
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
         {
             return;
         }
 
-        // --- KONIEC BLOKADY ---
+        // --- KONIEC BLOKAD, WYKONAJ RAYCAST ---
 
         Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
 
@@ -115,6 +134,7 @@ public class PlayerController : MonoBehaviour
         Vector3 direction = (targetPosition - transform.position);
         direction.y = 0;
 
+        // SprawdŸ czy doszliœmy do celu
         if (direction.magnitude < stoppingDistance)
         {
             isWalking = false;
@@ -128,6 +148,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
+        // Ruch postaci
         Vector3 move = direction.normalized * moveSpeed * Time.deltaTime;
         controller.Move(move);
 
@@ -169,6 +190,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnFootstep(AnimationEvent animationEvent)
     {
+        // Kod zakomentowany zgodnie z orygina³em, odkomentuj jeœli chcesz dŸwiêki
         //if (animationEvent.animatorClipInfo.weight > 0.5f)
         //{
         //    if (FootstepAudioClips.Length > 0)
