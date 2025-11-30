@@ -2,75 +2,76 @@ using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>
-/// Te Interactable wywo³uje metody z klas obiektów do interakcji, metody wywo³ywane s¹ z PlayerControllera.
-/// Ka¿dy interaktywny obiekt musi mieæ Tag Interactable, skypt Interaktable i odpowiadaj¹cy Enumowi skrypt interakcji.
-/// </summary>
-
 public class Interactable : MonoBehaviour
 {
     [SerializeField] private InteractionType interactionType;
-    
 
+    // --- KLIKNIÊCIE ---
     public void TryToInteract(PlayerController player)
     {
-        //Debug.Log("Interactin with " + gameObject.name);
-
+        // Drzwi
         if (interactionType == InteractionType.Door)
         {
             DoorTrigger door = GetComponent<DoorTrigger>();
-
-            if (door != null ) door.Interact(player);
-            else Debug.LogError("Door not found");
+            if (door != null) door.Interact(player); // Drzwi same ustawiaj¹ ruch gracza
+            else Debug.LogError("DoorTrigger component not found");
         }
 
+        // Pianino
         if (interactionType == InteractionType.Piano)
         {
             Piano piano = GetComponent<Piano>();
-
             if (piano != null) piano.Interact(player);
-            else Debug.LogError("PianoScript not found");
-
+            else Debug.LogError("Piano component not found");
         }
 
+        // Prze³¹cznik drzwi
         if (interactionType == InteractionType.DoorSwitcher)
         {
             DoorSwitcher doorSwitcher = GetComponent<DoorSwitcher>();
-
             if (doorSwitcher != null) doorSwitcher.Interact(player);
-            else Debug.LogError("doorSwitcher not found");
+            else Debug.LogError("DoorSwitcher component not found");
+        }
+
+        // --- PICKUP (Zmienione na wzór DoorTrigger) ---
+        if (interactionType == InteractionType.Pickup)
+        {
+            PickupItem pickup = GetComponent<PickupItem>();
+
+            // Teraz to PickupItem ustawia ruch gracza (tak jak Drzwi)
+            if (pickup != null) pickup.Interact(player);
+            else Debug.LogError("PickupItem component not found");
         }
     }
 
-
+    // --- DOTARCIE DO CELU ---
     public void PerformInteraction(PlayerController player)
     {
         if (interactionType == InteractionType.Door)
         {
             DoorTrigger door = GetComponent<DoorTrigger>();
-
             if (door != null) door.PerformInteraction();
-            else Debug.LogError("Door not Found");
         }
 
         if (interactionType == InteractionType.Piano)
         {
             Piano piano = GetComponent<Piano>();
-
             if (piano != null) piano.PerformInteraction(player);
-            else Debug.LogError("PianoScript not found");
-
         }
 
         if (interactionType == InteractionType.DoorSwitcher)
         {
             DoorSwitcher doorSwitcher = GetComponent<DoorSwitcher>();
-
             if (doorSwitcher != null) doorSwitcher.PerformInteraction();
-            else Debug.LogError("doorSwitcher not found");
+        }
+
+        // --- PICKUP ---
+        if (interactionType == InteractionType.Pickup)
+        {
+            PickupItem item = GetComponent<PickupItem>();
+            if (item != null) item.PerformInteraction();
         }
     }
-
 }
 
 public enum InteractionType
@@ -79,6 +80,6 @@ public enum InteractionType
     Door,
     Dialog,
     Piano,
-    DoorSwitcher
+    DoorSwitcher,
+    Pickup
 }
-
