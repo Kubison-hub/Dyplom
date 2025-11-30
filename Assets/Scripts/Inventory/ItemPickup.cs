@@ -2,30 +2,42 @@ using UnityEngine;
 
 public class PickupItem : MonoBehaviour
 {
-    public Item itemData;
-    public float pickupRange = 3f;
-    private Transform player;
+    [Header("Jaki to przedmiot?")]
+    public ItemType itemType;
 
-    public void Pickup()
+    // --- FAZA 1: "ChodŸ do mnie" ---
+    // Tê metodê wywo³uje Interactable po klikniêciu. 
+    // Dzia³a tak samo jak w DoorTrigger - ustawia cel dla gracza.
+    public void Interact(PlayerController player)
     {
-        Inventory.instance.AddItem(itemData);
-        Destroy(gameObject);
-    }
-    private void Start()
-    {
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        // Debug.Log("PickupItem: Gracz idzie po przedmiot.");
+
+        // 1. Ustaw cel ruchu gracza na pozycjê tego przedmiotu
+        player.targetPosition = transform.position;
+
+        // 2. Przypisz Interactable (który jest na tym samym obiekcie) jako cel interakcji
+        // Dziêki temu, jak gracz dojdzie, PlayerController wywo³a PerformInteraction
+        player.currentInteractable = GetComponent<Interactable>();
+
+        // 3. W³¹cz silnik ruchu
+        player.isWalking = true;
     }
 
-    private void OnMouseDown()
+    // --- FAZA 2: "Podnieœ mnie" ---
+    // Tê metodê wywo³uje Interactable, gdy gracz ju¿ dojdzie na miejsce (stoppingDistance)
+    public void PerformInteraction()
     {
-        if (Vector3.Distance(player.position, transform.position) <= pickupRange)
+        // 1. Dodaj do ekwipunku
+        if (InventoryManager.Instance != null)
         {
-            Inventory.instance.AddItem(itemData);
-            Destroy(gameObject);
+            InventoryManager.Instance.AddItem(itemType);
         }
         else
         {
-            Debug.Log("Za daleko, by podnieœæ!");
+            Debug.LogError("B£¥D: Brak InventoryManager na scenie!");
         }
+
+        // 2. Usuñ obiekt ze sceny
+        Destroy(gameObject);
     }
 }
