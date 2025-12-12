@@ -10,16 +10,22 @@ public class DoorSwitcher : MonoBehaviour
     public float interactionPointOffset = 1f;
     [SerializeField] private Transform modelTransform;
 
-
-    [SerializeField] DoorTrigger doorToSwitch;
+    public Transform secretWall;
+    public Animator wallAnimator;
+    public bool canOpen;
 
     private Interactable interactable;
     private PlayerInput playerInput;
 
+    public Room hidenRoom;
+
+    public bool isOpen;
 
     private void Start()
     {
         interactable = GetComponent<Interactable>();
+
+        wallAnimator = secretWall.GetComponent<Animator>();
     }
 
     public void Interact(PlayerController player)
@@ -55,8 +61,34 @@ public class DoorSwitcher : MonoBehaviour
 
     private void UseSwitcher()
     {
-        doorToSwitch.isLocked = false;
-        doorToSwitch.PerformInteraction();
+        if (canOpen)
+        {
+            if (!isOpen)
+            {
+                wallAnimator.SetTrigger("Open");
+                PlayerTopText.Instance.ShotTopText("Brawo Watsonie!, ciekawe jak¹ tajemnicê skrywa to tajne przejœcie", "W rzeczy samej Sherlock");
+                isOpen = true;
+                hidenRoom.isActive = true;
+                hidenRoom.discovered = true;
+               
+            }
+            else
+            {
+                wallAnimator.SetTrigger("Close");
+                PlayerTopText.Instance.ShotTopText("Naraazie zamkniemy", "Doskonale");
+                isOpen = false;
+                
+            }
+            
+            
+        }
+
+        else
+        {
+            wallAnimator.SetTrigger("TryOpen");
+            PlayerTopText.Instance.ShotTopText("Hmm, wygl¹da na to, ¿e komoda specjalnie blokuje dojœcie do œciany", "Dok³adnie, wydaje siê zbyt ciê¿ka aby przepchaæ j¹ rêcznie.");
+        }
+            
     }
 
 

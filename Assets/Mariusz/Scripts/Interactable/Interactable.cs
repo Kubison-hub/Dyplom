@@ -42,6 +42,36 @@ public class Interactable : MonoBehaviour
             if (pickup != null) pickup.Interact(player);
             else Debug.LogError("PickupItem component not found");
         }
+
+        //--- TABLE
+
+        if (interactionType == InteractionType.Table)
+        {
+            Table table = GetComponent<Table>();
+            if (table != null) table.Interact(player);
+            else Debug.LogError("Table component not found");
+        }
+
+        // --- GRAMOPHONE 
+        if (interactionType == InteractionType.Gramophone)
+        {
+            Gramophone gramophone = GetComponent<Gramophone>();
+            if (gramophone != null) gramophone.Interact(player);
+            else Debug.LogError("Table component not found");
+        }
+
+        //Stairs
+
+        if (interactionType == InteractionType.Stairs)
+        {
+            PlayerTopText.Instance.ShotTopText("Madam Selma pilnuje schodów na górê, interesuj¹ce", "Na razie nie przejdziemy, rozejrzyjmy siê po domu.");
+        }
+
+        //SecretWall
+        if (interactionType == InteractionType.SecretWall)
+        {
+            PlayerTopText.Instance.ShotTopText("Ta œciana odstaje od reszy", "Ewidentnie");
+        }
     }
 
     // --- DOTARCIE DO CELU ---
@@ -71,6 +101,20 @@ public class Interactable : MonoBehaviour
             PickupItem item = GetComponent<PickupItem>();
             if (item != null) item.PerformInteraction();
         }
+
+        if (interactionType == InteractionType.Table)
+        {
+            Table table = GetComponent<Table>();
+            if (table != null) table.PerformInteraction();
+            
+        }
+
+        if (interactionType == InteractionType.Gramophone)
+        {
+            Gramophone gramophone = GetComponent<Gramophone>();
+            if (gramophone != null) gramophone.PerformInteraction();
+            
+        }
     }
 }
 
@@ -81,5 +125,9 @@ public enum InteractionType
     Dialog,
     Piano,
     DoorSwitcher,
-    Pickup
+    Pickup,
+    Table,
+    Gramophone,
+    Stairs,
+    SecretWall
 }
