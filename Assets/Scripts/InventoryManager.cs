@@ -10,6 +10,8 @@ public class InventoryManager : MonoBehaviour
     public GameObject iconHammer;
     public GameObject iconGlass;
 
+    public bool keyInInv = false;
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -22,6 +24,7 @@ public class InventoryManager : MonoBehaviour
         {
             case ItemType.Key:
                 if (iconKey) iconKey.SetActive(true);
+                keyInInv = true;
                 Debug.Log("Ekwipunek: Dodano Klucz");
                 break;
 

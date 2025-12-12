@@ -2,14 +2,27 @@ using UnityEngine;
 
 public class SwitchSphere : MonoBehaviour
 {
-    [SerializeField] DoorTrigger door;
+    public Transform secretWall;
+    public Animator wallAnimator;
+    public DoorSwitcher doorSwitcher;
+
+    private void Start()
+    {
+        wallAnimator = secretWall.GetComponent<Animator>();
+    }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player"))
+
+
+        if (other.CompareTag("PlayerA") || other.CompareTag("PlayerB"))
         {
-            if (!door.isOpen) return;
-            door.PerformInteraction();
+            if (!doorSwitcher.isOpen) return;
+            wallAnimator.SetTrigger("Close");
+            doorSwitcher.isOpen = false;
+
+            
+
         }
     }
 
