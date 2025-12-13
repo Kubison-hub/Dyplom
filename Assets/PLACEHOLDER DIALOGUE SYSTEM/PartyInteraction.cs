@@ -1,23 +1,23 @@
 using UnityEngine;
-using DialogueEditor;
+using DialogueEditor; // Wymagane do obs³ugi dialogów
 
 public class PartyInteraction : MonoBehaviour
 {
-    [Header("Dialog miêdzy graczami")]
-    public NPCConversation rozmowaDruzynowa;
+    [Header("Przypisz plik dialogu miêdzy graczami")]
+    public NPCConversation rozmowaMiedzyNami;
 
-    private bool innyGraczBlisko = false;
+    // Czy druga postaæ jest blisko?
+    private bool innyGraczWZasiegu = false;
 
-    // Wykrywamy drugiego gracza (zak³adamy, ¿e ten skrypt jest na PlayerA i PlayerB)
     private void OnTriggerEnter(Collider other)
     {
-        // Sprawdzamy czy to "kolega z dru¿yny" (czyli tag PlayerA lub PlayerB)
+        // Sprawdzamy czy wesz³a w nas inna postaæ gracza (po Tagach)
         if (other.CompareTag("PlayerA") || other.CompareTag("PlayerB"))
         {
-            // Upewniamy siê, ¿e nie wykrywamy samego siebie
+            // Upewniamy siê, ¿e to nie my sami (na wypadek dziwnej fizyki)
             if (other.gameObject != this.gameObject)
             {
-                innyGraczBlisko = true;
+                innyGraczWZasiegu = true;
             }
         }
     }
@@ -26,29 +26,48 @@ public class PartyInteraction : MonoBehaviour
     {
         if (other.CompareTag("PlayerA") || other.CompareTag("PlayerB"))
         {
-            innyGraczBlisko = false;
+            innyGraczWZasiegu = false;
         }
     }
 
     private void Update()
     {
-        // Jeœli wciœniêto "I" i kolega jest blisko
-        if (Input.GetKeyDown(KeyCode.I) && innyGraczBlisko)
+        // Jeœli wciœniêto "I" i druga postaæ jest blisko...
+        if (Input.GetKeyDown(KeyCode.I) && innyGraczWZasiegu)
         {
-            // 1. Sprawdzamy czy nie trwa ju¿ jakaœ rozmowa (¿eby nie odpaliæ dwa razy)
-            if (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
-                return;
+            SprobujRozpoczacRozmowe();
+        }
+    }
 
-            // 2. KLUCZOWE: Pytamy Managera, czy warunek jest spe³niony
-            if (QuestManager.Instance.CzyMogaRozmawiacZeSoba())
+    private void SprobujRozpoczacRozmowe()
+    {
+        // Sprawdzamy Quest Managera
+        if (QuestManager.Instance != null)
+        {
+            // Warunek 1: Czy w ogóle mo¿emy gadaæ? (Czy oboje pogadali z NPC?)
+            bool warunekSpelniony = QuestManager.Instance.CzyMogaRozmawiacZeSoba();
+
+            // Warunek 2: Czy ju¿ przypadkiem nie pogadaliœmy?
+            bool juzRozmawialismy = QuestManager.Instance.rozmowaMiedzyGraczamiOdbyta;
+
+            if (warunekSpelniony && !juzRozmawialismy)
             {
-                Debug.Log("Warunek spe³niony! Rozmowa dru¿ynowa.");
-                ConversationManager.Instance.StartConversation(rozmowaDruzynowa);
+                // 1. Wy³¹czamy wykrzykniki (TO JEST TA KLUCZOWA LINIA)
+                QuestManager.Instance.rozmowaMiedzyGraczamiOdbyta = true;
+
+                // 2. Uruchamiamy dialog
+                if (rozmowaMiedzyNami != null)
+                {
+                    ConversationManager.Instance.StartConversation(rozmowaMiedzyNami);
+                }
+                else
+                {
+                    Debug.LogWarning("Nie przypisano pliku rozmowy w PartyInteraction!");
+                }
             }
             else
             {
-                Debug.Log("Jeszcze nie pogadaliœmy z NPC-em!");
-                // Opcjonalnie: Mo¿esz tu wyœwietliæ dymek "Musimy najpierw pogadaæ z Wodzem."
+                Debug.Log("Jeszcze nie mo¿ecie rozmawiaæ lub rozmowa ju¿ siê odby³a.");
             }
         }
     }
