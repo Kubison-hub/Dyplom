@@ -1,46 +1,46 @@
 using UnityEngine;
-using UnityEngine.UI; // Potrzebne do obs³ugi Buttonów
+using UnityEngine.UI;
 
 public class JournalManager : MonoBehaviour
 {
-    public static JournalManager Instance; // Singleton
+    public static JournalManager Instance;
 
     [Header("UI Elementy")]
-    public GameObject journalWindow; // Ca³y panel notatnika (JournalPanel)
-    public GameObject[] pages;       // Lista stron (Page_1, Page_2...)
-    public Button nextBtn;           // Guzik Dalej
-    public Button prevBtn;           // Guzik Wstecz
-    public Button closeBtn;          // Guzik Zamknij
+    public GameObject journalWindow;
+    public GameObject[] pages;
+    public Button nextBtn;
+    public Button prevBtn;
+    public Button closeBtn;
 
-    [Header("Stan")]
+    [Header("Notatki do odkrycia")]
+    public GameObject[] unlockableNotes;
+
+    [Header("Ustawienia")]
+    public KeyCode openKey = KeyCode.N;
     public bool isJournalOpen = false;
+
     private int currentPageIndex = 0;
 
     private void Awake()
     {
-        // Singleton
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        // Upewnij siê, ¿e okno jest zamkniête na starcie
-        if (journalWindow != null)
-            journalWindow.SetActive(false);
+        if (journalWindow != null) journalWindow.SetActive(false);
     }
 
     private void Start()
     {
-        // Przypisz funkcje do guzików
         if (nextBtn) nextBtn.onClick.AddListener(NextPage);
         if (prevBtn) prevBtn.onClick.AddListener(PrevPage);
         if (closeBtn) closeBtn.onClick.AddListener(ToggleJournal);
 
-        UpdateUI(); // Odœwie¿ widok na start
+        UpdateUI();
     }
 
     private void Update()
     {
-        // Otwieranie/zamykanie klawiszem 'N'
-        if (Input.GetKeyDown(KeyCode.N))
+        if (Input.GetKeyDown(openKey))
         {
             ToggleJournal();
         }
@@ -49,12 +49,14 @@ public class JournalManager : MonoBehaviour
     public void ToggleJournal()
     {
         isJournalOpen = !isJournalOpen;
-        journalWindow.SetActive(isJournalOpen);
+
+        if (journalWindow != null)
+        {
+            journalWindow.SetActive(isJournalOpen);
+        }
 
         if (isJournalOpen)
         {
-            // Przy otwarciu zawsze wracamy na 1 stronê (opcjonalne)
-            currentPageIndex = 0;
             UpdateUI();
         }
     }
@@ -79,14 +81,23 @@ public class JournalManager : MonoBehaviour
 
     private void UpdateUI()
     {
-        // 1. Poka¿ tylko aktualn¹ stronê, resztê ukryj
         for (int i = 0; i < pages.Length; i++)
         {
-            pages[i].SetActive(i == currentPageIndex);
+            if (pages[i] != null) pages[i].SetActive(i == currentPageIndex);
         }
 
-        // 2. Zarz¹dzaj aktywnoœci¹ przycisków (np. nie mo¿na klikn¹æ "Wstecz" na 1 stronie)
         if (prevBtn) prevBtn.interactable = (currentPageIndex > 0);
         if (nextBtn) nextBtn.interactable = (currentPageIndex < pages.Length - 1);
+    }
+
+    public void UnlockNote(int noteIndex)
+    {
+        if (unlockableNotes != null && noteIndex >= 0 && noteIndex < unlockableNotes.Length)
+        {
+            if (unlockableNotes[noteIndex] != null)
+            {
+                unlockableNotes[noteIndex].SetActive(true);
+            }
+        }
     }
 }

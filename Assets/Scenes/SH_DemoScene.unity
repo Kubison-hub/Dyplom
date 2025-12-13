@@ -6433,7 +6433,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &964168040
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7307,7 +7307,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1094602525
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7324,8 +7324,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: -596.4, y: 357.6}
+  m_SizeDelta: {x: 503.38, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1094602526
 MonoBehaviour:
@@ -7347,17 +7347,17 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Wnioski 1
+  m_text: "Mo\u017Ce to j\u0105 odci\u0105gnie...?"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  m_sharedMaterial: {fileID: 6229730292464864198, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4288415497
+  m_fontColor: {r: 0.03388602, g: 0.026032386, b: 0.6132076, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -7380,7 +7380,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
   m_textAlignment: 65535
@@ -10614,6 +10614,9 @@ MonoBehaviour:
   nextBtn: {fileID: 2113849103}
   prevBtn: {fileID: 1084393436}
   closeBtn: {fileID: 994021587}
+  unlockableNotes:
+  - {fileID: 1094602524}
+  openKey: 110
   isJournalOpen: 0
 --- !u!114 &1630563687
 MonoBehaviour:
@@ -15055,6 +15058,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   interactionPointOffset: 2.5
+  noteIDToUnlock: 0
   isPlaying: 0
 --- !u!114 &919132148025702745
 MonoBehaviour:
