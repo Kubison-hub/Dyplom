@@ -3,28 +3,36 @@ using UnityEngine.InputSystem;
 
 public class Gramophone : MonoBehaviour
 {
+    [Header("Ustawienia NPC/Interakcji")]
     public float interactionPointOffset = 1f;
+
+    [Header("Ustawienia Dziennika (NOWE)")]
+    // Numer notatki w JournalManager, która ma siê odkryæ po w³¹czeniu muzyki.
+    // Domyœlnie 0 (czyli pierwszy element z listy Unlockable Notes).
+    public int noteIDToUnlock = 0;
+
     private Interactable interactable;
     private PlayerInput playerInput;
-
     private Animator gramophoneAnimator;
     public bool isPlaying = false;
+
     private void Start()
     {
         interactable = GetComponent<Interactable>();
         gramophoneAnimator = GetComponent<Animator>();
-
     }
+
+    // Wywo³ywane przez Interactable (Faza 1: PodejdŸ)
     public void Interact(PlayerController player)
     {
         MovePlayerToInteractionPoint(player);
         playerInput = player.GetComponent<PlayerInput>();
     }
 
+    // Wywo³ywane przez Interactable (Faza 2: Wykonaj akcjê)
     public void PerformInteraction()
     {
         Debug.Log("Perform Interaction " + gameObject.name);
-
         PlayGram();
     }
 
@@ -32,12 +40,32 @@ public class Gramophone : MonoBehaviour
     {
         if (isPlaying) return;
 
-        gramophoneAnimator.SetTrigger("Play");
+        // 1. Oryginalna logika (Animacja + Tekst u góry)
+        if (gramophoneAnimator != null)
+        {
+            gramophoneAnimator.SetTrigger("Play");
+        }
+
         isPlaying = true;
-        PlayerTopText.Instance.ShotTopText("Wygl¹da na to, ¿e duchy znowu nawiedzaj¹ dom", "Porozmawiajmy z Madame Selma");
 
+        if (PlayerTopText.Instance != null)
+        {
+            PlayerTopText.Instance.ShotTopText("Wygl¹da na to, ¿e duchy znowu nawiedzaj¹ dom", "Porozmawiajmy z Madame Selma");
+        }
 
+        // 2. NOWOŒÆ: Odblokowanie notatki w dzienniku
+        if (JournalManager.Instance != null)
+        {
+            // Odkrywamy notatkê o numerze wskazanym w Inspectorze (domyœlnie 0)
+            JournalManager.Instance.UnlockNote(noteIDToUnlock);
+        }
+        else
+        {
+            Debug.LogWarning("Gramophone: Brak JournalManager na scenie! Notatka nie zosta³a dodana.");
+        }
     }
+
+    // --- PONI¯EJ ORYGINALNY KOD RUCHU (BEZ ZMIAN) ---
 
     private void MovePlayerToInteractionPoint(PlayerController player)
     {
@@ -80,6 +108,7 @@ public class Gramophone : MonoBehaviour
         player.isWalking = (dist > stopDistance + 0.05f);
         Debug.Log("Done");
     }
+
     private bool CheckPositionEmpty(Vector3 position, float radius, GameObject ignoreObject = null)
     {
         Collider[] hits = Physics.OverlapSphere(position, radius);
