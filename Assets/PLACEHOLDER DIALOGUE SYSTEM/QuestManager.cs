@@ -5,11 +5,13 @@ public class QuestManager : MonoBehaviour
 {
     public static QuestManager Instance;
 
-    // --- LOGIKA ZADANIA ---
-    public bool postacA_Rozmawiala = false;
-    public bool postacB_Rozmawiala = false;
+    [Header("Postêp Dialogów - NPC")]
+    public bool sherlock_Gadal_Z_NPC1 = false;
+    public bool watson_Gadal_Z_NPC1 = false;
+    public bool sherlock_Gadal_Z_NPC2 = false;
+    public bool watson_Gadal_Z_NPC2 = false;
 
-    // NOWA ZMIENNA: Czy Sherlock i Watson ju¿ ze sob¹ pogadali?
+    [Header("Fina³")]
     public bool rozmowaMiedzyGraczamiOdbyta = false;
 
     [Header("Postacie")]
@@ -20,10 +22,27 @@ public class QuestManager : MonoBehaviour
     public GameObject wykrzyknikNadSherlockiem;
     public GameObject wykrzyknikNadWatsonem;
 
+    // --- NOWOŒÆ: Lista przedmiotów do pojawienia siê ---
+    [Header("Przedmioty do odblokowania")]
+    public GameObject[] hiddenItems; // <--- Tutaj wrzucisz te 3 przedmioty
+    // ---------------------------------------------------
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+    }
+
+    private void Start()
+    {
+        // --- NOWOŒÆ: Na starcie gry automatycznie ukrywamy te przedmioty ---
+        if (hiddenItems != null)
+        {
+            foreach (GameObject item in hiddenItems)
+            {
+                if (item != null) item.SetActive(false);
+            }
+        }
     }
 
     private void Update()
@@ -31,20 +50,47 @@ public class QuestManager : MonoBehaviour
         ManageNotifications();
     }
 
+    public void OdnotujRozmowe(string tagGracza, int idNPC)
+    {
+        if (tagGracza == "PlayerA")
+        {
+            if (idNPC == 1) sherlock_Gadal_Z_NPC1 = true;
+            if (idNPC == 2) sherlock_Gadal_Z_NPC2 = true;
+        }
+        else if (tagGracza == "PlayerB")
+        {
+            if (idNPC == 1) watson_Gadal_Z_NPC1 = true;
+            if (idNPC == 2) watson_Gadal_Z_NPC2 = true;
+        }
+    }
+
+    // --- NOWOŒÆ: Funkcja odkrywaj¹ca przedmioty ---
+    public void SpawnHiddenItems()
+    {
+        if (hiddenItems != null)
+        {
+            foreach (GameObject item in hiddenItems)
+            {
+                if (item != null)
+                {
+                    item.SetActive(true);
+                    // Opcjonalnie: Mo¿esz tu dodaæ efekt dŸwiêkowy lub cz¹steczkowy
+                    // Instantiate(spawnEffect, item.transform.position, Quaternion.identity);
+                }
+            }
+            Debug.Log("QuestManager: Przedmioty pojawi³y siê na mapie!");
+        }
+    }
+    // ----------------------------------------------
+
     private void ManageNotifications()
     {
-        // 1. Reset (wy³¹cz oba)
         if (wykrzyknikNadSherlockiem) wykrzyknikNadSherlockiem.SetActive(false);
         if (wykrzyknikNadWatsonem) wykrzyknikNadWatsonem.SetActive(false);
 
-        // --- NOWY WARUNEK ---
-        // Jeœli rozmowa ju¿ siê odby³a, wychodzimy z funkcji (wykrzykniki pozostaj¹ wy³¹czone)
         if (rozmowaMiedzyGraczamiOdbyta) return;
-
-        // 2. Jeœli nie s¹ gotowi do rozmowy, te¿ wychodzimy
         if (!CzyMogaRozmawiacZeSoba()) return;
 
-        // 3. Sprawdzamy Input
         if (sherlockController != null && watsonController != null)
         {
             var sherlockInput = sherlockController.GetComponent<PlayerInput>();
@@ -63,6 +109,8 @@ public class QuestManager : MonoBehaviour
 
     public bool CzyMogaRozmawiacZeSoba()
     {
-        return postacA_Rozmawiala && postacB_Rozmawiala;
+        bool npc1_Done = sherlock_Gadal_Z_NPC1 && watson_Gadal_Z_NPC1;
+        bool npc2_Done = sherlock_Gadal_Z_NPC2 && watson_Gadal_Z_NPC2;
+        return npc1_Done && npc2_Done;
     }
 }
