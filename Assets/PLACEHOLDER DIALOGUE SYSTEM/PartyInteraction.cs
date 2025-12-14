@@ -1,5 +1,6 @@
 using UnityEngine;
-using DialogueEditor; // Wymagane do obs³ugi dialogów
+using UnityEngine.InputSystem; // Potrzebne do sprawdzania, kto steruje
+using DialogueEditor;
 
 public class PartyInteraction : MonoBehaviour
 {
@@ -32,7 +33,12 @@ public class PartyInteraction : MonoBehaviour
 
     private void Update()
     {
-        // Jeœli wciœniêto "I" i druga postaæ jest blisko...
+        // 1. ZABEZPIECZENIE: Sprawdzamy, czy to my sterujemy t¹ postaci¹.
+        // Jeœli PlayerInput jest wy³¹czony, to znaczy, ¿e ta postaæ jest "botem" i nie powinna reagowaæ na klawisze.
+        var input = GetComponent<PlayerInput>();
+        if (input != null && !input.enabled) return;
+
+        // 2. Jeœli sterujemy, wciœniêto "I" i druga postaæ jest blisko...
         if (Input.GetKeyDown(KeyCode.I) && innyGraczWZasiegu)
         {
             SprobujRozpoczacRozmowe();
@@ -41,33 +47,37 @@ public class PartyInteraction : MonoBehaviour
 
     private void SprobujRozpoczacRozmowe()
     {
-        // Sprawdzamy Quest Managera
+        // Upewniamy siê, ¿e QuestManager istnieje
         if (QuestManager.Instance != null)
         {
-            // Warunek 1: Czy w ogóle mo¿emy gadaæ? (Czy oboje pogadali z NPC?)
+            // Warunek 1: Czy zaliczyliœmy wszystkie rozmowy z NPC?
             bool warunekSpelniony = QuestManager.Instance.CzyMogaRozmawiacZeSoba();
 
-            // Warunek 2: Czy ju¿ przypadkiem nie pogadaliœmy?
+            // Warunek 2: Czy ta rozmowa ju¿ siê odby³a?
             bool juzRozmawialismy = QuestManager.Instance.rozmowaMiedzyGraczamiOdbyta;
 
             if (warunekSpelniony && !juzRozmawialismy)
             {
-                // 1. Wy³¹czamy wykrzykniki (TO JEST TA KLUCZOWA LINIA)
-                QuestManager.Instance.rozmowaMiedzyGraczamiOdbyta = true;
-
-                // 2. Uruchamiamy dialog
                 if (rozmowaMiedzyNami != null)
                 {
+                    // A. Uruchamiamy dialog
                     ConversationManager.Instance.StartConversation(rozmowaMiedzyNami);
+
+                    // B. Oznaczamy w QuestManagerze, ¿e rozmowa siê odby³a (wykrzykniki znikn¹)
+                    QuestManager.Instance.rozmowaMiedzyGraczamiOdbyta = true;
+
+                    // C. Odkrywamy ukryte przedmioty na mapie (NOWOŒÆ)
+                    QuestManager.Instance.SpawnHiddenItems();
                 }
                 else
                 {
-                    Debug.LogWarning("Nie przypisano pliku rozmowy w PartyInteraction!");
+                    Debug.LogError($"B£¥D: Postaæ {gameObject.name} nie ma przypisanego pliku dialogu w PartyInteraction!");
                 }
             }
             else
             {
-                Debug.Log("Jeszcze nie mo¿ecie rozmawiaæ lub rozmowa ju¿ siê odby³a.");
+                // Opcjonalnie: Komunikat, jeœli gracz próbuje gadaæ za wczeœnie
+                // Debug.Log("Jeszcze nie mo¿ecie rozmawiaæ lub rozmowa ju¿ siê odby³a.");
             }
         }
     }
