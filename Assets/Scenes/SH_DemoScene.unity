@@ -453,6 +453,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1367040594983947902, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
+      propertyPath: m_text
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 2731384961053116998, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -541,6 +545,74 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4331736806098012318, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
+      propertyPath: m_Type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4331736806098012318, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 28cea8b0ef9f3a34bb5bb4f568c2f51c, type: 3}
+    - target: {fileID: 4331736806098012318, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
+      propertyPath: m_Color.a
+      value: 0.8666667
+      objectReference: {fileID: 0}
+    - target: {fileID: 4331736806098012318, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4331736806098012318, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4331736806098012318, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6138611491035400835, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6376474532528139452, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
+      propertyPath: m_text
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6773168475695112762, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
+      propertyPath: m_Type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6773168475695112762, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 12b94ff582c7290419c1b84f6db66495, type: 3}
+    - target: {fileID: 7287289936030069675, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
+      propertyPath: m_Type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7287289936030069675, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 3f01cded06ff5ba479174a8702a02b03, type: 3}
+    - target: {fileID: 7471212165644039226, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
+      propertyPath: m_text
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 8467064329219729199, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
+      propertyPath: m_Transition
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8467064329219729199, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
+      propertyPath: m_SpriteState.m_PressedSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 5538a989c3d7477409f17346da5e6115, type: 3}
+    - target: {fileID: 9005296283532961507, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
+      propertyPath: m_Transition
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9005296283532961507, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
+      propertyPath: m_SpriteState.m_PressedSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 7328c15365847e7438df33d60e6eae0a, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2324,7 +2396,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 1023
+    m_Bits: 2047
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -18396,7 +18468,7 @@ GameObject:
   - component: {fileID: 7922872151886166443}
   - component: {fileID: 1467386792}
   - component: {fileID: 7922872151886166444}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: 2D_Sprite_Violet_02 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -41,11 +41,12 @@ TagManager:
   - 
   - 
   m_SortingLayers:
-  - name: Postacie
-    uniqueID: 4231662379
-    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Postacie
+    uniqueID: 4231662379
+    locked: 0
   m_RenderingLayers:
   - Default
+  - Postacie
