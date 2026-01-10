@@ -5,6 +5,10 @@ public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance;
 
+    [Header("G³ówne Okno Ekwipunku")]
+    public GameObject inventoryWindow; // <--- PRZYPISZ TUTAJ SWÓJ PANEL EKWIPUNKU
+    public bool isInventoryOpen = false; // <--- Zmienna œledz¹ca stan (Otwarty/Zamkniêty)
+
     [Header("Ikony w UI (Canvas)")]
     public GameObject iconKey;
     public GameObject iconHammer;
@@ -16,6 +20,52 @@ public class InventoryManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+    }
+
+    private void Start()
+    {
+        // Na starcie ukrywamy okno ekwipunku
+        if (inventoryWindow != null)
+        {
+            inventoryWindow.SetActive(false);
+            isInventoryOpen = false;
+        }
+    }
+
+    private void Update()
+    {
+        // Opcjonalnie: Otwieranie/Zamykanie na klawisz (np. TAB lub E)
+        // Jeœli masz to w innym skrypcie (np. PlayerController), mo¿esz to usun¹æ.
+        if (Input.GetKeyDown(KeyCode.Tab)) // <--- Zmieñ klawisz wedle uznania
+        {
+            ToggleInventory();
+        }
+    }
+
+    // Funkcja do normalnego otwierania/zamykania (na przycisk)
+    public void ToggleInventory()
+    {
+        isInventoryOpen = !isInventoryOpen;
+
+        if (inventoryWindow != null)
+        {
+            inventoryWindow.SetActive(isInventoryOpen);
+        }
+    }
+
+    // --- NOWA FUNKCJA DLA PAUZY (O któr¹ prosi³eœ) ---
+    public void ForceCloseInventory()
+    {
+        // 1. Wy³¹czamy okno w hierarchii
+        if (inventoryWindow != null)
+        {
+            inventoryWindow.SetActive(false);
+        }
+
+        // 2. Resetujemy zmienn¹ stanu
+        isInventoryOpen = false;
+
+        Debug.Log("InventoryManager: Wymuszono zamkniêcie ekwipunku przez pauzê.");
     }
 
     public void AddItem(ItemType itemType)
