@@ -8765,7 +8765,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1101559783}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1484393657}
+        m_TargetAssemblyTypeName: PauseMenuManager, Assembly-CSharp
+        m_MethodName: GoToControls
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1101559783
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11493,6 +11505,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5246224896870025165, guid: 31ad0a94a65c4be4281ccd729c86ad7d, type: 3}
   m_PrefabInstance: {fileID: 1334923353}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1484393657 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 407372233903890901, guid: c6334357aac41ca4db5aab504ab61c01, type: 3}
+  m_PrefabInstance: {fileID: 1535747628}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 206a371beb2d6834abec440b5d658fa8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1490622051
 GameObject:
   m_ObjectHideFlags: 0
