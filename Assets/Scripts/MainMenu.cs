@@ -13,4 +13,14 @@ public class MainMenu : MonoBehaviour
         Debug.Log("Zamykam grê...");
         Application.Quit();
     }
+
+    public void Sterowanie()
+    {
+        SceneManager.LoadScene("Sterowanie");
+    }
+
+    public void Credits()
+    {
+        SceneManager.LoadScene("Credits");
+    }
 }
