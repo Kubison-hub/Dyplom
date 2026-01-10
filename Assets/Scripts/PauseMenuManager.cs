@@ -10,22 +10,29 @@ public class PauseMenuManager : MonoBehaviour
     public Button returnToMainMenuButton;    // Przycisk "Menu G³ówne"
     public Button controlsButton;            // Przycisk "Sterowanie"
 
+    [Header("Obiekty do ukrycia")]
+    // PRZYPISZ TUTAJ OBIEKT "Inventory" Z HIERARCHII
+    public GameObject inventoryGameObject;
+
     // Zmienna prywatna œledz¹ca stan
     private bool isPaused = false;
 
     void Start()
     {
-        // Zabezpieczenie przed brakiem przypisania panelu
+        // Zabezpieczenie przed brakiem przypisania paneli
         if (pauseMenuPanel == null)
         {
             Debug.LogError("B£¥D: PauseMenuPanel nie jest przypisany w Inspectorze!");
-            return;
+        }
+        if (inventoryGameObject == null)
+        {
+            Debug.LogWarning("Ostrze¿enie: inventoryGameObject nie jest przypisany w Inspectorze. Prostok¹t nie zniknie.");
         }
 
         // Na starcie ukrywamy menu pauzy
         pauseMenuPanel.SetActive(false);
 
-        // Przypisanie funkcji do przycisków (mo¿na to te¿ zrobiæ rêcznie w Inspectorze)
+        // Przypisanie funkcji do przycisków
         if (resumeButton != null)
             resumeButton.onClick.AddListener(Resume);
 
@@ -50,10 +57,24 @@ public class PauseMenuManager : MonoBehaviour
     {
         pauseMenuPanel.SetActive(true);
 
+        // --- BEZPOŒREDNIE WY£¥CZENIE OBIEKTU ---
+        // Wy³¹czamy obiekt ekwipunku w hierarchii
+        if (inventoryGameObject != null)
+        {
+            inventoryGameObject.SetActive(false);
+        }
+        // ---------------------------------------
+
+        // Opcjonalnie: Zamknij Dziennik, jeœli jest otwarty
+        if (JournalManager.Instance != null && JournalManager.Instance.isJournalOpen)
+        {
+            JournalManager.Instance.ToggleJournal();
+        }
+
         Time.timeScale = 0f;        // Zatrzymujemy czas
         AudioListener.pause = true; // Wyciszamy dŸwiêki
 
-        // Odblokowanie kursora, ¿eby gracz móg³ klikaæ
+        // Odblokowanie kursora
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
@@ -64,19 +85,23 @@ public class PauseMenuManager : MonoBehaviour
     {
         pauseMenuPanel.SetActive(false);
 
+        // --- PRZYWRÓCENIE OBIEKTU ---
+        // W³¹czamy obiekt ekwipunku z powrotem
+        if (inventoryGameObject != null)
+        {
+            inventoryGameObject.SetActive(true);
+        }
+        // ----------------------------
+
         Time.timeScale = 1f;         // Wznawiamy czas
         AudioListener.pause = false; // Wznawiamy dŸwiêki
-
-        // Opcjonalnie: Zablokuj kursor z powrotem (dla gier FPP/TPP)
-        // Cursor.lockState = CursorLockMode.Locked;
-        // Cursor.visible = false;
 
         isPaused = false;
     }
 
     public void ReturnToMainMenu()
     {
-        Time.timeScale = 1f; // Reset czasu
+        Time.timeScale = 1f; // Reset czasu przed zmian¹ sceny
         AudioListener.pause = false;
         SceneManager.LoadScene("MainMenu");
     }
@@ -85,8 +110,6 @@ public class PauseMenuManager : MonoBehaviour
     {
         Time.timeScale = 1f; // Reset czasu
         AudioListener.pause = false;
-
-        // UWAGA: To zresetuje postêp w obecnym poziomie!
         SceneManager.LoadScene("Sterowanie Pauza");
     }
 }

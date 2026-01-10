@@ -2672,7 +2672,7 @@ RectTransform:
   m_GameObject: {fileID: 345358643}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1.29, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 981635261}
@@ -2682,7 +2682,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 202.33008, y: -51.69995}
+  m_AnchoredPosition: {x: 201.01, y: -66.2}
   m_SizeDelta: {x: 400, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &345358645
@@ -2705,8 +2705,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 8d53823618e122546ada17f84515903e, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -11761,6 +11761,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1599470360}
     - target: {fileID: 407372233903890901, guid: c6334357aac41ca4db5aab504ab61c01, type: 3}
+      propertyPath: inventoryGameObject
+      value: 
+      objectReference: {fileID: 345358643}
+    - target: {fileID: 407372233903890901, guid: c6334357aac41ca4db5aab504ab61c01, type: 3}
       propertyPath: returnToMainMenuButton
       value: 
       objectReference: {fileID: 1067679299}
@@ -12234,6 +12238,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f876bae995c6854495805f641c89b12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inventoryWindow: {fileID: 0}
+  isInventoryOpen: 0
   iconKey: {fileID: 981635260}
   iconHammer: {fileID: 778745476}
   iconGlass: {fileID: 1209740016}
