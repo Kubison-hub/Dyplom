@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic; // Konieczne do u¿ywania Listy
 
 public class JournalManager : MonoBehaviour
 {
@@ -19,6 +20,11 @@ public class JournalManager : MonoBehaviour
     public KeyCode openKey = KeyCode.N;
     public bool isJournalOpen = false;
 
+    // --- NOWOŒÆ: Lista indeksów odkrytych notatek (Dla Systemu Zapisu) ---
+    // SaveLoadManager weŸmie tê listê i zapisze j¹ do pliku.
+    public List<int> unlockedNoteIndices = new List<int>();
+    // ---------------------------------------------------------------------
+
     private int currentPageIndex = 0;
 
     private void Awake()
@@ -34,6 +40,16 @@ public class JournalManager : MonoBehaviour
         if (nextBtn) nextBtn.onClick.AddListener(NextPage);
         if (prevBtn) prevBtn.onClick.AddListener(PrevPage);
         if (closeBtn) closeBtn.onClick.AddListener(ToggleJournal);
+
+        // Dodatkowo: Upewniamy siê, ¿e na starcie notatki s¹ ukryte 
+        // (chyba ¿e zostan¹ wczytane przez SaveLoadManager chwilê póŸniej)
+        if (unlockableNotes != null)
+        {
+            foreach (var note in unlockableNotes)
+            {
+                if (note != null) note.SetActive(false);
+            }
+        }
 
         UpdateUI();
     }
@@ -96,7 +112,16 @@ public class JournalManager : MonoBehaviour
         {
             if (unlockableNotes[noteIndex] != null)
             {
+                // 1. Wizualne w³¹czenie notatki
                 unlockableNotes[noteIndex].SetActive(true);
+
+                // --- NOWOŒÆ: Zapamiêtanie faktu odkrycia ---
+                // Dodajemy numer notatki do listy, ¿eby zapisaæ to w grze
+                if (!unlockedNoteIndices.Contains(noteIndex))
+                {
+                    unlockedNoteIndices.Add(noteIndex);
+                }
+                // -------------------------------------------
             }
         }
     }

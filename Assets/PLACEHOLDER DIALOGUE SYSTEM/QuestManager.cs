@@ -14,7 +14,7 @@ public class QuestManager : MonoBehaviour
     [Header("Fina³")]
     public bool rozmowaMiedzyGraczamiOdbyta = false;
 
-    [Header("Postacie")]
+    [Header("Postacie (do sprawdzania Inputu)")]
     public PlayerController sherlockController;
     public PlayerController watsonController;
 
@@ -22,10 +22,8 @@ public class QuestManager : MonoBehaviour
     public GameObject wykrzyknikNadSherlockiem;
     public GameObject wykrzyknikNadWatsonem;
 
-    // --- NOWOŒÆ: Lista przedmiotów do pojawienia siê ---
     [Header("Przedmioty do odblokowania")]
     public GameObject[] hiddenItems; // <--- Tutaj wrzucisz te 3 przedmioty
-    // ---------------------------------------------------
 
     private void Awake()
     {
@@ -35,7 +33,7 @@ public class QuestManager : MonoBehaviour
 
     private void Start()
     {
-        // --- NOWOŒÆ: Na starcie gry automatycznie ukrywamy te przedmioty ---
+        // Na starcie gry automatycznie ukrywamy przedmioty z listy
         if (hiddenItems != null)
         {
             foreach (GameObject item in hiddenItems)
@@ -50,6 +48,7 @@ public class QuestManager : MonoBehaviour
         ManageNotifications();
     }
 
+    // Funkcja wywo³ywana przez SmartNPC
     public void OdnotujRozmowe(string tagGracza, int idNPC)
     {
         if (tagGracza == "PlayerA")
@@ -64,33 +63,49 @@ public class QuestManager : MonoBehaviour
         }
     }
 
-    // --- NOWOŒÆ: Funkcja odkrywaj¹ca przedmioty ---
+    // --- FUNKCJA ODKRYWAJ¥CA PRZEDMIOTY + PO£¥CZONY TUTORIAL ---
+    // Wywo³ywana przez PartyInteraction po zakoñczeniu rozmowy miêdzy detektywami
     public void SpawnHiddenItems()
     {
         if (hiddenItems != null)
         {
+            // 1. Poka¿ przedmioty na scenie
             foreach (GameObject item in hiddenItems)
             {
                 if (item != null)
                 {
                     item.SetActive(true);
-                    // Opcjonalnie: Mo¿esz tu dodaæ efekt dŸwiêkowy lub cz¹steczkowy
-                    // Instantiate(spawnEffect, item.transform.position, Quaternion.identity);
+                    // Opcjonalnie: Instantiate(spawnEffect, item.transform.position, Quaternion.identity);
                 }
             }
             Debug.Log("QuestManager: Przedmioty pojawi³y siê na mapie!");
+
+            // 2. Wyœwietl PO£¥CZONY Tutorial (Przedmioty + Klawisz J)
+            if (TutorialManager.Instance != null)
+            {
+                string trescKomunikatu =
+                    "Na mapie pojawi³y siê przedmioty. PodejdŸ do nich, aby je zebraæ.\n\n" +
+                    "Wskazówka: Wciœnij 'J', aby w³¹czyæ tryb Detektywa i ³atwiej je znaleŸæ.";
+
+                // U¿ywamy unikalnego ID, ¿eby pokaza³o siê to tylko raz
+                TutorialManager.Instance.PokazTutorial(trescKomunikatu, "ItemsAndDetectiveMode");
+            }
         }
     }
-    // ----------------------------------------------
+    // -------------------------------------------------
 
     private void ManageNotifications()
     {
         if (wykrzyknikNadSherlockiem) wykrzyknikNadSherlockiem.SetActive(false);
         if (wykrzyknikNadWatsonem) wykrzyknikNadWatsonem.SetActive(false);
 
+        // Jeœli ju¿ pogadali ze sob¹, nie pokazuj wykrzykników
         if (rozmowaMiedzyGraczamiOdbyta) return;
+
+        // Jeœli jeszcze nie odblokowali mo¿liwoœci rozmowy (nie pogadali z NPC), te¿ nie pokazuj
         if (!CzyMogaRozmawiacZeSoba()) return;
 
+        // Jeœli mog¹ gadaæ, poka¿ wykrzyknik nad t¹ postaci¹, któr¹ NIE sterujemy
         if (sherlockController != null && watsonController != null)
         {
             var sherlockInput = sherlockController.GetComponent<PlayerInput>();
@@ -98,10 +113,12 @@ public class QuestManager : MonoBehaviour
 
             if (sherlockInput != null && sherlockInput.enabled)
             {
+                // Gracz steruje Sherlockiem -> Wykrzyknik nad Watsonem
                 if (wykrzyknikNadWatsonem) wykrzyknikNadWatsonem.SetActive(true);
             }
             else if (watsonInput != null && watsonInput.enabled)
             {
+                // Gracz steruje Watsonem -> Wykrzyknik nad Sherlockiem
                 if (wykrzyknikNadSherlockiem) wykrzyknikNadSherlockiem.SetActive(true);
             }
         }
@@ -109,6 +126,7 @@ public class QuestManager : MonoBehaviour
 
     public bool CzyMogaRozmawiacZeSoba()
     {
+        // Warunek: Obaj gracze musieli porozmawiaæ z oboma NPC
         bool npc1_Done = sherlock_Gadal_Z_NPC1 && watson_Gadal_Z_NPC1;
         bool npc2_Done = sherlock_Gadal_Z_NPC2 && watson_Gadal_Z_NPC2;
         return npc1_Done && npc2_Done;
