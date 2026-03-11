@@ -27,6 +27,8 @@ public class DoorTrigger : MonoBehaviour
     private PlayerController expectedPlayer = null;
 
     private Interactable interactable;
+    
+
 
     [SerializeField] Room[] rooms;
 
@@ -83,11 +85,11 @@ public class DoorTrigger : MonoBehaviour
         if (door != null)
         {
             var data = GetInteractionData(player.transform);
-            player.targetPosition = data.position;
+            player.currentInteractionPoint = data.position;
             currentAngleDirection = data.angleDirection;
 
             player.currentInteractable = interactable;
-            player.isWalking = true;
+            player.MoveToInteractable();
 
             expectedPlayer = player;
         }
@@ -115,13 +117,13 @@ public class DoorTrigger : MonoBehaviour
         isAnimating = true;
     }
 
-    public (Vector3 position, float angleDirection) GetInteractionData(Transform playerTransform)
+    public (Transform position, float angleDirection) GetInteractionData(Transform playerTransform)
     {
         Vector3 toPlayer = (playerTransform.position - transform.position).normalized;
         float dot = Vector3.Dot(transform.forward, toPlayer);
 
         float angleDir = (dot > 0f) ? -1f : 1f;
-        Vector3 pos = (dot > 0f) ? interactionPointFront.position : interactionPointBack.position;
+        Transform pos = (dot > 0f) ? interactionPointFront : interactionPointBack;
 
         return (pos, angleDir);
     }

@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &3583178202681516263
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 09d6c111f489da348996f35693f14a27, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.4999998
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 09d6c111f489da348996f35693f14a27, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 14.499998
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 09d6c111f489da348996f35693f14a27, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.25000042
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 09d6c111f489da348996f35693f14a27, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -6.9822555
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 09d6c111f489da348996f35693f14a27, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 09d6c111f489da348996f35693f14a27, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 09d6c111f489da348996f35693f14a27, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 09d6c111f489da348996f35693f14a27, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 09d6c111f489da348996f35693f14a27, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 09d6c111f489da348996f35693f14a27, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 09d6c111f489da348996f35693f14a27, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5003947544317363629, guid: 09d6c111f489da348996f35693f14a27, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e4609a07916df9a4483e75e8ea8ea28d, type: 2}
+    - target: {fileID: -475483488131242451, guid: 09d6c111f489da348996f35693f14a27, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 388f02bc3c50cdb4a86545ed52ce154d, type: 2}
+    - target: {fileID: -248263063317056308, guid: 09d6c111f489da348996f35693f14a27, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 8007d0312abfd9b4a82ee7de9d5d26dc, type: 2}
+    - target: {fileID: 919132149155446097, guid: 09d6c111f489da348996f35693f14a27, type: 3}
+      propertyPath: m_Name
+      value: Fotel (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 3657337622960179559, guid: 09d6c111f489da348996f35693f14a27, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 79b60af0ef496574dbe6b3d2733b7089, type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 09d6c111f489da348996f35693f14a27, type: 3}
