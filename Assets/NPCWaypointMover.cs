@@ -21,18 +21,18 @@ public class NPCWaypointMover : MonoBehaviour
     // Tê funkcjê wywo³a Gramofon
     public void ZacznijWedrowke()
     {
-        if (punktySciezki.Length > 0)
-        {
-            obecnyIndexPunktu = 0; // Zaczynamy od pierwszego punktu
-            czyMaIsc = true;
+        //if (punktySciezki.Length > 0)
+        //{
+        //    obecnyIndexPunktu = 0; // Zaczynamy od pierwszego punktu
+        //    czyMaIsc = true;
 
-            // W³¹czamy animacjê chodzenia
-            if (animator != null) animator.SetBool(nazwaBoolaChodzenia, true);
-        }
-        else
-        {
-            Debug.LogError("NPCWaypointMover: Nie przypisano ¿adnych punktów œcie¿ki!");
-        }
+        //    // W³¹czamy animacjê chodzenia
+        //    if (animator != null) animator.SetBool(nazwaBoolaChodzenia, true);
+        //}
+        //else
+        //{
+        //    Debug.LogError("NPCWaypointMover: Nie przypisano ¿adnych punktów œcie¿ki!");
+        //}
     }
 
     private void Update()
