@@ -80,7 +80,7 @@ public class MainMenu : MonoBehaviour
     {
         Cursor.visible = true;
         isPlayingIntro = false;
-        SceneManager.LoadScene("SH_DemoScene");
+        SceneManager.LoadScene("SH_GAME_LEVEL_1");
     }
 
     public void QuitGame()
