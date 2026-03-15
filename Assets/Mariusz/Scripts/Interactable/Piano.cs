@@ -1,15 +1,16 @@
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.InputSystem;
 
 public class Piano : MonoBehaviour
 {
-    public float interactionPointOffset = 1f;
     
+    public Transform interactionPoint;
+
     [SerializeField] private Transform pianoLid;
     [SerializeField] private AudioClip pianoMusicAudio;
     [SerializeField] private AudioClip hitLid;
 
-   
     [SerializeField] private float animationSpeed = 10f;
 
     private Interactable interactable;
@@ -45,65 +46,22 @@ public class Piano : MonoBehaviour
 
     public void Interact(PlayerController player)
     {
-        MovePlayerToInteractionPoint(player);
-        playerInput = player.GetComponent<PlayerInput>();
-    }
-
-    private void MovePlayerToInteractionPoint(PlayerController player)
-    {
-        Vector3 forward = transform.forward;
-        Vector3 basePoint = transform.position - forward * interactionPointOffset;
-        basePoint.y = player.transform.position.y;
-
-        Vector3 targetPosition = basePoint;
-
-        if (!CheckPositionEmpty(basePoint, 0.5f, player.gameObject))
-        {
-            targetPosition += transform.right * 1f;
-        }
-
         player.currentInteractable = interactable;
+        player.currentInteractionPoint = interactionPoint;
 
-        player.targetPosition = targetPosition;
-        player.isWalking = true;
-    }
-
-    private bool CheckPositionEmpty(Vector3 position, float radius, GameObject ignoreObject = null)
-    {
-        Collider[] hits = Physics.OverlapSphere(position, radius);
-
-        foreach (var hit in hits)
-        {
-            if (hit.isTrigger) continue;
-            if (ignoreObject != null && hit.gameObject == ignoreObject) continue;
-
-            if (hit.GetComponent<PlayerController>() != null)
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
+        player.MoveToInteractable();    
+    } 
 
     public void PerformInteraction(PlayerController player)
     {
         Debug.Log("Perform Interaction " + gameObject.name);
-
         UsePiano(player);
     }
 
     private void UsePiano(PlayerController player)
     {
-
-        if (!isLidOpen)
-        {
-            OpenCover();
-        }
-        else
-        {
-            DoRandomAction(player);
-        }
+        if (!isLidOpen) OpenCover();
+        else DoRandomAction(player);
     }
 
     private void OpenCover()

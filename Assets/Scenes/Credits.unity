@@ -308,6 +308,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1006840112}
   - component: {fileID: 1006840111}
+  - component: {fileID: 1006840113}
   m_Layer: 0
   m_Name: menago
   m_TagString: Untagged
@@ -327,6 +328,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61344f2710942214ab1d972a04082da3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cinematicPanel: {fileID: 0}
+  videoPlayer: {fileID: 0}
 --- !u!4 &1006840112
 Transform:
   m_ObjectHideFlags: 0
@@ -342,6 +345,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1006840113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1006840110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ee92d14e21b9af4187de4f531b8500b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cursorTexture: {fileID: 2800000, guid: 50491465c866da642aaf8a2c9286f4e7, type: 3}
+  hotSpot: {x: 0, y: 0}
+  cursorMode: 0
 --- !u!1 &1291077975
 GameObject:
   m_ObjectHideFlags: 0
@@ -705,9 +723,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "Maja Bartnicka - Producent,  Projektant Poziom\xF3w, Artysta 2D, Narracja,
     Projektant Quest\xF3w\nMariusz Kleszczewski - Projektant poziom\xF3w, Projektant
-    otoczenia\nJakub Suchorab - Programista, Projektant rozgrywki, Tester\nMaciej
-    Wrabiec - Kompozytor, Projektant muzyki\nDominik Zwoli\u0144ski - Artryta 3D,
-    Artysta UI, Tester"
+    otoczenia\nJakub Suchorab - Programista, Projektant rozgrywki, Tester, Projektant
+    muzyki\nDominik Zwoli\u0144ski - Artryta 3D, Artysta UI, Artysta VFX, Tester"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   m_sharedMaterial: {fileID: 6229730292464864198, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
@@ -734,14 +751,14 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 7.45
-  m_fontSizeBase: 7.45
+  m_fontSize: 7.24
+  m_fontSizeBase: 7.24
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -796,6 +813,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1755818402}
   - component: {fileID: 1755818401}
+  - component: {fileID: 1755818403}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -883,6 +901,29 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!114 &1755818403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1755818400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_LightLayerMask: 1
+  m_RenderingLayers: 1
+  m_CustomShadowLayers: 0
+  m_ShadowLayerMask: 1
+  m_ShadowRenderingLayers: 1
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
 --- !u!1 &1790162451
 GameObject:
   m_ObjectHideFlags: 0
