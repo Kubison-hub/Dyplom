@@ -1,74 +1,86 @@
 using UnityEngine;
-using TMPro; // Wa¿ne dla tekstów
+using TMPro;
 
 public class MouseTooltipManager : MonoBehaviour
 {
     [Header("UI References")]
-    [Tooltip("Przeci¹gnij tutaj swój obiekt Text (TMP) z Canvasa")]
+    [Tooltip("Przeci¹gnij tutaj ca³y panel t³a z Canvasa")]
+    public GameObject tooltipPanel;
+
+    [Tooltip("Przeci¹gnij tutaj obiekt Text (TMP) znajduj¹cy siê w panelu")]
     public TextMeshProUGUI tooltipText;
 
     [Header("Settings")]
-    public Vector2 offset = new Vector2(15f, -15f); // Przesuniêcie tekstu wzglêdem kursora
-    public LayerMask detectionLayer = ~0; // Jakie warstwy ma wykrywaæ (domyœlnie wszystko)
+    public Vector2 offset = new Vector2(15f, -15f); // Przesuniêcie wzglêdem kursora
+    public LayerMask detectionLayer = ~0; // Jakie warstwy ma wykrywaæ
 
     private Camera mainCam;
 
     void Awake()
     {
         mainCam = Camera.main;
-        // Na starcie ukryj tekst
-        tooltipText.gameObject.SetActive(false);
+
+        // Na starcie ukryj ca³kowicie panel
+        if (tooltipPanel != null)
+        {
+            tooltipPanel.SetActive(false);
+        }
     }
 
     void Update()
     {
-        UpdateTooltipPosition();
+        // 1. Sprawdzamy co jest pod myszk¹
         CheckObjectUnderMouse();
+
+        // 2. Jeœli panel jest w³¹czony, aktualizujemy jego pozycjê
+        if (tooltipPanel != null && tooltipPanel.activeSelf)
+        {
+            UpdateTooltipPosition();
+        }
     }
 
     private void UpdateTooltipPosition()
     {
-        // Tekst pod¹¿a za myszk¹ + przesuniêcie
-        // (Dzia³a idealnie dla Canvasa w trybie Overlay)
-        tooltipText.transform.position = (Vector2)Input.mousePosition + offset;
+        // Przesuwamy ca³y panel (t³o razem z tekstem w œrodku)
+        tooltipPanel.transform.position = (Vector2)Input.mousePosition + offset;
     }
 
     private void CheckObjectUnderMouse()
     {
-        // Tworzymy promieñ od kamery przez kursor myszy
+        // Wypuszczamy promieñ z kamery w stronê kursora
         Ray ray = mainCam.ScreenPointToRay(Input.mousePosition);
 
         if (Physics.Raycast(ray, out RaycastHit hit, 100f, detectionLayer))
         {
-            // SprawdŸ, czy trafiony obiekt ma nasz¹ "Metkê" (skrypt ObjectDescription)
+            // Sprawdzamy czy trafiony obiekt ma nasz¹ "metkê" z opisem
             ObjectDescription desc = hit.collider.GetComponent<ObjectDescription>();
 
             if (desc != null)
             {
-                // Znalaz³ opis! Poka¿ go.
+                // Trafiliœmy na obiekt z opisem - poka¿ go
                 ShowTooltip(desc.description);
             }
             else
             {
-                // Trafi³ w coœ (np. pod³ogê), co nie ma opisu.
+                // Trafiliœmy w coœ bez opisu (np. pod³ogê)
                 HideTooltip();
             }
         }
         else
         {
-            // Myszka jest w powietrzu (nic nie trafi³a).
+            // Myszka patrzy w pustkê
             HideTooltip();
         }
     }
 
     private void ShowTooltip(string text)
     {
-        tooltipText.text = text;
-        tooltipText.gameObject.SetActive(true);
+        if (tooltipText != null) tooltipText.text = text;
+        if (tooltipPanel != null) tooltipPanel.SetActive(true);
     }
 
     private void HideTooltip()
     {
-        tooltipText.gameObject.SetActive(false);
+        if (tooltipPanel != null) tooltipPanel.SetActive(false);
     }
 }
