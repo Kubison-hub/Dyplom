@@ -5,23 +5,20 @@ using UnityEngine.UI;
 public class PauseMenuManager : MonoBehaviour
 {
     [Header("Elementy UI - Panele")]
-    public GameObject pauseMenuPanel;        // Panel t�a pauzy
+    public GameObject pauseMenuPanel;        // Panel tła pauzy
 
     [Header("Elementy UI - Przyciski")]
-    public Button resumeButton;              // Przycisk "Wzn�w"
-    public Button returnToMainMenuButton;    // Przycisk "Menu G��wne"
+    public Button resumeButton;              // Przycisk "Wznów"
+    public Button returnToMainMenuButton;    // Przycisk "Menu Główne"
     public Button controlsButton;            // Przycisk "Sterowanie"
-    public Button saveButton;                // NOWO��: Przycisk "Zapisz"
-    public Button loadButton;                // NOWO��: Przycisk "Wczytaj"
+    public Button saveButton;                // NOWOŚĆ: Przycisk "Zapisz"
+    public Button loadButton;                // NOWOŚĆ: Przycisk "Wczytaj"
 
     [Header("Obiekty do ukrycia podczas pauzy")]
-    public GameObject inventoryGameObject;   // Tw�j "szary prostok�t" z ekwipunkiem
-
-    [Header("Obiekty do ukrycia")]
     // PRZYPISZ TUTAJ OBIEKT "Inventory" Z HIERARCHII
-    public GameObject inventoryGameObject;
+    public GameObject inventoryGameObject;   // Twój "szary prostokąt" z ekwipunkiem
 
-    // Zmienna prywatna �ledz�ca stan
+    // Zmienna prywatna śledząca stan
     private bool isPaused = false;
 
     void Start()
@@ -29,17 +26,17 @@ public class PauseMenuManager : MonoBehaviour
         // Zabezpieczenie przed brakiem przypisania paneli
         if (pauseMenuPanel == null)
         {
-            Debug.LogError("B��D: PauseMenuPanel nie jest przypisany w Inspectorze!");
+            Debug.LogError("BŁĄD: PauseMenuPanel nie jest przypisany w Inspectorze!");
         }
         if (inventoryGameObject == null)
         {
-            Debug.LogWarning("Ostrze�enie: inventoryGameObject nie jest przypisany w Inspectorze. Prostok�t nie zniknie.");
+            Debug.LogWarning("Ostrzeżenie: inventoryGameObject nie jest przypisany w Inspectorze. Prostokąt nie zniknie.");
         }
 
         // Na starcie ukrywamy menu pauzy
         pauseMenuPanel.SetActive(false);
 
-        // --- PRZYPISANIE FUNKCJI DO PRZYCISK�W ---
+        // --- PRZYPISANIE FUNKCJI DO PRZYCISKÓW ---
 
         if (resumeButton != null)
             resumeButton.onClick.AddListener(Resume);
@@ -50,7 +47,7 @@ public class PauseMenuManager : MonoBehaviour
         if (controlsButton != null)
             controlsButton.onClick.AddListener(GoToControls);
 
-        // NOWO��: Obs�uga Zapisu i Wczytywania
+        // NOWOŚĆ: Obsługa Zapisu i Wczytywania
         if (saveButton != null)
         {
             saveButton.onClick.AddListener(() =>
@@ -69,7 +66,7 @@ public class PauseMenuManager : MonoBehaviour
                 if (SaveLoadManager.Instance != null)
                 {
                     SaveLoadManager.Instance.LoadGame();
-                    Resume(); // Po wczytaniu automatycznie wznawiamy gr�
+                    Resume(); // Po wczytaniu automatycznie wznawiamy grę
                 }
                 else
                 {
@@ -81,7 +78,7 @@ public class PauseMenuManager : MonoBehaviour
 
     void Update()
     {
-        // Obs�uga klawisza ESC
+        // Obsługa klawisza ESC
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (isPaused) Resume();
@@ -93,26 +90,26 @@ public class PauseMenuManager : MonoBehaviour
     {
         pauseMenuPanel.SetActive(true);
 
-        // 1. Ukrywamy "szary prostok�t" (ca�y obiekt Inventory)
+        // 1. Ukrywamy "szary prostokąt" (cały obiekt Inventory)
         if (inventoryGameObject != null)
         {
             inventoryGameObject.SetActive(false);
         }
 
-        // 2. Wymuszamy zamkni�cie logiki Inventory (reset zmiennych)
+        // 2. Wymuszamy zamknięcie logiki Inventory (reset zmiennych)
         if (InventoryManager.Instance != null)
         {
             InventoryManager.Instance.ForceCloseInventory();
         }
 
-        // 3. Zamykamy Dziennik je�li jest otwarty
+        // 3. Zamykamy Dziennik jeśli jest otwarty
         if (JournalManager.Instance != null && JournalManager.Instance.isJournalOpen)
         {
             JournalManager.Instance.ToggleJournal();
         }
 
         Time.timeScale = 0f;        // Zatrzymujemy czas
-        AudioListener.pause = true; // Wyciszamy d�wi�ki
+        AudioListener.pause = true; // Wyciszamy dźwięki
 
         // Odblokowanie kursora
         Cursor.lockState = CursorLockMode.None;
@@ -125,21 +122,21 @@ public class PauseMenuManager : MonoBehaviour
     {
         pauseMenuPanel.SetActive(false);
 
-        // Przywracamy widoczno�� obiektu Inventory (prostok�ta)
+        // Przywracamy widoczność obiektu Inventory (prostokąta)
         if (inventoryGameObject != null)
         {
             inventoryGameObject.SetActive(true);
         }
 
         Time.timeScale = 1f;         // Wznawiamy czas
-        AudioListener.pause = false; // Wznawiamy d�wi�ki
+        AudioListener.pause = false; // Wznawiamy dźwięki
 
         isPaused = false;
     }
 
     public void ReturnToMainMenu()
     {
-        Time.timeScale = 1f; // Reset czasu przed zmian� sceny
+        Time.timeScale = 1f; // Reset czasu przed zmianą sceny
         AudioListener.pause = false;
         SceneManager.LoadScene("MainMenu");
     }
