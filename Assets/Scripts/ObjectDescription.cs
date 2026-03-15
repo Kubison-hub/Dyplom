@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class ObjectDescription : MonoBehaviour
 {
-    [TextArea] // Pozwala na wpisanie d³u¿szego tekstu w inspektorze
-    public string description = "Nazwa Przedmiotu";
+    [Header("Opis do Tooltipa")]
+    [TextArea] // Powiêksza okienko w Inspektorze dla d³u¿szych tekstów
+    public string description = "Wpisz nazwê obiektu";
 }
