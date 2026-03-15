@@ -1,5 +1,6 @@
 using UnityEngine;
 using DialogueEditor;
+using UnityEngine.AI;
 
 public class SmartNPC : MonoBehaviour
 {
@@ -20,6 +21,9 @@ public class SmartNPC : MonoBehaviour
 
     private GameObject obiektGraczaA;
     private GameObject obiektGraczaB;
+
+    public NavMeshAgent navMeshAgent;
+    public Transform movePoint;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -47,6 +51,11 @@ public class SmartNPC : MonoBehaviour
             czyPostacB_W_Zasiegu = false;
             obiektGraczaB = null;
         }
+    }
+
+    private void Start()
+    {
+        navMeshAgent = GetComponent<NavMeshAgent>();
     }
 
     private void Update()
@@ -110,5 +119,10 @@ public class SmartNPC : MonoBehaviour
         if (input != null && !input.enabled) return false;
 
         return true;
+    }
+
+    public void GoToPoint() 
+    {
+        navMeshAgent.SetDestination(movePoint.position);
     }
 }

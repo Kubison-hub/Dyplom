@@ -2,58 +2,80 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems; // Potrzebne do wykrywania klikniêæ na UI
-using DialogueEditor;           // Potrzebne do integracji z systemem dialogowym
+using DialogueEditor;
+using UnityEngine.AI;
+using System.Collections;           // Potrzebne do integracji z systemem dialogowym
 
 /// <summary>
 /// Klasa PlayerController zaimplementowana z blokadami dla Dialogów, Dziennika i UI.
 /// </summary>
 
-[RequireComponent(typeof(CharacterController))]
+
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(PlayerInput))]
+[RequireComponent(typeof(NavMeshAgent))]
 
 public class PlayerController : MonoBehaviour
 {
+
+    public bool isActivePlayer = false;
+
     public PlayerCharacter playerCharacter = PlayerCharacter.None;
 
-    public float moveSpeed = 5f;
-    public float rotationSpeed = 10f;
-
-    public float stoppingDistance = 0.1f;
-    public LayerMask interactableMask;
-
-    private CharacterController controller;
     private Animator animator;
     private Rigidbody rb;
+    public NavMeshAgent navMeshAgent;
+
+    public LayerMask interactableMask;
+    public LayerMask groundMask;
+
+    public Interactable currentInteractable = null;
+    public Transform currentInteractionPoint;
+    public float interactionPointRotationSpeed = 10f;
+    
+    public AudioClip[] FootstepAudioClips;
+
+    private bool canMove = true;
 
     public bool isWalking = false;
     public bool lookAtCamera = false;
 
-    public AudioClip[] FootstepAudioClips;
 
     // Interakcja
     [HideInInspector] public Vector3 targetPosition;
-    public Interactable currentInteractable = null;
+
 
     private void Awake()
     {
-        controller = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
 
         // Upewniamy siê, ¿e Rigidbody nie koliduje fizycznie (u¿ywamy CharacterController)
         if (rb.isKinematic == false) rb.isKinematic = true;
 
-        targetPosition = transform.position;
-
         if (playerCharacter == PlayerCharacter.None)
         {
             Debug.LogError("PlayerCharacter is None!");
         }
+
+        targetPosition = transform.position;
+
+        navMeshAgent = GetComponent<NavMeshAgent>();
+        if (navMeshAgent == null) Debug.LogError("NavMeshAgent is null");
     }
 
     private void Update()
+    {
+        CheckUILock();
+        
+        CheckInteractionArrival();
+
+        HandleAnimations();
+    }
+
+
+    private void CheckUILock()
     {
         // --- 1. SPRAWDZANIE BLOKAD (DIALOG / DZIENNIK) ---
 
@@ -66,120 +88,145 @@ public class PlayerController : MonoBehaviour
         // Jeœli któraœ z blokad jest aktywna...
         if (dialogAktywny || dziennikAktywny)
         {
-            // ...a postaæ by³a w trakcie ruchu -> zatrzymaj j¹ natychmiast.
-            if (isWalking)
-            {
-                isWalking = false;
-                animator.SetBool("IsWalking", false);
-            }
+            // ...zablokuj NavMesh.
+            LockMovement();
 
             // Przerwij funkcjê Update (nie wykonuj ruchu)
             return;
         }
-
-        // Jeœli brak blokad, obs³uguj ruch i animacje normalnie
-        HandleMovement();
-        HandleAnimations();
+        else
+        {
+            // Je¿eli nie, odblokuj NavMesh
+            UnlockMovement();
+        }
     }
+
+    public void LockMovement()
+    {
+        canMove = false;
+        navMeshAgent.isStopped = true;
+        navMeshAgent.ResetPath();
+    }
+
+    public void UnlockMovement()
+    {
+        canMove = true;
+        navMeshAgent.isStopped = false;
+    }
+
+
+    //---------------------------------------------
+
 
     public void OnLeftClick(InputAction.CallbackContext context)
     {
-        if (!context.performed) return;
 
-        // --- 2. BLOKADA KLIKANIA MYSZK¥ ---
-
-        // A. Jeœli trwa dialog -> ignoruj klikniêcie
-        if (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
-        {
+        if (!context.performed || !canMove)
             return;
-        }
 
-        // B. Jeœli otwarty jest dziennik -> ignoruj klikniêcie
-        if (JournalManager.Instance != null && JournalManager.Instance.isJournalOpen)
-        {
-            return;
-        }
+        HandleLeftClick();
+    }
 
-        // C. Jeœli kursor jest nad elementem UI (np. przycisk, panel) -> ignoruj klikniêcie
-        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
-        {
-            return;
-        }
-
-        // --- KONIEC BLOKAD, WYKONAJ RAYCAST ---
-
+    private void HandleLeftClick()
+    {
         Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
 
+        
         if (Physics.Raycast(ray, out RaycastHit hit, 100f, interactableMask))
         {
             Interactable interactable = hit.collider.GetComponent<Interactable>();
-
             if (interactable != null)
             {
                 interactable.TryToInteract(this);
+                return;
             }
-            else
-            {
-                targetPosition = hit.point;
-                currentInteractable = null;
-                isWalking = true;
-            }
+        }
+
+        
+        if (Physics.Raycast(ray, out RaycastHit groundHit, 100f, groundMask))
+        {
+            MoveToPoint(groundHit.point);
         }
     }
 
-    private void HandleMovement()
+    public void MoveToPoint(Vector3 point)
     {
-        if (!isWalking) return;
+        currentInteractable = null;
+        navMeshAgent.destination = point;
+    }
 
-        Vector3 direction = (targetPosition - transform.position);
-        direction.y = 0;
+    public void MoveToInteractable()
+    {
+        navMeshAgent.SetDestination(currentInteractionPoint.position);
+    }
 
-        // SprawdŸ czy doszliœmy do celu
-        if (direction.magnitude < stoppingDistance)
-        {
-            isWalking = false;
-
-            if (currentInteractable != null)
-            {
-                currentInteractable.PerformInteraction(this);
-                currentInteractable = null;
-            }
-
+    private void CheckInteractionArrival()
+    {
+        if (currentInteractable == null)
             return;
-        }
 
-        // Ruch postaci
-        Vector3 move = direction.normalized * moveSpeed * Time.deltaTime;
-        controller.Move(move);
+        if (navMeshAgent.pathPending)
+            return;
 
-        HandleRotation(direction);
+        if (navMeshAgent.remainingDistance > navMeshAgent.stoppingDistance + 0.05f)
+            return;
+
+        if (navMeshAgent.hasPath && navMeshAgent.velocity.sqrMagnitude > 0.01f)
+            return;
+
+        StartCoroutine(RotateAndPerform());
+
     }
 
-    private void HandleRotation(Vector3 direction)
+    private IEnumerator RotateAndPerform()
     {
-        if (direction != Vector3.zero)
+        if (currentInteractable == null)
+            yield break;
+
+        navMeshAgent.updateRotation = false;
+
+        Quaternion targetRotation = currentInteractionPoint.rotation;
+
+        while (Quaternion.Angle(transform.rotation, targetRotation) > 1f)
         {
-            Quaternion targetRotation;
+            transform.rotation = Quaternion.RotateTowards(
+                transform.rotation,
+                targetRotation,
+                interactionPointRotationSpeed * Time.deltaTime
+            );
 
-            if (lookAtCamera)
-            {
-                Vector3 cameraDirection = transform.position - Camera.main.transform.position;
-                cameraDirection.y = 0;
-                targetRotation = Quaternion.LookRotation(-cameraDirection);
-            }
-            else
-            {
-                targetRotation = Quaternion.LookRotation(direction);
-            }
-
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            yield return null;
         }
+
+        transform.rotation = targetRotation;
+        navMeshAgent.updateRotation = true;
+
+        currentInteractable.PerformInteraction(this);
+        currentInteractable = null;
+    }
+
+    private void RotateToInteractionPoint2()
+    {
+        if (currentInteractable == null)
+            return;
+
+        transform.rotation = Quaternion.RotateTowards(
+            transform.rotation,
+            currentInteractionPoint.rotation,
+            360 * Time.deltaTime
+        );
     }
 
     private void HandleAnimations()
     {
-        if (isWalking) animator.SetBool("IsWalking", true);
-        else animator.SetBool("IsWalking", false);
+        if (navMeshAgent.velocity.magnitude != 0f)
+        {
+            animator.SetBool("IsWalking", true);
+        }
+        else
+        {
+            animator.SetBool("IsWalking", false);
+        }
     }
 
     public void OnDebugRestart(InputAction.CallbackContext context)
@@ -188,18 +235,18 @@ public class PlayerController : MonoBehaviour
         SceneManager.LoadScene(currentScene.name);
     }
 
-    private void OnFootstep(AnimationEvent animationEvent)
-    {
-        // Kod zakomentowany zgodnie z orygina³em, odkomentuj jeœli chcesz dŸwiêki
-        //if (animationEvent.animatorClipInfo.weight > 0.5f)
-        //{
-        //    if (FootstepAudioClips.Length > 0)
-        //    {
-        //        var index = Random.Range(0, FootstepAudioClips.Length);
-        //        AudioSource.PlayClipAtPoint(FootstepAudioClips[index], transform.TransformPoint(transform.position), .8f);
-        //    }
-        //}
-    }
+    //private void OnFootstep(AnimationEvent animationEvent)
+    //{
+
+    //    if (animationEvent.animatorClipInfo.weight > 0.5f)
+    //    {
+    //        if (FootstepAudioClips.Length > 0)
+    //        {
+    //            var index = Random.Range(0, FootstepAudioClips.Length);
+    //            AudioSource.PlayClipAtPoint(FootstepAudioClips[index], transform.TransformPoint(transform.position), .8f);
+    //        }
+    //    }
+    //}
 }
 
 public enum PlayerCharacter

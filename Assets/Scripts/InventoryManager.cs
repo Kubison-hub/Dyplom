@@ -1,20 +1,27 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic; // <--- WAï¿½NE: To pozwala uï¿½ywaï¿½ Listy
 
 public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance;
 
-    [Header("G³ówne Okno Ekwipunku")]
-    public GameObject inventoryWindow; // <--- PRZYPISZ TUTAJ SWÓJ PANEL EKWIPUNKU
-    public bool isInventoryOpen = false; // <--- Zmienna œledz¹ca stan (Otwarty/Zamkniêty)
+    [Header("Gï¿½ï¿½wne Okno (dla Pauzy)")]
+    public GameObject inventoryWindow; // Przypisz tu panel caï¿½ego ekwipunku
+    public bool isInventoryOpen = false;
 
     [Header("Ikony w UI (Canvas)")]
     public GameObject iconKey;
     public GameObject iconHammer;
     public GameObject iconGlass;
 
+    // Zmienne pomocnicze
     public bool keyInInv = false;
+
+    // --- NOWOï¿½ï¿½: Lista przedmiotï¿½w (Dla Systemu Zapisu) ---
+    // SaveLoadManager bierze tï¿½ listï¿½ i zapisuje do pliku.
+    public List<ItemType> items = new List<ItemType>();
+    // ------------------------------------------------------
 
     private void Awake()
     {
@@ -24,52 +31,40 @@ public class InventoryManager : MonoBehaviour
 
     private void Start()
     {
-        // Na starcie ukrywamy okno ekwipunku
-        if (inventoryWindow != null)
-        {
-            inventoryWindow.SetActive(false);
-            isInventoryOpen = false;
-        }
+        // Na starcie ukrywamy okno, jeï¿½li jest przypisane
+        if (inventoryWindow != null) inventoryWindow.SetActive(false);
     }
 
     private void Update()
     {
-        // Opcjonalnie: Otwieranie/Zamykanie na klawisz (np. TAB lub E)
-        // Jeœli masz to w innym skrypcie (np. PlayerController), mo¿esz to usun¹æ.
-        if (Input.GetKeyDown(KeyCode.Tab)) // <--- Zmieñ klawisz wedle uznania
+        // Otwieranie na TAB (moï¿½esz zmieniï¿½ lub usunï¿½ï¿½, jeï¿½li masz to w PlayerController)
+        if (Input.GetKeyDown(KeyCode.Tab))
         {
             ToggleInventory();
         }
     }
 
-    // Funkcja do normalnego otwierania/zamykania (na przycisk)
+    // --- Obsï¿½uga otwierania/zamykania ---
     public void ToggleInventory()
     {
         isInventoryOpen = !isInventoryOpen;
-
-        if (inventoryWindow != null)
-        {
-            inventoryWindow.SetActive(isInventoryOpen);
-        }
+        if (inventoryWindow != null) inventoryWindow.SetActive(isInventoryOpen);
     }
 
-    // --- NOWA FUNKCJA DLA PAUZY (O któr¹ prosi³eœ) ---
+    // Funkcja dla Menu Pauzy
     public void ForceCloseInventory()
     {
-        // 1. Wy³¹czamy okno w hierarchii
-        if (inventoryWindow != null)
-        {
-            inventoryWindow.SetActive(false);
-        }
-
-        // 2. Resetujemy zmienn¹ stanu
+        if (inventoryWindow != null) inventoryWindow.SetActive(false);
         isInventoryOpen = false;
-
-        Debug.Log("InventoryManager: Wymuszono zamkniêcie ekwipunku przez pauzê.");
     }
 
+    // --- Gï¿½ï¿½wna funkcja dodawania przedmiotï¿½w ---
     public void AddItem(ItemType itemType)
     {
+        // 1. DODAJEMY DO LISTY (To jest kluczowe dla zapisu gry!)
+        items.Add(itemType);
+
+        // 2. Wï¿½ï¿½czamy odpowiedniï¿½ ikonkï¿½ (Twoja logika wizualna)
         switch (itemType)
         {
             case ItemType.Key:
@@ -80,18 +75,18 @@ public class InventoryManager : MonoBehaviour
 
             case ItemType.Hammer:
                 if (iconHammer) iconHammer.SetActive(true);
-                Debug.Log("Ekwipunek: Dodano M³otek");
+                Debug.Log("Ekwipunek: Dodano Mï¿½otek");
                 break;
 
             case ItemType.MagnifyingGlass:
                 if (iconGlass) iconGlass.SetActive(true);
-                Debug.Log("Ekwipunek: Dodano Lupê");
+                Debug.Log("Ekwipunek: Dodano Lupï¿½");
                 break;
         }
     }
 }
 
-// Tutaj jest definicja ItemType - JEDYNA w ca³ym projekcie
+// Enum pozostaje bez zmian
 public enum ItemType
 {
     Key,
