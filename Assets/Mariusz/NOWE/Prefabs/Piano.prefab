@@ -126,10 +126,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7743251025301753875, guid: 2c97fc4c78598504ca1f3f8938a981b2, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e841c4aed636eee47959ef204e3266bf, type: 2}
     - target: {fileID: -7511558181221131132, guid: 2c97fc4c78598504ca1f3f8938a981b2, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 084a9cd7a0c86b745af0e488400c8aee, type: 2}
+      objectReference: {fileID: 2100000, guid: e841c4aed636eee47959ef204e3266bf, type: 2}
+    - target: {fileID: -3610366088582739079, guid: 2c97fc4c78598504ca1f3f8938a981b2, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e841c4aed636eee47959ef204e3266bf, type: 2}
     - target: {fileID: 919132149155446097, guid: 2c97fc4c78598504ca1f3f8938a981b2, type: 3}
       propertyPath: m_Name
       value: Piano
@@ -191,11 +199,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 3838720718803002179}
   m_SourcePrefab: {fileID: 100100000, guid: 2c97fc4c78598504ca1f3f8938a981b2, type: 3}
---- !u!4 &1171110037083207599 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2816210388215862242, guid: 2c97fc4c78598504ca1f3f8938a981b2, type: 3}
-  m_PrefabInstance: {fileID: 3987284578692899917}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &3521559064345527206 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2c97fc4c78598504ca1f3f8938a981b2, type: 3}
@@ -232,7 +235,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   interactionPoint: {fileID: 3684895451788189601}
-  pianoLid: {fileID: 1171110037083207599}
+  pianoLid: {fileID: 0}
   pianoMusicAudio: {fileID: 8300000, guid: 65292650c1dec7949ba33002f86bed4e, type: 3}
   hitLid: {fileID: 8300000, guid: 0aad37f35691b904b88df4e7a0f79d0d, type: 3}
   animationSpeed: 10
