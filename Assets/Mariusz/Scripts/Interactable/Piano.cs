@@ -19,11 +19,15 @@ public class Piano : MonoBehaviour
     public bool isLidOpen = false;
     public bool isAnimating = false;
 
-    private Quaternion openAngle = Quaternion.Euler(145, 0, 0);
-    private Quaternion closeAngle = Quaternion.Euler(0, 0, 0);
+    private Quaternion openAngle = Quaternion.Euler(0, 90, -150);
+    private Quaternion closeAngle = Quaternion.Euler(0, 90, 0);
     private Quaternion targetAngle;
 
     public bool firstPlay = true;
+    public float volume = 1f;
+
+    public AudioSource hit;
+    public AudioSource playMusic;
 
     private void Start()
     {
@@ -66,7 +70,7 @@ public class Piano : MonoBehaviour
 
     private void OpenCover()
     {
-        if (Quaternion.Angle(pianoLid.rotation, openAngle) < 1f) return;
+        if (Quaternion.Angle(pianoLid.localRotation, openAngle) < 1f) return;
 
         animationSpeed = 5;
         targetAngle = openAngle;
@@ -76,7 +80,7 @@ public class Piano : MonoBehaviour
 
     private void CloseCover()
     {
-        if (Quaternion.Angle(pianoLid.rotation, closeAngle) < 1f) return;
+        if (Quaternion.Angle(pianoLid.localRotation, closeAngle) < 1f) return;
 
         animationSpeed = 5;
         targetAngle = closeAngle;
@@ -124,12 +128,13 @@ public class Piano : MonoBehaviour
         isLidOpen = false;
 
         if (hitLid != null)
-            AudioSource.PlayClipAtPoint(hitLid, transform.position);
+            playMusic.Stop();
+            hit.Play();
     }
 
     private void PlayMusic()
     {
         if (pianoMusicAudio != null)
-            AudioSource.PlayClipAtPoint(pianoMusicAudio, transform.position);
+            playMusic.Play();
     }
 }

@@ -43,10 +43,10 @@ public class SwitchCharacter : MonoBehaviour
             SetActivePlayer(nextIndex);
         }
 
-        if (players[1].enabled == false)
-        {
-            RotateWatsonTowardSherlock();
-        }
+        //if (players[1].enabled == false)
+        //{
+        //    RotateWatsonTowardSherlock();
+        //}
     }
 
     private void SetActivePlayer(int index)
