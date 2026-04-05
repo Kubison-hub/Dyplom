@@ -3043,6 +3043,18 @@ PrefabInstance:
       propertyPath: m_ReferenceResolution.y
       value: 1080
       objectReference: {fileID: 0}
+    - target: {fileID: 6136868238593071363, guid: 3452e3d8f5d800c4ca4af31644d134ee, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6136868238593071363, guid: 3452e3d8f5d800c4ca4af31644d134ee, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6136868238593071363, guid: 3452e3d8f5d800c4ca4af31644d134ee, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6205758969689956367, guid: 3452e3d8f5d800c4ca4af31644d134ee, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -4188,6 +4200,11 @@ Transform:
   - {fileID: 2089287143}
   m_Father: {fileID: 261961106}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &138764056 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3132361659419329190, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
+  m_PrefabInstance: {fileID: 60452406}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &139549707
 GameObject:
   m_ObjectHideFlags: 0
@@ -5934,6 +5951,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c8bca95f7c947b4db5fb152a0d693d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anisotropy: 0.25
+  scattering: 1
+  radius: 0.2
 --- !u!114 &225844666
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9099,6 +9119,11 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!1 &367041722 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 776416517460928211, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
+  m_PrefabInstance: {fileID: 1001187580}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &368546873
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10793,6 +10818,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c8bca95f7c947b4db5fb152a0d693d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anisotropy: 0.25
+  scattering: 1
+  radius: 0.2
 --- !u!114 &443064313
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11877,6 +11905,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c8bca95f7c947b4db5fb152a0d693d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anisotropy: 0.25
+  scattering: 1
+  radius: 0.2
 --- !u!114 &511124412
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19351,6 +19382,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &790030428 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6136868238593071363, guid: 3452e3d8f5d800c4ca4af31644d134ee, type: 3}
+  m_PrefabInstance: {fileID: 122107135}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &791286223
 GameObject:
   m_ObjectHideFlags: 0
@@ -19397,6 +19439,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c8bca95f7c947b4db5fb152a0d693d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anisotropy: 0.25
+  scattering: 1
+  radius: 0.2
 --- !u!114 &791286226
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20670,6 +20715,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c8bca95f7c947b4db5fb152a0d693d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anisotropy: 0.25
+  scattering: 1
+  radius: 0.2
 --- !u!114 &842469563
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22989,6 +23037,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c8bca95f7c947b4db5fb152a0d693d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anisotropy: 0.25
+  scattering: 1
+  radius: 0.2
 --- !u!114 &936777902
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24790,6 +24841,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9218354744522542703, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1484393657}
+    - target: {fileID: 9218354744522542703, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Pause
+      objectReference: {fileID: 0}
+    - target: {fileID: 9218354744522542703, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: PauseMenuManager, Assembly-CSharp
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -25770,6 +25833,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c8bca95f7c947b4db5fb152a0d693d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anisotropy: 0.25
+  scattering: 1
+  radius: 0.2
 --- !u!114 &1015079593
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28443,6 +28509,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c8bca95f7c947b4db5fb152a0d693d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anisotropy: 0.25
+  scattering: 1
+  radius: 0.2
 --- !u!114 &1111899621
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30823,6 +30892,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c8bca95f7c947b4db5fb152a0d693d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anisotropy: 0.25
+  scattering: 1
+  radius: 0.2
 --- !u!114 &1255208655
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -33807,6 +33879,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c8bca95f7c947b4db5fb152a0d693d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anisotropy: 0.25
+  scattering: 1
+  radius: 0.2
 --- !u!114 &1362598947
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -35306,6 +35381,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c8bca95f7c947b4db5fb152a0d693d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anisotropy: 0.25
+  scattering: 1
+  radius: 0.2
 --- !u!114 &1432076456
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -35767,6 +35845,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c8bca95f7c947b4db5fb152a0d693d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anisotropy: 0.25
+  scattering: 1
+  radius: 0.2
 --- !u!114 &1446284587
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -36696,6 +36777,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c8bca95f7c947b4db5fb152a0d693d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anisotropy: 0.25
+  scattering: 1
+  radius: 0.2
 --- !u!114 &1465740666
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38136,6 +38220,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c8bca95f7c947b4db5fb152a0d693d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anisotropy: 0.25
+  scattering: 1
+  radius: 0.2
 --- !u!114 &1494006460
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -39108,13 +39195,45 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1276194476}
     - target: {fileID: 407372233903890901, guid: c6334357aac41ca4db5aab504ab61c01, type: 3}
+      propertyPath: pauzaCanvas
+      value: 
+      objectReference: {fileID: 138764056}
+    - target: {fileID: 407372233903890901, guid: c6334357aac41ca4db5aab504ab61c01, type: 3}
       propertyPath: resumeButton
       value: 
       objectReference: {fileID: 1445426645}
     - target: {fileID: 407372233903890901, guid: c6334357aac41ca4db5aab504ab61c01, type: 3}
+      propertyPath: controlCanvas
+      value: 
+      objectReference: {fileID: 367041722}
+    - target: {fileID: 407372233903890901, guid: c6334357aac41ca4db5aab504ab61c01, type: 3}
+      propertyPath: controlsButton
+      value: 
+      objectReference: {fileID: 1101559782}
+    - target: {fileID: 407372233903890901, guid: c6334357aac41ca4db5aab504ab61c01, type: 3}
       propertyPath: pauseMenuPanel
       value: 
       objectReference: {fileID: 1599470360}
+    - target: {fileID: 407372233903890901, guid: c6334357aac41ca4db5aab504ab61c01, type: 3}
+      propertyPath: settingsButton
+      value: 
+      objectReference: {fileID: 1239907174}
+    - target: {fileID: 407372233903890901, guid: c6334357aac41ca4db5aab504ab61c01, type: 3}
+      propertyPath: settingsCanvas
+      value: 
+      objectReference: {fileID: 1844449851}
+    - target: {fileID: 407372233903890901, guid: c6334357aac41ca4db5aab504ab61c01, type: 3}
+      propertyPath: closeControlsButton
+      value: 
+      objectReference: {fileID: 1987026580}
+    - target: {fileID: 407372233903890901, guid: c6334357aac41ca4db5aab504ab61c01, type: 3}
+      propertyPath: closeSettingsButton
+      value: 
+      objectReference: {fileID: 790030428}
+    - target: {fileID: 407372233903890901, guid: c6334357aac41ca4db5aab504ab61c01, type: 3}
+      propertyPath: inventoryGameObject
+      value: 
+      objectReference: {fileID: 1896583876}
     - target: {fileID: 407372233903890901, guid: c6334357aac41ca4db5aab504ab61c01, type: 3}
       propertyPath: returnToMainMenuButton
       value: 
@@ -39415,6 +39534,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c8bca95f7c947b4db5fb152a0d693d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anisotropy: 0.25
+  scattering: 1
+  radius: 0.2
 --- !u!114 &1566905847
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -41026,6 +41148,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c8bca95f7c947b4db5fb152a0d693d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anisotropy: 0.25
+  scattering: 1
+  radius: 0.2
 --- !u!114 &1640046974
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -41854,6 +41979,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c8bca95f7c947b4db5fb152a0d693d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anisotropy: 0.25
+  scattering: 1
+  radius: 0.2
 --- !u!114 &1680258815
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42024,6 +42152,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c8bca95f7c947b4db5fb152a0d693d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anisotropy: 0.25
+  scattering: 1
+  radius: 0.2
 --- !u!114 &1689270661
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -44875,6 +45006,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1843491898}
   m_Mesh: {fileID: 7735157511708977718, guid: a6d3af169fe59a54785284c9673313e4, type: 3}
+--- !u!1 &1844449851 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8482380844181798902, guid: 3452e3d8f5d800c4ca4af31644d134ee, type: 3}
+  m_PrefabInstance: {fileID: 122107135}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1845751699 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 556436615307077918, guid: 9068da4abae2e3f47a39fa974cf7de41, type: 3}
@@ -44980,35 +45116,35 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentIDCounter: 41
-  json: "{\"Options\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":36}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":379.300659,\"yPos\":1012.593},\"ID\":13,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"\u015Amier\u0107
-    kogo\u015B bliskiego mo\u017Ce wydawa\u0107 si\u0119 ko\u0144cem \u015Bwiata...\",\"parentUIDs\":[35],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":31}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":398.201538,\"yPos\":252.599976},\"ID\":22,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"RELACJA\",\"parentUIDs\":[21],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":26}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":816.6,\"yPos\":248.599976},\"ID\":23,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"DODATKOWE
-    INFORMACJE\",\"parentUIDs\":[21],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":25}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":1108.59875,\"yPos\":249.3999},\"ID\":24,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dzi\u0119kujemy
-    za informacje Panienko Violet\",\"parentUIDs\":[21],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":21}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":608.000244,\"yPos\":580.199768},\"ID\":28,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Zmie\u0144my
-    temat\",\"parentUIDs\":[27],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":25}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":830.199341,\"yPos\":578.9997},\"ID\":29,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dzi\u0119kujemy
-    za informacje Panienko Violet\",\"parentUIDs\":[27],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":21}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-116.998688,\"yPos\":1041.40063},\"ID\":37,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Zmie\u0144my
-    temat \",\"parentUIDs\":[40],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":25}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":545.4011,\"yPos\":1337.39868},\"ID\":38,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dzi\u0119kuje
-    za informacje, Panienko Violet.\",\"parentUIDs\":[40],\"SpeechUID\":-1}],\"Parameters\":[],\"SpeechNodes\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":21}],\"EditorInfo\":{\"isRoot\":true,\"xPos\":726,\"yPos\":22},\"ID\":0,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Nie
+  json: "{\"Options\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":36}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":225.300659,\"yPos\":1195.593},\"ID\":13,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"\u015Amier\u0107
+    kogo\u015B bliskiego mo\u017Ce wydawa\u0107 si\u0119 ko\u0144cem \u015Bwiata...\",\"parentUIDs\":[35],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":31}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":244.201538,\"yPos\":435.599976},\"ID\":22,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"RELACJA\",\"parentUIDs\":[21],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":26}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":662.6,\"yPos\":431.599976},\"ID\":23,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"DODATKOWE
+    INFORMACJE\",\"parentUIDs\":[21],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":25}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":954.598755,\"yPos\":432.3999},\"ID\":24,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dzi\u0119kujemy
+    za informacje Panienko Violet\",\"parentUIDs\":[21],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":21}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":454.000244,\"yPos\":763.199768},\"ID\":28,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Zmie\u0144my
+    temat\",\"parentUIDs\":[27],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":25}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":676.199341,\"yPos\":761.9997},\"ID\":29,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dzi\u0119kujemy
+    za informacje Panienko Violet\",\"parentUIDs\":[27],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":21}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-270.998657,\"yPos\":1224.40063},\"ID\":37,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Zmie\u0144my
+    temat \",\"parentUIDs\":[40],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":25}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":391.401123,\"yPos\":1520.39868},\"ID\":38,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dzi\u0119kuje
+    za informacje, Panienko Violet.\",\"parentUIDs\":[40],\"SpeechUID\":-1}],\"Parameters\":[],\"SpeechNodes\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":21}],\"EditorInfo\":{\"isRoot\":true,\"xPos\":572,\"yPos\":205},\"ID\":0,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Nie
     mog\u0119 uwierzy\u0107, \u017Ce ona nie \u017Cyje\u2026to, to nie mo\u017Ce
-    by\u0107 prawda\u2026\",\"parentUIDs\":[],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":22},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":23},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":24}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":725.3999,\"yPos\":136},\"ID\":21,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"S\u0142ucham
-    Panowie\",\"parentUIDs\":[0,28,37],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":1104.599,\"yPos\":324.8},\"ID\":25,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Prosz\u0119...
-    Odkryjcie prawd\u0119\",\"parentUIDs\":[24,29,38],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":27}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":821.4,\"yPos\":319.200073},\"ID\":26,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Czy
-    jest jeszcze co\u015B co mo\u017Ce Panienka powiedzie\u0107?\",\"parentUIDs\":[23],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":28},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":29}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":826.1998,\"yPos\":422.400024},\"ID\":27,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Je\u015Bli
+    by\u0107 prawda\u2026\",\"parentUIDs\":[],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":22},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":23},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":24}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":571.3999,\"yPos\":319},\"ID\":21,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"S\u0142ucham
+    Panowie\",\"parentUIDs\":[0,28,37],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":950.599,\"yPos\":507.8},\"ID\":25,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Prosz\u0119...
+    Odkryjcie prawd\u0119\",\"parentUIDs\":[24,29,38],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":27}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":667.4,\"yPos\":502.200073},\"ID\":26,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Czy
+    jest jeszcze co\u015B co mo\u017Ce Panienka powiedzie\u0107?\",\"parentUIDs\":[23],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":28},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":29}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":672.1998,\"yPos\":605.4},\"ID\":27,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Je\u015Bli
     potrzebuj\u0105 Panowie wiedzie\u0107 co\u015B wi\u0119cej,  prosz\u0119 porozmawia\u0107
-    tak\u017Ce z medium, Selm\u0105, to jej dom i morze co\u015B wiedzie\u0107.\",\"parentUIDs\":[26],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":32}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":395.001526,\"yPos\":333.600159},\"ID\":31,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dlaczego
+    tak\u017Ce z medium, Selm\u0105, to jej dom i morze co\u015B wiedzie\u0107.\",\"parentUIDs\":[26],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":32}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":241.001526,\"yPos\":516.600159},\"ID\":31,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dlaczego
     to pani towarzyszy\u0142a Lady Edith? Nie m\xF3g\u0142 przyj\u015B\u0107 z ni\u0105
-    jej m\u0119\u017C?\",\"parentUIDs\":[22],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":33}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":394.201538,\"yPos\":465.5999},\"ID\":32,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Ciocia
+    jej m\u0119\u017C?\",\"parentUIDs\":[22],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":33}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":240.201538,\"yPos\":648.5999},\"ID\":32,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Ciocia
     nigdy nie wysz\u0142a za m\u0105\u017C. Ceni\u0142a wolno\u015B\u0107 bardziej
     ni\u017C konwenanse, a maj\u0105tek zbudowa\u0142a sama, cho\u0107 pochodzi\u0142a
-    z rodu szlacheckiego.\\n\",\"parentUIDs\":[31],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":34}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":387.001526,\"yPos\":595.999939},\"ID\":33,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Je\u015Bli
+    z rodu szlacheckiego.\\n\",\"parentUIDs\":[31],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":34}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":233.001526,\"yPos\":778.999939},\"ID\":33,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Je\u015Bli
     chodzi o mnie \u2013 jestem dw\xF3rk\u0105 Jej Wysoko\u015Bci kr\xF3lowej Wiktorii.
     Z cioci\u0105 zawsze by\u0142y\u015Bmy blisko i to jej zawdzi\u0119czam miejsce
-    na dworze.\",\"parentUIDs\":[32],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":35}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":387.001526,\"yPos\":714.3994},\"ID\":34,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jakie
-    podej\u015Bcie mia\u0142a do Panienki Ciotka?\",\"parentUIDs\":[33],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":13}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":384.6015,\"yPos\":861.5984},\"ID\":35,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"My\u015Bl\u0119,
-    \u017Ce traktowa\u0142a mnie jak w\u0142asne dziecko\u2026 \",\"parentUIDs\":[34],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":39}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":207.801758,\"yPos\":1182.40137},\"ID\":36,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jest
-    to koniec \u015Bwiata Panie Watson\",\"parentUIDs\":[13],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":40}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":209.401367,\"yPos\":1316.8},\"ID\":39,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Panienko
+    na dworze.\",\"parentUIDs\":[32],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":35}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":233.001526,\"yPos\":897.3994},\"ID\":34,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jakie
+    podej\u015Bcie mia\u0142a do Panienki Ciotka?\",\"parentUIDs\":[33],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":13}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":230.6015,\"yPos\":1044.59839},\"ID\":35,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"My\u015Bl\u0119,
+    \u017Ce traktowa\u0142a mnie jak w\u0142asne dziecko\u2026 \",\"parentUIDs\":[34],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":39}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":53.8017578,\"yPos\":1365.40137},\"ID\":36,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jest
+    to koniec \u015Bwiata Panie Watson\",\"parentUIDs\":[13],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":40}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":55.4013672,\"yPos\":1499.8},\"ID\":39,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Panienko
     Violet, prosze uwierzy\u0107 mi, z mojego do\u015Bwiadczenia wiem, \u017Ce gdy
     odpowiednio przejdzieny okres \u017Ca\u0142oby, \u015Bwiat zn\xF3w b\u0119dzie
-    pe\u0142en barw\",\"parentUIDs\":[36],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":37},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":38}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":203.001343,\"yPos\":1446.39941},\"ID\":40,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Chia\u0142abym
+    pe\u0142en barw\",\"parentUIDs\":[36],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":37},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":38}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":49.0013428,\"yPos\":1629.39941},\"ID\":40,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Chia\u0142abym
     m\xF3c porozmawiac z ni\u0105 ten ostatni raz... Dzi\u0119kuj\u0119 za s\u0142owa
     wsparnia Panie Watson.\",\"parentUIDs\":[39],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0}]}"
   saveVersion: 110
@@ -46385,6 +46521,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c8bca95f7c947b4db5fb152a0d693d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anisotropy: 0.25
+  scattering: 1
+  radius: 0.2
 --- !u!114 &1931898685
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -47573,6 +47712,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c8bca95f7c947b4db5fb152a0d693d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anisotropy: 0.25
+  scattering: 1
+  radius: 0.2
 --- !u!114 &1966544338
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -47983,6 +48125,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9532c1547f1364c4b98e58cc3333ce9a, type: 3}
+--- !u!114 &1987026580 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9218354744522542703, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
+  m_PrefabInstance: {fileID: 1001187580}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1989297753
 GameObject:
   m_ObjectHideFlags: 0
@@ -50628,6 +50781,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c8bca95f7c947b4db5fb152a0d693d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anisotropy: 0.25
+  scattering: 1
+  radius: 0.2
 --- !u!114 &2099962666
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -54900,7 +55056,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ScrollText: 1
-  ScrollSpeed: 1
+  ScrollSpeed: 0.01
   BackgroundImage: {fileID: 21300000, guid: bf566e80557acbc45b9a695fcaa25327, type: 3}
   BackgroundImageSliced: 1
   OptionImage: {fileID: 21300000, guid: bf566e80557acbc45b9a695fcaa25327, type: 3}
