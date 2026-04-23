@@ -57,7 +57,7 @@ public class Interactable : MonoBehaviour
         }
         else
         {
-            Debug.LogError("interactionVFX is null");
+            //Debug.LogError("interactionVFX is null");
         }
 
         if (interactiveShader != null)
