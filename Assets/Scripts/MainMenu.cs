@@ -8,16 +8,27 @@ public class MainMenu : MonoBehaviour
     public GameObject cinematicPanel;
     public VideoPlayer videoPlayer;
 
+    [Header("Zarz¹dzanie Canvasami")]
+    public GameObject mainMenuCanvas; // G³ówne menu (przyciski Start, Opcje, itp.)
+    public GameObject controlCanvas;  // Canvas sterowania
+    public GameObject creditsCanvas;  // Canvas twórców
+    public GameObject settingsCanvas; // Canvas ustawieñ (widoczny na Twoim screenie)
+
     private bool isPlayingIntro = false;
 
     private void Start()
     {
+        // Wy³¹czamy panel intro na starcie
         if (cinematicPanel != null) cinematicPanel.SetActive(false);
 
+        // Ustawiamy event dla koñca wideo
         if (videoPlayer != null)
         {
             videoPlayer.loopPointReached += OnVideoFinished;
         }
+
+        // Upewniamy siê, ¿e po w³¹czeniu gry widaæ tylko G³ówne Menu
+        ShowCanvas(mainMenuCanvas);
     }
 
     private void Update()
@@ -30,39 +41,35 @@ public class MainMenu : MonoBehaviour
             }
         }
 
-        // --- TYMCZASOWE DO TESTÓW (Mo¿esz to usun¹æ potem) ---
-        // Wciœnij 'R' w menu, ¿eby zresetowaæ pamiêæ o intrze
+        // --- TYMCZASOWE DO TESTÓW ---
         if (Input.GetKeyDown(KeyCode.R))
         {
             PlayerPrefs.DeleteKey("IntroObejrzane");
             Debug.Log("Zresetowano intro! Teraz odtworzy siê ponownie.");
         }
-        // -----------------------------------------------------
     }
 
     public void PlayGame()
     {
-        // 1. SPRAWDZAMY CZY JU¯ OGL¥DA£
-        // Pobieramy wartoœæ (jeœli nie ma klucza, domyœlnie 0)
         if (PlayerPrefs.GetInt("IntroObejrzane", 0) == 1)
         {
-            // Jeœli 1, to znaczy ¿e widzia³ -> £adujemy od razu grê
             Debug.Log("Intro ju¿ by³o ogl¹dane. Pomijam.");
             LoadGameLevel();
             return;
         }
 
-        // 2. JEŒLI NIE OGL¥DA£ -> ODPALAMY FILM
         if (cinematicPanel != null && videoPlayer != null)
         {
+            // Przed odpaleniem wideo warto wy³¹czyæ ca³e UI, ¿eby nic nie przeœwitywa³o
+            ShowCanvas(null);
+
             cinematicPanel.SetActive(true);
             videoPlayer.Play();
             isPlayingIntro = true;
             Cursor.visible = false;
 
-            // 3. ZAPISUJEMY W PAMIÊCI, ¯E JU¯ OGL¥DA£
             PlayerPrefs.SetInt("IntroObejrzane", 1);
-            PlayerPrefs.Save(); // Wa¿ne: Zapisz zmiany na dysku
+            PlayerPrefs.Save();
         }
         else
         {
@@ -78,6 +85,7 @@ public class MainMenu : MonoBehaviour
 
     void LoadGameLevel()
     {
+        // Tutaj nadal ³adujemy now¹ scenê, bo to w³aœciwa gra
         Cursor.visible = true;
         isPlayingIntro = false;
         SceneManager.LoadScene("SH_GAME_LEVEL_1");
@@ -89,18 +97,41 @@ public class MainMenu : MonoBehaviour
         Application.Quit();
     }
 
+    // --- FUNKCJE PRZE£¥CZANIA CANVASÓW ---
+
     public void Sterowanie()
     {
-        SceneManager.LoadScene("Sterowanie");
+        ShowCanvas(controlCanvas);
     }
 
     public void Credits()
     {
-        SceneManager.LoadScene("Credits");
+        ShowCanvas(creditsCanvas);
+    }
+
+    public void Settings() // Doda³em dla Settings Canvas, który widaæ na screenie
+    {
+        ShowCanvas(settingsCanvas);
     }
 
     public void Menu()
     {
-        SceneManager.LoadScene("MainMenu");
+        ShowCanvas(mainMenuCanvas);
+    }
+
+    // --- METODA POMOCNICZA ---
+
+    // Ta funkcja wy³¹cza wszystkie Canvasy i w³¹cza tylko ten, który jej przeka¿emy
+    private void ShowCanvas(GameObject canvasToShow)
+    {
+        if (mainMenuCanvas != null) mainMenuCanvas.SetActive(false);
+        if (controlCanvas != null) controlCanvas.SetActive(false);
+        if (creditsCanvas != null) creditsCanvas.SetActive(false);
+        if (settingsCanvas != null) settingsCanvas.SetActive(false);
+
+        if (canvasToShow != null)
+        {
+            canvasToShow.SetActive(true);
+        }
     }
 }
