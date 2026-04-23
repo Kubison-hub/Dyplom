@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a20ddd7e02809c469a19644a657a1ff, type: 3}
+  m_Name: QC_01_ZaplanowaneZabojstwo.
+  m_EditorClassIdentifier: 
+  displayName: "Zaplanowane zab\xF3jstwo"
+  questDescription: Kto?
+  shortDescription: "Kt\u015Bo\u015B sam lub ze wsp\xF3lnikiem zaplnowa\u0142 w tym
+    domu zab\xF3jstwo"
+  mainDescription: 
+  requiredConclusions:
+  - {fileID: 11400000, guid: 833bc5a05d04a0d44ba3dcab5f7c84bb, type: 2}
+  - {fileID: 11400000, guid: 6f1481bd299353143aed198efb5df3d0, type: 2}
+  - {fileID: 11400000, guid: 020be3e11149299429b38f549fe56fe5, type: 2}

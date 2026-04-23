@@ -12,7 +12,7 @@ public class TutorialManager : MonoBehaviour
     public TextMeshProUGUI tutorialText;
 
     [Header("Ustawienia")]
-    private bool isTutorialActive = false;
+    public bool isTutorialActive = false;
 
     // Zbiór ID tutoriali, które ju¿ by³y (HashSet jest szybki, ale nie zapisuje siê w JSON)
     private HashSet<string> pokazaneTutoriale = new HashSet<string>();
@@ -72,7 +72,7 @@ public class TutorialManager : MonoBehaviour
     private IEnumerator PokazStartowyTutorial()
     {
         yield return new WaitForSeconds(0.1f);
-        PokazTutorial("Wciœnij Lewy Przycisk Myszy, aby siê poruszyæ.", "MoveTutorial");
+        PokazTutorial("Wciœnij Lewy Przycisk Myszy, aby siê poruszyæ. Przytrzaj Lewy Shift, aby wejœæ w tryb skupienia", "MoveTutorial");
     }
 
     // --- FUNKCJE DLA SYSTEMU ZAPISU (NOWOŒÆ) ---

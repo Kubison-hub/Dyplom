@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8fd0118121f893e42821293634c750df, type: 3}
+  m_Name: "CN_03_SladyNaPod\u0142odze"
+  m_EditorClassIdentifier: 
+  displayName: "\u015Alady Na pod\u0142odze"
+  requiredClues:
+  - {fileID: 11400000, guid: c317a7957482aee47a84912e292ac6c3, type: 2}
+  - {fileID: 11400000, guid: aaef8657e0415154aae4110c18dbb593, type: 2}
+  - {fileID: 11400000, guid: 48543b1f2dd7bbd43a2992dde5c46175, type: 2}
+  displayDuration: 10
+  shortDescription: "Kim kolwiek nie jest nasz zab\xF3cja, zna dom Madame Salmy.
+    Musz\u0119 pom\xF3wi\u0107 z Ma\u0142\u0105 Ethel."

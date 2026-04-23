@@ -16,7 +16,7 @@ public class PlayerTopText : MonoBehaviour
         Instance = this;
     }
 
-    public void ShotTopText(string sText = "", string wText = "")
+    public void ShowTopText(string sText = "", string wText = "")
     {
         StartCoroutine(ShowTopTextCor(sText, wText));
     }

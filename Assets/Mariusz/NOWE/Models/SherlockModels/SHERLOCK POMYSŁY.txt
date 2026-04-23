@@ -1,0 +1,107 @@
+SHERLOCK POMYSŁY
+
+
+
+
+PPM - tryb myśli ("Hm?); pojedyńczy wystrzał myśli. Rangu. Wykrywa interaktywne przedmioty i npc (jeżeli są na lini wzroku i odpowiediej odległości). podświetla drogę sugerującą pomieszczenie/miejsce (jak wskazówka w taumaturge.)
+HOLD_PPM - Przytrzymywamy tryb myślie ("Hmm...", "interesting"); trwały pobyć w myśli. Range. Wykrywa interaktywne przedmioty, rozwiązuje zagadkę, aby otworzyć drzwi aby rozwiązując zagadkę (np. jak w lego star wars poskładać myśli, że glucz jest w książce) albo. Otwierasz pickloki czasem ("Hmm, should be there", kilka wersji). Odkrywasz detale odnośnie npc, dodaje opcje dialogowe (kluczowe). czasowo. Łączysz fakty. Czuje zapachy, rozpoznaje ślady (może zależnie od zebranych poszlak (np dla rozwiązania zagadki musi być połącząone trzy ślady,. Może nawet rozpoznawać zdarzenia. 
+
+
+(czas trwania może brać się z expa -> zdobytych śladów i poszlak.)
+
+Rozwiązywanie zagadek i otwiranie drzwi/zamków, za pomocą myśli.
+
+Myśl ma ograniczony poziom trwania (można zwiększać w drzewku umiejętności (exp?, pregress?)) wię niektóre zagadki same się nie rozwiążą a zamki nie otworzą bez klucza.)
+
+Szybkoś rozwiązywania zagadek/otwierania zamków można zwiększać w drzewku umejętności. 
+
+
+
+
+
+ZAGADKI - Zagadkę rozwiązuje się zebranymi poszlakami, zagaki pełną funkę rozdziałów, może być ich np. od 3 do 5 na level)
+Do rozwiązania kluczowych zagadek (POSZLAKI), potrzebne są np. 3 ŚLADY // albo poszlaki na zagadkę (3/9) 
+Po zagadce aktualizuje się "dziennik" wprowadzony jest nowy etap / quest. 
+
+Np. na początku rozdziału pojawia się w UI okno mówiące jaki jest cel główny ("Dostać się na piętro" - ZAGADKA) 
+aby się dostać na piętro trzeba odgonić Lady Selma od schodów.
+
+Poszlaki tworzą rozwiązanie Zagadki
+
+Znaleźć drzwi do piwnicy (może dialgo jest potrzeby, aby zdobyć jedną poszkalę do drogi do piwnicy (np. kod, konkretna książka, klucz), rozwiązanie zagadki z drzwiami do piwnicy (poszkala), ułożenie 
+
+
+DIALOG (PRZYKŁAD)
+
+npc trochę się oskarżają.
+
+npc wskazują (może kłamią) ale dobrze by było jakby była wewnętrzna intryga.
+
+zbudować intrygę w której znajduje się gracz, za pomocą dialogów.
+
+dialog daje potrzebne informacje aby zdobyć poszlakę. 
+
+
+
+MECHANIKA
+
+W trakcie run playu npc przemieszczają się po planszy, jeżeli będą przechodzić obok siebie mogą zdradzić poszlakę (ale tylko jak myślą, że nikt ich nie widzie (Sherlock może wykorzystywać enviroment do chowania się. Watson może być ustawioną sondą. ( dzięki temu mamy dodatkową mechanikę gry na czas, (odpowienie ustawienie siebie i watsona powoduje odkrycie poszlaki, triggera, (np sychro odwartego przejścia). 
+
+
+Nadaś osobowość postaci w grze komputerowej (w 30 min).
+Tak można nadać osobowości postaci
+
+Nadać wagę npc'com. poprzez utratę czegoś na ten moment w wyniuky wybrania zgłego dialogu (nawet nie muszą być być w dialugu dobrych oprócz wyjdź(chyba że nasz poszlakę).
+
+znalezione przedmioty. np. notatka może postawić kogoś w złym świetle. może to być groźba do innego npc. (albo Sherlocka, albo Watsona itp, np Lady Selmy) ;
+
+
+Mapa myśli jako Mapa levelów  (dziennik?, wniosek?)).
+
+źle poprowadzony dialog (zła wybrana opcja)/stracony dialog może np. dawać minus do jej poziomu sympati/wiary/etc 
+Dobrze porowadzony dialog zdaje plusy
+
+może to mmieć kluczowe znaczenie jakie ktoś ma na nas nastawienie/może jakiś npc nawet zatakować i gra może inaczej się poprowdzić)
+
+może główym kluczem do schodów jest nakłonić innego npc do zmuszenia selmy że kilka osób wchodzi, albo że po prostu otwiera drogę. (niezależnie od ilości, najważniejsza poszlaka jest na górze).
+
+W pewnym momendzie npc podchodzą do Watsona i watson jest zablokowany a odblokowuje go dialog, który może być udany albo nie ale zawsze uwalnia watsona i akutomatycznie jest dialog z Watsonem.
+
+Znajdowanie poszlag pomoże oznaczać NAGRODY
+
+trigger ktróry wywołuję jakieś fajne zdarzenie i dodaje expa.
+
+Nieudany dialog może wytworzyć pozytywne zdarzenie, np. drogę do otwarcia drzwi poprzez wykorzystanie dialogu enviromentu i timingu. Watsonem możemy resetować timing jeżeli nie zdobędzie celu. (mechanika watsona)
+
+może aby złapać poszlakę trzeba zagadać z npc. który jest w ruchu ale żeby do dorwać trzeba zagadać Watsone, bo ucieka od Sherlocka (albo 2x szybciej). 
+
+możesz rozwiązać mikro zagadkę żeby mieć odblokowany dialog
+
+Zagaką może być zablokowany Watson. albo w sytuacji albo w dialogu albo w decyzji gry (np. obrazi się i czeka rozwiązanie zagadki) - pełni wtedy rolę naratora i fajnie wymusza interakcję. Nagrodą za zagadkę jest następny etap i odblokowanie watsona w trzecim etapie (w pierwszym jest, w drugim nie ma i w trzecim jest).
+
+
+Poczekaj Watsonie muszę sobie przypomnieć. stałem tutaj. (trigger do zabrania dowodów i przypomnieni sobie sceny zabójstwa przed zgaszeniem światło i po zgaszeniu światła. (Jako główny boss, główy wniosek levelu, gry);
+
+Nowym questem 3go etapu może być porozmawiaj z Lady Selma - czyli antagonista wpierwszego stagu (parteru)
+
+W czasie 3poziomu można znaleźć haka na Lady Selme albo innego -> zabójcę.
+
+W dialogu nawiązać że Sherlock wie o skrywanej tajemnicy, albo skrywanej chęci podpowiedzi.
+
+Z gry możemy się dowiedzieć jakąś rzecz odnośnie npc. np. cygaro które pali jest też w pomieszczeniu. Dwa ślady do poszlaki
+
+może po dialogu w pomieszczeniu będą interakcje które wcześniej były newykrywalne dla myśli.
+
+Cały dziennik jako mapa myśli od razu ze wszystkimi bajerami, cały progres zapisuje się do mapy myśli. nawigacja może pokazywać najnowszy atualny wpis.
+
+Przedmioty i enviro nawiązują do tego co diziało się w tym domu i kto przy tym uczesniczył.
+
+ZAGADKA LUSTRO. najpier lustro to poszlaka, że z przeglądająć się w lustrze widzi się jakąć cześć pomieszczenia. później ustawiasz się jak target i widzisz go że patrzy i kogo, potrzebna poszlaka?. pokazać kilka razy lustro w grze aby zrobić bajer z lustrem. lustro podmiotem questa.
+
+
+
+
+rozwiązywaniem śladów może być rozwiązywanie zagadek myślą. zamiast zwykłej inpormacji fajna animacja układania myśli (książki, cofanie czasu.) Byliśmy tu od początku ale odkrywamy do czego tu doszło wcześniej. (nawet zamknięte drzwi mogą nie mieć sensu i cośnięcie będzie cekawe ("Ktoś zamknął drzwi?". "Kto zdążył zamknąć drzwi?"
+
+można dialogiem odblokować animacje która udupia npcka tekstem.
+

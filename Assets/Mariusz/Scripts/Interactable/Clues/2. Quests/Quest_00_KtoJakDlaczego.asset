@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01e342f1ef47700439418623e30e9d23, type: 3}
+  m_Name: Quest_00_KtoJakDlaczego
+  m_EditorClassIdentifier: 
+  displayName: Kto, jak, dlaczego?
+  shortDescription: "Seans zako\u0144czy\u0142 si\u0119 tragicznie. Dlaczego Lady
+    Edith musia\u0142a zgin\u0105\u0107? Dlaczego Lady Edith musia\u0142a zgin\u0105\u0107
+    i czy nasza obecno\u015B\u0107 jest tu przypadkowa?"
+  mainDescription: 
+  requiredQuestConclusions:
+  - {fileID: 11400000, guid: a0f1b91fe36069446ab964dd8fd9ab3a, type: 2}
+  - {fileID: 11400000, guid: 79476d7ce4019f245b05376d72150821, type: 2}
+  nextQuest: {fileID: 11400000, guid: 45c422624c03af644a7e83350315d106, type: 2}

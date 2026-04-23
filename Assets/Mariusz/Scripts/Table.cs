@@ -44,12 +44,12 @@ public class Table : MonoBehaviour
 
         if (!InventoryManager.Instance.keyInInv)
         {
-            PlayerTopText.Instance.ShotTopText("Interesuj¹ce Watsonie, wygl¹da to na jakiœ mechanizm", 
+            PlayerTopText.Instance.ShowTopText("Interesuj¹ce Watsonie, wygl¹da to na jakiœ mechanizm", 
                 "czegoœ tu brakuje, Holmes");
         }
         else
         {
-            PlayerTopText.Instance.ShotTopText("Figurka pasuje idealnie", "");
+            PlayerTopText.Instance.ShowTopText("Figurka pasuje idealnie", "");
             InventoryManager.Instance.iconKey.SetActive(false);
             key.SetActive(true);
             
@@ -82,7 +82,7 @@ public class Table : MonoBehaviour
         if (InventoryManager.Instance.keyInInv)
         {
             dresserAnimator.SetTrigger("Push");
-            PlayerTopText.Instance.ShotTopText("", "Sherlock, komoda ustêpuje miejsca do œciany!");
+            PlayerTopText.Instance.ShowTopText("", "Sherlock, komoda ustêpuje miejsca do œciany!");
             wallSwitcher.canOpen = true;
             questDone = true;
             InventoryManager.Instance.keyInInv = false;
