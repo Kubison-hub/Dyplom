@@ -7,7 +7,7 @@ public class Piano : MonoBehaviour
     
     public Transform interactionPoint;
 
-    [SerializeField] private Transform pianoLid;
+    [SerializeField] private Transform[] pianoLids;
     [SerializeField] private AudioClip pianoMusicAudio;
     [SerializeField] private AudioClip hitLid;
 
@@ -23,7 +23,7 @@ public class Piano : MonoBehaviour
     private Quaternion closeAngle = Quaternion.Euler(0, 90, 0);
     private Quaternion targetAngle;
 
-    public bool firstPlay = true;
+    public bool firstPlay = false;
     public float volume = 1f;
 
     public AudioSource hit;
@@ -36,15 +36,20 @@ public class Piano : MonoBehaviour
 
     private void Update()
     {
-        if (isAnimating && pianoLid != null)
+        if (isAnimating)
         {
-            pianoLid.localRotation = Quaternion.Slerp(pianoLid.localRotation, targetAngle, animationSpeed * Time.deltaTime);
-
-            if (Quaternion.Angle(pianoLid.localRotation, targetAngle) < 0.5f)
+            foreach (var pianoLid in pianoLids)
             {
-                pianoLid.localRotation = targetAngle;
-                isAnimating = false;
+                pianoLid.localRotation = Quaternion.Slerp(pianoLid.localRotation, targetAngle, animationSpeed * Time.deltaTime);
+
+                if (Quaternion.Angle(pianoLid.localRotation, targetAngle) < 0.5f)
+                {
+                    pianoLid.localRotation = targetAngle;
+                    isAnimating = false;
+                }
             }
+
+            
         }
     }
 
@@ -60,6 +65,7 @@ public class Piano : MonoBehaviour
     {
         Debug.Log("Perform Interaction " + gameObject.name);
         UsePiano(player);
+        player.currentInteractable = null;
     }
 
     private void UsePiano(PlayerController player)
@@ -70,22 +76,32 @@ public class Piano : MonoBehaviour
 
     private void OpenCover()
     {
-        if (Quaternion.Angle(pianoLid.localRotation, openAngle) < 1f) return;
+        foreach (var pianoLid in pianoLids)
+        {
+            if (Quaternion.Angle(pianoLid.localRotation, openAngle) < 1f) return;
 
-        animationSpeed = 5;
-        targetAngle = openAngle;
-        isAnimating = true;
-        isLidOpen = true;
+            animationSpeed = 5;
+            targetAngle = openAngle;
+            isAnimating = true;
+            isLidOpen = true;
+        }
+
+        
     }
 
     private void CloseCover()
     {
-        if (Quaternion.Angle(pianoLid.localRotation, closeAngle) < 1f) return;
+        foreach (var pianoLid in pianoLids)
+        {
+            if (Quaternion.Angle(pianoLid.localRotation, closeAngle) < 1f) return;
 
-        animationSpeed = 5;
-        targetAngle = closeAngle;
-        isAnimating = true;
-        isLidOpen = false;
+            animationSpeed = 5;
+            targetAngle = closeAngle;
+            isAnimating = true;
+            isLidOpen = false;
+        }
+
+            
     }
 
     private void DoRandomAction(PlayerController player)

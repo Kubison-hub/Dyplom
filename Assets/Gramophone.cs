@@ -52,7 +52,7 @@ public class Gramophone : MonoBehaviour
         // 2. Tekst u góry ekranu
         if (PlayerTopText.Instance != null)
         {
-            PlayerTopText.Instance.ShotTopText("Wygl¹da na to, ¿e duchy znowu nawiedzaj¹ dom", "Porozmawiajmy z Madame Selma");
+            PlayerTopText.Instance.ShowTopText("Wygl¹da na to, ¿e duchy znowu nawiedzaj¹ dom", "Porozmawiajmy z Madame Selma");
         }
 
         // 3. Odblokowanie notatki
@@ -62,14 +62,14 @@ public class Gramophone : MonoBehaviour
         }
 
         // 4. KLUCZOWE: Uruchomienie NPC (Tego brakowa³o w Twoim wklejonym kodzie)
-        if (npcDoOdwroceniaUwagi != null)
-        {
-            npcDoOdwroceniaUwagi.GoToPoint();
-        }
-        else
-        {
-            Debug.LogWarning("Gramophone: Nie przypisano NPC do pola 'npcDoOdwroceniaUwagi'!");
-        }
+        //if (npcDoOdwroceniaUwagi != null)
+        //{
+        //    npcDoOdwroceniaUwagi.GoToPoint();
+        //}
+        //else
+        //{
+        //    Debug.LogWarning("Gramophone: Nie przypisano NPC do pola 'npcDoOdwroceniaUwagi'!");
+        //}
     }
 
     

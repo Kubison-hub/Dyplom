@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a20ddd7e02809c469a19644a657a1ff, type: 3}
+  m_Name: QC_02_PowiazaniaLadyEdith
+  m_EditorClassIdentifier: 
+  displayName: "Powi\u0105zania Lady Edith"
+  type: Konkluzja
+  shortDescription: "Ka\u017Cdy z uczestnik\xF3w seasu dobrze zna\u0142 Lady Edithi
+    i ka\u017Cdy m\xF3g\u0142by by\u0107 potencjalnym wspolnikiem zab\xF3jcy."
+  questDescription: "Dowiedz si\u0119 wi\u0119cej o Powiazaniach Lady Edith"
+  mainDescription: kjhkjhkjhkjh
+  requiredConclusions:
+  - {fileID: 11400000, guid: 42e383b67d34fec41893184f7e592cee, type: 2}

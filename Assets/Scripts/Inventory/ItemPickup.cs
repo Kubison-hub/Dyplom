@@ -31,7 +31,7 @@ public class PickupItem : MonoBehaviour
         if (InventoryManager.Instance != null)
         {
             InventoryManager.Instance.AddItem(itemType);
-            PlayerTopText.Instance.ShotTopText("To mo¿e siê przydaæ");
+            PlayerTopText.Instance.ShowTopText("To mo¿e siê przydaæ");
         }
         else
         {

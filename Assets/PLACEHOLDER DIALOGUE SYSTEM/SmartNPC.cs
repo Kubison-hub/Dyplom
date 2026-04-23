@@ -1,5 +1,7 @@
-using UnityEngine;
 using DialogueEditor;
+using System;
+using System.Collections;
+using UnityEngine;
 using UnityEngine.AI;
 
 public class SmartNPC : MonoBehaviour
@@ -24,6 +26,7 @@ public class SmartNPC : MonoBehaviour
 
     public NavMeshAgent navMeshAgent;
     public Transform movePoint;
+    private Coroutine movementCoroutine;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -56,21 +59,28 @@ public class SmartNPC : MonoBehaviour
     private void Start()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
+
+        if (navMeshAgent == null)
+        {
+            navMeshAgent = GetComponentInParent<NavMeshAgent>();
+        }
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.I))
-        {
-            if (ConversationManager.Instance != null && !ConversationManager.Instance.IsConversationActive)
-            {
-                SprawdzIZacznijRozmowe();
-            }
-        }
+        //if (Input.GetKeyDown(KeyCode.I))
+        //{
+        //    if (ConversationManager.Instance != null && !ConversationManager.Instance.IsConversationActive)
+        //    {
+        //        SprawdzIZacznijRozmowe();
+        //    }
+        //}
     }
 
-    private void SprawdzIZacznijRozmowe()
+    public void SprawdzIZacznijRozmowe()
     {
+        Debug.Log("TUTAJ 1");
+
         bool dialogRozpoczety = false;
 
         // --- Interakcja dla Sherlocka (PlayerA) ---
@@ -82,7 +92,7 @@ public class SmartNPC : MonoBehaviour
             {
                 QuestManager.Instance.OdnotujRozmowe("PlayerA", npcID);
             }
-
+            Debug.Log("TUTAJ 2");
             ConversationManager.Instance.StartConversation(rozmowaDlaPostaciA);
             dialogRozpoczety = true;
         }
@@ -95,7 +105,7 @@ public class SmartNPC : MonoBehaviour
             {
                 QuestManager.Instance.OdnotujRozmowe("PlayerB", npcID);
             }
-
+            Debug.Log("TUTAJ 3");
             ConversationManager.Instance.StartConversation(rozmowaDlaPostaciB);
             dialogRozpoczety = true;
         }
@@ -121,8 +131,28 @@ public class SmartNPC : MonoBehaviour
         return true;
     }
 
-    public void GoToPoint() 
+    public void GoToPoint(Vector3 destination, Action onReachedDestination = null) 
     {
-        navMeshAgent.SetDestination(movePoint.position);
+        if (movementCoroutine != null) StopCoroutine(movementCoroutine);
+
+        navMeshAgent.SetDestination(destination);
+
+        movementCoroutine = StartCoroutine(WaitForArrival(onReachedDestination));
+    }
+
+    private IEnumerator WaitForArrival(Action onReached)
+    {
+        yield return new WaitUntil(() => navMeshAgent.pathPending == false);
+
+        while (navMeshAgent.remainingDistance > navMeshAgent.stoppingDistance)
+        {
+            yield return null;
+        }
+
+        if (!navMeshAgent.hasPath || navMeshAgent.velocity.sqrMagnitude == 0f)
+        {
+            onReached?.Invoke();
+            movementCoroutine = null;
+        }
     }
 }

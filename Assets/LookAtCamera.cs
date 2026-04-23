@@ -6,24 +6,39 @@ public class LookAtCamera : MonoBehaviour
     private Transform cam;
     private Material mat;
 
+    [Header("Sta³y rozmiar na ekranie")]
+    [SerializeField] private float scaleMultiplier = 0.01f;
+    [SerializeField] private float referenceDistance = 10f;
+    [SerializeField] private bool keepConstantSize = true;
+
     void Start()
     {
         cam = Camera.main.transform;
 
-        // Wymuszenie renderowania zawsze na wierzchu
         Renderer renderer = GetComponent<Renderer>();
-        mat = renderer.material; // Uwaga: to tworzy kopiê materia³u!
+        mat = renderer.material;
 
         if (mat != null)
         {
-            mat.renderQueue = 4000;       // Overlay
-            mat.SetInt("_ZTest", 8);      // 8 = Always (zawsze rysuj, nawet przez inne obiekty)
+            mat.renderQueue = 4000;
+            mat.SetInt("_ZTest", 8);
         }
     }
 
     void LateUpdate()
     {
-        // Billboard — patrz w stronê kamery bez obracania siê "do góry nogami"
+        if (cam == null)
+            return;
+
+        
         transform.LookAt(transform.position + cam.forward, cam.up);
+
+   
+        if (keepConstantSize)
+        {
+            float distance = Vector3.Distance(transform.position, cam.position);
+            float scale = scaleMultiplier * (distance / referenceDistance);
+            transform.localScale = Vector3.one * scale;
+        }
     }
 }

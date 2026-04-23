@@ -12,27 +12,44 @@ using PxP.DOCS;
 
 public class SwitchCharacter : MonoBehaviour
 {
+  
+
+    public static SwitchCharacter Instance;
+
+    public bool canSwitchOnStart = false;
+
     public Transform sherlockTransform;
     public Transform watsonTransform;
     public float watsonRotationSpeed = 3f;
 
     public PlayerInput[] players;
     public CinemachineCamera[] playersCamera;
-    private int activePlayerIndex = 0;
+    public int activePlayerIndex = 0;
 
     public TextMeshProUGUI activePlayerText;
 
     [SerializeField] DynamicOcclusionCutoutSystem dynamicOcclusionCutoutSystem;
 
+    
+
+    public bool canSwitch = true;
 
     private void Start()
     {
+        Instance = this;
+
         if (dynamicOcclusionCutoutSystem == null)
         {
             Debug.LogError("dynamicOcclusionCutoutSystem == null");
         }
 
+        
+
         SetActivePlayer(0);
+
+        if (canSwitchOnStart)
+            canSwitch = true;
+        
     }
 
     private void Update()
@@ -41,6 +58,7 @@ public class SwitchCharacter : MonoBehaviour
         {
             int nextIndex = (activePlayerIndex + 1) % players.Length;
             SetActivePlayer(nextIndex);
+            
         }
 
         //if (players[1].enabled == false)
@@ -49,21 +67,26 @@ public class SwitchCharacter : MonoBehaviour
         //}
     }
 
-    private void SetActivePlayer(int index)
+    public void SetActivePlayer(int index)
     {
-        for (int i = 0; i < players.Length; i++)
+        if (canSwitch)
         {
-            players[i].enabled = (i == index);
+            for (int i = 0; i < players.Length; i++)
+            {
+                players[i].enabled = (i == index);
 
-            playersCamera[i].Priority = (i == index) ? 10 : 0;
+                playersCamera[i].Priority = (i == index) ? 10 : 0;
+            }
+
+            activePlayerIndex = index;
+
+            SetWallTransparencyTarget(players[index].gameObject.transform);
+
+            activePlayerText.text = players[index].gameObject.name;
+            //Debug.Log("Zmiana na: " + players[index].gameObject.name);
         }
 
-        activePlayerIndex = index;
 
-        SetWallTransparencyTarget(players[index].gameObject.transform);
-
-        activePlayerText.text = players[index].gameObject.name;
-        //Debug.Log("Zmiana na: " + players[index].gameObject.name);
 
     }
 

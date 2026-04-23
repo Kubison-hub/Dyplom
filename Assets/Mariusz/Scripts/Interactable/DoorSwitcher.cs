@@ -66,7 +66,7 @@ public class DoorSwitcher : MonoBehaviour
             if (!isOpen)
             {
                 wallAnimator.SetTrigger("Open");
-                PlayerTopText.Instance.ShotTopText("Brawo Watsonie!, ciekawe jak¹ tajemnicê skrywa to tajne przejœcie", "W rzeczy samej Sherlock");
+                PlayerTopText.Instance.ShowTopText("Brawo Watsonie!, ciekawe jak¹ tajemnicê skrywa to tajne przejœcie", "W rzeczy samej Sherlock");
                 isOpen = true;
                 hidenRoom.isActive = true;
                 hidenRoom.discovered = true;
@@ -75,7 +75,7 @@ public class DoorSwitcher : MonoBehaviour
             else
             {
                 wallAnimator.SetTrigger("Close");
-                PlayerTopText.Instance.ShotTopText("Naraazie zamkniemy", "Doskonale");
+                PlayerTopText.Instance.ShowTopText("Naraazie zamkniemy", "Doskonale");
                 isOpen = false;
                 
             }
@@ -86,7 +86,7 @@ public class DoorSwitcher : MonoBehaviour
         else
         {
             wallAnimator.SetTrigger("TryOpen");
-            PlayerTopText.Instance.ShotTopText("Hmm, wygl¹da na to, ¿e komoda specjalnie blokuje dojœcie do œciany", "Dok³adnie, wydaje siê zbyt ciê¿ka aby przepchaæ j¹ rêcznie.");
+            PlayerTopText.Instance.ShowTopText("Hmm, wygl¹da na to, ¿e komoda specjalnie blokuje dojœcie do œciany", "Dok³adnie, wydaje siê zbyt ciê¿ka aby przepchaæ j¹ rêcznie.");
         }
             
     }

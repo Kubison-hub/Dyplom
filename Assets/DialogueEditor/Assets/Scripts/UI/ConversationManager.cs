@@ -19,6 +19,8 @@ namespace DialogueEditor
             NONE,
         }
 
+        public bool inConversation = false;
+
         private const float TRANSITION_TIME = 0.2f; // Transition time for fades
 
         public static ConversationManager Instance { get; private set; }
@@ -145,6 +147,7 @@ namespace DialogueEditor
 
         public void StartConversation(NPCConversation conversation)
         {
+            inConversation = true;
             m_conversation = conversation.Deserialize();
             if (OnConversationStarted != null)
                 OnConversationStarted.Invoke();
@@ -156,10 +159,46 @@ namespace DialogueEditor
 
         public void EndConversation()
         {
+            inConversation = false;
             SetState(eState.TransitioningDialogueOff);
 
             if (OnConversationEnded != null)
                 OnConversationEnded.Invoke();
+
+
+
+            // DIALOGI Q2
+
+
+            if (Int2_WatsonDialogSherlock.Instance != null)
+            {
+                if (Int2_WatsonDialogSherlock.Instance.performed && !Int2_WatsonDialogSherlock.Instance.dialogPerformed)
+                {
+                    Int2_WatsonDialogSherlock.Instance.dialogPerformed = true;
+                    Int2_WatsonDialogSherlock.Instance.dialogCam.Priority = 0;
+                    Int2_WatsonDialogSherlock.Instance.SwitchAndShowTutInfo();
+                }
+            }
+
+            if (Int2_WatsonDialogViolet.Instance != null)
+            {
+                if (Int2_WatsonDialogViolet.Instance.performed && !Int2_WatsonDialogViolet.Instance.dialogPerformed)
+                {
+                    Int2_WatsonDialogViolet.Instance.dialogPerformed = true;
+                    Int2_WatsonDialogViolet.Instance.MoveToPosition();
+                    
+                }
+            }
+
+            //if (Int2_WatsonDialogViolet_2.Instance != null)
+            //{
+            //    if (Int2_WatsonDialogViolet_2.Instance.performed && !Int2_WatsonDialogViolet_2.Instance.dialogPerformed)
+            //    {
+            //        Int2_WatsonDialogViolet_2.Instance.dialogPerformed = true;
+            //        Int2_WatsonDialogViolet_2.Instance.MoveToPosition();
+
+            //    }
+            //}
         }
 
         public void SelectNextOption()

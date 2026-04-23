@@ -1,5 +1,7 @@
-using UnityEngine;
+using DialogueEditor;
 using TMPro;
+using UnityEngine;
+using UnityEngine.VFX;
 
 public class MouseTooltipManager : MonoBehaviour
 {
@@ -7,6 +9,8 @@ public class MouseTooltipManager : MonoBehaviour
     [Tooltip("Przeci¹gnij tutaj ca³y panel t³a z Canvasa")]
     public GameObject tooltipPanel;
 
+    public GameObject interactionShader;
+    public VisualEffect interactionFx;
     [Tooltip("Przeci¹gnij tutaj obiekt Text (TMP) znajduj¹cy siê w panelu")]
     public TextMeshProUGUI tooltipText;
 
@@ -15,7 +19,7 @@ public class MouseTooltipManager : MonoBehaviour
     public LayerMask detectionLayer = ~0; // Jakie warstwy ma wykrywaæ
 
     private Camera mainCam;
-
+    public Interactable interactable;
     void Awake()
     {
         mainCam = Camera.main;
@@ -53,28 +57,64 @@ public class MouseTooltipManager : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit, 100f, detectionLayer))
         {
             // Sprawdzamy czy trafiony obiekt ma nasz¹ "metkê" z opisem
-            ObjectDescription desc = hit.collider.GetComponent<ObjectDescription>();
+            Interactable desc = hit.collider.GetComponent<Interactable>();
+            interactable = desc;
 
-            if (desc != null)
+            if (interactable != null)
             {
-                // Trafiliœmy na obiekt z opisem - poka¿ go
-                ShowTooltip(desc.description);
+                if (ConversationManager.Instance.inConversation || TutorialManager.Instance.isTutorialActive) return;
+
+                if (interactable.isInteractableActive == true )
+
+                {
+                    
+
+                    if (interactable.isFootPrintInteraction)
+                    {
+                       
+
+                        if (interactable.isNearPlayer)
+                        {
+
+                            
+                            ShowTooltip(interactable.objectDescription);
+                            interactionFx = interactable.interactionVFX;
+                            interactionShader = interactable.interactiveShader;
+                            ToggleIntShader(true);
+                            
+                        }
+                    }
+                    else
+                    {
+                        
+                        ShowTooltip(interactable.objectDescription);
+                        interactionFx = interactable.interactionVFX;
+                        interactionShader = interactable.interactiveShader;
+                        ToggleIntShader(true);
+                        
+                    }
+                }
             }
             else
             {
+                
                 // Trafiliœmy w coœ bez opisu (np. pod³ogê)
                 HideTooltip();
+                ToggleIntShader(false);
             }
         }
         else
         {
+            
             // Myszka patrzy w pustkê
             HideTooltip();
+            ToggleIntShader(false);
         }
     }
 
     private void ShowTooltip(string text)
     {
+       
         if (tooltipText != null) tooltipText.text = text;
         if (tooltipPanel != null) tooltipPanel.SetActive(true);
     }
@@ -82,5 +122,31 @@ public class MouseTooltipManager : MonoBehaviour
     private void HideTooltip()
     {
         if (tooltipPanel != null) tooltipPanel.SetActive(false);
+    }
+
+    private void ToggleIntShader(bool v)
+    {
+        if (v)
+        {
+            
+            if (interactionFx != null)
+                interactionFx.Play();
+            if (interactionShader != null) 
+                interactionShader.SetActive(true);
+
+            
+        }
+        else
+        {
+            
+            if (interactionFx != null)
+                interactionFx.Stop();
+
+            if (interactionShader != null)
+                interactionShader.SetActive(false);
+
+            
+        }
+
     }
 }

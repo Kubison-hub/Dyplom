@@ -1,10 +1,10 @@
+using DialogueEditor;
+using System.Collections;           // Potrzebne do integracji z systemem dialogowym
 using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.EventSystems; // Potrzebne do wykrywania klikniêæ na UI
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using UnityEngine.EventSystems; // Potrzebne do wykrywania klikniêæ na UI
-using DialogueEditor;
-using UnityEngine.AI;
-using System.Collections;           // Potrzebne do integracji z systemem dialogowym
 
 /// <summary>
 /// Klasa PlayerController zaimplementowana z blokadami dla Dialogów, Dziennika i UI.
@@ -41,11 +41,12 @@ public class PlayerController : MonoBehaviour
     public bool isWalking = false;
     public bool lookAtCamera = false;
 
-
+    public float normalSpeed = 2.5f;
+    public float thinkingMultiplier = 0.6f;
     // Interakcja
     [HideInInspector] public Vector3 targetPosition;
 
-
+    private bool isThinking = false;
     private void Awake()
     {
         animator = GetComponent<Animator>();
@@ -72,6 +73,10 @@ public class PlayerController : MonoBehaviour
         CheckInteractionArrival();
 
         HandleAnimations();
+
+        UpdateMovementSpeed();
+
+
     }
 
 
@@ -201,8 +206,13 @@ public class PlayerController : MonoBehaviour
         transform.rotation = targetRotation;
         navMeshAgent.updateRotation = true;
 
-        currentInteractable.PerformInteraction(this);
-        currentInteractable = null;
+        if (currentInteractable != null)
+        {
+            currentInteractable.PerformInteraction(this);
+        }
+
+        
+   
     }
 
     private void RotateToInteractionPoint2()
@@ -217,16 +227,102 @@ public class PlayerController : MonoBehaviour
         );
     }
 
+    private float transitionSpeed = 2f; // 1 / 0.5s = 2 (prêdkoœæ zmiany)
+
     private void HandleAnimations()
     {
-        if (navMeshAgent.velocity.magnitude != 0f)
+       
+        bool isWalking = navMeshAgent.velocity.magnitude > 0.1f;
+        animator.SetBool("IsWalking", isWalking);
+
+        isThinking = EagleVisionSystem.Instance.isActive && SwitchCharacter.Instance.activePlayerIndex == 0;
+        animator.SetBool("IsThinking", isThinking);
+
+        float targetL0 = 1f;
+        float targetL1 = 0f;
+        float targetWalkSpeed = 1f;
+
+        if (isThinking)
         {
-            animator.SetBool("IsWalking", true);
+            if (isWalking)
+            {
+                targetL0 = 1f;
+                targetL1 = 1f;
+                targetWalkSpeed = 0.6f;
+            }
+            else
+            {
+                targetL0 = 0f;
+                targetL1 = 1f;
+                targetWalkSpeed = 1f;
+            }
         }
         else
         {
-            animator.SetBool("IsWalking", false);
+            targetL0 = 1f;
+            targetL1 = 0f;
+            targetWalkSpeed = 1f;
         }
+
+        float currentL0 = animator.GetLayerWeight(0);
+        float currentL1 = animator.GetLayerWeight(1);
+        float currentWalkSpeed = animator.GetFloat("WalkSpeed");
+
+        animator.SetLayerWeight(0, Mathf.MoveTowards(currentL0, targetL0, Time.deltaTime * transitionSpeed));
+        animator.SetLayerWeight(1, Mathf.MoveTowards(currentL1, targetL1, Time.deltaTime * transitionSpeed));
+
+        animator.SetFloat("WalkSpeed", Mathf.MoveTowards(currentWalkSpeed, targetWalkSpeed, Time.deltaTime * transitionSpeed));
+    }
+    //private float layerTimer = 0f;
+    //private void HandleAnimations()
+    //{
+    //    if (navMeshAgent.velocity.magnitude != 0f)
+    //    {
+    //        animator.SetBool("IsWalking", true);
+    //    }
+    //    else
+    //    {
+    //        animator.SetBool("IsWalking", false);
+    //    }
+
+    //    isThinking = EagleVisionSystem.Instance.isActive;
+    //    animator.SetBool("IsThinking", isThinking);
+    //    if (isThinking)
+    //    {
+
+
+    //        if (animator.GetBool("IsWalking"))
+    //        {
+    //            animator.SetLayerWeight(1, 1);
+    //            animator.SetLayerWeight(0, 1);
+    //            animator.SetFloat("WalkSpeed", 0.5f);
+    //        }
+    //        else
+    //        {
+    //            animator.SetLayerWeight(1, 1);
+    //            animator.SetLayerWeight(0,0);
+    //            animator.SetFloat("WalkSpeed", 1f);
+    //        }
+
+    //    }
+    //    else
+    //    {
+    //        animator.SetFloat("WalkSpeed", 1f);
+    //        animator.SetLayerWeight(0,1);
+    //        animator.SetLayerWeight(1,0);
+    //    }
+
+
+    //}
+
+    public void UpdateMovementSpeed()
+    {
+        if (navMeshAgent == null) return;
+
+        navMeshAgent.speed = isThinking ? (normalSpeed * thinkingMultiplier) : normalSpeed;
+
+        // Opcjonalnie: Zmieñ te¿ szybkoœæ obrotu, ¿eby postaæ by³a "ciê¿sza"
+        //navMeshAgent.angularSpeed = isThinking ? 60f : 120f;
     }
 
     public void OnDebugRestart(InputAction.CallbackContext context)

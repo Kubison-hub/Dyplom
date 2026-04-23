@@ -1,11 +1,13 @@
 using UnityEngine;
-using TMPro; // Wa¿ne dla tekstów
+using TMPro;
+using System; // Wa¿ne dla tekstów
 
 public class Mysz : MonoBehaviour
 {
     [Header("UI References")]
     [Tooltip("Przeci¹gnij tutaj swój obiekt Text (TMP) z Canvasa")]
     public TextMeshProUGUI tooltipText;
+    public GameObject interactionShader;
 
     [Header("Settings")]
     public Vector2 offset = new Vector2(15f, -15f); // Przesuniêcie tekstu wzglêdem kursora
@@ -41,24 +43,54 @@ public class Mysz : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit, 100f, detectionLayer))
         {
             // SprawdŸ, czy trafiony obiekt ma nasz¹ "Metkê" (skrypt ObjectDescription)
-            ObjectDescription desc = hit.collider.GetComponent<ObjectDescription>();
+            Interactable desc = hit.collider.GetComponent<Interactable>();
+            
 
             if (desc != null)
             {
                 // Znalaz³ opis! Poka¿ go.
-                ShowTooltip(desc.description);
+                ShowTooltip(desc.objectDescription);
+
+                interactionShader = desc.interactiveShader;
+                ToggleIntShader(true);
             }
             else
             {
                 // Trafi³ w coœ (np. pod³ogê), co nie ma opisu.
                 HideTooltip();
+                ToggleIntShader(false);
             }
         }
         else
         {
+
             // Myszka jest w powietrzu (nic nie trafi³a).
             HideTooltip();
+            ToggleIntShader(false);
+
         }
+    }
+
+   private void ToggleIntShader(bool v)
+    {
+        if (interactionShader  != null)
+        {
+            interactionShader.SetActive(v);
+        }
+        else
+        {
+            Debug.Log("InteractionShader is Null");
+        }
+    }
+
+    private void ShowShader(ObjectDescription desc)
+    {
+       
+    }
+
+    private void HideShader()
+    {
+
     }
 
     private void ShowTooltip(string text)
