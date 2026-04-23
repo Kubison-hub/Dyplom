@@ -71,10 +71,10 @@ public class Int_EdithExamBody : MonoBehaviour
         yield return new WaitForSeconds(2);
         AddClue(0, cp0);
         yield return new WaitForSeconds(6);
-        
+        sherlockAnimator.SetBool("IsThinking", true);
         AddClue(1, cp1);
         yield return new WaitForSeconds(5);
-        
+        sherlockAnimator.SetBool("IsThinking", false);
         AddClue(2, cp2);
         yield return new WaitForSeconds(5);
         interactionPerforming = false;
