@@ -8,7 +8,7 @@ public class Q2_FirstInteraction : MonoBehaviour
     {
         Int2_WatsonDialogSherlock.Instance.interactable.isInteractableActive = true;
         Int2_WatsonDialogViolet.Instance.interactable.isInteractableActive = true;
-        Int2_WatsonDialogSelma.Instance.interactable.isInteractableActive = true;
+        //Int2_WatsonDialogSelma.Instance.interactable.isInteractableActive = true;
 
         watsonGO = GameObject.Find("Watson");
         watsonAnimator = watsonGO.GetComponent<Animator>();

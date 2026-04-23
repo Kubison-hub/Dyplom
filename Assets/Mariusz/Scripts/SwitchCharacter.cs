@@ -47,8 +47,17 @@ public class SwitchCharacter : MonoBehaviour
 
         SetActivePlayer(0);
 
+
+
         if (canSwitchOnStart)
+        {
             canSwitch = true;
+        }
+        else
+        {
+            canSwitch = false;
+        }
+            
         
     }
 
