@@ -41,7 +41,8 @@ public class ClueManager : MonoBehaviour
     private Queue<string> messageQueue = new Queue<string>();
     private bool isDisplaying = false;
 
-
+    private HashSet<Conclusions_SO> pendingConclusions = new HashSet<Conclusions_SO>();
+    private HashSet<QuestConclusions_SO> pendingQuestConclusions = new HashSet<QuestConclusions_SO>();
 
     private void Awake()
     {
@@ -108,20 +109,26 @@ public class ClueManager : MonoBehaviour
 
     public void AddConclusion(Conclusions_SO newConclusion)
     {
-        if (!collectedConclusions.Contains(newConclusion))
+        if (collectedConclusions.Contains(newConclusion) || pendingConclusions.Contains(newConclusion))
         {
-            conclusionCard.ShowConclusion(newConclusion);
-            ShowNotification(newConclusion.type, newConclusion.displayName, newConclusion.shortDescription, null, newConclusion);
+            return;
         }
+
+        pendingConclusions.Add(newConclusion);
+        conclusionCard.ShowConclusion(newConclusion);
+        ShowNotification(newConclusion.type, newConclusion.displayName, newConclusion.shortDescription, null, newConclusion);
     }
 
     public void AddQuestConclusion(QuestConclusions_SO newQuestConclusion)
     {
-        if (!collectedQuestConclusions.Contains(newQuestConclusion))
+        if (collectedQuestConclusions.Contains(newQuestConclusion) || pendingQuestConclusions.Contains(newQuestConclusion))
         {
-            conclusionCard.ShowQuestConclusion(newQuestConclusion);
-            ShowNotification(newQuestConclusion.type, newQuestConclusion.displayName, newQuestConclusion.shortDescription, null, null, newQuestConclusion);
+            return;
         }
+
+        pendingQuestConclusions.Add(newQuestConclusion);
+        conclusionCard.ShowQuestConclusion(newQuestConclusion);
+        ShowNotification(newQuestConclusion.type, newQuestConclusion.displayName, newQuestConclusion.shortDescription, null, null, newQuestConclusion);
     }
 
     public void ShowNotification(string typeText, string titleText, string descriptionText, Clues_SO clue = null, Conclusions_SO conclusion = null, QuestConclusions_SO questConclusion = null)
@@ -195,14 +202,28 @@ public class ClueManager : MonoBehaviour
             collectedClues.Add(clue);
             CheckForConclusions();
         }
+
         if (conclusion != null)
         {
-            collectedConclusions.Add(conclusion);
+            pendingConclusions.Remove(conclusion);
+
+            if (!collectedConclusions.Contains(conclusion))
+            {
+                collectedConclusions.Add(conclusion);
+            }
+
             CheckForQuestConclusions();
         }
+
         if (questConclusion != null)
         {
-            collectedQuestConclusions.Add(questConclusion);
+            pendingQuestConclusions.Remove(questConclusion);
+
+            if (!collectedQuestConclusions.Contains(questConclusion))
+            {
+                collectedQuestConclusions.Add(questConclusion);
+            }
+
             CheckForQuestCompetions();
         }
     }
@@ -305,9 +326,7 @@ public class ClueManager : MonoBehaviour
         {
             if (prefab != null)
             {
-                
                 GameObject spawnedInteraction = Instantiate(prefab);
-
             }
         }
     }
