@@ -68,18 +68,17 @@ public class SmartNPC : MonoBehaviour
 
     private void Update()
     {
-        //if (Input.GetKeyDown(KeyCode.I))
-        //{
-        //    if (ConversationManager.Instance != null && !ConversationManager.Instance.IsConversationActive)
-        //    {
-        //        SprawdzIZacznijRozmowe();
-        //    }
-        //}
+        if (Input.GetKeyDown(KeyCode.I))
+        {
+            if (ConversationManager.Instance != null && !ConversationManager.Instance.IsConversationActive)
+            {
+                SprawdzIZacznijRozmowe();
+            }
+        }
     }
 
     public void SprawdzIZacznijRozmowe()
     {
-        Debug.Log("TUTAJ 1");
 
         bool dialogRozpoczety = false;
 
@@ -92,7 +91,7 @@ public class SmartNPC : MonoBehaviour
             {
                 QuestManager.Instance.OdnotujRozmowe("PlayerA", npcID);
             }
-            Debug.Log("TUTAJ 2");
+
             ConversationManager.Instance.StartConversation(rozmowaDlaPostaciA);
             dialogRozpoczety = true;
         }
@@ -105,7 +104,7 @@ public class SmartNPC : MonoBehaviour
             {
                 QuestManager.Instance.OdnotujRozmowe("PlayerB", npcID);
             }
-            Debug.Log("TUTAJ 3");
+
             ConversationManager.Instance.StartConversation(rozmowaDlaPostaciB);
             dialogRozpoczety = true;
         }
