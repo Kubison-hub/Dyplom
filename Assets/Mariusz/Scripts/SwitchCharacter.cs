@@ -30,7 +30,7 @@ public class SwitchCharacter : MonoBehaviour
 
     [SerializeField] DynamicOcclusionCutoutSystem dynamicOcclusionCutoutSystem;
 
-    
+    public bool sherlockOnly = false;
 
     public bool canSwitch = true;
 
@@ -78,7 +78,7 @@ public class SwitchCharacter : MonoBehaviour
 
     public void SetActivePlayer(int index)
     {
-        if (canSwitch)
+        if (canSwitch && !sherlockOnly)
         {
             for (int i = 0; i < players.Length; i++)
             {

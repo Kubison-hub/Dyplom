@@ -20,7 +20,7 @@ public class PlayerController : MonoBehaviour
 {
 
     public bool isActivePlayer = false;
-
+    public Camera playerCamera;
     public PlayerCharacter playerCharacter = PlayerCharacter.None;
 
     private Animator animator;
@@ -43,10 +43,15 @@ public class PlayerController : MonoBehaviour
 
     public float normalSpeed = 2.5f;
     public float thinkingMultiplier = 0.6f;
+
     // Interakcja
     [HideInInspector] public Vector3 targetPosition;
 
     private bool isThinking = false;
+    private float transitionSpeed = 2f;
+
+    //public bool isLockpickig = false;
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
@@ -134,7 +139,8 @@ public class PlayerController : MonoBehaviour
 
     private void HandleLeftClick()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+        Ray ray = playerCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+
 
         
         if (Physics.Raycast(ray, out RaycastHit hit, 100f, interactableMask))
@@ -156,6 +162,7 @@ public class PlayerController : MonoBehaviour
 
     public void MoveToPoint(Vector3 point)
     {
+        currentInteractionPoint = null;
         currentInteractable = null;
         navMeshAgent.destination = point;
     }
@@ -190,7 +197,26 @@ public class PlayerController : MonoBehaviour
 
         navMeshAgent.updateRotation = false;
 
-        Quaternion targetRotation = currentInteractionPoint.rotation;
+        Quaternion targetRotation;
+
+        if (currentInteractionPoint != null)
+        {
+            targetRotation = currentInteractionPoint.rotation;
+        }
+        else
+        {
+            Vector3 direction = currentInteractable.transform.position - transform.position;
+            direction.y = 0f;
+
+            if (direction.sqrMagnitude < 0.001f)
+            {
+                targetRotation = transform.rotation;
+            }
+            else
+            {
+                targetRotation = Quaternion.LookRotation(direction);
+            }
+        }
 
         while (Quaternion.Angle(transform.rotation, targetRotation) > 1f)
         {
@@ -211,23 +237,10 @@ public class PlayerController : MonoBehaviour
             currentInteractable.PerformInteraction(this);
         }
 
-        
-   
+        currentInteractionPoint = null;
     }
 
-    private void RotateToInteractionPoint2()
-    {
-        if (currentInteractable == null)
-            return;
-
-        transform.rotation = Quaternion.RotateTowards(
-            transform.rotation,
-            currentInteractionPoint.rotation,
-            360 * Time.deltaTime
-        );
-    }
-
-    private float transitionSpeed = 2f; // 1 / 0.5s = 2 (prêdkoœæ zmiany)
+    
 
     private void HandleAnimations()
     {
@@ -273,55 +286,13 @@ public class PlayerController : MonoBehaviour
 
         animator.SetFloat("WalkSpeed", Mathf.MoveTowards(currentWalkSpeed, targetWalkSpeed, Time.deltaTime * transitionSpeed));
     }
-    //private float layerTimer = 0f;
-    //private void HandleAnimations()
-    //{
-    //    if (navMeshAgent.velocity.magnitude != 0f)
-    //    {
-    //        animator.SetBool("IsWalking", true);
-    //    }
-    //    else
-    //    {
-    //        animator.SetBool("IsWalking", false);
-    //    }
-
-    //    isThinking = EagleVisionSystem.Instance.isActive;
-    //    animator.SetBool("IsThinking", isThinking);
-    //    if (isThinking)
-    //    {
-
-
-    //        if (animator.GetBool("IsWalking"))
-    //        {
-    //            animator.SetLayerWeight(1, 1);
-    //            animator.SetLayerWeight(0, 1);
-    //            animator.SetFloat("WalkSpeed", 0.5f);
-    //        }
-    //        else
-    //        {
-    //            animator.SetLayerWeight(1, 1);
-    //            animator.SetLayerWeight(0,0);
-    //            animator.SetFloat("WalkSpeed", 1f);
-    //        }
-
-    //    }
-    //    else
-    //    {
-    //        animator.SetFloat("WalkSpeed", 1f);
-    //        animator.SetLayerWeight(0,1);
-    //        animator.SetLayerWeight(1,0);
-    //    }
-
-
-    //}
+    
 
     public void UpdateMovementSpeed()
     {
         if (navMeshAgent == null) return;
 
         navMeshAgent.speed = isThinking ? (normalSpeed * thinkingMultiplier) : normalSpeed;
-
-        // Opcjonalnie: Zmieñ te¿ szybkoœæ obrotu, ¿eby postaæ by³a "ciê¿sza"
         //navMeshAgent.angularSpeed = isThinking ? 60f : 120f;
     }
 
@@ -330,19 +301,6 @@ public class PlayerController : MonoBehaviour
         Scene currentScene = SceneManager.GetActiveScene();
         SceneManager.LoadScene(currentScene.name);
     }
-
-    //private void OnFootstep(AnimationEvent animationEvent)
-    //{
-
-    //    if (animationEvent.animatorClipInfo.weight > 0.5f)
-    //    {
-    //        if (FootstepAudioClips.Length > 0)
-    //        {
-    //            var index = Random.Range(0, FootstepAudioClips.Length);
-    //            AudioSource.PlayClipAtPoint(FootstepAudioClips[index], transform.TransformPoint(transform.position), .8f);
-    //        }
-    //    }
-    //}
 }
 
 public enum PlayerCharacter

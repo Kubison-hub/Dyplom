@@ -62,7 +62,11 @@ public class MouseTooltipManager : MonoBehaviour
 
             if (interactable != null)
             {
-                if (ConversationManager.Instance.inConversation || TutorialManager.Instance.isTutorialActive) return;
+
+                //Debug.Log("Interactable");
+                //if (ConversationManager.Instance.inConversation || TutorialManager.Instance.isTutorialActive) return;
+
+                if (ClueManager.Instance.isLockpicking) return;
 
                 if (interactable.isInteractableActive == true )
 

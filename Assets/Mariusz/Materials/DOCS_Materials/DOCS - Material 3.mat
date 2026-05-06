@@ -101,6 +101,8 @@ Material:
     - _Radius: 0
     - _Smoothness: 0
     m_Colors:
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 0}
+    - _Base_Color: {r: 1, g: 1, b: 1, a: 0}
     - _Base_Colour: {r: 0.34509805, g: 0.20000002, b: 0.15686275, a: 1}
     - _Emissive_Colour: {r: 0, g: 0, b: 0, a: 1}
     - _MaskEdges: {r: -0.2, g: 0.6, b: 0, a: 0}

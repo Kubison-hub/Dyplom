@@ -1070,6 +1070,7 @@
     "m_OutputNode": {
         "m_Id": ""
     },
+    "m_SubDatas": [],
     "m_ActiveTargets": [
         {
             "m_Id": "ee55cc62facf4459a3d7d0326a6520ee"
@@ -1462,7 +1463,7 @@
     "m_StageCapability": 3,
     "m_BareResource": false,
     "m_Texture": {
-        "m_SerializedTexture": "{\"texture\":{\"fileID\":2800000,\"guid\":\"f5805ba71d96de14c9628820751912b4\",\"type\":3}}",
+        "m_SerializedTexture": "",
         "m_Guid": ""
     },
     "m_DefaultType": 0
@@ -2885,7 +2886,7 @@
     "m_ObjectId": "412432c9c71d4b77b46c1a9a1165f4fe",
     "m_Title": "Base",
     "m_Position": {
-        "x": -1009.0001831054688,
+        "x": -1009.0,
         "y": -972.0
     }
 }
@@ -3065,7 +3066,7 @@
     "m_Title": "Emission",
     "m_Position": {
         "x": -1244.0,
-        "y": -27.000003814697267
+        "y": -27.0
     }
 }
 
@@ -3117,7 +3118,7 @@
     "m_StageCapability": 3,
     "m_BareResource": false,
     "m_Texture": {
-        "m_SerializedTexture": "{\"texture\":{\"fileID\":2800000,\"guid\":\"86a189d1b84d02a4cb78b7cf201ac803\",\"type\":3}}",
+        "m_SerializedTexture": "",
         "m_Guid": ""
     },
     "m_DefaultType": 0
@@ -4271,7 +4272,7 @@
     "hlslDeclarationOverride": 0,
     "m_Hidden": false,
     "m_Value": {
-        "m_SerializedTexture": "{\"texture\":{\"fileID\":2800000,\"guid\":\"86a189d1b84d02a4cb78b7cf201ac803\",\"type\":3}}",
+        "m_SerializedTexture": "",
         "m_Guid": ""
     },
     "isMainTexture": false,
@@ -4349,8 +4350,8 @@
     "m_ObjectId": "84758995527146368968a59781e2c54a",
     "m_Title": "ShadowCaster Check",
     "m_Position": {
-        "x": 10.0,
-        "y": 10.0
+        "x": -783.0,
+        "y": 435.0
     }
 }
 
@@ -4567,7 +4568,7 @@
     "m_StageCapability": 3,
     "m_BareResource": false,
     "m_Texture": {
-        "m_SerializedTexture": "{\"texture\":{\"fileID\":2800000,\"guid\":\"86a189d1b84d02a4cb78b7cf201ac803\",\"type\":3}}",
+        "m_SerializedTexture": "",
         "m_Guid": ""
     },
     "m_DefaultType": 0
@@ -4729,8 +4730,8 @@
     "m_ObjectId": "95328a289b81404887578f6197e00045",
     "m_Title": "Radius",
     "m_Position": {
-        "x": -2148.000244140625,
-        "y": 891.9999389648438
+        "x": -2148.0,
+        "y": 892.0
     }
 }
 
@@ -5947,7 +5948,7 @@
     "m_StageCapability": 3,
     "m_BareResource": false,
     "m_Texture": {
-        "m_SerializedTexture": "{\"texture\":{\"fileID\":2800000,\"guid\":\"86a189d1b84d02a4cb78b7cf201ac803\",\"type\":3}}",
+        "m_SerializedTexture": "",
         "m_Guid": ""
     },
     "m_DefaultType": 0
@@ -6026,6 +6027,7 @@
     "m_SourceType": 1,
     "m_FunctionName": "IsShadowCasterPass",
     "m_FunctionSource": "",
+    "m_FunctionSourceUsePragmas": true,
     "m_FunctionBody": "IsShadowCast = false;\n#ifdef UNITY_PASS_SHADOWCASTER\nIsShadowCast = true;\n#endif"
 }
 
@@ -6381,8 +6383,8 @@
     "m_ObjectId": "d5976904c1d54932a16d63362816c9b2",
     "m_Title": "Mask settings",
     "m_Position": {
-        "x": -1664.0003662109375,
-        "y": 890.9996337890625
+        "x": -1664.0,
+        "y": 891.0
     }
 }
 
@@ -6659,7 +6661,7 @@
     "hlslDeclarationOverride": 0,
     "m_Hidden": false,
     "m_Value": {
-        "m_SerializedTexture": "{\"texture\":{\"instanceID\":0}}",
+        "m_SerializedTexture": "",
         "m_Guid": ""
     },
     "isMainTexture": false,
@@ -6689,7 +6691,7 @@
     "hlslDeclarationOverride": 0,
     "m_Hidden": false,
     "m_Value": {
-        "m_SerializedTexture": "{\"texture\":{\"fileID\":2800000,\"guid\":\"21a02b57675efeb4fb9c74ad6c52d85d\",\"type\":3}}",
+        "m_SerializedTexture": "",
         "m_Guid": ""
     },
     "isMainTexture": false,
@@ -6741,8 +6743,8 @@
     "m_ObjectId": "e3469c20d961414793b6567a13d64343",
     "m_Title": "Metallic",
     "m_Position": {
-        "x": -1009.9999389648438,
-        "y": -418.9999694824219
+        "x": -1010.0,
+        "y": -419.0
     }
 }
 
@@ -7196,6 +7198,9 @@
     "m_AlphaClip": true,
     "m_CastShadows": true,
     "m_ReceiveShadows": true,
+    "m_DisableTint": false,
+    "m_AdditionalMotionVectorMode": 0,
+    "m_AlembicMotionVectors": false,
     "m_SupportsLODCrossFade": false,
     "m_CustomEditorGUI": "",
     "m_SupportVFX": false

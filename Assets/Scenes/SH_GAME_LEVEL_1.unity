@@ -19289,12 +19289,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ed4dcb9cb6803a4bb8ab0299f720a40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
-  zoomSpeed: 30
+  currentZoomState: 
+  currentZoomIndex: 0
   rotationSpeed: 0.05
-  minRadius: 8
-  maxRadius: 20
-  minHeight: 8
-  maxHeight: 15
+  rotationDamping: 0.15
+  zoomSmoothSpeed: 8
+  zoomPresets:
+  - name: Top
+    topRadius: 22
+    topHeight: 24
+    centerRadius: 20
+    centerHeight: 20
+    bottomRadius: 18
+    bottomHeight: 16
+  - name: Wide
+    topRadius: 18
+    topHeight: 20
+    centerRadius: 16
+    centerHeight: 16
+    bottomRadius: 14
+    bottomHeight: 12
+  - name: Medium
+    topRadius: 14
+    topHeight: 16
+    centerRadius: 12
+    centerHeight: 12
+    bottomRadius: 10
+    bottomHeight: 9
+  - name: Narrow
+    topRadius: 10
+    topHeight: 12
+    centerRadius: 8
+    centerHeight: 8
+    bottomRadius: 7
+    bottomHeight: 6
+  startZoomIndex: 2
 --- !u!114 &581095109
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23793,6 +23822,7 @@ MonoBehaviour:
   activePlayerIndex: 0
   activePlayerText: {fileID: 1780239552}
   dynamicOcclusionCutoutSystem: {fileID: 310164308}
+  sherlockOnly: 0
   canSwitch: 1
 --- !u!1001 &718954590
 PrefabInstance:
@@ -40234,6 +40264,7 @@ MonoBehaviour:
   nextQuestFirstInteractions:
   - {fileID: 2517828526051653134, guid: 3d3c2f83b84015b4eac72799674aef22, type: 3}
   currentMainQuest: {fileID: 11400000, guid: 67e74faf5e08a6c46b9733f1e6744cb0, type: 2}
+  isLockpicking: 0
 --- !u!4 &1163317971
 Transform:
   m_ObjectHideFlags: 0
@@ -70648,7 +70679,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1938904070
 Transform:
   m_ObjectHideFlags: 0
@@ -75220,12 +75251,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ed4dcb9cb6803a4bb8ab0299f720a40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
-  zoomSpeed: 15.7
+  currentZoomState: 
+  currentZoomIndex: 0
   rotationSpeed: 0.05
-  minRadius: 8
-  maxRadius: 20
-  minHeight: 8
-  maxHeight: 15
+  rotationDamping: 0.15
+  zoomSmoothSpeed: 8
+  zoomPresets:
+  - name: Top
+    topRadius: 22
+    topHeight: 24
+    centerRadius: 20
+    centerHeight: 20
+    bottomRadius: 18
+    bottomHeight: 16
+  - name: Wide
+    topRadius: 18
+    topHeight: 20
+    centerRadius: 16
+    centerHeight: 16
+    bottomRadius: 14
+    bottomHeight: 12
+  - name: Medium
+    topRadius: 14
+    topHeight: 16
+    centerRadius: 12
+    centerHeight: 12
+    bottomRadius: 10
+    bottomHeight: 9
+  - name: Narrow
+    topRadius: 10
+    topHeight: 12
+    centerRadius: 8
+    centerHeight: 8
+    bottomRadius: 7
+    bottomHeight: 6
+  startZoomIndex: 2
 --- !u!1 &2074216103
 GameObject:
   m_ObjectHideFlags: 0
@@ -75720,13 +75780,15 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 3f72d505365289643bdb60c82d8fbe51, type: 2}
   - {fileID: 2100000, guid: 396e21b6a75b61343be44fa295d3671a, type: 2}
   - {fileID: 2100000, guid: e900a5c36ab466e4f8458eadc36feb3b, type: 2}
+  footprintMaterial: {fileID: 0}
   radius: 3.5
   bacgroundTreshold: 9.81
   duration: 5
   size: 30
   scannerSpeed: 10
+  isScanning: 0
   footPrints: 0
-  footprintsSlines: {fileID: 1435244039}
+  footprintsSplines: []
 --- !u!4 &2082277888 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 82045163592407635, guid: a272cf83217e6c144a765e2b1ca1563b, type: 3}
@@ -85973,6 +86035,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isActivePlayer: 0
+  playerCamera: {fileID: 0}
   playerCharacter: 2
   navMeshAgent: {fileID: 0}
   interactableMask:

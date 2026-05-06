@@ -47,7 +47,7 @@ public class EagleVisionSystem : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
             isActive = true;
-            SwitchRenderer(); 
+            //SwitchRenderer(); 
             Scan();          
 
         }
@@ -56,7 +56,7 @@ public class EagleVisionSystem : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.LeftShift))
         {
             isActive = false;
-            SwitchRenderer();
+            //SwitchRenderer();
             Scan();
         }
 
@@ -96,13 +96,20 @@ public class EagleVisionSystem : MonoBehaviour
     {
         if (SwitchCharacter.Instance.activePlayerIndex  == 0)
         {
-            watsonEagleVisionScanner.ScanWatson(false);
+            if (watsonEagleVisionScanner != null)
+            {
+                watsonEagleVisionScanner.ScanWatson(false);
+            }
             eagleVisionScanner.ScanSherlock(isActive);
         }
         else 
         {
             eagleVisionScanner.ScanSherlock(false);
-            watsonEagleVisionScanner.ScanWatson(isActive);
+            if (watsonEagleVisionScanner != null)
+            {
+                watsonEagleVisionScanner.ScanWatson(isActive);
+            }
+                
         }
         
     }
