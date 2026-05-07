@@ -209,5 +209,5 @@ public class lvl2_Int_SelmaDoor : MonoBehaviour
         currentMinigame = null;
     }
 
-
+    //FIX
 }

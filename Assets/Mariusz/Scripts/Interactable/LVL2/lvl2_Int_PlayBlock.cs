@@ -34,6 +34,6 @@ public class lvl2_Int_PlayBlock : MonoBehaviour
         ////intCollider.enabled = false;
         //this.gameObject.SetActive(false);
     }
-
+//FIX
 
 }

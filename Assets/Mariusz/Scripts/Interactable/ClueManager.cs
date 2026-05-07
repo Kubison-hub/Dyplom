@@ -334,4 +334,9 @@ public class ClueManager : MonoBehaviour
     public List<Clues_SO> GetCollectedClues() => collectedClues;
     public List<Conclusions_SO> GetCollectedConclusions() => collectedConclusions;
     public List<QuestConclusions_SO> GetQuestCollectedConclusions() => collectedQuestConclusions;
+
+
+
+    //FIX
+
 }
