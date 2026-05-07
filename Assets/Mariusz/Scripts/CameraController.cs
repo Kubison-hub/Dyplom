@@ -237,6 +237,8 @@ public class CameraController : MonoBehaviour
         currentZoomState = zoomPresets[targetZoomIndex].name;
     }
 
+
+    //FIX
 }
 
 public enum CameraZoomState
