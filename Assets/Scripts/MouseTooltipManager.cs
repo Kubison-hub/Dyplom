@@ -62,42 +62,46 @@ public class MouseTooltipManager : MonoBehaviour
 
             if (interactable != null)
             {
-                if (ConversationManager.Instance.inConversation || TutorialManager.Instance.isTutorialActive) return;
 
-                if (interactable.isInteractableActive == true )
+                //Debug.Log("Interactable");
+                //if (ConversationManager.Instance.inConversation || TutorialManager.Instance.isTutorialActive) return;
+
+                if (ClueManager.Instance.isLockpicking) return;
+
+                if (interactable.isInteractableActive == true)
 
                 {
-                    
+
 
                     if (interactable.isFootPrintInteraction)
                     {
-                       
+
 
                         if (interactable.isNearPlayer)
                         {
 
-                            
+
                             ShowTooltip(interactable.objectDescription);
                             interactionFx = interactable.interactionVFX;
                             interactionShader = interactable.interactiveShader;
                             ToggleIntShader(true);
-                            
+
                         }
                     }
                     else
                     {
-                        
+
                         ShowTooltip(interactable.objectDescription);
                         interactionFx = interactable.interactionVFX;
                         interactionShader = interactable.interactiveShader;
                         ToggleIntShader(true);
-                        
+
                     }
                 }
             }
             else
             {
-                
+
                 // Trafiliœmy w coœ bez opisu (np. pod³ogê)
                 HideTooltip();
                 ToggleIntShader(false);
@@ -105,7 +109,7 @@ public class MouseTooltipManager : MonoBehaviour
         }
         else
         {
-            
+
             // Myszka patrzy w pustkê
             HideTooltip();
             ToggleIntShader(false);
@@ -114,7 +118,7 @@ public class MouseTooltipManager : MonoBehaviour
 
     private void ShowTooltip(string text)
     {
-       
+
         if (tooltipText != null) tooltipText.text = text;
         if (tooltipPanel != null) tooltipPanel.SetActive(true);
     }
@@ -128,24 +132,24 @@ public class MouseTooltipManager : MonoBehaviour
     {
         if (v)
         {
-            
+
             if (interactionFx != null)
                 interactionFx.Play();
-            if (interactionShader != null) 
+            if (interactionShader != null)
                 interactionShader.SetActive(true);
 
-            
+
         }
         else
         {
-            
+
             if (interactionFx != null)
                 interactionFx.Stop();
 
             if (interactionShader != null)
                 interactionShader.SetActive(false);
 
-            
+
         }
 
     }

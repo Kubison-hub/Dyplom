@@ -37,26 +37,26 @@ public class EagleVisionSystem : MonoBehaviour
             Debug.LogError("Nie znaleziono MainCamera!");
         }
 
-        
+
 
     }
 
     void Update()
     {
-       
+
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
             isActive = true;
-            SwitchRenderer(); 
-            Scan();          
+            //SwitchRenderer(); 
+            Scan();
 
         }
 
-       
+
         if (Input.GetKeyUp(KeyCode.LeftShift))
         {
             isActive = false;
-            SwitchRenderer();
+            //SwitchRenderer();
             Scan();
         }
 
@@ -94,17 +94,24 @@ public class EagleVisionSystem : MonoBehaviour
 
     void Scan()
     {
-        if (SwitchCharacter.Instance.activePlayerIndex  == 0)
+        if (SwitchCharacter.Instance.activePlayerIndex == 0)
         {
-            watsonEagleVisionScanner.ScanWatson(false);
+            if (watsonEagleVisionScanner != null)
+            {
+                watsonEagleVisionScanner.ScanWatson(false);
+            }
             eagleVisionScanner.ScanSherlock(isActive);
         }
-        else 
+        else
         {
             eagleVisionScanner.ScanSherlock(false);
-            watsonEagleVisionScanner.ScanWatson(isActive);
+            if (watsonEagleVisionScanner != null)
+            {
+                watsonEagleVisionScanner.ScanWatson(isActive);
+            }
+
         }
-        
+
     }
 
     void SwitchRenderer()

@@ -1,12 +1,15 @@
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
+
 
 public class EagleVisionScanner : MonoBehaviour
 {
+    public static EagleVisionScanner Instance;
 
     public Transform playerTransform;
 
     public Material[] footprintMaterials;
+    public Material footprintMaterial;
     public float radius = 5.0f;
     public float bacgroundTreshold = 10f;
     private ParticleSystem scannerPS;
@@ -16,39 +19,39 @@ public class EagleVisionScanner : MonoBehaviour
     public float size = 30;
     public float scannerSpeed = 15;
 
-    private bool isScanning = false;
+    public bool isScanning = false;
     private float timer = 0f;
 
     private float currentProgress = 0f;
 
     public bool footPrints;
 
-    public GameObject footprintsSlines;
-    
+    public List<GameObject> footprintsSplines = new List<GameObject>();
+
+
 
     private void Start()
     {
+        Instance = this;
+
         scannerPS = GetComponentInChildren<ParticleSystem>();
-        scannerCollider = GetComponentInChildren<SphereCollider>();
+        scannerCollider = GetComponent<SphereCollider>();
 
-        if (scannerCollider == null && scannerPS != null)
-        {
-            scannerCollider = scannerPS.gameObject.AddComponent<SphereCollider>();
-        }
-
-        if (scannerCollider != null)
-        {
-            scannerCollider.isTrigger = true;
-            scannerCollider.enabled = false;
-        }
+        scannerCollider.enabled = false;
     }
+
+    private void Update()
+    {
+        FindshaderFootPrints();
+    }
+
 
     public void ScanSherlock(bool isActive)
     {
         if (scannerPS == null) return;
 
         isScanning = isActive;
-        scannerCollider.enabled = true; 
+        scannerCollider.enabled = isScanning;
 
         if (isActive)
         {
@@ -60,7 +63,8 @@ public class EagleVisionScanner : MonoBehaviour
 
             if (footPrints)
             {
-                footprintsSlines.SetActive(true);
+                foreach (var footprint in footprintsSplines)
+                    footprint.SetActive(true);
             }
 
         }
@@ -70,30 +74,34 @@ public class EagleVisionScanner : MonoBehaviour
             // Jeœli chcesz, by cz¹steczki zniknê³y natychmiast:
             Debug.Log("else");
             scannerPS.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-            footprintsSlines.SetActive(false);
+
+            foreach (var footprint in footprintsSplines)
+                footprint.SetActive(false);
+
         }
 
         Debug.Log($"Scanner State: {isActive}");
     }
 
-   
 
-    private void Update()
+
+
+
+
+
+    private void FindshaderFootPrints()
+
     {
-        float target = isScanning ? 1f : 0f;
-        currentProgress = Mathf.MoveTowards(currentProgress, target, Time.deltaTime / duration);
+        //float target = isScanning ? 1f : 0f;
+        //currentProgress = Mathf.MoveTowards(currentProgress, target, Time.deltaTime / duration);
 
-        if (scannerCollider != null)
-        {
-            scannerCollider.radius = (currentProgress * scannerSpeed) / 2f;
+        //if (scannerCollider != null)
+        //{
+        //    scannerCollider.radius = (currentProgress * scannerSpeed) / 2f;
 
-            if (currentProgress <= 0f && !isScanning)
-                scannerCollider.enabled = false;
-        }
-
-        // Opcjonalnie: Mo¿esz tu te¿ sterowaæ skal¹ obiektu z cz¹steczkami, 
-        // jeœli chcesz, by wizualnie te¿ siê "kurczy³" zamiast tylko znikaæ.
-        // scannerPS.transform.localScale = Vector3.one * currentProgress;
+        //    if (currentProgress <= 0f && !isScanning)
+        //        scannerCollider.enabled = false;
+        //}
 
         if (playerTransform != null && footprintMaterials != null && footprintMaterials.Length > 0)
         {
@@ -114,11 +122,7 @@ public class EagleVisionScanner : MonoBehaviour
                     footprintMaterials[i].SetFloat("_VisibleRadius", radius);
                 }
             }
-
-
         }
-
-
 
     }
 

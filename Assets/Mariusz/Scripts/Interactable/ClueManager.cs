@@ -44,6 +44,8 @@ public class ClueManager : MonoBehaviour
     private HashSet<Conclusions_SO> pendingConclusions = new HashSet<Conclusions_SO>();
     private HashSet<QuestConclusions_SO> pendingQuestConclusions = new HashSet<QuestConclusions_SO>();
 
+    public bool isLockpicking = false;
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -62,9 +64,22 @@ public class ClueManager : MonoBehaviour
 
     private IEnumerator ShowTextAndAddClue(Clues_SO clue)
     {
-        SherlockText.text = clue.sherlockText;
 
-        if (!string.IsNullOrEmpty(clue.watsonText))
+
+        if (SherlockText != null)
+        {
+            //Debug.Log("ShowTextAndAddClue");
+            SherlockText.text = clue.sherlockText;
+        }
+        else
+        {
+            Debug.LogError($"SherlockText = {SherlockText}");
+            yield break;
+        }
+
+
+
+        if (!string.IsNullOrEmpty(clue.watsonText) && watson != null)
         {
             if (rotateCoroutine != null) StopCoroutine(rotateCoroutine);
             rotateCoroutine = StartCoroutine(RotateWatsonTowardSherlockCoroutine());
@@ -74,7 +89,7 @@ public class ClueManager : MonoBehaviour
         SherlockText.text = "";
         yield return new WaitForSeconds(0.3f);
 
-        if (!string.IsNullOrEmpty(clue.watsonText))
+        if (!string.IsNullOrEmpty(clue.watsonText) && WatsonText != null)
         {
             WatsonText.text = clue.watsonText;
             yield return new WaitForSeconds(3f);

@@ -1,27 +1,27 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.VFX;
-using DialogueEditor;
+
 
 public class Interactable : MonoBehaviour
 {
-   
-    
+
+
     public bool isInteractableActive = true;
     [Space]
-    
+
     [SerializeField] private InteractionType interactionType;
     public Transform interactabePoint;
     [Space]
 
     public string objectDescription = "Wpisz nazwê obiektu";
     public GameObject interactiveShader;
-    
+
     [Space]
     public Clues_SO[] clues;
     [Space]
 
-    
+
     public VisualEffect questionVFX;
     public VisualEffect interactionVFX;
     public bool fxVisibleOnStart = true;
@@ -31,6 +31,7 @@ public class Interactable : MonoBehaviour
 
     private void Start()
     {
+
 
         VisualEffect[] allVFX = GetComponentsInChildren<VisualEffect>(true);
 
@@ -42,7 +43,7 @@ public class Interactable : MonoBehaviour
 
 
         if (questionVFX != null)
-        {   
+        {
             if (!fxVisibleOnStart)
                 questionVFX.Stop();
         }
@@ -74,8 +75,10 @@ public class Interactable : MonoBehaviour
     // --- KLIKNIÊCIE ---
     public void TryToInteract(PlayerController player)
     {
-        if (!isInteractableActive || ConversationManager.Instance.inConversation 
-            || TutorialManager.Instance.isTutorialActive) return;
+        //if (!isInteractableActive || ConversationManager.Instance.inConversation 
+        //    || TutorialManager.Instance.isTutorialActive) return;
+
+        if (!isInteractableActive) return;
 
         player.currentInteractable = this;
 
@@ -86,19 +89,12 @@ public class Interactable : MonoBehaviour
         }
         else
         {
-            player.currentInteractionPoint = player.transform;
-            Debug.LogError("interaction component not found");
+            // player.currentInteractionPoint = player.transform;
+
         }
 
         player.MoveToInteractable();
 
-        //// Default Interaction
-        //if (interactionType == InteractionType.Interaction)
-        //{
-        //    Interaction interaction = GetComponent<Interaction>();
-        //    if (interaction != null) interaction.Interact(player);
-        //    else 
-        //}
 
         // Drzwi
         if (interactionType == InteractionType.Door)
@@ -108,7 +104,7 @@ public class Interactable : MonoBehaviour
             else Debug.LogError("DoorTrigger component not found");
         }
 
-        
+
 
         // Pianino
         if (interactionType == InteractionType.Piano)
@@ -147,9 +143,9 @@ public class Interactable : MonoBehaviour
             else Debug.LogError("Table component not found");
         }
 
-        
 
-        
+
+
 
         //SecretWall
         if (interactionType == InteractionType.SecretWall)
@@ -166,7 +162,7 @@ public class Interactable : MonoBehaviour
         // Default Interaction
         if (interactionType == InteractionType.Interaction)
         {
-           
+
             Interaction interaction = GetComponent<Interaction>();
             if (interaction != null)
             {
@@ -226,7 +222,7 @@ public class Interactable : MonoBehaviour
             Int_PrintPath interaction = GetComponent<Int_PrintPath>();
             if (interaction != null)
             {
-                
+
                 interaction.PerformInteraction(player);
             }
             else
@@ -321,13 +317,13 @@ public class Interactable : MonoBehaviour
         {
             Table table = GetComponent<Table>();
             if (table != null) table.PerformInteraction();
-            
+
         }
 
         if (interactionType == InteractionType.Globus)
         {
             Int_Globus interaction = GetComponent<Int_Globus>();
-            if (interaction != null) 
+            if (interaction != null)
             {
                 if (SwitchCharacter.Instance.activePlayerIndex == 0)
                     interaction.PerformInteraction(player);
@@ -376,7 +372,7 @@ public class Interactable : MonoBehaviour
             {
                 if (SwitchCharacter.Instance.activePlayerIndex == 1)
                     interaction.PerformInteraction(player);
-            }    
+            }
             else
                 Debug.LogError("Interaction is null");
         }
@@ -389,14 +385,147 @@ public class Interactable : MonoBehaviour
                 if (SwitchCharacter.Instance.activePlayerIndex == 1)
                     interaction.PerformInteraction(player);
             }
-                
+
             else
                 Debug.LogError("WatsonScan is null");
         }
+
+        //--------------------   LVL  2   ---------------------------------------------------------------------------
+
+
+        if (interactionType == InteractionType.Book)
+        {
+            lvl2_Int_Book interaction = GetComponent<lvl2_Int_Book>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+
+            }
+
+
+            else
+                Debug.LogError("lvl2_Int_Book is null");
+        }
+
+        if (interactionType == InteractionType.lvl2_Int_DoorEthel)
+        {
+            lvl2_Int_DoorEthel interaction = GetComponent<lvl2_Int_DoorEthel>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("lvl2_Int_DoorEthel is null");
+        }
+
+        if (interactionType == InteractionType.lvl2_Int_SelmaDoor)
+        {
+            lvl2_Int_SelmaDoor interaction = GetComponent<lvl2_Int_SelmaDoor>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("lvl2_Int_SelmaDoor is null");
+        }
+
+        if (interactionType == InteractionType.lvl2_Int_EthelWallButton)
+        {
+            lvl2_Int_EthelWallButton interaction = GetComponent<lvl2_Int_EthelWallButton>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("lvl2_Int_EthelWallButton is null");
+        }
+
+        if (interactionType == InteractionType.lvl2_Int_Mirror)
+        {
+            lvl2_Int_Mirror interaction = GetComponent<lvl2_Int_Mirror>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("lvl2_Int_Mirror is null");
+        }
+
+        if (interactionType == InteractionType.lvl2_Int_HidenDorrSwitcher)
+        {
+            lvl2_Int_HidenDoorSwitcher interaction = GetComponent<lvl2_Int_HidenDoorSwitcher>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("lvl2_Int_HidenDorrSwitcher is null");
+        }
+
+        if (interactionType == InteractionType.lvl2_Int_Letter)
+        {
+            lvl2_Int_Letter interaction = GetComponent<lvl2_Int_Letter>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("lvl2_Int_Letter is null");
+        }
+        if (interactionType == InteractionType.lvl2_Int_PlayBlock)
+        {
+            lvl2_Int_PlayBlock interaction = GetComponent<lvl2_Int_PlayBlock>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("lvl2_Int_PlayBlock is null");
+        }
+        if (interactionType == InteractionType.lvl2_Int_Gramophone)
+        {
+            lvl2_Int_Gramophone interaction = GetComponent<lvl2_Int_Gramophone>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("lvl2_Int_Gramophone is null");
+        }
+        if (interactionType == InteractionType.lvl2_Int_Hatch)
+        {
+            lvl2_Int_Hatch interaction = GetComponent<lvl2_Int_Hatch>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("lvl2_Int_Hatch is null");
+        }
+        if (interactionType == InteractionType.lvl2_Int_HatchExit)
+        {
+            lvl2_Int_HatchExit interaction = GetComponent<lvl2_Int_HatchExit>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("lvl2_Int_HatchExit is null");
+        }
+        if (interactionType == InteractionType.lvl2_Int_StairsExit)
+        {
+            lvl2_Int_StairsExit interaction = GetComponent<lvl2_Int_StairsExit>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("lvl2_Int_StairsExit is null");
+        }
+
     }
 
 
-    
 
 
 
@@ -404,24 +533,20 @@ public class Interactable : MonoBehaviour
     //-----------------------------------------------------------------------------------------------------------
 
 
-    public void AddClue(int listNumber, Transform cardPosition)
+    public void AddClue(int listNumber, Transform cardPosition = null)
     {
         if (clues == null) return;
-        
-        
+        if (cardPosition == null)
+            cardPosition = this.transform;
+
         ClueManager.Instance.AddClue(clues[listNumber], cardPosition.position);
 
         if (questionVFX != null)
         {
-
             questionVFX.Stop();
             //Destroy(ClueVisualFx, 5f);
         }
-   else
-        {
-            Debug.LogError("SpawnedFX is null");
-        }
-        
+
     }
 
     private void OnTriggerEnter(Collider other)
@@ -448,7 +573,7 @@ public class Interactable : MonoBehaviour
 
 
             }
-             
+
         }
     }
 
@@ -456,18 +581,18 @@ public class Interactable : MonoBehaviour
     {
         if (other.CompareTag("Scanner"))
         {
-            
+
             if (questionVFX != null) questionVFX.Stop();
         }
     }
 
     private IEnumerator PushVisualEffect(Collider other)
     {
-        
+
 
         questionVFX.Play();
         yield return new WaitForSeconds(60);
- 
+
     }
 }
 
@@ -500,5 +625,22 @@ public enum InteractionType
     WatsonDialogSherlock,
     WatsonDialogViolet,
     WatsonDialogViolet_2,
-    WatsonScan
+    WatsonScan,
+
+
+    // LVL2
+
+    Book,
+    lvl2_Int_DoorEthel,
+    lvl2_Int_EthelWallButton,
+    lvl2_Int_Mirror,
+    lvl2_Int_SelmaDoor,
+    lvl2_Int_HidenDorrSwitcher,
+    lvl2_Int_Letter,
+    lvl2_Int_PlayBlock,
+    lvl2_Int_Gramophone,
+    lvl2_Int_Hatch,
+    lvl2_Int_HatchExit,
+    lvl2_Int_StairsExit
+
 }

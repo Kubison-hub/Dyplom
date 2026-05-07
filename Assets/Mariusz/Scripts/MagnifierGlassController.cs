@@ -51,7 +51,7 @@ public class MagnifierGlassController : MonoBehaviour
 
     private void Update()
     {
-        
+
         bool active = scanner != null && scanner.isScanning;
 
         if (loupeSceneCamera != null)
@@ -116,7 +116,7 @@ public class MagnifierGlassController : MonoBehaviour
         {
             Cursor.visible = false;
         }
-        
+
     }
 
     private void HideLoupe()
