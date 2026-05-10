@@ -8,6 +8,7 @@ public class Clues_SO : ScriptableObject
     public string type = "Spostrze¿enie";
     public string displayName;
     public string shortDescription;
+    public string category; 
 
     public float displayDuration = 5f;
 
