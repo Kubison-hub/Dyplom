@@ -39,10 +39,11 @@ Material:
     m_Floats:
     - _DesaturateScene: 0.6
     - _EdgeSoftness: 0.01
-    - _HiddenCluesStrength: 1
-    - _Radius: 0.08564816
+    - _HiddenCluesStrength: 2
+    - _Radius: 0.085661024
     - _Zoom: 1.5
     m_Colors:
-    - _Center: {r: 0.5160362, g: 0.6447368, b: 0, a: 0}
+    - _Center: {r: 0.79292476, g: 0.71794873, b: 0, a: 0}
+    - _RenderCenter: {r: 0.5, g: 0.5, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

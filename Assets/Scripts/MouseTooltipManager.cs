@@ -19,6 +19,7 @@ public class MouseTooltipManager : MonoBehaviour
     public LayerMask detectionLayer = ~0; // Jakie warstwy ma wykrywaæ
 
     private Camera mainCam;
+    private Interactable activeInteractionShaderOwner;
     public Interactable interactable;
     void Awake()
     {
@@ -95,6 +96,7 @@ public class MouseTooltipManager : MonoBehaviour
                         interactionFx = interactable.interactionVFX;
                         interactionShader = interactable.interactiveShader;
                         ToggleIntShader(true);
+                        
 
                     }
                 }
@@ -105,6 +107,7 @@ public class MouseTooltipManager : MonoBehaviour
                 // Trafiliœmy w coœ bez opisu (np. pod³ogê)
                 HideTooltip();
                 ToggleIntShader(false);
+                FoxusDetection();
             }
         }
         else
@@ -132,25 +135,50 @@ public class MouseTooltipManager : MonoBehaviour
     {
         if (v)
         {
-
             if (interactionFx != null)
                 interactionFx.Play();
-            if (interactionShader != null)
-                interactionShader.SetActive(true);
 
+            if (interactable != activeInteractionShaderOwner)
+            {
+                FadeOutActiveShader();
+                activeInteractionShaderOwner = interactable;
+            }
 
+            if (activeInteractionShaderOwner != null)
+                activeInteractionShaderOwner.SetInteractionShaderHover(true);
         }
         else
         {
-
             if (interactionFx != null)
                 interactionFx.Stop();
 
-            if (interactionShader != null)
-                interactionShader.SetActive(false);
+            FadeOutActiveShader();
+        }
+    }
+
+    private void FadeOutActiveShader()
+    {
+        if (activeInteractionShaderOwner == null)
+            return;
+
+        activeInteractionShaderOwner.SetInteractionShaderHover(false);
+        activeInteractionShaderOwner = null;
+    }
+    public void FoxusDetection()
+    {
+        Ray ray = mainCam.ScreenPointToRay(Input.mousePosition);
+
+        if (Physics.Raycast(ray, out RaycastHit hitCol, 100f, detectionLayer))
+        {
+            Focus_Detector focusDetector = hitCol.collider.GetComponent<Focus_Detector>();
+
+            if (focusDetector != null)
+            {
+                Debug.Log("FocusDetector");
+                focusDetector.ChangeLayer();
+            }
 
 
         }
-
     }
 }

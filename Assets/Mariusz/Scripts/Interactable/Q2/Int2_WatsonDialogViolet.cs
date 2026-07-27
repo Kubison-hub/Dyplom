@@ -45,17 +45,34 @@ public class Int2_WatsonDialogViolet : MonoBehaviour
         SherlockGO = GameObject.Find("Sherlock");
 
         VioletGO = GameObject.Find("VIOLET_NPC");
-        npc = VioletGO.GetComponentInChildren<SmartNPC>();
-        navMeshAgent = npc.GetComponent<NavMeshAgent>();
+        if (VioletGO != null)
+        {
+            npc = VioletGO.GetComponentInChildren<SmartNPC>();
+        }
+
+        if (npc != null)
+        {
+            navMeshAgent = npc.GetComponent<NavMeshAgent>();
+        }
 
         interactable = GetComponent<Interactable>();
 
         dialogCam = GetComponentInChildren<CinemachineCamera>();
-        splineDolly = dialogCam.GetComponent<CinemachineSplineDolly>();
+        if (dialogCam != null)
+        {
+            splineDolly = dialogCam.GetComponent<CinemachineSplineDolly>();
+        }
 
-        transform.parent = VioletGO.transform;
-        transform.position = VioletGO.transform.position;
-        transform.rotation = VioletGO.transform.localRotation;
+        if (VioletGO != null)
+        {
+            transform.parent = VioletGO.transform;
+            transform.position = VioletGO.transform.position;
+            transform.rotation = VioletGO.transform.localRotation;
+        }
+        else
+        {
+            Debug.LogWarning("VIOLET_NPC was not found for Watson dialog.");
+        }
 
         
     }
@@ -79,6 +96,12 @@ public class Int2_WatsonDialogViolet : MonoBehaviour
     {
         //ChangeCamera();
 
+        if (npc == null)
+        {
+            Debug.LogWarning("Cannot start Watson-Violet dialog because SmartNPC is missing.");
+            return;
+        }
+
         npc.SprawdzIZacznijRozmowe();
 
     }
@@ -87,13 +110,23 @@ public class Int2_WatsonDialogViolet : MonoBehaviour
     {
         if (dialogCam != null)
         {
-            splineDolly.CameraPosition = .6f;
+            if (splineDolly != null)
+            {
+                splineDolly.CameraPosition = .6f;
+            }
+
             dialogCam.Priority = 50;
         }
     }
 
     public void MoveToPosition()
     {
+        if (npc == null)
+        {
+            Debug.LogWarning("Cannot move Violet because SmartNPC is missing.");
+            return;
+        }
+
         npc.GoToPoint(destination, () => ActiveNextInteractions(true));
     }
 

@@ -1,0 +1,146 @@
+using UnityEngine;
+
+[RequireComponent(typeof(Interactable))]
+public class Int_LibrarySafe : MonoBehaviour
+{
+    private Interactable interactable;
+    private Collider interactionCollider;
+
+    [Header("Code Lock")]
+    [SerializeField] private SafeCodeDrumMinigame codeDrumPrefab;
+    [SerializeField] private Transform minigameTransform;
+    [SerializeField] private Camera playerCamera;
+    [SerializeField] private CameraController cameraController;
+    [SerializeField] private LockPickAudioController audioController;
+    [SerializeField] private string code = "1A4";
+    [SerializeField, Min(0.1f)] private float minigameExitRange = 3f;
+    [SerializeField] private Vector3 minigameExitOffset;
+
+    [Header("Opened Safe")]
+    [SerializeField] private Animator safeAnimator;
+    [SerializeField] private string openTrigger = "Open";
+    [SerializeField] private GameObject contents;
+    [SerializeField] private int_LibraryPainting libraryPainting;
+
+    private SafeCodeDrumMinigame currentMinigame;
+    private PlayerController interactingPlayer;
+    private bool hasKey;
+    private bool isOpen;
+
+    private void Update()
+    {
+        if (currentMinigame == null || interactingPlayer == null)
+            return;
+
+        if (Vector3.Distance(interactingPlayer.transform.position, GetMinigameExitPosition()) > minigameExitRange)
+            currentMinigame.Close();
+    }
+
+    private void Start()
+    {
+        interactable = GetComponent<Interactable>();
+        interactionCollider = GetComponent<Collider>();
+
+        if (contents != null)
+            contents.SetActive(false);
+    }
+
+    public void SetKeyFound(bool found)
+    {
+        hasKey = found;
+    }
+
+    public void PerformInteraction(PlayerController player)
+    {
+        if (player != null)
+            player.currentInteractable = null;
+
+        if (isOpen || currentMinigame != null)
+            return;
+
+        if (!hasKey)
+        {
+            if (PlayerTopText.Instance != null)
+                PlayerTopText.Instance.ShowTopText("Ten sejf wymaga właściwego klucza.", "");
+            return;
+        }
+
+        if (codeDrumPrefab == null)
+        {
+            Debug.LogError($"{name}: SafeCodeDrumMinigame prefab is missing.");
+            return;
+        }
+
+        if (cameraController != null)
+            cameraController.SetZoomState(CameraZoomState.Narrow);
+
+        if (PlayerTopText.Instance != null)
+            PlayerTopText.Instance.ShowTopText("Klucz pasuje. Teraz zostal tylko szyfr.", "");
+
+        if (ClueManager.Instance != null)
+            ClueManager.Instance.isLockpicking = true;
+
+        interactingPlayer = player;
+
+        Transform spawnTransform = minigameTransform != null ? minigameTransform : transform;
+        currentMinigame = Instantiate(codeDrumPrefab, spawnTransform.position, spawnTransform.rotation);
+        currentMinigame.Open(playerCamera, audioController, code, HandleUnlocked, HandleClosed);
+    }
+
+    private void HandleUnlocked()
+    {
+        if (audioController != null)
+            audioController.PlayUnlock();
+
+        CloseMinigame();
+        isOpen = true;
+
+        if (safeAnimator != null && !string.IsNullOrWhiteSpace(openTrigger))
+            safeAnimator.SetTrigger(openTrigger);
+
+        if (contents != null)
+            contents.SetActive(true);
+
+        libraryPainting?.DeactivatePaintingInteraction();
+
+        interactable.interactiveShader = null;
+        interactable.isInteractableActive = false;
+
+        if (interactionCollider != null)
+            interactionCollider.enabled = false;
+    }
+
+    private void HandleClosed()
+    {
+        if (audioController != null)
+            audioController.PlayReset();
+
+        CloseMinigame();
+    }
+
+    private void CloseMinigame()
+    {
+        if (cameraController != null)
+            cameraController.ReturnToPreviousZoomState();
+
+        if (ClueManager.Instance != null)
+            ClueManager.Instance.isLockpicking = false;
+
+        interactingPlayer = null;
+
+        if (currentMinigame != null)
+        {
+            Destroy(currentMinigame.gameObject);
+            currentMinigame = null;
+        }
+    }
+
+    private Vector3 GetMinigameExitPosition()
+    {
+        Transform anchor = interactable != null && interactable.interactabePoint != null
+            ? interactable.interactabePoint
+            : transform;
+
+        return anchor.TransformPoint(minigameExitOffset);
+    }
+}

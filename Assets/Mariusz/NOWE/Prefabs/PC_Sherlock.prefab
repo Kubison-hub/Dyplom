@@ -1735,7 +1735,7 @@ GameObject:
   - component: {fileID: 3200979669624046709}
   - component: {fileID: 27161334772245553}
   - component: {fileID: 4884386480242566208}
-  m_Layer: 6
+  m_Layer: 10
   m_Name: PC_Sherlock
   m_TagString: PlayerA
   m_Icon: {fileID: 0}
@@ -1782,10 +1782,12 @@ MonoBehaviour:
     m_Bits: 64
   currentInteractable: {fileID: 0}
   currentInteractionPoint: {fileID: 0}
-  interactionPointRotationSpeed: 20
+  interactionPointRotationSpeed: 360
   FootstepAudioClips: []
   isWalking: 0
   lookAtCamera: 0
+  normalSpeed: 2.5
+  thinkingMultiplier: 0.5
   targetPosition: {x: 0, y: 0, z: 0}
 --- !u!54 &6668115829450393122
 Rigidbody:

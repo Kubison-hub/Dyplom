@@ -8,12 +8,12 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/MainMenu.unity
     guid: 306a344b45f17624f89918bde9939068
-  - enabled: 1
-    path: Assets/Scenes/SH_Level_2.unity
-    guid: 6a0277ad8dc05b74f831086026c91400
   - enabled: 0
     path: Assets/Scenes/SH_GAME_LEVEL_1.unity
     guid: 54429a0133effd449b7f0039297a5918
+  - enabled: 0
+    path: Assets/Scenes/SH_Level_2.unity
+    guid: 6a0277ad8dc05b74f831086026c91400
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
@@ -29,5 +29,8 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Sterowanie Pauza.unity
     guid: 9b8aafd3473047f4f83ee759821c058a
+  - enabled: 1
+    path: Assets/Mariusz/Levels/GameLeveL_DEV.unity
+    guid: cb89503ba06024f4cba23bd211faf4dd
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

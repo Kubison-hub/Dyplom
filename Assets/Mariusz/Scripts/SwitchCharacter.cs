@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Cinemachine;
+using UnityEngine.AI;
 using TMPro;
 using PxP.DOCS;
 
@@ -29,14 +30,21 @@ public class SwitchCharacter : MonoBehaviour
     public TextMeshProUGUI activePlayerText;
 
     [SerializeField] DynamicOcclusionCutoutSystem dynamicOcclusionCutoutSystem;
+    [SerializeField] private Key characterSwitchKey = Key.Space;
 
-    
+    [Header("Watson Return")]
+    [SerializeField] private int watsonPlayerIndex = 1;
+    [SerializeField] private Transform watsonReturnPoint;
+    [SerializeField] private NavMeshAgent watsonNavMeshAgent;
+    [SerializeField, Min(0.1f)] private float watsonReturnSampleRadius = 1f;
 
     public bool canSwitch = true;
 
     private void Start()
     {
         Instance = this;
+
+        ResolveWatsonNavMeshAgent();
 
         if (dynamicOcclusionCutoutSystem == null)
         {
@@ -63,7 +71,7 @@ public class SwitchCharacter : MonoBehaviour
 
     private void Update()
     {
-        if (Keyboard.current.spaceKey.wasPressedThisFrame)
+        if (Keyboard.current != null && Keyboard.current[characterSwitchKey].wasPressedThisFrame)
         {
             int nextIndex = (activePlayerIndex + 1) % players.Length;
             SetActivePlayer(nextIndex);
@@ -89,9 +97,17 @@ public class SwitchCharacter : MonoBehaviour
 
             activePlayerIndex = index;
 
+            if (index == watsonPlayerIndex)
+                StopWatsonReturn();
+            else
+                ReturnWatsonToMarker();
+
             SetWallTransparencyTarget(players[index].gameObject.transform);
 
             activePlayerText.text = players[index].gameObject.name;
+
+            if (EagleVisionSystem.Instance != null)
+                EagleVisionSystem.Instance.RefreshScan();
             //Debug.Log("Zmiana na: " + players[index].gameObject.name);
         }
 
@@ -100,6 +116,47 @@ public class SwitchCharacter : MonoBehaviour
     }
 
 
+    private void ResolveWatsonNavMeshAgent()
+    {
+        if (watsonNavMeshAgent != null || players == null ||
+            watsonPlayerIndex < 0 || watsonPlayerIndex >= players.Length ||
+            players[watsonPlayerIndex] == null)
+            return;
+
+        watsonNavMeshAgent = players[watsonPlayerIndex].GetComponent<NavMeshAgent>();
+    }
+
+    private void ReturnWatsonToMarker()
+    {
+        ResolveWatsonNavMeshAgent();
+
+        if (watsonNavMeshAgent == null || watsonReturnPoint == null || !watsonNavMeshAgent.isOnNavMesh)
+            return;
+
+        if (!NavMesh.SamplePosition(
+                watsonReturnPoint.position,
+                out NavMeshHit navMeshHit,
+                watsonReturnSampleRadius,
+                NavMesh.AllAreas))
+        {
+            Debug.LogWarning("Watson Return Point is not close enough to the NavMesh.", watsonReturnPoint);
+            return;
+        }
+
+        watsonNavMeshAgent.isStopped = false;
+        watsonNavMeshAgent.SetDestination(navMeshHit.position);
+    }
+
+    private void StopWatsonReturn()
+    {
+        ResolveWatsonNavMeshAgent();
+
+        if (watsonNavMeshAgent == null || !watsonNavMeshAgent.isOnNavMesh)
+            return;
+
+        watsonNavMeshAgent.ResetPath();
+        watsonNavMeshAgent.isStopped = false;
+    }
     private void RotateWatsonTowardSherlock()
     {
         Vector3 direction = sherlockTransform.position - watsonTransform.position;

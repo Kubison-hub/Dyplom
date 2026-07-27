@@ -16,6 +16,9 @@ public class Interactable : MonoBehaviour
 
     public string objectDescription = "Wpisz nazwê obiektu";
     public GameObject interactiveShader;
+    [Header("Interaction Shader")]
+    [SerializeField, Range(0f, 1f)] private float interactionShaderVisibility = 1f;
+    [SerializeField, Min(0f)] private float interactionShaderPulseSpeed = 1.5f;
 
     [Space]
     public Clues_SO[] clues;
@@ -25,6 +28,18 @@ public class Interactable : MonoBehaviour
     public VisualEffect questionVFX;
     public VisualEffect interactionVFX;
     public bool fxVisibleOnStart = true;
+    [Header("Eagle Vision Question FX")]
+    [SerializeField] private string questionFxRateProperty = "Rate";
+    [SerializeField, Min(0f)] private int eagleVisionQuestionRate = 100;
+    [SerializeField] private string questionFxLifetimeProperty = "Lifetime";
+    [SerializeField, Range(0.1f, 1f)] private float eagleVisionExitLifetimeMultiplier = 0.5f;
+    [Tooltip("Allows QuestionFX to run in Eagle Vision even when normal click interaction is disabled.")]
+    public bool allowQuestionFXWhenInactive = false;
+    private bool missingQuestionFxRateReported;
+    private bool missingQuestionFxLifetimeReported;
+    private bool hasCachedQuestionFxLifetime;
+    private float defaultQuestionFxLifetime;
+    private InteractionShaderFader interactionShaderFader;
 
     public bool isFootPrintInteraction = false;
     public bool isNearPlayer;
@@ -62,7 +77,15 @@ public class Interactable : MonoBehaviour
         }
 
         if (interactiveShader != null)
-            interactiveShader.SetActive(false);
+        {
+            InteractionShaderFader fader = EnsureInteractionShaderFader();
+            fader.Configure(interactionShaderVisibility, interactionShaderPulseSpeed);
+            fader.HideImmediately();
+        }
+
+        CacheQuestionFxDefaultLifetime();
+
+        SetQuestionFxRate(0f);
 
         //if (interactabePoint == null)
         //    interactabePoint = transform;
@@ -72,6 +95,39 @@ public class Interactable : MonoBehaviour
 
     }
 
+    public void SetInteractionShaderHover(bool isHovered)
+    {
+        InteractionHoverLabelManager.SetHovered(this, isHovered);
+
+        InteractionShaderFader fader = EnsureInteractionShaderFader();
+        if (fader == null)
+            return;
+
+        fader.Configure(interactionShaderVisibility, interactionShaderPulseSpeed);
+
+        if (isHovered)
+            fader.FadeIn();
+        else
+            fader.FadeOut();
+    }
+
+    private InteractionShaderFader EnsureInteractionShaderFader()
+    {
+        if (interactiveShader == null)
+            return null;
+
+        if (interactionShaderFader == null)
+            interactionShaderFader = interactiveShader.GetComponent<InteractionShaderFader>();
+
+        if (interactionShaderFader == null)
+            interactionShaderFader = interactiveShader.AddComponent<InteractionShaderFader>();
+
+        return interactionShaderFader;
+    }
+    public void SetInteractionType(InteractionType type)
+    {
+        interactionType = type;
+    }
     // --- KLIKNIÊCIE ---
     public void TryToInteract(PlayerController player)
     {
@@ -79,6 +135,23 @@ public class Interactable : MonoBehaviour
         //    || TutorialManager.Instance.isTutorialActive) return;
 
         if (!isInteractableActive) return;
+
+        // BlockBox consumes the click immediately, so the player never receives a NavMesh destination behind it.
+        if (interactionType == InteractionType.Int_lv1_BlockBox)
+        {
+            Int_lv1_BlockBox blockBox = GetComponent<Int_lv1_BlockBox>();
+            if (blockBox != null)
+                blockBox.PerformInteraction(player);
+            else
+                Debug.LogError("Int_lv1_BlockBox is null");
+
+            return;
+        }
+
+        IVioletRoomInteractionGate violetGate =
+            GetComponent(typeof(IVioletRoomInteractionGate)) as IVioletRoomInteractionGate;
+        if (violetGate != null && violetGate.RedirectWhenVioletIsInRoom(player))
+            return;
 
         player.currentInteractable = this;
 
@@ -158,6 +231,18 @@ public class Interactable : MonoBehaviour
     public void PerformInteraction(PlayerController player)
     {
         if (!isInteractableActive) return;
+
+        Int_WatsonSwitchTutorial watsonSwitchTutorial = GetComponent<Int_WatsonSwitchTutorial>();
+        if (watsonSwitchTutorial != null)
+        {
+            watsonSwitchTutorial.PerformInteraction(player);
+            return;
+        }
+
+        IVioletRoomInteractionGate violetGate =
+            GetComponent(typeof(IVioletRoomInteractionGate)) as IVioletRoomInteractionGate;
+        if (violetGate != null && violetGate.RedirectWhenVioletIsInRoom(player))
+            return;
 
         // Default Interaction
         if (interactionType == InteractionType.Interaction)
@@ -259,6 +344,101 @@ public class Interactable : MonoBehaviour
             }
         }
 
+        if (interactionType == InteractionType.int_lv3_easyTable)
+        {
+            int_lv3_easyTable interaction = GetComponent<int_lv3_easyTable>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+            {
+                Debug.LogError("int_lv3_easyTable is null");
+            }
+        }
+        if (interactionType == InteractionType.Int_lv1_BlockBox)
+        {
+            Int_lv1_BlockBox interaction = GetComponent<Int_lv1_BlockBox>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("Int_lv1_BlockBox is null");
+        }
+        if (interactionType == InteractionType.int_lv1_HenryNPC)
+        {
+            int_lv1_HenryNPC interaction = GetComponent<int_lv1_HenryNPC>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("int_lv1_HenryNPC is null");
+        }
+
+        if (interactionType == InteractionType.int_lv1_ArthurNPC)
+        {
+            int_lv1_ArthurNPC interaction = GetComponent<int_lv1_ArthurNPC>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("int_lv1_ArthurNPC is null");
+        }
+
+        if (interactionType == InteractionType.int_vl1_GeorgeNPC)
+        {
+            int_vl1_GeorgeNPC interaction = GetComponent<int_vl1_GeorgeNPC>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("int_vl1_GeorgeNPC is null");
+        }
+        if (interactionType == InteractionType.Int_lv1_BigGramm)
+        {
+            Int_lv1_BigGramm interaction = GetComponent<Int_lv1_BigGramm>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+            {
+                Debug.LogError("Int_lv1_BigGramm is null");
+            }
+        }
+
+        if (interactionType == InteractionType.Int_lv1_BigGramm_button)
+        {
+            Int_lv1_BigGramm_button interaction = GetComponent<Int_lv1_BigGramm_button>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+            {
+                Debug.LogError("Int_lv1_BigGramm_button is null");
+            }
+        }
+        if (interactionType == InteractionType.Int_lv1_EthelPassageDoor)
+        {
+            Int_lv1_EthelPassageDoor interaction = GetComponent<Int_lv1_EthelPassageDoor>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+            {
+                Debug.LogError("Int_lv1_EthelPassageDoor is null");
+            }
+        }
+        if (interactionType == InteractionType.Int_lv1_SecretDoor)
+        {
+            Int_lv1_SecretDoor interaction = GetComponent<Int_lv1_SecretDoor>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+            {
+                Debug.LogError("Int_lv1_SecretDoor is null");
+            }
+        }
         if (interactionType == InteractionType.EthelPrints)
         {
 
@@ -332,6 +512,18 @@ public class Interactable : MonoBehaviour
                 Debug.LogError("Interaction is null");
         }
 
+        if (interactionType == InteractionType.GlobusButton)
+        {
+            int_Globus_Button interaction = GetComponent<int_Globus_Button>();
+            if (interaction != null)
+            {
+                if (SwitchCharacter.Instance.activePlayerIndex == 0)
+                    interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("Globus button interaction is null");
+        }
+
         if (interactionType == InteractionType.Stairs)
         {
             Int_StairsUp interaction = GetComponent<Int_StairsUp>();
@@ -388,6 +580,44 @@ public class Interactable : MonoBehaviour
 
             else
                 Debug.LogError("WatsonScan is null");
+        }
+
+        //--------------------   LVL  1  NEW ---------------------------------------------------------------------------
+
+        if (interactionType == InteractionType.Int_Edith_Paper)
+        {
+            Int_Edith_Paper interaction = GetComponent<Int_Edith_Paper>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("interaction is null");  
+        }
+        if (interactionType == InteractionType.Int_Edith_BulletHole)
+        {
+            Int_Edith_BulletHole interaction = GetComponent<Int_Edith_BulletHole>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("interaction is null");
+        }
+        if (interactionType == InteractionType.Int_Edith_Ring)
+        {
+            Int_Edith_Ring interaction = GetComponent<Int_Edith_Ring>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("interaction is null");
+        }
+
+        if (interactionType == InteractionType.int_LibraryPainting)
+        {
+            int_LibraryPainting interaction = GetComponent<int_LibraryPainting>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("int_LibraryPainting is null");
         }
 
         //--------------------   LVL  2   ---------------------------------------------------------------------------
@@ -522,7 +752,213 @@ public class Interactable : MonoBehaviour
             else
                 Debug.LogError("lvl2_Int_StairsExit is null");
         }
+        if (interactionType == InteractionType.Int_lv1_SecretLetter)
+        {
+            Int_lv1_SecretLetter interaction = GetComponent<Int_lv1_SecretLetter>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+            {
+                Debug.LogError("Int_lv1_SecretLetter is null");
+            }
+        }
+        if (interactionType == InteractionType.Int_NiebieskaFigurka)
+        {
+            Int_NiebieskaFigurka interaction = GetComponent<Int_NiebieskaFigurka>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("Int_NiebieskaFigurka is null");
+        }
+        if (interactionType == InteractionType.Int_ZielonaFigurka)
+        {
+            Int_ZielonaFigurka interaction = GetComponent<Int_ZielonaFigurka>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("Int_ZielonaFigurka is null");
+        }
+        if (interactionType == InteractionType.Int_CzerwonaFigurka)
+        {
+            Int_CzerwonaFigurka interaction = GetComponent<Int_CzerwonaFigurka>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("Int_CzerwonaFigurka is null");
+        }
 
+        //--------------------   LVL  3   ---------------------------------------------------------------------------
+
+        if (interactionType == InteractionType.Int_LibraryBook)
+        {
+            Int_LibraryBook interaction = GetComponent<Int_LibraryBook>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("Int_LibraryBook is null");
+        }
+
+        if (interactionType == InteractionType.Int_LibraryKey)
+        {
+            Int_LibraryKey interaction = GetComponent<Int_LibraryKey>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("Int_LibraryKey is null");
+        }
+
+        if (interactionType == InteractionType.Int_LibrarySafe)
+        {
+            Int_LibrarySafe interaction = GetComponent<Int_LibrarySafe>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("Int_LibrarySafe is null");
+        }
+
+
+        if (interactionType == InteractionType.Int_lv1_LibraryBooks)
+        {
+            Int_lv1_LibraryBooks interaction = GetComponent<Int_lv1_LibraryBooks>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("Int_lv1_LibraryBooks is null");
+        }
+        if (interactionType == InteractionType.Int_lv1_CircleTable)
+        {
+            Int_lv1_CircleTable interaction = GetComponent<Int_lv1_CircleTable>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("Int_lv1_CircleTable is null");
+        }
+        if (interactionType == InteractionType.Int_lv1_HidenWallMask)
+        {
+            Int_lv1_HidenWallMask interaction = GetComponent<Int_lv1_HidenWallMask>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("Int_lv1_HidenWallMask is null");
+        }
+
+        if (interactionType == InteractionType.Int_lv1_Fireplace)
+        {
+            Int_lv1_Fireplace interaction = GetComponent<Int_lv1_Fireplace>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("Int_lv1_Fireplace is null");
+        }
+
+        if (interactionType == InteractionType.Int_lv1_WindowBulletCP)
+        {
+            Int_lv1_WindowBulletCP interaction = GetComponent<Int_lv1_WindowBulletCP>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("Int_lv1_WindowBulletCP is null");
+        }
+
+        if (interactionType == InteractionType.Int_lv1_WindowBullet)
+        {
+            Int_lv1_WindowBullet interaction = GetComponent<Int_lv1_WindowBullet>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("Int_lv1_WindowBullet is null");
+        }
+        if (interactionType == InteractionType.Int_lv1_lamp)
+        {
+            Int_lv1_lamp interaction = GetComponent<Int_lv1_lamp>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("Int_lv1_lamp is null");
+        }
+        if (interactionType == InteractionType.lvl3_int_BrickButton)
+        {
+            lvl3_int_BrickButton interaction = GetComponent<lvl3_int_BrickButton>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("lvl3_int_BrickButton is null");
+        }
+
+        if (interactionType == InteractionType.lvl3_int_ChestLockpick)
+        {
+            lvl3_int_ChestLockpick interaction = GetComponent<lvl3_int_ChestLockpick>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("lvl3_int_ChestLockpick is null");
+        }
+
+        if (interactionType == InteractionType.lvl3_int_Lamp)
+        {
+            lvl3_int_Lamp interaction = GetComponent<lvl3_int_Lamp>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("lvl3_int_Lamp is null");
+        }
+
+        if (interactionType == InteractionType.lvl3_int_BasementDoor)
+        {
+            lvl3_int_BasementDoor interaction = GetComponent<lvl3_int_BasementDoor>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("lvl3_int_BasementDoor is null");
+        }
+
+        if (interactionType == InteractionType.lvl3_int_SecretLeverWall)
+        {
+            lvl3_int_SecretLeverWall interaction = GetComponent<lvl3_int_SecretLeverWall>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("lvl3_int_SecretLeverWall is null");
+        }
+
+        if (interactionType == InteractionType.lvl3_int_SecretLever)
+        {
+            lvl3_int_SecretLever interaction = GetComponent<lvl3_int_SecretLever>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("lvl3_int_SecretLever is null");
+        }
+        if (interactionType == InteractionType.Int_WatsonSwitchTutorial)
+        {
+            Int_WatsonSwitchTutorial interaction = GetComponent<Int_WatsonSwitchTutorial>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("Int_WatsonSwitchTutorial is null");
+        }
+
+        
     }
 
 
@@ -535,7 +971,30 @@ public class Interactable : MonoBehaviour
 
     public void AddClue(int listNumber, Transform cardPosition = null)
     {
-        if (clues == null) return;
+        if (clues == null || clues.Length == 0)
+        {
+            Debug.LogWarning($"{name}: AddClue called, but no clues are assigned.");
+            return;
+        }
+
+        if (listNumber < 0 || listNumber >= clues.Length)
+        {
+            Debug.LogError($"{name}: clue index {listNumber} is outside assigned clues range 0-{clues.Length - 1}.");
+            return;
+        }
+
+        if (clues[listNumber] == null)
+        {
+            Debug.LogError($"{name}: clue at index {listNumber} is null.");
+            return;
+        }
+
+        if (ClueManager.Instance == null)
+        {
+            Debug.LogError($"{name}: ClueManager.Instance is null.");
+            return;
+        }
+
         if (cardPosition == null)
             cardPosition = this.transform;
 
@@ -548,41 +1007,92 @@ public class Interactable : MonoBehaviour
         }
 
     }
-
-    private void OnTriggerEnter(Collider other)
+    public void SetQuestionFXEagleVisionState(bool active)
     {
-        if (other.CompareTag("Scanner"))
+        if (questionVFX == null)
+            return;
+
+        if (!active || (!isInteractableActive && !allowQuestionFXWhenInactive))
         {
-            if (questionVFX != null && isInteractableActive)
-            {
-                if (!isFootPrintInteraction)
-                {
+            SetQuestionFxLifetimeMultiplier(eagleVisionExitLifetimeMultiplier);
+            SetQuestionFxRate(0f);
+            return;
+        }
 
-                    questionVFX.Play();
+        SetQuestionFxLifetimeMultiplier(1f);
+        SetQuestionFxRate(eagleVisionQuestionRate);
+        questionVFX.Play();
+    }
 
+    private void CacheQuestionFxDefaultLifetime()
+    {
+        if (questionVFX == null || string.IsNullOrWhiteSpace(questionFxLifetimeProperty))
+            return;
 
-                }
-                else
-                {
-                    if (isNearPlayer)
-                    {
-                        questionVFX.Play();
-                    }
-
-                }
-
-
-            }
-
+        if (questionVFX.HasFloat(questionFxLifetimeProperty))
+        {
+            defaultQuestionFxLifetime = questionVFX.GetFloat(questionFxLifetimeProperty);
+            hasCachedQuestionFxLifetime = true;
+        }
+        else if (questionVFX.HasInt(questionFxLifetimeProperty))
+        {
+            defaultQuestionFxLifetime = questionVFX.GetInt(questionFxLifetimeProperty);
+            hasCachedQuestionFxLifetime = true;
         }
     }
 
-    private void OnTriggerExit(Collider other)
+    private void SetQuestionFxLifetimeMultiplier(float multiplier)
     {
-        if (other.CompareTag("Scanner"))
-        {
+        if (questionVFX == null || string.IsNullOrWhiteSpace(questionFxLifetimeProperty))
+            return;
 
-            if (questionVFX != null) questionVFX.Stop();
+        if (!hasCachedQuestionFxLifetime)
+            CacheQuestionFxDefaultLifetime();
+
+        if (!hasCachedQuestionFxLifetime)
+        {
+            if (!missingQuestionFxLifetimeReported)
+            {
+                Debug.LogWarning($"{name}: QuestionFX needs an exposed int or float named '{questionFxLifetimeProperty}' for lifetime control.");
+                missingQuestionFxLifetimeReported = true;
+            }
+
+            return;
+        }
+
+        float lifetime = Mathf.Max(0f, defaultQuestionFxLifetime * multiplier);
+        if (questionVFX.HasFloat(questionFxLifetimeProperty))
+            questionVFX.SetFloat(questionFxLifetimeProperty, lifetime);
+        else if (questionVFX.HasInt(questionFxLifetimeProperty))
+            questionVFX.SetInt(questionFxLifetimeProperty, Mathf.RoundToInt(lifetime));
+    }
+
+    public void SetQuestionFXRate(float rate)
+    {
+        SetQuestionFxRate(rate);
+    }
+
+    private void SetQuestionFxRate(float rate)
+    {
+        if (questionVFX == null || string.IsNullOrWhiteSpace(questionFxRateProperty))
+            return;
+
+        if (questionVFX.HasInt(questionFxRateProperty))
+        {
+            questionVFX.SetInt(questionFxRateProperty, Mathf.RoundToInt(rate));
+            return;
+        }
+
+        if (questionVFX.HasFloat(questionFxRateProperty))
+        {
+            questionVFX.SetFloat(questionFxRateProperty, rate);
+            return;
+        }
+
+        if (!missingQuestionFxRateReported)
+        {
+            Debug.LogWarning($"{name}: QuestionFX needs an exposed int or float named '{questionFxRateProperty}'.");
+            missingQuestionFxRateReported = true;
         }
     }
 
@@ -627,6 +1137,9 @@ public enum InteractionType
     WatsonDialogViolet_2,
     WatsonScan,
 
+    // LVL1 - NEW
+
+    
 
     // LVL2
 
@@ -641,6 +1154,48 @@ public enum InteractionType
     lvl2_Int_Gramophone,
     lvl2_Int_Hatch,
     lvl2_Int_HatchExit,
-    lvl2_Int_StairsExit
+    lvl2_Int_StairsExit,
 
+    // LVL1 - NEW
+
+    Int_Edith_Paper,
+    Int_Edith_Ring,
+    Int_Edith_BulletHole,
+    int_LibraryPainting,
+    Int_CzerwonaFigurka,
+    Int_lv1_SecretLetter,
+    Int_ZielonaFigurka,
+    Int_NiebieskaFigurka,
+
+    // LVL3
+
+    lvl3_int_BrickButton,
+    lvl3_int_ChestLockpick,
+    lvl3_int_Lamp,
+    lvl3_int_BasementDoor,
+    lvl3_int_SecretLeverWall,
+    lvl3_int_SecretLever,
+
+    GlobusButton,
+
+    Int_LibraryBook,
+    Int_LibraryKey,
+    Int_LibrarySafe,
+    Int_lv1_Fireplace,
+    Int_lv1_LibraryBooks,
+    Int_lv1_CircleTable,
+    Int_lv1_HidenWallMask,
+    Int_lv1_lamp,
+    Int_lv1_WindowBullet,
+    Int_lv1_WindowBulletCP,
+    Int_lv1_SecretDoor,
+    int_lv3_easyTable,
+    Int_lv1_EthelPassageDoor,
+    Int_lv1_BigGramm,
+    Int_lv1_BigGramm_button,
+    int_lv1_HenryNPC,
+    int_lv1_ArthurNPC,
+    int_vl1_GeorgeNPC,
+    Int_lv1_BlockBox,
+    Int_WatsonSwitchTutorial
 }

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Int_StairsUp : MonoBehaviour
@@ -11,6 +12,10 @@ public class Int_StairsUp : MonoBehaviour
     public Transform moveDestination;
 
     private Interactable interactable;
+
+    public Transform level2StartingPoint;
+    public GameObject level_1;
+    public GameObject level_2;
 
     private void Start()
     {
@@ -35,11 +40,12 @@ public class Int_StairsUp : MonoBehaviour
         if (canGoUpStairs)
         {
             performed = true;
+
             
-            interactable.isInteractableActive = false;
             player.currentInteractable = null;
 
-            GoUpStairs();
+            
+            StartCoroutine(GoUpStairs(player));
         }
         else
         {
@@ -50,8 +56,20 @@ public class Int_StairsUp : MonoBehaviour
   
     }
 
-    private void GoUpStairs()
+    private IEnumerator GoUpStairs(PlayerController player)
     {
-        Debug.Log("KOOOOOONNIEEEEEEECCC!!!");
+        
+
+        level_2.SetActive(true);
+        yield return null;
+        player.navMeshAgent.ResetPath();
+        player.navMeshAgent.Warp(level2StartingPoint.position);
+        player.transform.rotation = level2StartingPoint.rotation;
+        yield return null;
+
+        level_1.SetActive(false);
+        player.currentInteractable = null;
+
+        yield return null;
     }
 }

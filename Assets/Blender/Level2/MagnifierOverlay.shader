@@ -4,7 +4,8 @@ Shader "Custom/URP/MagnifierOverlay"
     {
         _Radius("Radius", Float) = 0.12
         _Zoom("Zoom", Float) = 2.0
-        _Center("Center", Vector) = (0.5, 0.5, 0, 0)
+        _Center("Lens Screen Center", Vector) = (0.5, 0.5, 0, 0)
+        _RenderCenter("Camera Render Center", Vector) = (0.5, 0.5, 0, 0)
         _EdgeSoftness("Edge Softness", Float) = 0.01
         _MainTex("MainTex", 2D) = "white" {}
         _HiddenCluesTex("Hidden Clues Texture", 2D) = "black" {}
@@ -38,6 +39,7 @@ Shader "Custom/URP/MagnifierOverlay"
 
             CBUFFER_START(UnityPerMaterial)
                 float4 _Center;
+                float4 _RenderCenter;
                 float _Radius;
                 float _Zoom;
                 float _EdgeSoftness;
@@ -76,7 +78,7 @@ Shader "Custom/URP/MagnifierOverlay"
                 if (dist > _Radius)
                     return half4(0, 0, 0, 0);
 
-                float2 zoomUV = _Center.xy + (uv - _Center.xy) / _Zoom;
+                float2 zoomUV = _RenderCenter.xy + (uv - _Center.xy) / _Zoom;
                 zoomUV = saturate(zoomUV);
 
                 half4 sceneCol = SAMPLE_TEXTURE2D(_SceneTex, sampler_SceneTex, zoomUV);

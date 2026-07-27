@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Interaction : MonoBehaviour
 {
-    
+    [SerializeField] private Int_EdithExamBody edith;
     private Interactable interactable;
     
     public bool performed = false;
@@ -32,6 +32,7 @@ public class Interaction : MonoBehaviour
         interactable.isInteractableActive = false;
         player.currentInteractable = null;
 
+        
         //intCollider.enabled = false;
         this.gameObject.SetActive(false);
     }

@@ -1,24 +1,30 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.Rendering.Universal; // Konieczne dla obs³ugi URP i Kamery
+using UnityEngine.Rendering.Universal; // Konieczne dla obsï¿½ugi URP i Kamery
 
 public class EagleVisionSystem : MonoBehaviour
 {
-    [Header("Post-Processing (Ciemny Œwiat)")]
-    public Volume eagleVisionVolume; // Twój drugi Volume z priority 1
+    [Header("Post-Processing (Ciemny ï¿½wiat)")]
+    public Volume eagleVisionVolume; // Twï¿½j drugi Volume z priority 1
     public float transitionSpeed = 3f;
+    [Tooltip("Wolniejszy, lagodny powrot do normalnego widzenia.")]
+    public float exitTransitionSpeed = 0.35f;
 
-    [Header("Ustawienia Renderera (Podœwietlanie)")]
-    // Index 0 to zazwyczaj domyœlny renderer, Index 1 to ten z Eagle Vision
-    // Wyjaœnienie konfiguracji poni¿ej kodu
+    [Header("Ustawienia Renderera (Podï¿½wietlanie)")]
+    // Index 0 to zazwyczaj domyï¿½lny renderer, Index 1 to ten z Eagle Vision
+    // Wyjaï¿½nienie konfiguracji poniï¿½ej kodu
     public int normalRendererIndex = 0;
     public int eagleRendererIndex = 1;
 
     public bool isActive = false;
+    public KeyCode visionHoldKey = KeyCode.LeftShift;
+    public KeyCode magnifierHoldKey = KeyCode.F;
     private UniversalAdditionalCameraData cameraData; // Komponent kamery URP
 
     public EagleVisionScanner eagleVisionScanner;
     public WatsonEagleVisionScanner watsonEagleVisionScanner;
+
+    private float forcedActiveUntil;
 
     public static EagleVisionSystem Instance;
     void Start()
@@ -27,7 +33,7 @@ public class EagleVisionSystem : MonoBehaviour
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        // Pobieramy komponent URP z G³ównej Kamery, ¿eby móc zmieniaæ renderery
+        // Pobieramy komponent URP z Gï¿½ï¿½wnej Kamery, ï¿½eby mï¿½c zmieniaï¿½ renderery
         if (Camera.main != null)
         {
             cameraData = Camera.main.GetComponent<UniversalAdditionalCameraData>();
@@ -44,46 +50,62 @@ public class EagleVisionSystem : MonoBehaviour
     void Update()
     {
 
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        bool shouldBeActive = Input.GetKey(visionHoldKey) || Input.GetKey(magnifierHoldKey) ||
+                              IsIdeaSequenceActive() ||
+                              Time.unscaledTime < forcedActiveUntil;
+        if (isActive != shouldBeActive)
         {
-            isActive = true;
-            //SwitchRenderer(); 
-            Scan();
-
-        }
-
-
-        if (Input.GetKeyUp(KeyCode.LeftShift))
-        {
-            isActive = false;
+            isActive = shouldBeActive;
             //SwitchRenderer();
             Scan();
         }
 
-        // 3. P³ynne przejœcie Volume (zostaje bez zmian, bo reaguje na isActive)
+        // 3. Pï¿½ynne przejï¿½cie Volume (zostaje bez zmian, bo reaguje na isActive)
         float targetWeight = isActive ? 1f : 0f;
         if (eagleVisionVolume != null)
         {
-            eagleVisionVolume.weight = Mathf.Lerp(eagleVisionVolume.weight, targetWeight, Time.deltaTime * transitionSpeed);
+            float speed = isActive ? transitionSpeed : exitTransitionSpeed;
+            float blend = 1f - Mathf.Exp(-Mathf.Max(0.01f, speed) * Time.unscaledDeltaTime);
+            eagleVisionVolume.weight = Mathf.Lerp(eagleVisionVolume.weight, targetWeight, blend);
         }
+    }
+
+    public bool IsMagnifierHeld()
+    {
+        return isActive && Input.GetKey(magnifierHoldKey);
+    }
+
+    public void RefreshScan()
+    {
+        Scan();
+    }
+
+    public void HoldVisionFor(float duration)
+    {
+        forcedActiveUntil = Mathf.Max(forcedActiveUntil, Time.unscaledTime + Mathf.Max(0f, duration));
+    }
+
+    private bool IsIdeaSequenceActive()
+    {
+        return DetectiveIdeaManager.Instance != null && DetectiveIdeaManager.Instance.IsDraggingIdea();
     }
 
 
     //void Update()
     //{
-    //    // W³¹czanie / Wy³¹czanie pod klawiszem E
+    //    // Wï¿½ï¿½czanie / Wyï¿½ï¿½czanie pod klawiszem E
     //    if (Input.GetKeyDown(KeyCode.V))
     //    {
 
     //        isActive = !isActive;
-    //        SwitchRenderer(); // Zmieniamy sposób renderowania (widzenie przez œciany)
+    //        SwitchRenderer(); // Zmieniamy sposï¿½b renderowania (widzenie przez ï¿½ciany)
 
     //        Scan();
 
     //    }
 
-    //    // P³ynne przejœcie kolorów (Volume)
-    //    //Jeœli isActive = true, waga d¹¿y do 1.Jeœli false, do 0.
+    //    // Pï¿½ynne przejï¿½cie kolorï¿½w (Volume)
+    //    //Jeï¿½li isActive = true, waga dï¿½ï¿½y do 1.Jeï¿½li false, do 0.
 
     //   float targetWeight = isActive ? 1f : 0f;
     //    if (eagleVisionVolume != null)
@@ -118,7 +140,7 @@ public class EagleVisionSystem : MonoBehaviour
     {
         if (cameraData == null) return;
 
-        // Jeœli tryb aktywny -> ustaw renderer nr 1 (Eagle). Jeœli nie -> nr 0 (Normal).
+        // Jeï¿½li tryb aktywny -> ustaw renderer nr 1 (Eagle). Jeï¿½li nie -> nr 0 (Normal).
         int indexToSet = isActive ? eagleRendererIndex : normalRendererIndex;
         Debug.Log($"EagleVision isActive = {isActive}");
         cameraData.SetRenderer(indexToSet);

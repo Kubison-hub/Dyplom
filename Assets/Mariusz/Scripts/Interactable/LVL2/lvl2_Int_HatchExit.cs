@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using System.Collections;
 using UnityEngine;
 
@@ -12,7 +11,7 @@ public class lvl2_Int_HatchExit : MonoBehaviour
     public bool performed = false;
 
     [SerializeField] private int requiredLetters = 3;
-    public static int lettersCollected = 0;
+    private int lettersCollected = 0;
 
     public void AddLetter()
     {

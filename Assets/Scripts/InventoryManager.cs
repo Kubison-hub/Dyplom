@@ -67,20 +67,20 @@ public class InventoryManager : MonoBehaviour
         // 2. W��czamy odpowiedni� ikonk� (Twoja logika wizualna)
         switch (itemType)
         {
-            case ItemType.Key:
+            case ItemType.Czerwona:
                 if (iconKey) iconKey.SetActive(true);
                 keyInInv = true;
-                Debug.Log("Ekwipunek: Dodano Klucz");
+                Debug.Log("Ekwipunek: Czerwona Figurka");
                 break;
 
-            case ItemType.Hammer:
+            case ItemType.Zielona:
                 if (iconHammer) iconHammer.SetActive(true);
-                Debug.Log("Ekwipunek: Dodano M�otek");
+                Debug.Log("Ekwipunek: Zielona Figurka");
                 break;
 
-            case ItemType.MagnifyingGlass:
+            case ItemType.Niebieska:
                 if (iconGlass) iconGlass.SetActive(true);
-                Debug.Log("Ekwipunek: Dodano Lup�");
+                Debug.Log("Ekwipunek: Niebieska Figurka");
                 break;
         }
     }
@@ -89,7 +89,7 @@ public class InventoryManager : MonoBehaviour
 // Enum pozostaje bez zmian
 public enum ItemType
 {
-    Key,
-    Hammer,
-    MagnifyingGlass
+    Czerwona,
+    Zielona,
+    Niebieska
 }

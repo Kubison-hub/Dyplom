@@ -41,6 +41,7 @@ public class ClueManager : MonoBehaviour
     private Queue<string> messageQueue = new Queue<string>();
     private bool isDisplaying = false;
 
+    private HashSet<Clues_SO> pendingClues = new HashSet<Clues_SO>();
     private HashSet<Conclusions_SO> pendingConclusions = new HashSet<Conclusions_SO>();
     private HashSet<QuestConclusions_SO> pendingQuestConclusions = new HashSet<QuestConclusions_SO>();
 
@@ -56,12 +57,20 @@ public class ClueManager : MonoBehaviour
 
     public void AddClue(Clues_SO newClue, Vector3 cluePosition)
     {
-        if (!collectedClues.Contains(newClue))
+        if (newClue == null)
         {
-            StartCoroutine(ShowTextAndAddClue(newClue));
+            Debug.LogError("Tried to add a null clue.");
+            return;
         }
-    }
 
+        if (collectedClues.Contains(newClue) || pendingClues.Contains(newClue))
+        {
+            return;
+        }
+
+        pendingClues.Add(newClue);
+        StartCoroutine(ShowTextAndAddClue(newClue));
+    }
     private IEnumerator ShowTextAndAddClue(Clues_SO clue)
     {
 
@@ -74,6 +83,7 @@ public class ClueManager : MonoBehaviour
         else
         {
             Debug.LogError($"SherlockText = {SherlockText}");
+            pendingClues.Remove(clue);
             yield break;
         }
 
@@ -214,7 +224,13 @@ public class ClueManager : MonoBehaviour
     {
         if (clue != null)
         {
-            collectedClues.Add(clue);
+            pendingClues.Remove(clue);
+
+            if (!collectedClues.Contains(clue))
+            {
+                collectedClues.Add(clue);
+            }
+
             CheckForConclusions();
         }
 

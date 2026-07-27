@@ -5,6 +5,8 @@ using UnityEngine;
 public class EagleVisionScanner : MonoBehaviour
 {
     public static EagleVisionScanner Instance;
+    [SerializeField] private Int_EdithExamBody edith;
+
 
     public Transform playerTransform;
 
@@ -12,8 +14,19 @@ public class EagleVisionScanner : MonoBehaviour
     public Material footprintMaterial;
     public float radius = 5.0f;
     public float bacgroundTreshold = 10f;
+
+    [Header("QuestionFX Scan Wave")]
+    [SerializeField] private string outlinedObjectsLayerName = "Outlined Objects";
+    [SerializeField, Min(0.1f)] private float questionFxScanRange = 4f;
+    [SerializeField, Min(0.01f)] private float questionFxScanExpansionSpeed = 1.5f;
+    [SerializeField] private bool drawQuestionFxScanGizmo = true;
+
     private ParticleSystem scannerPS;
     private SphereCollider scannerCollider;
+    private readonly Collider[] questionFxScanHits = new Collider[128];
+    private readonly HashSet<Interactable> scannedInteractables = new HashSet<Interactable>();
+    private int outlinedObjectsLayer;
+    private float currentQuestionFxScanRadius;
 
     public float duration = 5;
     public float size = 30;
@@ -22,9 +35,11 @@ public class EagleVisionScanner : MonoBehaviour
     public bool isScanning = false;
     private float timer = 0f;
 
-    private float currentProgress = 0f;
-
     public bool footPrints;
+
+    public GameObject toolTipPanel;
+    public GameObject magnififierGlassCanvas;
+    public GameObject toolTipCanvas;
 
     public List<GameObject> footprintsSplines = new List<GameObject>();
 
@@ -37,27 +52,58 @@ public class EagleVisionScanner : MonoBehaviour
         scannerPS = GetComponentInChildren<ParticleSystem>();
         scannerCollider = GetComponent<SphereCollider>();
 
+        if (scannerCollider == null)
+            scannerCollider = gameObject.AddComponent<SphereCollider>();
+
+        // This trigger drives the scan wave only; it must not intercept mouse raycasts.
+        int ignoreRaycastLayer = LayerMask.NameToLayer("Ignore Raycast");
+        if (ignoreRaycastLayer >= 0)
+            scannerCollider.gameObject.layer = ignoreRaycastLayer;
+
+        scannerCollider.isTrigger = true;
+        scannerCollider.radius = 0f;
         scannerCollider.enabled = false;
+
+        outlinedObjectsLayer = LayerMask.NameToLayer(outlinedObjectsLayerName);
+        if (outlinedObjectsLayer < 0)
+            Debug.LogWarning("EagleVisionScanner: Layer '" + outlinedObjectsLayerName + "' was not found.", this);
     }
 
     private void Update()
     {
         FindshaderFootPrints();
+
+        if (isScanning)
+            ExpandQuestionFxScanWave();
     }
 
 
     public void ScanSherlock(bool isActive)
     {
-        if (scannerPS == null) return;
-
         isScanning = isActive;
-        scannerCollider.enabled = isScanning;
+
+        if (scannerPS == null || scannerCollider == null)
+        {
+            if (!isActive)
+                SetAllQuestionFXState(false);
+
+            return;
+        }
+
+        // Detection is performed by Physics.OverlapSphereNonAlloc below. The collider itself
+        // stays disabled so it can never block the click raycast to IdeaPoints.
+        scannerCollider.enabled = false;
 
         if (isActive)
         {
+            ResetQuestionFxScanWave();
+
             var main = scannerPS.main;
             main.startLifetime = duration;
             main.startSize = size;
+
+            if (toolTipPanel != null && magnififierGlassCanvas != null)
+                toolTipPanel.transform.SetParent(magnififierGlassCanvas.transform);
 
             scannerPS.Play();
 
@@ -66,42 +112,99 @@ public class EagleVisionScanner : MonoBehaviour
                 foreach (var footprint in footprintsSplines)
                     footprint.SetActive(true);
             }
-
         }
         else
         {
-            // Przy wy³¹czaniu pozwalamy Update zaj¹æ siê "zwijaniem" promienia
-            // Jeœli chcesz, by cz¹steczki zniknê³y natychmiast:
-            Debug.Log("else");
+            if (toolTipPanel != null && toolTipCanvas != null)
+                toolTipPanel.transform.SetParent(toolTipCanvas.transform);
+
             scannerPS.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            scannerCollider.radius = 0f;
+            SetAllQuestionFXState(false);
 
             foreach (var footprint in footprintsSplines)
                 footprint.SetActive(false);
-
         }
 
         Debug.Log($"Scanner State: {isActive}");
     }
 
+    private void ResetQuestionFxScanWave()
+    {
+        currentQuestionFxScanRadius = 0f;
+        scannedInteractables.Clear();
+        scannerCollider.radius = 0f;
+    }
 
+    private void ExpandQuestionFxScanWave()
+    {
+        currentQuestionFxScanRadius = Mathf.MoveTowards(
+            currentQuestionFxScanRadius,
+            questionFxScanRange,
+            questionFxScanExpansionSpeed * Time.unscaledDeltaTime);
 
+        scannerCollider.radius = currentQuestionFxScanRadius;
 
+        if (outlinedObjectsLayer < 0)
+            return;
 
+        int hitCount = Physics.OverlapSphereNonAlloc(
+            GetQuestionFxScanOrigin(),
+            currentQuestionFxScanRadius,
+            questionFxScanHits,
+            ~0,
+            QueryTriggerInteraction.Collide);
 
+        for (int index = 0; index < hitCount; index++)
+        {
+            Collider hit = questionFxScanHits[index];
+            if (hit == null)
+                continue;
+
+            Interactable interactable = hit.GetComponentInParent<Interactable>();
+            if (interactable == null)
+                continue;
+
+            if (!UsesOutlinedObjectsLayer(hit, interactable))
+                continue;
+
+            if (!scannedInteractables.Add(interactable))
+                continue;
+
+            interactable.SetQuestionFXEagleVisionState(true);
+        }
+    }
+
+    private bool UsesOutlinedObjectsLayer(Collider hit, Interactable interactable)
+    {
+        return hit.gameObject.layer == outlinedObjectsLayer ||
+               interactable.gameObject.layer == outlinedObjectsLayer;
+    }
+
+    private Vector3 GetQuestionFxScanOrigin()
+    {
+        if (scannerCollider != null)
+            return scannerCollider.transform.TransformPoint(scannerCollider.center);
+
+        return playerTransform != null ? playerTransform.position : transform.position;
+    }
+
+    private void SetAllQuestionFXState(bool eagleVisionActive)
+    {
+        Interactable[] interactables = FindObjectsByType<Interactable>(
+            FindObjectsInactive.Exclude,
+            FindObjectsSortMode.None);
+
+        foreach (Interactable interactable in interactables)
+            interactable.SetQuestionFXEagleVisionState(eagleVisionActive);
+
+        if (!eagleVisionActive)
+            scannedInteractables.Clear();
+    }
 
     private void FindshaderFootPrints()
 
     {
-        //float target = isScanning ? 1f : 0f;
-        //currentProgress = Mathf.MoveTowards(currentProgress, target, Time.deltaTime / duration);
-
-        //if (scannerCollider != null)
-        //{
-        //    scannerCollider.radius = (currentProgress * scannerSpeed) / 2f;
-
-        //    if (currentProgress <= 0f && !isScanning)
-        //        scannerCollider.enabled = false;
-        //}
 
         if (playerTransform != null && footprintMaterials != null && footprintMaterials.Length > 0)
         {
@@ -126,5 +229,28 @@ public class EagleVisionScanner : MonoBehaviour
 
     }
 
-    //FIX
+    private void OnDrawGizmosSelected()
+    {
+        if (!drawQuestionFxScanGizmo)
+            return;
+
+        SphereCollider gizmoCollider = scannerCollider != null
+            ? scannerCollider
+            : GetComponent<SphereCollider>();
+
+        Vector3 center = gizmoCollider != null
+            ? gizmoCollider.transform.TransformPoint(gizmoCollider.center)
+            : playerTransform != null ? playerTransform.position : transform.position;
+
+        Gizmos.color = new Color(1f, 0.8f, 0.15f, 0.75f);
+        Gizmos.DrawWireSphere(center, questionFxScanRange);
+
+        if (!Application.isPlaying || !isScanning)
+            return;
+
+        Gizmos.color = new Color(0.25f, 1f, 0.45f, 0.9f);
+        Gizmos.DrawWireSphere(center, currentQuestionFxScanRadius);
+        Gizmos.DrawSphere(center, 0.08f);
+    }
+
 }

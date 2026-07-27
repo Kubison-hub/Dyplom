@@ -31,11 +31,9 @@ public class Int_SelmaDialog : MonoBehaviour
 
     public void PerformInteraction(PlayerController player)
     {
-        interactable.isInteractableActive = false;
-
-
         if (ConversationManager.Instance != null && !ConversationManager.Instance.IsConversationActive)
         {
+            interactable.isInteractableActive = false;
             interactable.AddClue(0, cardPosition);
             interactable.AddClue(1, cardPosition);
             smartNPC.SprawdzIZacznijRozmowe();
@@ -46,7 +44,8 @@ public class Int_SelmaDialog : MonoBehaviour
         }
         else
         {
-            Debug.LogError("ERROR");
+            Debug.LogWarning("Cannot start Selma dialog while another conversation is active.");
+            player.currentInteractable = null;
         }
 
        

@@ -46,20 +46,40 @@ public class Int2_WatsonDialogViolet_2 : MonoBehaviour
         SelmaGO = GameObject.Find("SELMA_NPC");
 
 
-        npc = SelmaGO.GetComponentInChildren<SmartNPC>();
-        navMeshAgent = npc.GetComponent<NavMeshAgent>();
+        if (SelmaGO != null)
+        {
+            npc = SelmaGO.GetComponentInChildren<SmartNPC>();
+        }
+
+        if (npc != null)
+        {
+            navMeshAgent = npc.GetComponent<NavMeshAgent>();
+        }
 
         interactable = GetComponent<Interactable>();
 
         dialogCam = GetComponentInChildren<CinemachineCamera>();
-        splineDolly = dialogCam.GetComponent<CinemachineSplineDolly>();
+        if (dialogCam != null)
+        {
+            splineDolly = dialogCam.GetComponent<CinemachineSplineDolly>();
+        }
 
-        transform.parent = VioletGO.transform;
-        transform.position = VioletGO.transform.position;
-        transform.rotation = VioletGO.transform.localRotation;
+        if (VioletGO != null)
+        {
+            transform.parent = VioletGO.transform;
+            transform.position = VioletGO.transform.position;
+            transform.rotation = VioletGO.transform.localRotation;
+        }
+        else
+        {
+            Debug.LogWarning("VIOLET_NPC was not found for Watson dialog step 2.");
+        }
 
 
-        destination = moveDestination.position;
+        if (moveDestination != null)
+        {
+            destination = moveDestination.position;
+        }
     }
 
 
@@ -90,13 +110,23 @@ public class Int2_WatsonDialogViolet_2 : MonoBehaviour
     {
         if (dialogCam != null)
         {
-            splineDolly.CameraPosition = .6f;
+            if (splineDolly != null)
+            {
+                splineDolly.CameraPosition = .6f;
+            }
+
             dialogCam.Priority = 50;
         }
     }
 
     public void MoveToPosition()
     {
+        if (npc == null)
+        {
+            Debug.LogWarning("Cannot move Selma because SmartNPC is missing.");
+            return;
+        }
+
         npc.GoToPoint(destination, () => ActivateStairs());
     }
 
@@ -112,7 +142,14 @@ public class Int2_WatsonDialogViolet_2 : MonoBehaviour
 
     private void ActivateStairs()
     {
-        stairsUp.canGoUpStairs = true;
+        if (stairsUp != null)
+        {
+            stairsUp.canGoUpStairs = true;
+        }
+        else
+        {
+            Debug.LogWarning("Cannot activate stairs because Int_StairsUp reference is missing.");
+        }
     }
 
 }

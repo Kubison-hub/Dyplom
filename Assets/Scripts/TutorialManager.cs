@@ -17,6 +17,11 @@ public class TutorialManager : MonoBehaviour
     // Zbiór ID tutoriali, które ju¿ by³y (HashSet jest szybki, ale nie zapisuje siê w JSON)
     private HashSet<string> pokazaneTutoriale = new HashSet<string>();
 
+    public bool BlocksWorldInput => isTutorialActive || blockWorldInputUntilMouseRelease;
+    private bool blockWorldInputUntilMouseRelease;
+
+
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -67,13 +72,29 @@ public class TutorialManager : MonoBehaviour
 
         isTutorialActive = false;
         Time.timeScale = 1f; // Wznowienie gry
-    }
 
+        blockWorldInputUntilMouseRelease = true;
+        StartCoroutine(ReleaseWorldInputAfterMouseRelease());
+
+
+    }
+    private IEnumerator ReleaseWorldInputAfterMouseRelease()
+    {
+        yield return null;
+
+        while (Input.GetMouseButton(0))
+            yield return null;
+
+        blockWorldInputUntilMouseRelease = false;
+    }
     private IEnumerator PokazStartowyTutorial()
     {
         yield return new WaitForSeconds(0.1f);
-        PokazTutorial("Wciœnij Lewy Przycisk Myszy, aby siê poruszyæ. Przytrzaj Lewy Shift, aby wejœæ w tryb skupienia", "MoveTutorial");
+        //TutorialTimeline.Instance.ShowGameplayTutorialPopup(0);
+        PokazTutorial("Wciœnij Lewy Przycisk Myszy, aby siê poruszyæ, Wciœnij Lewy Shift, aby wejœæ w tryb skupienia.", "MoveTutorial");
     }
+
+
 
     // --- FUNKCJE DLA SYSTEMU ZAPISU (NOWOŒÆ) ---
 

@@ -32,11 +32,14 @@ public class PlayerController : MonoBehaviour
 
     public Interactable currentInteractable = null;
     public Transform currentInteractionPoint;
-    public float interactionPointRotationSpeed = 10f;
+    public float interactionPointRotationSpeed = 360f;
     
     public AudioClip[] FootstepAudioClips;
 
     private bool canMove = true;
+    private bool tutorialMovementLocked;
+    private bool minigameMovementLocked;
+    private PlayerInput playerInput;
 
     public bool isWalking = false;
     public bool lookAtCamera = false;
@@ -47,10 +50,13 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public Vector3 targetPosition;
 
     private bool isThinking = false;
+    private bool isPerformingInteraction = false;
+    private NavMeshPath lightMazePath;
     private void Awake()
     {
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
+        playerInput = GetComponent<PlayerInput>();
 
         // Upewniamy siê, ¿e Rigidbody nie koliduje fizycznie (u¿ywamy CharacterController)
         if (rb.isKinematic == false) rb.isKinematic = true;
@@ -64,6 +70,7 @@ public class PlayerController : MonoBehaviour
 
         navMeshAgent = GetComponent<NavMeshAgent>();
         if (navMeshAgent == null) Debug.LogError("NavMeshAgent is null");
+        lightMazePath = new NavMeshPath();
     }
 
     private void Update()
@@ -91,7 +98,7 @@ public class PlayerController : MonoBehaviour
         bool dziennikAktywny = (JournalManager.Instance != null && JournalManager.Instance.isJournalOpen);
 
         // Jeœli któraœ z blokad jest aktywna...
-        if (dialogAktywny || dziennikAktywny)
+        if (dialogAktywny || dziennikAktywny || tutorialMovementLocked || minigameMovementLocked)
         {
             // ...zablokuj NavMesh.
             LockMovement();
@@ -119,7 +126,33 @@ public class PlayerController : MonoBehaviour
         navMeshAgent.isStopped = false;
     }
 
+    public void SetTutorialMovementLocked(bool locked)
+    {
+        tutorialMovementLocked = locked;
 
+        if (tutorialMovementLocked)
+            LockMovement();
+    }
+
+
+    public void SetMinigameMovementLocked(bool locked)
+    {
+        minigameMovementLocked = locked;
+
+        if (minigameMovementLocked)
+            LockMovement();
+    }
+
+    public void SetTutorialInputLocked(bool locked)
+    {
+        if (playerInput == null)
+            return;
+
+        if (locked)
+            playerInput.DeactivateInput();
+        else
+            playerInput.ActivateInput();
+    }
     //---------------------------------------------
 
 
@@ -134,12 +167,35 @@ public class PlayerController : MonoBehaviour
 
     private void HandleLeftClick()
     {
+        if (TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput)
+            return;
+
+        if (TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput)
+            return;
+
+        if (TutorialTimeline.Instance != null)
+            TutorialTimeline.Instance.NotifyWorldClick();
+
+        if (SafeCodeDrumMinigame.IsPointerOverActiveBoard)
+            return;
+
+        if (DetectiveIdeaManager.Instance != null && DetectiveIdeaManager.Instance.TryHandlePointerPress())
+            return;
+
+
         Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
 
         
         if (Physics.Raycast(ray, out RaycastHit hit, 100f, interactableMask))
         {
             Interactable interactable = hit.collider.GetComponent<Interactable>();
+
+            if (interactable == null)
+            {
+                EmptyWall emptyWall = hit.collider.GetComponentInParent<EmptyWall>();
+                if (emptyWall != null)
+                    interactable = emptyWall.GetComponent<Interactable>();
+            }
             if (interactable != null)
             {
                 interactable.TryToInteract(this);
@@ -150,23 +206,94 @@ public class PlayerController : MonoBehaviour
         
         if (Physics.Raycast(ray, out RaycastHit groundHit, 100f, groundMask))
         {
+            if (TutorialTimeline.Instance != null)
+                TutorialTimeline.Instance.NotifyIdeaPuzzleGroundClick();
+
+            if (!CanMoveToPointInLightMaze(groundHit.point))
+                return;
+
             MoveToPoint(groundHit.point);
         }
     }
 
+    private bool CanMoveToPointInLightMaze(Vector3 point)
+    {
+        if (lvl3_GameProgress.Instance == null || !lvl3_GameProgress.Instance.lightMazeMode)
+            return true;
+
+        if (!lvl3_GameProgress.Instance.lampPickedUp)
+        {
+            ShowMovementBlockedText("Za ciemno.", "Bez lampy nie powinienem isc dalej.");
+            return false;
+        }
+
+        if (lightMazePath == null)
+            lightMazePath = new NavMeshPath();
+
+        if (!NavMesh.CalculatePath(transform.position, point, NavMesh.AllAreas, lightMazePath))
+        {
+            ShowMovementBlockedText("Za ciemno.", "Nie widze bezpiecznej drogi.");
+            return false;
+        }
+
+        if (lightMazePath.status != NavMeshPathStatus.PathComplete)
+        {
+            ShowMovementBlockedText("Za ciemno.", "Nie widze bezpiecznej drogi.");
+            return false;
+        }
+
+        float pathDistance = GetPathDistance(lightMazePath);
+        if (pathDistance > lvl3_GameProgress.Instance.lightMazeRange)
+        {
+            ShowMovementBlockedText("Za ciemno.", "Musze podejsc blizej z lampa.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private float GetPathDistance(NavMeshPath path)
+    {
+        float distance = 0f;
+
+        for (int i = 1; i < path.corners.Length; i++)
+        {
+            distance += Vector3.Distance(path.corners[i - 1], path.corners[i]);
+        }
+
+        return distance;
+    }
+
+    private void ShowMovementBlockedText(string title, string description)
+    {
+        if (PlayerTopText.Instance != null)
+        {
+            PlayerTopText.Instance.ShowTopText(title, description);
+        }
+        else
+        {
+            Debug.Log($"{title} {description}");
+        }
+    }
     public void MoveToPoint(Vector3 point)
     {
+        isPerformingInteraction = false;
         currentInteractable = null;
         navMeshAgent.destination = point;
+        NavMeshDestinationMarker.GetOrCreate().ShowAt(point, navMeshAgent);
     }
 
     public void MoveToInteractable()
     {
+        NavMeshDestinationMarker.HideCurrent();
         navMeshAgent.SetDestination(currentInteractionPoint.position);
     }
 
     private void CheckInteractionArrival()
     {
+        if (isPerformingInteraction)
+            return;
+
         if (currentInteractable == null)
             return;
 
@@ -188,9 +315,12 @@ public class PlayerController : MonoBehaviour
         if (currentInteractable == null)
             yield break;
 
+        isPerformingInteraction = true;
         navMeshAgent.updateRotation = false;
 
-        Quaternion targetRotation = currentInteractionPoint.rotation;
+        Quaternion targetRotation = currentInteractionPoint != null
+            ? currentInteractionPoint.rotation
+            : transform.rotation;
 
         while (Quaternion.Angle(transform.rotation, targetRotation) > 1f)
         {
@@ -210,6 +340,8 @@ public class PlayerController : MonoBehaviour
         {
             currentInteractable.PerformInteraction(this);
         }
+
+        isPerformingInteraction = false;
 
         
    

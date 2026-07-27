@@ -20,13 +20,45 @@ public class LockPickPinView : MonoBehaviour
     [SerializeField] private Color errorRingColor = new Color(0.94f, 0.60f, 0.56f, 1f);
 
     public int Id { get; private set; }
+    public string Label { get; private set; }
 
     public void Initialize(int id)
     {
         Id = id;
+        InitializeLabel(id.ToString(), false);
+    }
+
+    public void Initialize(int id, string label)
+    {
+        Id = id;
+        InitializeLabel(label, true);
+    }
+
+    private void InitializeLabel(string label, bool createMissingLabel)
+    {
+        Label = label;
+
+        if (numberText == null && createMissingLabel)
+        {
+            GameObject labelObject = new GameObject("SymbolLabel", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+            labelObject.transform.SetParent(transform, false);
+
+            RectTransform labelRect = labelObject.GetComponent<RectTransform>();
+            labelRect.anchorMin = new Vector2(0.5f, 0.5f);
+            labelRect.anchorMax = new Vector2(0.5f, 0.5f);
+            labelRect.pivot = new Vector2(0.5f, 0.5f);
+            labelRect.sizeDelta = new Vector2(72f, 72f);
+
+            numberText = labelObject.GetComponent<TextMeshProUGUI>();
+            numberText.font = TMP_Settings.defaultFontAsset;
+            numberText.fontSize = 40f;
+            numberText.alignment = TextAlignmentOptions.Center;
+            numberText.color = Color.white;
+            numberText.raycastTarget = false;
+        }
 
         if (numberText != null)
-            numberText.text = id.ToString();
+            numberText.text = label;
 
         SetState(LockPickPinState.Normal);
         SetRingRotation(0f);

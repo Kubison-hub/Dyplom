@@ -60,6 +60,9 @@ public class WatsonEagleVisionScanner : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
+        if (!other.CompareTag("WatsonScan"))
+            return;
+
         Int2_WatsonScan watsonScan = other.GetComponent<Int2_WatsonScan>();
         if (watsonScan != null)
         {
@@ -70,5 +73,4 @@ public class WatsonEagleVisionScanner : MonoBehaviour
             Debug.LogError("WatsonScan is Null");
         }
     }
-
 }

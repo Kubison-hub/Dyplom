@@ -1,0 +1,685 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.Video;
+
+public class TutorialTimeline : MonoBehaviour
+{
+    public static TutorialTimeline Instance { get; private set; }
+    public bool BlocksWorldInput => activeTutorialPopup != null || releasePopupInputCoroutine != null;
+
+    public enum TutorialStage
+    {
+        WaitingForOpeningTutorial,
+        WaitingForOpeningPopupDelay,
+        WaitingForOpeningPopupClose,
+        WaitingForFirstWorldClick,
+        WaitingForIdeaPoints,
+        MovingToIdeaLineTutorialPosition,
+        WaitingForIdeaLineTutorialClose,
+        IdeaLinePuzzleActive,
+        Completed
+    }
+
+    [Header("Camera")]
+    [SerializeField] private CameraController[] tutorialCameras;
+    [SerializeField] private CameraZoomState openingZoomState = CameraZoomState.Medium;
+    [SerializeField] private CameraZoomState firstClickZoomState = CameraZoomState.Medium;
+
+    [Header("Player Control")]
+    [SerializeField] private PlayerController[] tutorialPlayers;
+
+    [Header("Tutorial Popups")]
+    [SerializeField] private TutorialPopupWindow tutorialPopupPrefab;
+    [SerializeField] private Transform tutorialPopupParent;
+    [SerializeField] private bool showOpeningPopupAfterTutorial;
+    [SerializeField, Min(0f)] private float openingPopupDelay = 3f;
+    [SerializeField] private string openingPopupTitle = "PORUSZANIE SIE";
+    [SerializeField, TextArea] private string openingPopupText;
+    [SerializeField] private VideoClip openingPopupVideoClip;
+    [Header("Focus Tutorial Popup")]
+    [SerializeField] private bool showFocusTutorialPopup;
+    [SerializeField, Min(0f)] private float focusTutorialPopupDelay = 10f;
+    [SerializeField] private string focusTutorialPopupTitle = "SKUPIENIE";
+    [SerializeField, TextArea] private string focusTutorialPopupText =
+        "Sherlock moze skupic mysli, aby odnalezc wskazowki.\n\nWcisnij Lewy Shift, aby wejsc w tryb skupienia.";
+    [SerializeField] private VideoClip focusTutorialPopupVideoClip;
+
+    [Header("Idea Line Puzzle Tutorial")]
+    [Tooltip("Leave empty to use every unique point from the active DetectiveSequencePuzzle.")]
+    [SerializeField] private DetectiveIdeaPoint[] requiredIdeaPoints;
+    [SerializeField] private PlayerController ideaLineTutorialPlayer;
+    [SerializeField] private Transform ipTutorialPosition;
+    [SerializeField, Min(0.05f)] private float arrivalDistance = 0.1f;
+    [SerializeField, Min(1f)] private float rotationSpeed = 360f;
+    [SerializeField, Min(0.05f)] private float eagleVisionHoldRefreshDuration = 0.25f;
+    [SerializeField] private float ideaLineTutorialHorizontalAxis = 161.2f;
+    [SerializeField, Min(0.1f)] private float ideaLineTutorialOrbitSpeed = 2.5f;
+    [SerializeField, Min(0f)] private float cameraSettleDuration = 2f;
+    [SerializeField] private string ideaLineTutorialId = "IdeaLinePuzzleTutorial";
+    [SerializeField] private string ideaLineTutorialPopupTitle = "LACZENIE FAKTOW";
+    [SerializeField, TextArea] private string ideaLineTutorialText =
+        "Sherlock to mistrz dedukcji:\n- Polacz fakty w odpowiedniej kolejnosci.";
+    [SerializeField] private VideoClip ideaLineTutorialPopupVideoClip;
+
+    [Header("Tutorial Objectives")]
+    [SerializeField] private TutorialObjectivePanel tutorialObjectivePanel;
+    [SerializeField] private Int_EdithExamBody edithExamBody;
+    [Tooltip("Every assigned dialogue must first become available, then be disabled after use.")]
+    [SerializeField] private Interactable[] witnessDialogues;
+    [SerializeField] private string edithObjectiveId = "examine-lady-edith";
+    [SerializeField] private string factsObjectiveId = "connect-facts";
+    [SerializeField] private string witnessesObjectiveId = "talk-to-witnesses";
+
+    [Header("Events")]
+    [SerializeField] private UnityEvent onTimelineStarted;
+    [SerializeField] private UnityEvent onFirstWorldClick;
+    [SerializeField] private UnityEvent onTimelineCompleted;
+    [SerializeField] private UnityEvent onIdeaLinePuzzleTutorialStarted;
+    [SerializeField] private UnityEvent onIdeaLinePuzzleTutorialClosed;
+
+    [Header("Debug")]
+    [SerializeField] private TutorialStage currentStage = TutorialStage.WaitingForOpeningTutorial;
+    [SerializeField] private bool logIdeaLineTutorialProgress = true;
+
+    private bool openingTutorialWasVisible;
+    private Coroutine moveToIdeaLineTutorialCoroutine;
+    private string lastIdeaPointDebugStatus;
+    private bool[] witnessDialogueWasAvailable;
+    private Coroutine firstPopupCoroutine;
+    private Coroutine focusTutorialPopupCoroutine;
+    private Coroutine releasePopupInputCoroutine;
+    private GameObject activeTutorialPopup;
+    private bool activePopupReturnsToPreviousStage;
+    private TutorialStage popupReturnStage;
+
+    private void Awake()
+    {
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject);
+
+        witnessDialogueWasAvailable = new bool[witnessDialogues != null ? witnessDialogues.Length : 0];
+    }
+
+    private void Update()
+    {
+        UpdateTutorialObjectives();
+
+        if (activeTutorialPopup != null && activePopupReturnsToPreviousStage)
+        {
+            if (Input.GetMouseButtonDown(0))
+                CloseActiveTutorialPopup();
+
+            return;
+        }
+
+        TutorialManager tutorialManager = TutorialManager.Instance;
+
+        if (currentStage == TutorialStage.WaitingForOpeningTutorial)
+        {
+            if (tutorialManager != null && tutorialManager.isTutorialActive)
+            {
+                openingTutorialWasVisible = true;
+                SetTutorialMovementLocked(true);
+            }
+
+            if (!openingTutorialWasVisible || tutorialManager == null || tutorialManager.BlocksWorldInput)
+                return;
+
+            BeginAfterOpeningTutorial();
+            return;
+        }
+
+        if (currentStage == TutorialStage.WaitingForIdeaPoints)
+        {
+            if (AreAllRequiredIdeaPointsDiscovered())
+            {
+                LogIdeaLineTutorial("All required IdeaPoints are discovered. Starting the tutorial.");
+                IdeaLinePuzzeTutorial();
+            }
+
+            return;
+        }
+
+        if (currentStage == TutorialStage.WaitingForOpeningPopupClose)
+        {
+            if (Input.GetMouseButtonDown(0))
+                CloseActiveTutorialPopup();
+
+            return;
+        }
+
+        if (currentStage == TutorialStage.WaitingForIdeaLineTutorialClose)
+        {
+            KeepEagleVisionForced();
+
+            if (activeTutorialPopup == null && releasePopupInputCoroutine == null)
+                FinishIdeaLinePuzzleTutorial();
+
+            return;
+        }
+
+        if (currentStage == TutorialStage.IdeaLinePuzzleActive)
+        {
+            if (IsIdeaLinePuzzleSolved())
+            {
+                currentStage = TutorialStage.Completed;
+                return;
+            }
+
+            KeepEagleVisionForced();
+        }
+    }
+
+    public void CompleteWitnessesObjective()
+    {
+        tutorialObjectivePanel?.CompleteSubObjective(witnessesObjectiveId);
+    }
+
+    private void UpdateTutorialObjectives()
+    {
+        if (tutorialObjectivePanel == null)
+            return;
+
+        if (edithExamBody != null && edithExamBody.IsExaminationCompleted)
+            tutorialObjectivePanel.CompleteSubObjective(edithObjectiveId);
+
+        if (IsIdeaLinePuzzleSolved())
+            tutorialObjectivePanel.CompleteSubObjective(factsObjectiveId);
+
+        UpdateWitnessDialogueObjective();
+    }
+
+    private void UpdateWitnessDialogueObjective()
+    {
+        if (witnessDialogues == null || witnessDialogues.Length == 0 ||
+            tutorialObjectivePanel.IsSubObjectiveCompleted(witnessesObjectiveId))
+            return;
+
+        bool allDialoguesCompleted = true;
+        for (int i = 0; i < witnessDialogues.Length; i++)
+        {
+            Interactable dialogue = witnessDialogues[i];
+            if (dialogue == null)
+            {
+                allDialoguesCompleted = false;
+                continue;
+            }
+
+            if (dialogue.gameObject.activeInHierarchy && dialogue.isInteractableActive)
+                witnessDialogueWasAvailable[i] = true;
+
+            if (!witnessDialogueWasAvailable[i] || dialogue.isInteractableActive)
+                allDialoguesCompleted = false;
+        }
+
+        if (allDialoguesCompleted)
+            CompleteWitnessesObjective();
+    }
+
+    public void NotifyIdeaPuzzleGroundClick()
+    {
+        if (currentStage != TutorialStage.IdeaLinePuzzleActive)
+            return;
+
+        StopCameraHorizontalOrbit();
+        currentStage = TutorialStage.Completed;
+        LogIdeaLineTutorial("Ground click ended the idea line puzzle session and released forced Eagle Vision.");
+    }
+
+    public void BeginAfterOpeningTutorial()
+    {
+        if (currentStage != TutorialStage.WaitingForOpeningTutorial)
+            return;
+
+        SetCameraZoom(openingZoomState);
+        if (showOpeningPopupAfterTutorial && tutorialPopupPrefab != null)
+        {
+            currentStage = TutorialStage.WaitingForOpeningPopupDelay;
+            SetTutorialMovementLocked(true);
+            firstPopupCoroutine = StartCoroutine(ShowFirstPopupAfterDelay());
+            return;
+        }
+
+        BeginFirstWorldClickStage();
+
+    }
+
+    public void NotifyWorldClick()
+    {
+        if (currentStage != TutorialStage.WaitingForFirstWorldClick)
+            return;
+
+        if (TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput)
+            return;
+
+        CompleteFirstWorldClickStage();
+    }
+
+    public void IdeaLinePuzzeTutorial()
+    {
+        if (currentStage != TutorialStage.WaitingForIdeaPoints ||
+            moveToIdeaLineTutorialCoroutine != null ||
+            !AreAllRequiredIdeaPointsDiscovered())
+            return;
+
+        PlayerController player = GetIdeaLineTutorialPlayer();
+        if (player == null || ipTutorialPosition == null)
+        {
+            Debug.LogWarning("TutorialTimeline: Assign Idea Line Tutorial Player and Ip Tutorial Position.", this);
+            return;
+        }
+
+        LogIdeaLineTutorial("IdeaLinePuzzeTutorial started. Player input is locked and Sherlock is moving to Ip Tutorial Position.");
+        currentStage = TutorialStage.MovingToIdeaLineTutorialPosition;
+        SetIdeaLineTutorialInputLocked(true);
+        player.currentInteractable = null;
+        moveToIdeaLineTutorialCoroutine = StartCoroutine(MovePlayerToIdeaLineTutorialPosition(player));
+    }
+
+    private void CompleteFirstWorldClickStage()
+    {
+        SetCameraZoom(firstClickZoomState);
+        onFirstWorldClick?.Invoke();
+
+        currentStage = TutorialStage.WaitingForIdeaPoints;
+        LogIdeaLineTutorial("Opening tutorial flow completed. Waiting for all required IdeaPoints.");
+        onTimelineCompleted?.Invoke();
+    }
+
+    public void ShowGameplayTutorialPopup(string title, string content, VideoClip videoClip)
+    {
+        if (tutorialPopupPrefab == null || activeTutorialPopup != null)
+            return;
+
+        popupReturnStage = currentStage;
+        activePopupReturnsToPreviousStage = true;
+        SetTutorialMovementLocked(true);
+        ShowTutorialPopup(title, content, videoClip);
+
+        if (activeTutorialPopup != null)
+            return;
+
+        activePopupReturnsToPreviousStage = false;
+        SetTutorialMovementLocked(false);
+    }
+
+    // Compatibility with the existing TutorialManager startup call.
+    public void ShowGameplayTutorialPopup(int legacyPopupIndex)
+    {
+        if (legacyPopupIndex != 0 || currentStage != TutorialStage.WaitingForOpeningTutorial)
+        {
+            Debug.LogWarning("TutorialTimeline: use ShowGameplayTutorialPopup(title, text, videoClip) for gameplay popups.", this);
+            return;
+        }
+
+        if (tutorialPopupPrefab == null || activeTutorialPopup != null)
+            return;
+
+        openingTutorialWasVisible = true;
+        currentStage = TutorialStage.WaitingForOpeningPopupClose;
+        SetTutorialMovementLocked(true);
+        ShowOpeningPopup();
+    }
+
+    private void ShowOpeningPopup()
+    {
+        ShowTutorialPopup(openingPopupTitle, openingPopupText, openingPopupVideoClip);
+    }
+
+    private void ShowTutorialPopup(string title, string content, VideoClip videoClip)
+    {
+        if (tutorialPopupPrefab == null || activeTutorialPopup != null)
+            return;
+
+        TutorialPopupWindow popup = tutorialPopupParent != null
+            ? Instantiate(tutorialPopupPrefab, tutorialPopupParent, false)
+            : Instantiate(tutorialPopupPrefab);
+
+        popup.Configure(title, content, videoClip);
+        activeTutorialPopup = popup.gameObject;
+
+        Time.timeScale = 0f;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+    }
+
+    private IEnumerator ShowFirstPopupAfterDelay()
+    {
+        if (openingPopupDelay > 0f)
+            yield return new WaitForSecondsRealtime(openingPopupDelay);
+
+        firstPopupCoroutine = null;
+
+        if (currentStage != TutorialStage.WaitingForOpeningPopupDelay)
+            yield break;
+
+        ShowOpeningPopup();
+        if (activeTutorialPopup == null)
+        {
+            FinishOpeningPopupStage();
+            yield break;
+        }
+
+        currentStage = TutorialStage.WaitingForOpeningPopupClose;
+    }
+
+    private void CloseActiveTutorialPopup()
+    {
+        if (activeTutorialPopup == null)
+            return;
+
+        Destroy(activeTutorialPopup);
+        activeTutorialPopup = null;
+        Time.timeScale = 1f;
+
+        if (releasePopupInputCoroutine != null)
+            StopCoroutine(releasePopupInputCoroutine);
+
+        releasePopupInputCoroutine = StartCoroutine(ReleasePopupInputAfterMouseRelease());
+    }
+
+    private IEnumerator ReleasePopupInputAfterMouseRelease()
+    {
+        yield return null;
+
+        while (Input.GetMouseButton(0))
+            yield return null;
+
+        releasePopupInputCoroutine = null;
+
+        if (activePopupReturnsToPreviousStage)
+        {
+            activePopupReturnsToPreviousStage = false;
+            currentStage = popupReturnStage;
+            SetTutorialMovementLocked(false);
+            yield break;
+        }
+
+        FinishOpeningPopupStage();
+    }
+
+    private void FinishOpeningPopupStage()
+    {
+        SetTutorialMovementLocked(false);
+        BeginFirstWorldClickStage();
+        StartFocusTutorialPopupCountdown();
+        LogIdeaLineTutorial("Opening tutorial popup closed. Waiting for the first world click.");
+    }
+
+    private void StartFocusTutorialPopupCountdown()
+    {
+        if (!showFocusTutorialPopup || tutorialPopupPrefab == null || focusTutorialPopupCoroutine != null)
+            return;
+
+        focusTutorialPopupCoroutine = StartCoroutine(ShowFocusTutorialPopupAfterDelay());
+    }
+
+    private IEnumerator ShowFocusTutorialPopupAfterDelay()
+    {
+        if (focusTutorialPopupDelay > 0f)
+            yield return new WaitForSecondsRealtime(focusTutorialPopupDelay);
+
+        while (activeTutorialPopup != null || releasePopupInputCoroutine != null)
+            yield return null;
+
+        focusTutorialPopupCoroutine = null;
+        ShowGameplayTutorialPopup(
+            focusTutorialPopupTitle,
+            focusTutorialPopupText,
+            focusTutorialPopupVideoClip);
+    }
+
+    private void BeginFirstWorldClickStage()
+    {
+        SetTutorialMovementLocked(false);
+        currentStage = TutorialStage.WaitingForFirstWorldClick;
+        onTimelineStarted?.Invoke();
+    }
+
+    private IEnumerator MovePlayerToIdeaLineTutorialPosition(PlayerController player)
+    {
+        player.navMeshAgent.ResetPath();
+        player.navMeshAgent.isStopped = false;
+        player.navMeshAgent.SetDestination(ipTutorialPosition.position);
+
+        while (player.navMeshAgent.pathPending ||
+               player.navMeshAgent.remainingDistance > Mathf.Max(player.navMeshAgent.stoppingDistance, arrivalDistance))
+        {
+            yield return null;
+        }
+
+        player.navMeshAgent.ResetPath();
+        player.navMeshAgent.updateRotation = false;
+
+        while (Quaternion.Angle(player.transform.rotation, ipTutorialPosition.rotation) > 0.5f)
+        {
+            player.transform.rotation = Quaternion.RotateTowards(
+                player.transform.rotation,
+                ipTutorialPosition.rotation,
+                rotationSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        player.transform.rotation = ipTutorialPosition.rotation;
+        player.navMeshAgent.updateRotation = true;
+
+        KeepEagleVisionForced();
+        SetCameraZoom(CameraZoomState.Wide);
+        SetCameraHorizontalOrbit(ideaLineTutorialHorizontalAxis, ideaLineTutorialOrbitSpeed);
+        onIdeaLinePuzzleTutorialStarted?.Invoke();
+
+        // Existing scene instances may still have this serialized as 0. Keep a visible beat
+        // for the Wide preset and horizontal orbit before the tutorial popup pauses the game.
+        float cameraSettleEnd = Time.unscaledTime + Mathf.Max(2f, cameraSettleDuration);
+        while (Time.unscaledTime < cameraSettleEnd)
+        {
+            KeepEagleVisionForced();
+            yield return null;
+        }
+
+        currentStage = TutorialStage.WaitingForIdeaLineTutorialClose;
+        ShowGameplayTutorialPopup(
+            ideaLineTutorialPopupTitle,
+            ideaLineTutorialText,
+            ideaLineTutorialPopupVideoClip);
+
+        LogIdeaLineTutorial("Idea line popup requested. Waiting until it is closed.");
+        moveToIdeaLineTutorialCoroutine = null;
+    }
+
+    private void FinishIdeaLinePuzzleTutorial()
+    {
+        StopCameraHorizontalOrbit();
+        SetIdeaLineTutorialInputLocked(false);
+        currentStage = TutorialStage.IdeaLinePuzzleActive;
+        LogIdeaLineTutorial("Idea line tutorial closed. Player input restored; Eagle Vision remains forced until the puzzle is solved.");
+        onIdeaLinePuzzleTutorialClosed?.Invoke();
+    }
+
+    private bool AreAllRequiredIdeaPointsDiscovered()
+    {
+        List<DetectiveIdeaPoint> points = GetRequiredIdeaPoints();
+        LogIdeaPointStatuses(points);
+
+        if (points.Count == 0)
+            return false;
+
+        foreach (DetectiveIdeaPoint point in points)
+        {
+            if (point == null || !point.IsDiscovered)
+                return false;
+        }
+
+        return true;
+    }
+
+    [ContextMenu("Log Idea Line Tutorial State")]
+    public void LogIdeaLineTutorialState()
+    {
+        List<DetectiveIdeaPoint> points = GetRequiredIdeaPoints();
+        lastIdeaPointDebugStatus = null;
+        LogIdeaPointStatuses(points);
+        LogIdeaLineTutorial($"Current stage: {currentStage}. Ip Tutorial Position assigned: {ipTutorialPosition != null}. " +
+                            $"Idea Line Tutorial Player assigned: {GetIdeaLineTutorialPlayer() != null}.");
+    }
+
+    private void LogIdeaPointStatuses(List<DetectiveIdeaPoint> points)
+    {
+        if (!logIdeaLineTutorialProgress)
+            return;
+
+        string source = requiredIdeaPoints != null && requiredIdeaPoints.Length > 0
+            ? "Required Idea Points from Inspector"
+            : "DetectiveIdeaManager.activePuzzle.correctSequence";
+
+        StringBuilder status = new StringBuilder(source).Append(" | ");
+        if (points.Count == 0)
+        {
+            status.Append("No IdeaPoints found.");
+        }
+        else
+        {
+            for (int i = 0; i < points.Count; i++)
+            {
+                DetectiveIdeaPoint point = points[i];
+                status.Append(point == null
+                    ? $"[{i}: NULL] "
+                    : $"[{point.ideaId} = {point.IsDiscovered}] ");
+            }
+        }
+
+        string statusText = status.ToString();
+        if (statusText == lastIdeaPointDebugStatus)
+            return;
+
+        lastIdeaPointDebugStatus = statusText;
+        Debug.Log($"TutorialTimeline IdeaPoint check: {statusText}", this);
+    }
+
+    private void LogIdeaLineTutorial(string message)
+    {
+        if (logIdeaLineTutorialProgress)
+            Debug.Log($"TutorialTimeline: {message}", this);
+    }
+
+    private List<DetectiveIdeaPoint> GetRequiredIdeaPoints()
+    {
+        List<DetectiveIdeaPoint> points = new List<DetectiveIdeaPoint>();
+
+        if (requiredIdeaPoints != null && requiredIdeaPoints.Length > 0)
+        {
+            foreach (DetectiveIdeaPoint point in requiredIdeaPoints)
+            {
+                if (point != null && !points.Contains(point))
+                    points.Add(point);
+            }
+
+            return points;
+        }
+
+        DetectiveSequencePuzzle puzzle = DetectiveIdeaManager.Instance != null
+            ? DetectiveIdeaManager.Instance.activePuzzle
+            : null;
+
+        if (puzzle == null)
+            return points;
+
+        foreach (DetectiveSequencePuzzle.IdeaConnectionStep step in puzzle.correctSequence)
+        {
+            if (step == null)
+                continue;
+
+            if (step.from != null && !points.Contains(step.from))
+                points.Add(step.from);
+
+            if (step.to != null && !points.Contains(step.to))
+                points.Add(step.to);
+        }
+
+        return points;
+    }
+
+    private bool IsIdeaLinePuzzleSolved()
+    {
+        return DetectiveIdeaManager.Instance != null &&
+               DetectiveIdeaManager.Instance.activePuzzle != null &&
+               DetectiveIdeaManager.Instance.activePuzzle.IsSolved;
+    }
+
+    private PlayerController GetIdeaLineTutorialPlayer()
+    {
+        if (ideaLineTutorialPlayer != null)
+            return ideaLineTutorialPlayer;
+
+        if (tutorialPlayers != null && tutorialPlayers.Length > 0)
+            return tutorialPlayers[0];
+
+        return null;
+    }
+
+    private void KeepEagleVisionForced()
+    {
+        if (EagleVisionSystem.Instance != null)
+            EagleVisionSystem.Instance.HoldVisionFor(eagleVisionHoldRefreshDuration);
+    }
+
+    private void SetCameraZoom(CameraZoomState zoomState)
+    {
+        if (tutorialCameras == null)
+            return;
+
+        foreach (CameraController cameraController in tutorialCameras)
+        {
+            if (cameraController != null)
+                cameraController.SetZoomState(zoomState);
+        }
+    }
+
+    private void SetCameraHorizontalOrbit(float horizontalAxisValue, float orbitSpeed)
+    {
+        if (tutorialCameras == null)
+            return;
+
+        foreach (CameraController cameraController in tutorialCameras)
+        {
+            if (cameraController != null)
+                cameraController.OrbitHorizontalAxisTo(horizontalAxisValue, orbitSpeed);
+        }
+    }
+
+    private void StopCameraHorizontalOrbit()
+    {
+        if (tutorialCameras == null)
+            return;
+
+        foreach (CameraController cameraController in tutorialCameras)
+        {
+            if (cameraController != null)
+                cameraController.StopScriptedHorizontalOrbit();
+        }
+    }
+
+    private void SetTutorialMovementLocked(bool locked)
+    {
+        if (tutorialPlayers == null)
+            return;
+
+        foreach (PlayerController playerController in tutorialPlayers)
+        {
+            if (playerController != null)
+                playerController.SetTutorialMovementLocked(locked);
+        }
+    }
+
+    private void SetIdeaLineTutorialInputLocked(bool locked)
+    {
+        PlayerController player = GetIdeaLineTutorialPlayer();
+        if (player != null)
+            player.SetTutorialInputLocked(locked);
+    }
+}

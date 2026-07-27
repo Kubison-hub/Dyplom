@@ -1,0 +1,83 @@
+using DialogueEditor;
+using UnityEngine;
+
+[RequireComponent(typeof(Interactable))]
+public abstract class Int_lv1_NpcDialogBase : MonoBehaviour
+{
+    [SerializeField] private SmartNPC smartNPC;
+
+    private Interactable interactable;
+
+    protected abstract InteractionType RequiredInteractionType { get; }
+
+    protected virtual void Start()
+    {
+        interactable = GetComponent<Interactable>();
+        interactable.SetInteractionType(RequiredInteractionType);
+
+        if (smartNPC == null)
+            smartNPC = GetComponent<SmartNPC>();
+
+        if (smartNPC == null)
+            smartNPC = GetComponentInChildren<SmartNPC>();
+    }
+
+    public void PerformInteraction(PlayerController player)
+    {
+        if (ConversationManager.Instance == null || ConversationManager.Instance.IsConversationActive)
+        {
+            Debug.LogWarning($"Cannot start {name} dialog while another conversation is active.");
+            ClearPlayerInteraction(player);
+            return;
+        }
+
+        if (smartNPC == null)
+        {
+            Debug.LogWarning($"{name}: SmartNPC is not assigned.", this);
+            ClearPlayerInteraction(player);
+            return;
+        }
+
+        smartNPC.SprawdzIZacznijRozmowe();
+
+        if (!ConversationManager.Instance.IsConversationActive)
+            StartConversationWithoutTrigger(player);
+
+        ClearPlayerInteraction(player);
+    }
+
+    private void StartConversationWithoutTrigger(PlayerController player)
+    {
+        if (player == null)
+        {
+            Debug.LogWarning($"{name}: PlayerController is missing, so the NPC dialog cannot be selected.", this);
+            return;
+        }
+
+        NPCConversation conversation = player.playerCharacter == PlayerCharacter.Watson
+            ? smartNPC.rozmowaDlaPostaciB
+            : smartNPC.rozmowaDlaPostaciA;
+
+        if (conversation == null)
+        {
+            Debug.LogWarning($"{name}: The selected player has no assigned NPC conversation.", this);
+            return;
+        }
+
+        string playerId = player.playerCharacter == PlayerCharacter.Watson ? "PlayerB" : "PlayerA";
+
+        if (QuestManager.Instance != null)
+            QuestManager.Instance.OdnotujRozmowe(playerId, smartNPC.npcID);
+
+        ConversationManager.Instance.StartConversation(conversation);
+
+        if (smartNPC.noteIDToUnlock >= 0 && JournalManager.Instance != null)
+            JournalManager.Instance.UnlockNote(smartNPC.noteIDToUnlock);
+    }
+
+    private static void ClearPlayerInteraction(PlayerController player)
+    {
+        if (player != null)
+            player.currentInteractable = null;
+    }
+}

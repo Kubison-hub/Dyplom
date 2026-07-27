@@ -16,11 +16,17 @@ public class lvl2_Int_StairsExit : MonoBehaviour
     public bool ethelFounded = false;
 
     [SerializeField] private int requiredLetters = 3;
-    public static int lettersCollected = 0;
+    private int lettersCollected = 0;
 
     
     public bool hiddenDoorDiscovered = false;
+    public bool canExitByStairs = false;
 
+    public GameObject level_2;
+    public GameObject level_1;
+
+
+    public Transform level1StartPoint;
     public void AddLetter()
     {
         lettersCollected++;
@@ -46,7 +52,7 @@ public class lvl2_Int_StairsExit : MonoBehaviour
         Debug.Log(interactable.name + ", interaction Performed");
 
 
-        TryExit();
+        TryExit(player);
 
 
         player.currentInteractable = null;
@@ -55,8 +61,15 @@ public class lvl2_Int_StairsExit : MonoBehaviour
 
     }
 
-    public void TryExit()
+    public void TryExit(PlayerController player)
     {
+
+        if (canExitByStairs)
+        {
+            StartCoroutine(GoDownStairs(player));
+            return;
+        }
+
         if (!HasAllLetters())
         {
             StartCoroutine(AddText(text));
@@ -107,5 +120,23 @@ public class lvl2_Int_StairsExit : MonoBehaviour
             ClueManager.Instance.SherlockText.text = "";
         }
 
+    }
+
+    private IEnumerator GoDownStairs(PlayerController player)
+    {
+        player.navMeshAgent.ResetPath();
+
+
+        level_1.SetActive(true);
+        yield return null;
+        player.navMeshAgent.ResetPath();
+        player.navMeshAgent.Warp(level1StartPoint.position);
+        player.transform.rotation = level1StartPoint.rotation;
+        yield return null;
+
+        level_2.SetActive(false);
+        player.currentInteractable = null;
+
+        yield return null;
     }
 }
