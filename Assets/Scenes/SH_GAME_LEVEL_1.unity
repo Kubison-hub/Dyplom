@@ -2243,23 +2243,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2731384961053116998, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 1920
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2731384961053116998, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 1079.415
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2731384961053116998, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.4270833
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2731384961053116998, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.4270833
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2731384961053116998, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.4270833
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2731384961053116998, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2279,23 +2279,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2731384961053116998, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2731384961053116998, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2731384961053116998, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2731384961053116998, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 410
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2731384961053116998, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 230.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2731384961053116998, guid: 243ccc2f9d0e9fd4a90beaa66ec6a8b1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -3167,6 +3167,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 753416327}
     m_Modifications:
+    - target: {fileID: 648965730934275604, guid: 3452e3d8f5d800c4ca4af31644d134ee, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2197374576414256894, guid: 3452e3d8f5d800c4ca4af31644d134ee, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5352476544769114192, guid: 3452e3d8f5d800c4ca4af31644d134ee, type: 3}
       propertyPath: m_UiScaleMode
       value: 1
@@ -3229,15 +3237,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6205758969689956367, guid: 3452e3d8f5d800c4ca4af31644d134ee, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6205758969689956367, guid: 3452e3d8f5d800c4ca4af31644d134ee, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6205758969689956367, guid: 3452e3d8f5d800c4ca4af31644d134ee, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6205758969689956367, guid: 3452e3d8f5d800c4ca4af31644d134ee, type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -3262,6 +3270,10 @@ PrefabInstance:
     - target: {fileID: 8482380844181798902, guid: 3452e3d8f5d800c4ca4af31644d134ee, type: 3}
       propertyPath: m_Name
       value: Settings Canvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 8482380844181798902, guid: 3452e3d8f5d800c4ca4af31644d134ee, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3843,10 +3855,10 @@ RectTransform:
   - {fileID: 1608317173}
   m_Father: {fileID: 1724762698}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 150, y: -2.085354}
+  m_SizeDelta: {x: 300, y: 4.170708}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &80730161
 MonoBehaviour:
@@ -5396,10 +5408,17 @@ MonoBehaviour:
   interactabePoint: {fileID: 0}
   objectDescription: "Schody na g\xF3r\u0119"
   interactiveShader: {fileID: 745775666}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues: []
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!65 &95926127
@@ -7275,11 +7294,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 2026067985}
   objectDescription: Klapa
   interactiveShader: {fileID: 252235937}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: 199a4fb9c9686064b9f68948f509ebe0, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 1
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!65 &118769914
@@ -8913,10 +8939,17 @@ MonoBehaviour:
   interactabePoint: {fileID: 489086108}
   objectDescription: Niebieska Figurka
   interactiveShader: {fileID: 1920743534}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues: []
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!65 &139992907
@@ -9496,11 +9529,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 523652847}
   objectDescription: Madame Violet
   interactiveShader: {fileID: 0}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: 9baa7d02b2e74d448935d325fa962013, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!114 &146037420
@@ -9522,6 +9562,10 @@ MonoBehaviour:
   dialogCam: {fileID: 604124406}
   splineDolly: {fileID: 0}
   cardPosition: {fileID: 1831275836}
+  dialogPerformed: 0
+  nextInteractions: []
+  isVioletInRoom: 1
+  moveDestination: {fileID: 0}
 --- !u!4 &146402205 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f3d9eb03da529fb488ab581b062aa1cd, type: 3}
@@ -9727,12 +9771,19 @@ MonoBehaviour:
   interactabePoint: {fileID: 0}
   objectDescription: klocek
   interactiveShader: {fileID: 1120471691}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: b06ca63abad361e49b441db1280bf7a0, type: 2}
   - {fileID: 11400000, guid: 0d3f81ccd39fcbb41911f4767bfc67c5, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!1 &147916952
@@ -10336,10 +10387,17 @@ MonoBehaviour:
   interactabePoint: {fileID: 1874574033}
   objectDescription: Gramofon
   interactiveShader: {fileID: 648401797}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues: []
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!1 &152459565
@@ -10830,11 +10888,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 2084806484}
   objectDescription: Dom
   interactiveShader: {fileID: 2801768388850130156, guid: c2558b1d0cc08ac429a2a13eb11aa489, type: 3}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: 7a82def791b3ebb40a247f98a8b7520a, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 1
   isNearPlayer: 0
 --- !u!135 &163161232
@@ -11711,11 +11776,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 1719644722}
   objectDescription: Zabawa w chowanego
   interactiveShader: {fileID: 2801768388850130156, guid: c2558b1d0cc08ac429a2a13eb11aa489, type: 3}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: 13d6db29a5b446f489a20bde1d2d9dae, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 1
   isNearPlayer: 0
 --- !u!135 &184653733
@@ -20474,9 +20546,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   eagleVisionVolume: {fileID: 336058962}
   transitionSpeed: 3
+  exitTransitionSpeed: 0.35
   normalRendererIndex: 0
   eagleRendererIndex: 1
   isActive: 0
+  visionHoldKey: 304
+  magnifierHoldKey: 102
   eagleVisionScanner: {fileID: 2142722458}
   watsonEagleVisionScanner: {fileID: 799615993}
 --- !u!114 &336058962
@@ -22515,7 +22590,7 @@ MonoBehaviour:
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.1
   m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: 09d71ce2c1d09c44792079fceefd0a9f, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: 6e220abcae837f443b2c7717756c2e2f, type: 2}
   m_BuildHeightMesh: 0
 --- !u!1 &377859079
 GameObject:
@@ -24114,11 +24189,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 1890946226}
   objectDescription: List
   interactiveShader: {fileID: 1412775486}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: 9a52303d15de8e34ba9973eab772d555, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!1001 &391667760
@@ -24419,8 +24501,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 116.25, y: -113.334724}
-  m_SizeDelta: {x: 232.5, y: 145.28983}
+  m_AnchoredPosition: {x: 116.25, y: -117.55223}
+  m_SizeDelta: {x: 232.5, y: 136.85483}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &392801409
 MonoBehaviour:
@@ -24489,8 +24571,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 15
-  m_fontSizeBase: 15
+  m_fontSize: 23
+  m_fontSizeBase: 23
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -26283,10 +26365,17 @@ MonoBehaviour:
   interactabePoint: {fileID: 112778715}
   objectDescription: "Schody na d\xF3\u0142"
   interactiveShader: {fileID: 1602276534}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues: []
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 1
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!4 &413282617
@@ -31345,12 +31434,19 @@ MonoBehaviour:
   interactabePoint: {fileID: 1572898356}
   objectDescription: Klecek
   interactiveShader: {fileID: 1125462765}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: b06ca63abad361e49b441db1280bf7a0, type: 2}
   - {fileID: 11400000, guid: 43bfa9de2eed8c14fa584cf78e991e88, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!4 &451220405 stripped
@@ -32367,11 +32463,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 841607228}
   objectDescription: Drzwi
   interactiveShader: {fileID: 2074216103}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: 1f42a319525f7304caae113da20cdd18, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!135 &476302196
@@ -33854,10 +33957,17 @@ MonoBehaviour:
   interactabePoint: {fileID: 1348708055}
   objectDescription: "Uk\u0142ad \u015Bciany"
   interactiveShader: {fileID: 459807167}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues: []
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!1 &506528661
@@ -35458,30 +35568,16 @@ MonoBehaviour:
   correctSequence:
   - from: {fileID: 1991180561}
     to: {fileID: 149326662}
-    successTitle: "D\u017Awi\u0119k gramofonu zag\u0142uszy\u0142 mechanizm"
-    successDescription: "Dzi\u0119ki temu nie s\u0142yszeli\u015Bmy zab\xF3jcy"
   - from: {fileID: 149326662}
     to: {fileID: 280932395}
-    successTitle: Podejrzane.
-    successDescription: "Mechanizm sto\u0142u m\xF3g\u0142 otwrzy\u0107 tajne przej\u015Bcie"
   - from: {fileID: 280932395}
     to: {fileID: 1755752637}
-    successTitle: "Widoczno\u015B\u0107 by\u0142a wystarczaj\u0105ca"
-    successDescription: "Dzi\u0119ki \u015Bwiat\u0142u z kominka zab\xF3jca mia\u0142
-      dobrze o\u015Bwietlony cel, Watsonie."
   - from: {fileID: 1755752637}
     to: {fileID: 1474697923}
-    successTitle: "Strza\u0142 z daleka"
-    successDescription: "M\xF3g\u0142 strzeli\u0107 z du\u017Cej odleg\u0142o\u015Bci"
   - from: {fileID: 1474697923}
     to: {fileID: 1339473625}
-    successTitle: Zniszczone okno
-    successDescription: "Okno potwierdza trajektori\u0119 lotu"
   - from: {fileID: 1474697923}
     to: {fileID: 1755752637}
-    successTitle: Zniszczone okno
-    successDescription: "Zab\xF3jca musia\u0142 sta\u0107 dok\u0142adnie przy pustej
-      \u015Bcianie \u015Bcianie"
   wrongTitle: Nie.
   wrongDescription: To nie uklada sie w logiczny ciag.
   solvedTitle: Oczywiscie.
@@ -35514,10 +35610,23 @@ MonoBehaviour:
   lineMaterial: {fileID: 0}
   previewLineColor: {r: 1, g: 0.86, b: 0.2, a: 1}
   acceptedLineColor: {r: 0.2, g: 0.85, b: 1, a: 1}
+  rejectedLineColor: {r: 0.16, g: 0.3, b: 0.2, a: 0.8}
   lineWidth: 0.035
+  rejectedLineWidthMultiplier: 0.5
   pointerDistance: 8
   lineLayerName: Outlined Objects
+  showDraggedLineDescription: 1
+  lineDescriptionColor: {r: 0.68, g: 0.88, b: 0.7, a: 1}
+  lineDescriptionFontSize: 0.16
+  lineDescriptionScreenOffset: {x: 0.2, y: 0.1, z: 0}
   showDiscoveredPointsWhileActive: 1
+  worldTextRevealDelay: 0
+  magnifierDiscoveryDuration: 1.5
+  solvedVisionHoldDuration: 5
+  useSequenceLookAt: 1
+  sequenceLookAtLineInfluence: 0.85
+  sequenceLookAtSmoothTime: 0.25
+  sequenceLookAtMaxDistanceFromPlayer: 3
 --- !u!4 &539111516 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f6ef62af00c765b4ca964ca62432964b, type: 3}
@@ -35841,10 +35950,17 @@ MonoBehaviour:
   interactabePoint: {fileID: 1690103858}
   objectDescription: "Uk\u0142ad \u015Bciany"
   interactiveShader: {fileID: 1954505492}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues: []
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!1 &549238356
@@ -37936,6 +38052,14 @@ MonoBehaviour:
   currentZoomIndex: 0
   rotationSpeed: 2
   rotationDamping: 0.25
+  autoRotateCamera: 1
+  autoRotateSpeed: 8
+  resumeAfterDelay: 0
+  autoRotateResumeDelay: 15
+  dialogueZoomPresetName: Narrow
+  dialogueZoomTransitionSpeed: 1
+  dialogueRotationFadeInDuration: 0.2
+  dialogueRotationFadeOutDuration: 0.8
   zoomSmoothSpeed: 2
   zoomPresets:
   - name: Top
@@ -37967,6 +38091,8 @@ MonoBehaviour:
     bottomRadius: 7
     bottomHeight: 6
   startZoomIndex: 2
+  manualZoomMinIndex: 0
+  manualZoomMaxIndex: 3
 --- !u!114 &581095109
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38879,7 +39005,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -3.7, y: -7.8}
+  m_AnchoredPosition: {x: -7.5, y: -15.6}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &594814113
@@ -38912,8 +39038,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -38930,10 +39056,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 11.9
+  m_fontSize: 9
   m_fontSizeBase: 9
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 9
   m_fontSizeMax: 12
   m_fontStyle: 0
@@ -38968,7 +39094,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: -8.984039, z: 73.619064, w: -12.371429}
+  m_margin: {x: 0, y: -8.984039, z: 73.619064, w: 8.519836}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -39303,12 +39429,19 @@ MonoBehaviour:
   interactabePoint: {fileID: 992394289}
   objectDescription: "Przycisk w \u015Bcianie"
   interactiveShader: {fileID: 719737454}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: 72a5dfa89f7ca66499c77d85a8bd8c38, type: 2}
   - {fileID: 11400000, guid: 863b15e7cc1a44449b13ed015a03f79f, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!4 &596816607
@@ -43684,7 +43817,7 @@ VFXRenderer:
   m_PrefabInstance: {fileID: 1372077270}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 659029508}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -48117,6 +48250,11 @@ MonoBehaviour:
   activePlayerIndex: 0
   activePlayerText: {fileID: 1780239552}
   dynamicOcclusionCutoutSystem: {fileID: 310164308}
+  characterSwitchKey: 1
+  watsonPlayerIndex: 1
+  watsonReturnPoint: {fileID: 0}
+  watsonNavMeshAgent: {fileID: 0}
+  watsonReturnSampleRadius: 1
   canSwitch: 1
 --- !u!4 &715272434 stripped
 Transform:
@@ -49635,13 +49773,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 15
-  m_fontSizeBase: 15
+  m_fontSize: 26
+  m_fontSizeBase: 26
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 4
   m_VerticalAlignment: 1024
   m_textAlignment: 65535
@@ -51034,7 +51172,7 @@ Transform:
   - {fileID: 1610576065}
   - {fileID: 7779760294806110301}
   - {fileID: 184757164}
-  - {fileID: 1110868084}
+  - {fileID: 7242431093806093675}
   - {fileID: 919998782}
   - {fileID: 1163317971}
   - {fileID: 1701895220}
@@ -51406,11 +51544,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 680606504}
   objectDescription: "\u015Alady na pod\u0142odze"
   interactiveShader: {fileID: 2801768388850130156, guid: c2558b1d0cc08ac429a2a13eb11aa489, type: 3}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: c317a7957482aee47a84912e292ac6c3, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!23 &760078422
@@ -52817,10 +52962,17 @@ MonoBehaviour:
   interactabePoint: {fileID: 379292863}
   objectDescription: Zielona Figurka
   interactiveShader: {fileID: 1019325815}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues: []
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!65 &783875928
@@ -55695,11 +55847,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 1944013968}
   objectDescription: Slad po kuli
   interactiveShader: {fileID: 690395965}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: 88ac2565a3326fa48b4e217e5b5d28c1, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!114 &823254353
@@ -55716,6 +55875,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   performed: 0
   edith: {fileID: 1510180973}
+  ideaPoint: {fileID: 0}
+  foundTopText: "Pocisk wska\u017Ce nam trajektori\u0119 lotu"
 --- !u!1001 &823309435
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -58023,15 +58184,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.6745098}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 2502ed704f50bae4691e24a2461a5055, type: 3}
-  m_Type: 0
+  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -58315,8 +58476,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec07db5e9e16a454e9fbd37beefe303c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  topTextCanvas: {fileID: 0}
+  sortingOrder: 100
+  projectionCamera: {fileID: 0}
+  sherlockAnchor: {fileID: 0}
+  sherlockWorldOffset: {x: 0, y: 2.1, z: 0}
+  watsonAnchor: {fileID: 0}
+  watsonWorldOffset: {x: 0, y: 2.1, z: 0}
   sherlockTopText: {fileID: 338434451}
   watsonTopText: {fileID: 0}
+  unifiedFontSize: 24
   textTime: 3
 --- !u!4 &858065193
 Transform:
@@ -58467,10 +58636,17 @@ MonoBehaviour:
   interactabePoint: {fileID: 706852514}
   objectDescription: "Zej\u015Bcie na d\xF3\u0142"
   interactiveShader: {fileID: 1331880038}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues: []
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 1
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!65 &860898603
@@ -63461,10 +63637,10 @@ RectTransform:
   - {fileID: 1730786345}
   m_Father: {fileID: 1731810674}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 253.75, y: -50.414646}
+  m_SizeDelta: {x: 92.5, y: 90.82929}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &909304771
 MonoBehaviour:
@@ -63749,11 +63925,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 0}
   objectDescription: Klocki
   interactiveShader: {fileID: 1125462765}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: b06ca63abad361e49b441db1280bf7a0, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!1001 &917015137
@@ -64731,10 +64914,17 @@ MonoBehaviour:
   interactabePoint: {fileID: 674196343}
   objectDescription: Drzwi
   interactiveShader: {fileID: 826797380}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues: []
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!65 &929347262
@@ -66091,11 +66281,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 1148179403}
   objectDescription: Biblioteka
   interactiveShader: {fileID: 0}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: 18c9925c38367d340957112408d550a3, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 1
   isNearPlayer: 0
 --- !u!135 &949666205
@@ -66543,7 +66740,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &964168040
 RectTransform:
   m_ObjectHideFlags: 0
@@ -66838,18 +67035,18 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 965233639}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.1912046, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1610576065}
+  m_Father: {fileID: 1791934567}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 268.28143, y: -136.29993}
-  m_SizeDelta: {x: 501.554, y: 50}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 1}
 --- !u!114 &965233641
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -66900,8 +67097,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 30
+  m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -66938,7 +67135,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: -751.78375, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -67195,8 +67392,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -69509,11 +69706,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 1944013968}
   objectDescription: "Pier\u015Bcie\u0144"
   interactiveShader: {fileID: 1108170650}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: fda619df984d4974da22d96e1bb12855, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!114 &994937422
@@ -69529,6 +69733,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   performed: 0
+  edith: {fileID: 0}
 --- !u!135 &994937423
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -70855,15 +71060,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.5647059}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 2502ed704f50bae4691e24a2461a5055, type: 3}
-  m_Type: 0
+  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -72371,11 +72576,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 1647773549}
   objectDescription: "\u015Alady"
   interactiveShader: {fileID: 2801768388850130156, guid: c2558b1d0cc08ac429a2a13eb11aa489, type: 3}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: aaef8657e0415154aae4110c18dbb593, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 1
   isNearPlayer: 0
 --- !u!135 &1020030759
@@ -75680,7 +75892,7 @@ MonoBehaviour:
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.1
   m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: 6a7e01d21504394478edce0446fe88b3, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: 3674278ee84f8114aba8006ed62c202b, type: 2}
   m_BuildHeightMesh: 0
 --- !u!4 &1074959733
 Transform:
@@ -77133,8 +77345,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 25
+  m_fontSizeBase: 25
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -77485,7 +77697,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1094602525
 RectTransform:
   m_ObjectHideFlags: 0
@@ -78822,16 +79034,6 @@ MonoBehaviour:
   TMPFont: {fileID: 0}
   Icon: {fileID: 21300000, guid: b77304ea703a8be4f8ccd75c2de4e4ca, type: 3}
   Audio: {fileID: 0}
---- !u!1 &1110868080 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 776416517460928211, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-  m_PrefabInstance: {fileID: 1679864834}
-  m_PrefabAsset: {fileID: 0}
---- !u!224 &1110868084 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 7242431094412206441, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-  m_PrefabInstance: {fileID: 1679864834}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1111899619
 GameObject:
   m_ObjectHideFlags: 0
@@ -82855,11 +83057,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 1944013968}
   objectDescription: "Bia\u0142a Kartka"
   interactiveShader: {fileID: 1864391917}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: 7636e0d6cbac0e848a25f5febb0b5850, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!135 &1171815940
@@ -83048,6 +83257,7 @@ MonoBehaviour:
   performed: 0
   paper: {fileID: 811424235}
   paper_Audio: {fileID: 1171815943}
+  edith: {fileID: 0}
 --- !u!4 &1171903731 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7564599752317519907, guid: 49832c05e8b40f84c8c7070f46b56cd4, type: 3}
@@ -83433,10 +83643,10 @@ RectTransform:
   - {fileID: 1958321295}
   m_Father: {fileID: 1731810674}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 111.25, y: -50.414646}
+  m_SizeDelta: {x: 182.5, y: 90.82929}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1177848479
 MonoBehaviour:
@@ -89543,15 +89753,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.6745098}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 2502ed704f50bae4691e24a2461a5055, type: 3}
-  m_Type: 0
+  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -91818,11 +92028,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 1755050260}
   objectDescription: "Przedk\u0142adnia"
   interactiveShader: {fileID: 1599798934}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: c7fb1989f6ec03b49afe1378b96dddd8, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 1
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!65 &1283972550
@@ -92033,7 +92250,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -3.7, y: -7.8}
+  m_AnchoredPosition: {x: -9.1, y: -7.8}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1287583738
@@ -92067,8 +92284,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -92581,10 +92798,17 @@ MonoBehaviour:
   interactabePoint: {fileID: 964762946}
   objectDescription: 
   interactiveShader: {fileID: 0}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues: []
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 1
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!136 &1303391713
@@ -93604,11 +93828,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 2027949963}
   objectDescription: "\u015Aciana"
   interactiveShader: {fileID: 1755859791}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: 62dbdc4bad761f34d94d71be0fdf5690, type: 2}
   questionVFX: {fileID: 1829370290}
   interactionVFX: {fileID: 37601886}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!65 &1315368357
@@ -93671,10 +93902,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f770d54b8bcabc49bc7fe84864711ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  performed: 0
+  loupeCollider: {fileID: 0}
+  magnifier: {fileID: 0}
+  loupeHoldDuration: 1.5
+  topText: Ta sciana skrywa cos wiecej niz tylko stare cegly.
   cardPosition: {fileID: 1496185136}
-  edith: {fileID: 1510180973}
+  ideaPoint: {fileID: 0}
   nextInteractions: []
+  performed: 0
 --- !u!1 &1315378811
 GameObject:
   m_ObjectHideFlags: 0
@@ -97858,6 +98093,30 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1839179510}
     m_Modifications:
+    - target: {fileID: 1201252504204838735, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1201252504204838735, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1201252504204838735, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 1201252504204838735, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 95.82929
+      objectReference: {fileID: 0}
+    - target: {fileID: 1201252504204838735, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 150
+      objectReference: {fileID: 0}
+    - target: {fileID: 1201252504204838735, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -52.085354
+      objectReference: {fileID: 0}
     - target: {fileID: 4295695279225232066, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -97898,9 +98157,129 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4921883919680130119, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4921883919680130119, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4921883919680130119, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 182.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4921883919680130119, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 70.03685
+      objectReference: {fileID: 0}
+    - target: {fileID: 4921883919680130119, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 91.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 4921883919680130119, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -55.810867
+      objectReference: {fileID: 0}
     - target: {fileID: 6436461239653170681, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
       propertyPath: m_Name
       value: ClueCard
+      objectReference: {fileID: 0}
+    - target: {fileID: 7492645379508482247, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7492645379508482247, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7492645379508482247, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 7492645379508482247, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 4.170708
+      objectReference: {fileID: 0}
+    - target: {fileID: 7492645379508482247, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 150
+      objectReference: {fileID: 0}
+    - target: {fileID: 7492645379508482247, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -2.085354
+      objectReference: {fileID: 0}
+    - target: {fileID: 7816588320145472991, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7816588320145472991, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7816588320145472991, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 92.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7816588320145472991, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 90.82929
+      objectReference: {fileID: 0}
+    - target: {fileID: 7816588320145472991, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 253.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 7816588320145472991, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -50.414646
+      objectReference: {fileID: 0}
+    - target: {fileID: 8348142071063559644, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8348142071063559644, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8348142071063559644, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 182.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8348142071063559644, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 90.82929
+      objectReference: {fileID: 0}
+    - target: {fileID: 8348142071063559644, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 111.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 8348142071063559644, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -50.414646
+      objectReference: {fileID: 0}
+    - target: {fileID: 8577545512639502295, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8577545512639502295, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8577545512639502295, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 182.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8577545512639502295, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 11.792442
+      objectReference: {fileID: 0}
+    - target: {fileID: 8577545512639502295, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 91.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 8577545512639502295, guid: 156e4a02fab4e0c46826d8dcacc605b9, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -9.896221
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -100674,11 +101053,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 277441565}
   objectDescription: "Ksi\u0105\u017Cka"
   interactiveShader: {fileID: 1273820661}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: 46d362503377ee9468712150dade8287, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!4 &1427473851
@@ -103119,11 +103505,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 1901499188}
   objectDescription: List
   interactiveShader: {fileID: 620042727}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: cbb008ca42ecab1409dbe03725529dae, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!1 &1456317124
@@ -104987,12 +105380,19 @@ MonoBehaviour:
   interactabePoint: {fileID: 1037183470}
   objectDescription: Madame Selma
   interactiveShader: {fileID: 755903231}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: 20b363e4aafff4c42830617c20585692, type: 2}
   - {fileID: 11400000, guid: 48543b1f2dd7bbd43a2992dde5c46175, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!4 &1473337943
@@ -105366,11 +105766,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 0}
   objectDescription: 
   interactiveShader: {fileID: 0}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: 86f0c84a89c3f8749aa23d70867f7b0d, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!65 &1479041044
@@ -108139,10 +108546,17 @@ MonoBehaviour:
   interactabePoint: {fileID: 1944013968}
   objectDescription: "Cia\u0142o Lady Edith"
   interactiveShader: {fileID: 819147366}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues: []
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!4 &1510180971
@@ -108219,10 +108633,27 @@ MonoBehaviour:
   intCollider: {fileID: 1510180972}
   nextInteractions: {fileID: 500559973}
   cameraController: {fileID: 2073143493}
+  examinationZoneRange: 3
+  examinationZoneOffset: {x: 0, y: 0, z: 0}
+  examinationPresetName: EdithExam
+  examinationHorizontalAxis: -80
+  examinationOrbitSpeed: 1.5
+  shotTutorialText: Tutorial Znajdywanie
+  shotTutorialId: ShotTutorial
+  shotTutorialDelay: 1.5
+  shotTutorialScale: 0.5
+  shotTutorialOffset: {x: 180, y: 110}
+  useLegacyShotTutorial: 0
+  showTutorialPopup: 1
+  tutorialPopupDelay: 1
+  tutorialPopupTitle: BADANIE CIALA
+  tutorialPopupText: 
+  tutorialPopupVideoClip: {fileID: 0}
+  edithIdeaPoint: {fileID: 0}
   cp0: {fileID: 319144327}
   cp1: {fileID: 878005806}
   cp2: {fileID: 1977505485}
-  requredClues: 0
+  requiredCluesToRevealIdea: 3
   bulletExamined: 0
   bulletLine: {fileID: 420551699}
   currentRequiredBulletExam: 0
@@ -109118,11 +109549,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 2053551980}
   objectDescription: Uszkodzone okno
   interactiveShader: {fileID: 2801768388850130156, guid: c2558b1d0cc08ac429a2a13eb11aa489, type: 3}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: f4b6b2571fb46e84298c3fc8474eec0a, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 1
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!135 &1513269406
@@ -110217,10 +110655,17 @@ MonoBehaviour:
   interactabePoint: {fileID: 1794106956}
   objectDescription: Lustro
   interactiveShader: {fileID: 315035153}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues: []
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!65 &1518787727
@@ -110936,11 +111381,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 1216329829}
   objectDescription: Uszkodzone okno
   interactiveShader: {fileID: 2801768388850130156, guid: c2558b1d0cc08ac429a2a13eb11aa489, type: 3}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: 831bceefd786c2940a9d739e26e22b57, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!135 &1531085677
@@ -111219,7 +111671,7 @@ PrefabInstance:
     - target: {fileID: 407372233903890901, guid: c6334357aac41ca4db5aab504ab61c01, type: 3}
       propertyPath: controlCanvas
       value: 
-      objectReference: {fileID: 1110868080}
+      objectReference: {fileID: 776416519140774609}
     - target: {fileID: 407372233903890901, guid: c6334357aac41ca4db5aab504ab61c01, type: 3}
       propertyPath: controlsButton
       value: 
@@ -111545,7 +111997,6 @@ MonoBehaviour:
   hiddenCluesTexture: {fileID: 8400000, guid: ae57b489a9f38d14ea349d959c8946e0, type: 2}
   loupeSceneCamera: {fileID: 591824967}
   loupeSceneTexture: {fileID: 8400000, guid: e9b2065d8016db14e847828974a509ad, type: 2}
-  scanner: {fileID: 2142722458}
   loupeFrame: {fileID: 104358128}
   rootCanvasGroup: {fileID: 1877115885}
   magnifierMaterial: {fileID: 2100000, guid: ce87546b2bf7f4849801a610f1b6c828, type: 2}
@@ -111553,9 +112004,44 @@ MonoBehaviour:
   hiddenCluesStrength: 10
   zoom: 1.5
   lensRadiusMultiplier: 0.37
+  loupeVisualScale: 1
   loupeFrameOffset: {x: 0, y: 0}
   lensCenterOffset: {x: 0, y: 0}
   hideCursor: 1
+  loupeKey: 102
+  loupeCursorFlare: {fileID: 0}
+  loupeCursorFlareCanvasGroup: {fileID: 0}
+  loupeCursorFlareOffset: {x: 14, y: -12}
+  loupeCursorPulseSpeed: 1.5
+  loupeCursorMinAlpha: 0.55
+  loupeCursorMaxAlpha: 0.9
+  loupeCursorScalePulse: 0.08
+  useSurfaceInspection: 1
+  inspectionLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  inspectionTriggerInteraction: 1
+  lensDistanceFromHit: 0.45
+  normalInfluence: 0.4
+  maxNormalTiltDegrees: 30
+  cameraFollowSpeed: 18
+  raycastDistance: 100
+  useLoupeLookAt: 1
+  loupeLookAtRaycastInfluence: 0.12
+  loupeLookAtSmoothTime: 1.2
+  enableLensDistanceScroll: 1
+  lensScrollSensitivity: 0.00025
+  minLensDistanceFromHit: 0.31
+  maxLensDistanceFromHit: 1.2
+  enableLoupeSizeScroll: 1
+  loupeSizeScrollSensitivity: 0.001
+  enableFirstUseTutorialPopup: 0
+  firstUseTutorialTitle: LUPA SHERLOCKA
+  firstUseTutorialText: Sherlock moze uzywac swojej lupy, aby odkrywac szczegoly
+    i tropy.
+  firstUseTutorialVideoClip: {fileID: 0}
+  drawInspectionGizmos: 1
+  gizmoSphereRadius: 0.08
 --- !u!1 &1541151619 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 31c40f5833d2b8c44991e2afcd1a8a32, type: 3}
@@ -112336,8 +112822,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -115051,11 +115537,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 1860939332}
   objectDescription: "Pusta \u015Bciana"
   interactiveShader: {fileID: 1213089931}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: d379e2162e47ea14e825b96ed73d1e18, type: 2}
   questionVFX: {fileID: 1751034980}
   interactionVFX: {fileID: 1881108520}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!23 &1604410941
@@ -115149,6 +115642,20 @@ MonoBehaviour:
   nextInteractions:
   - {fileID: 760078417}
   - {fileID: 1315368354}
+  ideaPoint: {fileID: 0}
+  cameraController: {fileID: 0}
+  wallExamPresetName: WallExam
+  playerZoneRange: 3
+  playerZoneOffset: {x: 0, y: 0, z: 0}
+  wallExamZoomSmoothSpeed: 2.5
+  orbitToWallExamAxis: 1
+  wallExamHorizontalAxis: 178
+  wallExamOrbitSpeed: 12
+  showTutorialPopup: 1
+  tutorialPopupDelay: 1
+  tutorialPopupTitle: BADANIE SCENY
+  tutorialPopupText: 
+  tutorialPopupVideoClip: {fileID: 0}
 --- !u!65 &1604410945
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -115878,7 +116385,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1780239551}
-  - {fileID: 965233640}
+  - {fileID: 1791934567}
   - {fileID: 1896583877}
   - {fileID: 590715038}
   - {fileID: 842507832}
@@ -116337,10 +116844,17 @@ MonoBehaviour:
   interactabePoint: {fileID: 934660627}
   objectDescription: Violet
   interactiveShader: {fileID: 2078955887}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues: []
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!4 &1619827045
@@ -117698,11 +118212,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 1628488718}
   objectDescription: "Pok\xF3j Kominkowy"
   interactiveShader: {fileID: 2801768388850130156, guid: c2558b1d0cc08ac429a2a13eb11aa489, type: 3}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: e047c85a4304a4e4c9f5a95e67174cc9, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 1
   isNearPlayer: 0
 --- !u!135 &1640273374
@@ -119345,155 +119866,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7103268507857931997, guid: 8a65693167e902a43b1e8af4579de5a0, type: 3}
   m_PrefabInstance: {fileID: 686532397}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &1679864834
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 753416327}
-    m_Modifications:
-    - target: {fileID: 21260922583710196, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 21260922583710196, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 21260922583710196, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 21260922583710196, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 21260922583710196, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 21260922583710196, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 776416517460928211, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_Name
-      value: Control Canvas
-      objectReference: {fileID: 0}
-    - target: {fileID: 776416517460928211, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1426037633956201237, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_UiScaleMode
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1426037633956201237, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_ReferenceResolution.x
-      value: 1920
-      objectReference: {fileID: 0}
-    - target: {fileID: 1426037633956201237, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_ReferenceResolution.y
-      value: 1080
-      objectReference: {fileID: 0}
-    - target: {fileID: 5567416930472463458, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5567416930472463458, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6880158986253215755, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7242431094412206441, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_Pivot.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7242431094412206441, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_Pivot.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7242431094412206441, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7242431094412206441, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7242431094412206441, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_AnchorMin.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7242431094412206441, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7242431094412206441, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7242431094412206441, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7242431094412206441, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7242431094412206441, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7242431094412206441, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7242431094412206441, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7242431094412206441, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7242431094412206441, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7242431094412206441, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7242431094412206441, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7242431094412206441, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7242431094412206441, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7242431094412206441, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7242431094412206441, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: e543131c214e93b4797e9b2c005c3cc2, type: 3}
 --- !u!1 &1680258812
 GameObject:
   m_ObjectHideFlags: 0
@@ -120098,11 +120470,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 1553340158}
   objectDescription: List
   interactiveShader: {fileID: 1491970240}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: 4358f844769bc9d4abab9767bc3d3e5b, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!1 &1683895393
@@ -123613,10 +123992,10 @@ RectTransform:
   - {fileID: 909304770}
   m_Father: {fileID: 1724762698}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 150, y: -52.085354}
+  m_SizeDelta: {x: 300, y: 95.82929}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1731810675
 MonoBehaviour:
@@ -124341,10 +124720,17 @@ MonoBehaviour:
   interactabePoint: {fileID: 880398670}
   objectDescription: Drzwi
   interactiveShader: {fileID: 333318853}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues: []
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!65 &1742633078
@@ -127077,6 +127463,139 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1712450910648746373, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
   m_PrefabInstance: {fileID: 757948811}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1791934566
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1791934567}
+  - component: {fileID: 1791934570}
+  - component: {fileID: 1791934569}
+  - component: {fileID: 1791934568}
+  - component: {fileID: 1791934571}
+  - component: {fileID: 1791934572}
+  m_Layer: 5
+  m_Name: Image
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1791934567
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1791934566}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 5.23, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 965233640}
+  m_Father: {fileID: 1610576065}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: -1, y: -104}
+  m_SizeDelta: {x: 150, y: 0}
+  m_Pivot: {x: 0, y: 1}
+--- !u!114 &1791934568
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1791934566}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64a2628fb89e92d40a38fea6bf4dd185, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  leftColor: {r: 0, g: 0, b: 0, a: 1}
+  rightColor: {r: 0, g: 0, b: 0, a: 0}
+--- !u!114 &1791934569
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1791934566}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1791934570
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1791934566}
+  m_CullTransparentMesh: 1
+--- !u!114 &1791934571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1791934566}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 10
+    m_Right: 10
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 0
+  m_Spacing: 0
+  m_ChildForceExpandWidth: 1
+  m_ChildForceExpandHeight: 0
+  m_ChildControlWidth: 1
+  m_ChildControlHeight: 1
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
+  m_ReverseArrangement: 0
+--- !u!114 &1791934572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1791934566}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 --- !u!4 &1792750589 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 150e523dd5645f245a7f7fe3880f7693, type: 3}
@@ -127285,10 +127804,17 @@ MonoBehaviour:
   interactabePoint: {fileID: 430482255}
   objectDescription: Czerwona Figurka
   interactiveShader: {fileID: 1154473977}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues: []
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!65 &1794557542
@@ -127380,6 +127906,9 @@ MonoBehaviour:
   itemType: 0
   spline: {fileID: 886980340}
   performed: 0
+  safeAnimator: {fileID: 0}
+  libraryPainting: {fileID: 0}
+  closedPaintingTargetX: -16.246
 --- !u!1 &1795570111
 GameObject:
   m_ObjectHideFlags: 0
@@ -128175,11 +128704,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 457570432}
   objectDescription: Kominek
   interactiveShader: {fileID: 1947215262}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: d177a72fc2bcdaf448e313bf99b74070, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!135 &1810050308
@@ -128409,10 +128945,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1177848478}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 91.25, y: -9.896221}
+  m_SizeDelta: {x: 182.5, y: 11.792442}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1813445573
 MonoBehaviour:
@@ -133335,8 +133871,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 116.25, y: -19.844906}
-  m_SizeDelta: {x: 232.5, y: 31.689812}
+  m_AnchoredPosition: {x: 116.25, y: -24.062407}
+  m_SizeDelta: {x: 232.5, y: 40.124813}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1884999183
 MonoBehaviour:
@@ -133385,8 +133921,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 15
-  m_fontSizeBase: 15
+  m_fontSize: 26
+  m_fontSizeBase: 26
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -134223,7 +134759,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.23270428, g: 0.23270428, b: 0.23270428, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -135534,12 +136070,19 @@ MonoBehaviour:
   interactabePoint: {fileID: 0}
   objectDescription: Klocek
   interactiveShader: {fileID: 1125462765}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: b06ca63abad361e49b441db1280bf7a0, type: 2}
   - {fileID: 11400000, guid: c51cda71b1608dc4b84f85a6636832d9, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!1 &1918877719
@@ -138962,10 +139505,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1177848478}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 91.25, y: -55.810867}
+  m_SizeDelta: {x: 182.5, y: 70.03685}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1958321296
 MonoBehaviour:
@@ -144132,8 +144675,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -144524,6 +145067,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 639600cad7a9af9448574ff40121df96, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cameraController: {fileID: 0}
+  cameraTransitionSpeed: 0.5
   performed: 0
   pushDuration: 1
   targetX: -16.8
@@ -144544,11 +145089,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 270546104}
   objectDescription: "Obraz na \u015Bcianie"
   interactiveShader: {fileID: 2801768388850130156, guid: c2558b1d0cc08ac429a2a13eb11aa489, type: 3}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: acf9abf1401677145bb8f7b760eae73f, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!65 &2054093909
@@ -146143,6 +146695,14 @@ MonoBehaviour:
   currentZoomIndex: 0
   rotationSpeed: 2
   rotationDamping: 0.25
+  autoRotateCamera: 1
+  autoRotateSpeed: 8
+  resumeAfterDelay: 0
+  autoRotateResumeDelay: 15
+  dialogueZoomPresetName: Narrow
+  dialogueZoomTransitionSpeed: 1
+  dialogueRotationFadeInDuration: 0.2
+  dialogueRotationFadeOutDuration: 0.8
   zoomSmoothSpeed: 1.5
   zoomPresets:
   - name: Top
@@ -146174,6 +146734,8 @@ MonoBehaviour:
     bottomRadius: 7
     bottomHeight: 6
   startZoomIndex: 2
+  manualZoomMinIndex: 0
+  manualZoomMaxIndex: 3
 --- !u!1 &2073676137
 GameObject:
   m_ObjectHideFlags: 0
@@ -150737,11 +151299,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 74705258}
   objectDescription: Notatnik
   interactiveShader: {fileID: 880011849}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: 8b3416b9c2b2ea54b86ac1797d34fe37, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!1 &2128268315
@@ -152321,10 +152890,17 @@ MonoBehaviour:
   interactabePoint: {fileID: 246855948535180932}
   objectDescription: Watson
   interactiveShader: {fileID: 1901968106}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues: []
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!4 &411642473861984517
@@ -152358,6 +152934,103 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1001 &491843858888911095
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 753416327}
+    m_Modifications:
+    - target: {fileID: 1593415163352834242, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1593415163352834242, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1593415163352834242, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1593415163352834242, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1593415163352834242, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1593415163352834242, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1593415163352834242, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1593415163352834242, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1593415163352834242, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1593415163352834242, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1593415163352834242, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1593415163352834242, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1593415163352834242, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1593415163352834242, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1593415163352834242, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1593415163352834242, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1593415163352834242, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1593415163352834242, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1593415163352834242, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1593415163352834242, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2739879759962528462, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+      propertyPath: m_Name
+      value: Control Canvas
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
 --- !u!1 &498938586628150039
 GameObject:
   m_ObjectHideFlags: 0
@@ -152705,6 +153378,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7428293944334320322}
   m_Mesh: {fileID: 4745827956446670323, guid: dd89757d413ab214da9a6a4c5278d6e7, type: 3}
+--- !u!1 &776416519140774609 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2739879759962528462, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+  m_PrefabInstance: {fileID: 491843858888911095}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &779569525314221519
 GameObject:
   m_ObjectHideFlags: 0
@@ -153016,10 +153694,17 @@ MonoBehaviour:
   interactabePoint: {fileID: 0}
   objectDescription: 
   interactiveShader: {fileID: 0}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues: []
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 1
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!95 &919132148025702746
@@ -157152,10 +157837,17 @@ MonoBehaviour:
   interactabePoint: {fileID: 4254314255870157955}
   objectDescription: Violet
   interactiveShader: {fileID: 2078955887}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues: []
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!1001 &4484827354257686238
@@ -158277,11 +158969,18 @@ MonoBehaviour:
   interactabePoint: {fileID: 1993910411}
   objectDescription: Globus
   interactiveShader: {fileID: 148768084}
+  interactionShaderVisibility: 1
+  interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 11400000, guid: f7c883ded9377c4488387e0a7be6507b, type: 2}
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
+  questionFxRateProperty: Rate
+  eagleVisionQuestionRate: 100
+  questionFxLifetimeProperty: Lifetime
+  eagleVisionExitLifetimeMultiplier: 0.5
+  allowQuestionFXWhenInactive: 0
   isFootPrintInteraction: 0
   isNearPlayer: 0
 --- !u!136 &5643048843437091596
@@ -158319,16 +159018,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba4b20053d7345741a3e59cd95ba0d83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  performed: 0
-  cardPosition: {fileID: 0}
-  minigamePrefab: {fileID: 6122520218682924295, guid: 33a6d1ddad0370c43976008d20d8262e, type: 3}
-  minigameTransform: {fileID: 1250033214}
-  playerCamera: {fileID: 330585545}
-  audioController: {fileID: 5643048843437091598}
   cameraController: {fileID: 2073143493}
-  openGlobus: {fileID: 0}
-  globusAnimator: {fileID: 6413147114384461010}
-  painting: {fileID: 2054093907}
+  globeRotationTarget: {fileID: 0}
+  spinDuration: 1.5
+  totalSpinDegrees: -810
+  spinCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 3.5
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  globeButton: {fileID: 0}
+  spinAudio: {fileID: 0}
+  violetDialog: {fileID: 0}
+  waitInteractionPoint: {fileID: 0}
+  violetPresentText: "Lepiej by\u0142oby pomyszkowa\u0107 tu w samotno\u015Bci."
 --- !u!114 &5643048843437091598
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -160031,6 +160753,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4603246984669994020}
   m_LocalEulerAnglesHint: {x: 24.05, y: 0, z: 0}
+--- !u!224 &7242431093806093675 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 1593415163352834242, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+  m_PrefabInstance: {fileID: 491843858888911095}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &7321894448715768903
 GameObject:
   m_ObjectHideFlags: 0
@@ -162075,6 +162802,10 @@ PrefabInstance:
     - target: {fileID: 3133447874907731200, guid: 6f27a1470b4301e48adcf3ba4339f652, type: 3}
       propertyPath: m_Name
       value: QuestBarPanels
+      objectReference: {fileID: 0}
+    - target: {fileID: 5658625575540370328, guid: 6f27a1470b4301e48adcf3ba4339f652, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7379824585513353987, guid: 6f27a1470b4301e48adcf3ba4339f652, type: 3}
       propertyPath: m_Pivot.x
