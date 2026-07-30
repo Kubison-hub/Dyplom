@@ -64,14 +64,9 @@ public class TutorialTimeline : MonoBehaviour
         "Sherlock to mistrz dedukcji:\n- Polacz fakty w odpowiedniej kolejnosci.";
     [SerializeField] private VideoClip ideaLineTutorialPopupVideoClip;
 
-    [Header("Tutorial Objectives")]
+    [Header("Legacy Tutorial Objective Panel")]
+    [Tooltip("Kept only to hide the retired panel at runtime. Use ClueManager and CluesLog for visible progress.")]
     [SerializeField] private TutorialObjectivePanel tutorialObjectivePanel;
-    [SerializeField] private Int_EdithExamBody edithExamBody;
-    [Tooltip("Every assigned dialogue must first become available, then be disabled after use.")]
-    [SerializeField] private Interactable[] witnessDialogues;
-    [SerializeField] private string edithObjectiveId = "examine-lady-edith";
-    [SerializeField] private string factsObjectiveId = "connect-facts";
-    [SerializeField] private string witnessesObjectiveId = "talk-to-witnesses";
 
     [Header("Events")]
     [SerializeField] private UnityEvent onTimelineStarted;
@@ -87,7 +82,6 @@ public class TutorialTimeline : MonoBehaviour
     private bool openingTutorialWasVisible;
     private Coroutine moveToIdeaLineTutorialCoroutine;
     private string lastIdeaPointDebugStatus;
-    private bool[] witnessDialogueWasAvailable;
     private Coroutine firstPopupCoroutine;
     private Coroutine focusTutorialPopupCoroutine;
     private Coroutine releasePopupInputCoroutine;
@@ -102,13 +96,12 @@ public class TutorialTimeline : MonoBehaviour
         else
             Destroy(gameObject);
 
-        witnessDialogueWasAvailable = new bool[witnessDialogues != null ? witnessDialogues.Length : 0];
+        if (tutorialObjectivePanel != null)
+            tutorialObjectivePanel.gameObject.SetActive(false);
     }
 
     private void Update()
     {
-        UpdateTutorialObjectives();
-
         if (activeTutorialPopup != null && activePopupReturnsToPreviousStage)
         {
             if (Input.GetMouseButtonDown(0))
@@ -173,52 +166,6 @@ public class TutorialTimeline : MonoBehaviour
 
             KeepEagleVisionForced();
         }
-    }
-
-    public void CompleteWitnessesObjective()
-    {
-        tutorialObjectivePanel?.CompleteSubObjective(witnessesObjectiveId);
-    }
-
-    private void UpdateTutorialObjectives()
-    {
-        if (tutorialObjectivePanel == null)
-            return;
-
-        if (edithExamBody != null && edithExamBody.IsExaminationCompleted)
-            tutorialObjectivePanel.CompleteSubObjective(edithObjectiveId);
-
-        if (IsIdeaLinePuzzleSolved())
-            tutorialObjectivePanel.CompleteSubObjective(factsObjectiveId);
-
-        UpdateWitnessDialogueObjective();
-    }
-
-    private void UpdateWitnessDialogueObjective()
-    {
-        if (witnessDialogues == null || witnessDialogues.Length == 0 ||
-            tutorialObjectivePanel.IsSubObjectiveCompleted(witnessesObjectiveId))
-            return;
-
-        bool allDialoguesCompleted = true;
-        for (int i = 0; i < witnessDialogues.Length; i++)
-        {
-            Interactable dialogue = witnessDialogues[i];
-            if (dialogue == null)
-            {
-                allDialoguesCompleted = false;
-                continue;
-            }
-
-            if (dialogue.gameObject.activeInHierarchy && dialogue.isInteractableActive)
-                witnessDialogueWasAvailable[i] = true;
-
-            if (!witnessDialogueWasAvailable[i] || dialogue.isInteractableActive)
-                allDialoguesCompleted = false;
-        }
-
-        if (allDialoguesCompleted)
-            CompleteWitnessesObjective();
     }
 
     public void NotifyIdeaPuzzleGroundClick()
