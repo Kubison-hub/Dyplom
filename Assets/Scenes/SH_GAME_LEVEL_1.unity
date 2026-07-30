@@ -112001,7 +112001,7 @@ MonoBehaviour:
   rootCanvasGroup: {fileID: 1877115885}
   magnifierMaterial: {fileID: 2100000, guid: ce87546b2bf7f4849801a610f1b6c828, type: 2}
   desaturateScene: 0.6
-  hiddenCluesStrength: 10
+  hiddenCluesStrength: 2
   zoom: 1.5
   lensRadiusMultiplier: 0.37
   loupeVisualScale: 1
@@ -112011,8 +112011,8 @@ MonoBehaviour:
   loupeKey: 102
   loupeCursorFlare: {fileID: 0}
   loupeCursorFlareCanvasGroup: {fileID: 0}
-  loupeCursorFlareOffset: {x: 14, y: -12}
-  loupeCursorPulseSpeed: 1.5
+  loupeCursorFlareOffset: {x: 0, y: 0}
+  loupeCursorPulseSpeed: 0.5
   loupeCursorMinAlpha: 0.55
   loupeCursorMaxAlpha: 0.9
   loupeCursorScalePulse: 0.08
@@ -112021,8 +112021,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   inspectionTriggerInteraction: 1
-  lensDistanceFromHit: 0.45
-  normalInfluence: 0.4
+  lensDistanceFromHit: 5
+  normalInfluence: 0
   maxNormalTiltDegrees: 30
   cameraFollowSpeed: 18
   raycastDistance: 100
@@ -112030,11 +112030,11 @@ MonoBehaviour:
   loupeLookAtRaycastInfluence: 0.12
   loupeLookAtSmoothTime: 1.2
   enableLensDistanceScroll: 1
-  lensScrollSensitivity: 0.00025
-  minLensDistanceFromHit: 0.31
-  maxLensDistanceFromHit: 1.2
-  enableLoupeSizeScroll: 1
-  loupeSizeScrollSensitivity: 0.001
+  lensScrollSensitivity: 0.5
+  minLensDistanceFromHit: 0.5
+  maxLensDistanceFromHit: 10
+  enableLoupeSizeScroll: 0
+  loupeSizeScrollSensitivity: 0.5
   enableFirstUseTutorialPopup: 0
   firstUseTutorialTitle: LUPA SHERLOCKA
   firstUseTutorialText: Sherlock moze uzywac swojej lupy, aby odkrywac szczegoly
