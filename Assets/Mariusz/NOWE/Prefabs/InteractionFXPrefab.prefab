@@ -18,7 +18,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4647247904324467638
 Transform:
   m_ObjectHideFlags: 0
@@ -148,6 +148,6 @@ MonoBehaviour:
   fadeInDuration: 0.15
   fadeOutDuration: 0.25
   visibleAlpha: 1
-  pulseSpeed: 1.5
+  pulseSpeed: 0.35
   visibilityProperty: _Visibility
   pulseSpeedProperty: _PulseSpeed

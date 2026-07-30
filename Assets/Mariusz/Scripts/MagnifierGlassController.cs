@@ -126,6 +126,7 @@ public class MagnifierGlassController : MonoBehaviour
         TryShowFirstSherlockLoupeTutorial(loupeHeld);
         wasLoupeHeld = loupeHeld;
         SetInspectionCamerasActive(loupeHeld);
+        EagleVisionScanner.Instance?.SetTooltipParentForLoupe(loupeHeld);
 
         if (!loupeHeld)
         {
@@ -515,6 +516,7 @@ public class MagnifierGlassController : MonoBehaviour
         if (instance == this)
             instance = null;
 
+        EagleVisionScanner.Instance?.SetTooltipParentForLoupe(false);
         Cursor.visible = true;
     }
 }

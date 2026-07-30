@@ -13376,7 +13376,7 @@ MonoBehaviour:
   m_Container: {fileID: 171704862}
   m_ItemsToInstantiate:
   - prefab: {fileID: 0}
-    Prefab: {fileID: 6362075907145187967, guid: 3583178103a71ac42963d1bed20f94d5, type: 3}
+    Prefab: {fileID: 6362075907145187967, guid: acef460c46af0e24aaa39788ba2737f1, type: 3}
     probability: 0
     Probability: 0
   m_Method: 1
@@ -131862,6 +131862,7 @@ MonoBehaviour:
   pressTriggerName: Press
   nextInteractions:
   - {fileID: 996438404}
+  playCC: 0
   cutsceneRoot: {fileID: 1757808234}
   cutsceneVideoPlayer: {fileID: 1748793545}
   cameraController: {fileID: 2073143493}

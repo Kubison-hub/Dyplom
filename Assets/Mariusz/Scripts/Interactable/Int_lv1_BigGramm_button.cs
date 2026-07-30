@@ -19,6 +19,7 @@ public class Int_lv1_BigGramm_button : MonoBehaviour
     [SerializeField] private GameObject[] nextInteractions;
 
     [Header("Completion Cutscene")]
+    public bool playCC = false;
     [SerializeField] private GameObject cutsceneRoot;
     [SerializeField] private VideoPlayer cutsceneVideoPlayer;
     [SerializeField] private CameraController cameraController;
@@ -94,7 +95,11 @@ public class Int_lv1_BigGramm_button : MonoBehaviour
         Debug.Log("KONIEC");
         DisableInteraction();
         ActivateNextInteractions();
-        PlayCompletionCutscene(player);
+
+        if (playCC)
+            PlayCompletionCutscene(player);
+        else
+            CompleteWithoutCutscene(player);
 
         if (player != null)
             player.currentInteractable = null;
@@ -146,6 +151,20 @@ public class Int_lv1_BigGramm_button : MonoBehaviour
 
         cutsceneVideoPlayer.Stop();
         StartCoroutine(BeginCutsceneAfterCoverIsVisible(player));
+    }
+
+    private void CompleteWithoutCutscene(PlayerController player)
+    {
+        if (cutsceneVideoPlayer != null)
+            cutsceneVideoPlayer.Stop();
+
+        if (cutsceneRoot != null)
+            cutsceneRoot.SetActive(false);
+
+        MoveNpcsForNextScene(player);
+        cameraController?.UnlockHorizontalRotation();
+        cameraController?.SetZoomState(CameraZoomState.Wide);
+        cameraController?.SetHorizontalRotation(cutsceneHorizontalAxis);
     }
 
     private IEnumerator BeginCutsceneAfterCoverIsVisible(PlayerController player)

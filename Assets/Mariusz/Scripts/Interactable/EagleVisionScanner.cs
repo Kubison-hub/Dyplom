@@ -102,9 +102,6 @@ public class EagleVisionScanner : MonoBehaviour
             main.startLifetime = duration;
             main.startSize = size;
 
-            if (toolTipPanel != null && magnififierGlassCanvas != null)
-                toolTipPanel.transform.SetParent(magnififierGlassCanvas.transform);
-
             scannerPS.Play();
 
             if (footPrints)
@@ -115,9 +112,6 @@ public class EagleVisionScanner : MonoBehaviour
         }
         else
         {
-            if (toolTipPanel != null && toolTipCanvas != null)
-                toolTipPanel.transform.SetParent(toolTipCanvas.transform);
-
             scannerPS.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             scannerCollider.radius = 0f;
             SetAllQuestionFXState(false);
@@ -127,6 +121,18 @@ public class EagleVisionScanner : MonoBehaviour
         }
 
         Debug.Log($"Scanner State: {isActive}");
+    }
+
+    public void SetTooltipParentForLoupe(bool loupeActive)
+    {
+        if (toolTipPanel == null)
+            return;
+
+        GameObject targetCanvas = loupeActive ? magnififierGlassCanvas : toolTipCanvas;
+        if (targetCanvas == null || toolTipPanel.transform.parent == targetCanvas.transform)
+            return;
+
+        toolTipPanel.transform.SetParent(targetCanvas.transform);
     }
 
     private void ResetQuestionFxScanWave()
