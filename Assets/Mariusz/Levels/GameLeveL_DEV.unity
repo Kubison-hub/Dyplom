@@ -45323,7 +45323,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &590715038
 RectTransform:
   m_ObjectHideFlags: 0
@@ -82216,8 +82216,8 @@ RectTransform:
   m_GameObject: {fileID: 1007851236}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 15, y: 6, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 12.64, y: 5.056, z: 0.8426667}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 2047213974}
   m_Father: {fileID: 590715038}
@@ -124910,7 +124910,7 @@ MonoBehaviour:
   tutorialPopupTitle: "\u015Aledztwo"
   tutorialPopupText: "Zbadaj dok\u0142adnie obiekt aby uzyska\u0107 szczeg\xF3\u0142y.\\nSherlock
     mo\u017Ce u\u017Cy\u0107 lupy (F) aby przyj\u017Ce\u0107 si\u0119 bli\u017Cej."
-  tutorialPopupVideoClip: {fileID: 32900000, guid: 5fe0084e17c1b984981eb5f112d7a315, type: 3}
+  tutorialPopupVideoClip: {fileID: 32900000, guid: b64baec8b777c7949bf50e2fedfc4fb4, type: 3}
   edithIdeaPoint: {fileID: 96440272}
   cp0: {fileID: 319144327}
   cp1: {fileID: 878005806}
@@ -132726,7 +132726,7 @@ MonoBehaviour:
   tutorialPopupText: "Sherlock mo\u017Ce u\u017Cywa\u0107 swojej lupy aby dok\u0142adnie
     przyjrze\u0107 si\u0119 podejrzeniu. Wci\u015Bnij \"F\" aby u\u017Cy\u0107 lupy
     Sherlocka."
-  tutorialPopupVideoClip: {fileID: 32900000, guid: 5fe0084e17c1b984981eb5f112d7a315, type: 3}
+  tutorialPopupVideoClip: {fileID: 32900000, guid: 0a1d5c1989638634eba0f6b9f58faa26, type: 3}
 --- !u!65 &1604410945
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -143372,7 +143372,7 @@ MonoBehaviour:
   lockpickTutorialTitle: "Otwieranie Zamk\xF3w"
   lockpickTutorialText: "Sherlock potrafi otwiera\u0107 zamki, mo\u017Ce to wymaga\u0107
     cierpliwo\u015Bci..."
-  lockpickTutorialVideoClip: {fileID: 0}
+  lockpickTutorialVideoClip: {fileID: 32900000, guid: 5fe0084e17c1b984981eb5f112d7a315, type: 3}
 --- !u!114 &1742633077
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -158180,7 +158180,7 @@ MonoBehaviour:
   tutorialPopupTitle: "\u015ALADY"
   tutorialText: "Sherlock potrafi rozpoznawa\u0107 \u015Blady. Przytrzymaj Lewy Shift,
     aby wej\u015B\u0107 w tryb skupienia."
-  tutorialPopupVideoClip: {fileID: 0}
+  tutorialPopupVideoClip: {fileID: 32900000, guid: 1d7ff37bc3533a04f9b651adc2033b98, type: 3}
   scanner: {fileID: 0}
   footprintSplines:
   - {fileID: 886980340}
