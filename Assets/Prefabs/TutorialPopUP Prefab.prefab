@@ -470,13 +470,14 @@ GameObject:
   - component: {fileID: 7651249182104809037}
   - component: {fileID: 4336606507022990902}
   - component: {fileID: 5973188262566146948}
+  - component: {fileID: -5409750516660514421}
   m_Layer: 5
-  m_Name: "Om\xF3wienie zagadki z odci\u0105gnieciem selmy ze schod\xF3w"
+  m_Name: TutorialPopUP Prefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &7651249182104809037
 RectTransform:
   m_ObjectHideFlags: 0
@@ -536,3 +537,19 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &-5409750516660514421
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4676425080789517849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44e2fc8571022d44388eb7ff9dd59359, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  titleText: {fileID: 8592981317120583361}
+  contentText: {fileID: 7087843931219033637}
+  tutorialVideoPlayer: {fileID: 7456814349934349424}
+  tutorialVideoContainer: {fileID: 43709268139300059}

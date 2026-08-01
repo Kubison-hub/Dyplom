@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Video;
 
 [RequireComponent(typeof(Interactable))]
 public class Int_lv1_SecretDoor : MonoBehaviour
@@ -9,10 +10,11 @@ public class Int_lv1_SecretDoor : MonoBehaviour
         "W jaki sposób otworzyć to tajne przejście?";
 
     [Header("Footsteps Tutorial")]
-    [SerializeField, Min(0f)] private float tutorialDelay = 1.25f;
+    [SerializeField, Min(0f)] private float tutorialDelay = 1f;
+    [SerializeField] private string tutorialPopupTitle = "ŚLADY";
     [SerializeField, TextArea] private string tutorialText =
         "Sherlock potrafi rozpoznawać ślady. Przytrzymaj Lewy Shift, aby wejść w tryb skupienia.";
-    [SerializeField] private string tutorialId = "SecretDoorFootsteps";
+    [SerializeField] private VideoClip tutorialPopupVideoClip;
     [SerializeField] private EagleVisionScanner scanner;
     [SerializeField] private GameObject[] footprintSplines;
 
@@ -77,12 +79,15 @@ public class Int_lv1_SecretDoor : MonoBehaviour
         if (cameraChanged && cameraSettleDelay > 0f)
             yield return new WaitForSecondsRealtime(cameraSettleDelay);
 
-        TutorialManager tutorialManager = TutorialManager.Instance;
-        if (tutorialManager != null)
+        TutorialTimeline tutorialTimeline = TutorialTimeline.Instance;
+        if (tutorialTimeline != null)
         {
-            tutorialManager.PokazTutorial(tutorialText, tutorialId);
+            tutorialTimeline.ShowGameplayTutorialPopup(
+                tutorialPopupTitle,
+                tutorialText,
+                tutorialPopupVideoClip);
 
-            while (tutorialManager.BlocksWorldInput)
+            while (tutorialTimeline.BlocksWorldInput)
                 yield return null;
         }
 

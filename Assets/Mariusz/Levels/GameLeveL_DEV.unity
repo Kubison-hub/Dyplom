@@ -24771,7 +24771,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &338434449
 RectTransform:
   m_ObjectHideFlags: 0
@@ -26044,7 +26044,7 @@ MonoBehaviour:
   openingZoomState: 2
   firstClickZoomState: 2
   tutorialPlayers: []
-  tutorialPopupPrefab: {fileID: 2997409641693790515, guid: 16c0748ed2046e347beed9989e52aa72, type: 3}
+  tutorialPopupPrefab: {fileID: -5409750516660514421, guid: 9cc4d8bdb71584a4296eab30f66be6ea, type: 3}
   tutorialPopupParent: {fileID: 1610576065}
   showOpeningPopupAfterTutorial: 0
   openingPopupDelay: 3
@@ -27237,7 +27237,7 @@ MonoBehaviour:
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.1
   m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: 09d71ce2c1d09c44792079fceefd0a9f, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: 9483e3c817569a749b10205d6db589db, type: 2}
   m_BuildHeightMesh: 0
 --- !u!1 &377859079
 GameObject:
@@ -143368,6 +143368,11 @@ MonoBehaviour:
   text: "Zamkni\u0119te, nie powinno to stanowi\u0107 problemu"
   newMaterial: {fileID: 2100000, guid: 9c5ce036051eb5a46bc2d4ae7168e115, type: 2}
   doorclosedAudio: {fileID: 1742633073}
+  showLockpickTutorialPopup: 1
+  lockpickTutorialTitle: "Otwieranie Zamk\xF3w"
+  lockpickTutorialText: "Sherlock potrafi otwiera\u0107 zamki, mo\u017Ce to wymaga\u0107
+    cierpliwo\u015Bci..."
+  lockpickTutorialVideoClip: {fileID: 0}
 --- !u!114 &1742633077
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -158172,9 +158177,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   topText: "W jaki spos\xF3b otworzy\u0107 to tajne przej\u015Bcie?"
   tutorialDelay: 1.25
+  tutorialPopupTitle: "\u015ALADY"
   tutorialText: "Sherlock potrafi rozpoznawa\u0107 \u015Blady. Przytrzymaj Lewy Shift,
     aby wej\u015B\u0107 w tryb skupienia."
-  tutorialId: SecretDoorFootsteps
+  tutorialPopupVideoClip: {fileID: 0}
   scanner: {fileID: 0}
   footprintSplines:
   - {fileID: 886980340}

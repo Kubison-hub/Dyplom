@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro.Examples;
 using UnityEngine;
+using UnityEngine.Video;
 
 
 public class lvl2_Int_SelmaDoor : MonoBehaviour
@@ -40,6 +41,12 @@ public class lvl2_Int_SelmaDoor : MonoBehaviour
 
     [SerializeField] private AudioSource doorclosedAudio;
 
+    [Header("Lockpick Tutorial Popup")]
+    [SerializeField] private bool showLockpickTutorialPopup = true;
+    [SerializeField] private string lockpickTutorialTitle = "Otwieranie Zamków";
+    [SerializeField, TextArea] private string lockpickTutorialText =
+        "Sherlock potrafi otwieraæ zamki, mo¿e to wymagaæ cierpliwoœci...";
+    [SerializeField] private VideoClip lockpickTutorialVideoClip;
     private void Start()
     {
         openRotation = Quaternion.Euler(openEuler);
@@ -63,6 +70,7 @@ public class lvl2_Int_SelmaDoor : MonoBehaviour
         if (firsInteraction)
         {
             doorclosedAudio.Play();
+            interactable.isInteractableActive = false;
             StartCoroutine(AddText());
             firsInteraction = false;
             player.currentInteractable = null;
@@ -136,12 +144,24 @@ public class lvl2_Int_SelmaDoor : MonoBehaviour
 
     private IEnumerator AddText()
     {
-
         ClueManager.Instance.SherlockText.text = text;
         yield return new WaitForSeconds(3);
         ClueManager.Instance.SherlockText.text = "";
-        interactable.isInteractableActive = true;
 
+        TutorialTimeline tutorialTimeline = TutorialTimeline.Instance;
+        if (showLockpickTutorialPopup && tutorialTimeline != null)
+        {
+            tutorialTimeline.ShowGameplayTutorialPopup(
+                lockpickTutorialTitle,
+                lockpickTutorialText,
+                lockpickTutorialVideoClip);
+
+            yield return null;
+            while (tutorialTimeline.BlocksWorldInput)
+                yield return null;
+        }
+
+        interactable.isInteractableActive = true;
     }
 
 
