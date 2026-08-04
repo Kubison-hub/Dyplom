@@ -958,6 +958,24 @@ public class Interactable : MonoBehaviour
                 Debug.LogError("Int_WatsonSwitchTutorial is null");
         }
 
+        if (interactionType == InteractionType.Int_lv3_Ethel)
+        {
+            Int_lv3_Ethel interaction = GetComponent<Int_lv3_Ethel>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("Int_lv3_Ethel is null");
+        }
+
+        if (interactionType == InteractionType.Int_lv3_ExitDoor)
+        {
+            Int_lv3_ExitDoor interaction = GetComponent<Int_lv3_ExitDoor>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("Int_lv3_ExitDoor is null");
+        }
+
         
     }
 
@@ -1197,5 +1215,7 @@ public enum InteractionType
     int_lv1_ArthurNPC,
     int_vl1_GeorgeNPC,
     Int_lv1_BlockBox,
-    Int_WatsonSwitchTutorial
+    Int_WatsonSwitchTutorial,
+    Int_lv3_Ethel,
+    Int_lv3_ExitDoor
 }
