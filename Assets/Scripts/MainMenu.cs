@@ -45,7 +45,7 @@ public class MainMenu : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.R))
         {
             PlayerPrefs.DeleteKey("IntroObejrzane");
-            Debug.Log("Zresetowano intro! Teraz odtworzy siê ponownie.");
+            UnityEngine.Debug.Log("Zresetowano intro! Teraz odtworzy siê ponownie.");
         }
     }
 
@@ -53,7 +53,7 @@ public class MainMenu : MonoBehaviour
     {
         if (PlayerPrefs.GetInt("IntroObejrzane", 0) == 1)
         {
-            Debug.Log("Intro ju¿ by³o ogl¹dane. Pomijam.");
+            UnityEngine.Debug.Log("Intro ju¿ by³o ogl¹dane. Pomijam.");
             LoadGameLevel();
             return;
         }
@@ -73,7 +73,7 @@ public class MainMenu : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("Brak VideoPlayera! £adujê grê od razu.");
+            UnityEngine.Debug.LogWarning("Brak VideoPlayera! £adujê grê od razu.");
             LoadGameLevel();
         }
     }
@@ -88,13 +88,13 @@ public class MainMenu : MonoBehaviour
         // Tutaj nadal ³adujemy now¹ scenê, bo to w³aœciwa gra
         Cursor.visible = true;
         isPlayingIntro = false;
-        SceneManager.LoadScene("SH_GAME_LEVEL_1");
+        SceneManager.LoadScene("gamelevel_dev");
     }
 
     public void QuitGame()
     {
-        Debug.Log("Zamykam grê...");
-        Application.Quit();
+        UnityEngine.Debug.Log("Zamykam grê...");
+        UnityEngine.Application.Quit();
     }
 
     // --- FUNKCJE PRZE£¥CZANIA CANVASÓW ---
@@ -109,7 +109,7 @@ public class MainMenu : MonoBehaviour
         ShowCanvas(creditsCanvas);
     }
 
-    public void Settings() // Doda³em dla Settings Canvas, który widaæ na screenie
+    public void Settings()
     {
         ShowCanvas(settingsCanvas);
     }
