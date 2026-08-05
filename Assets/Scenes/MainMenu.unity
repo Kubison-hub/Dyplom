@@ -272,6 +272,13 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1460160271564723240, guid: bfd884273cd9d8948ac82cc111a9c06f, type: 3}
+      propertyPath: m_text
+      value: "Maja Bartnicka - Producent,  Projektant Poziom\xF3w, Artysta 2D, Narracja,
+        Projektant Quest\xF3w\nMariusz Kleszczewski - Projektant poziom\xF3w, Projektant
+        otoczenia\nJakub Suchorab - Programista, Projektant rozgrywki, Tester, Projektant
+        muzyki\nDominik Zwoli\u0144ski - Artryta 3D, Artysta UI"
+      objectReference: {fileID: 0}
+    - target: {fileID: 1460160271564723240, guid: bfd884273cd9d8948ac82cc111a9c06f, type: 3}
       propertyPath: m_fontSize
       value: 6.41
       objectReference: {fileID: 0}
@@ -581,7 +588,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -194.17}
+  m_AnchoredPosition: {x: 0, y: -98.6}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &313805117
@@ -1616,7 +1623,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -97}
+  m_AnchoredPosition: {x: 0, y: -3}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &975798747
@@ -2411,7 +2418,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1759805934
 RectTransform:
   m_ObjectHideFlags: 0
