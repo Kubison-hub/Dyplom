@@ -82,6 +82,17 @@ public class NotebookManager : MonoBehaviour
         noteDisplayArea.SetActive(false);
     }
 
+    // NOWA FUNKCJA - zamykanie notatnika
+    public void CloseNotebook()
+    {
+        notebookPanel.SetActive(false); // Wy³¹cza ca³kowicie g³ówny panel notatnika
+
+        // UWAGA: Jeœli w funkcji ToggleNotebook() odblokowywa³eœ kursor, 
+        // tutaj musisz go z powrotem zablokowaæ i ukryæ, np.:
+        // Cursor.lockState = CursorLockMode.Locked;
+        // Cursor.visible = false;
+    }
+
     // NOWA FUNKCJA - podepnij pod przycisk "Wróæ do listy" (ten na kartce)
     public void BackToNoteList()
     {
