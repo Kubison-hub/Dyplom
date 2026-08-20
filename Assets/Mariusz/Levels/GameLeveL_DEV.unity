@@ -148722,6 +148722,38 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 753416327}
     m_Modifications:
+    - target: {fileID: 1120797337390687297, guid: 366cb6956056c9a42b32b7592a276656, type: 3}
+      propertyPath: m_margin.z
+      value: 5.001751
+      objectReference: {fileID: 0}
+    - target: {fileID: 1120797337390687297, guid: 366cb6956056c9a42b32b7592a276656, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+    - target: {fileID: 1120797337390687297, guid: 366cb6956056c9a42b32b7592a276656, type: 3}
+      propertyPath: m_fontColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1120797337390687297, guid: 366cb6956056c9a42b32b7592a276656, type: 3}
+      propertyPath: m_fontColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1120797337390687297, guid: 366cb6956056c9a42b32b7592a276656, type: 3}
+      propertyPath: m_fontColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1120797337390687297, guid: 366cb6956056c9a42b32b7592a276656, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 6229730292464864198, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+    - target: {fileID: 1120797337390687297, guid: 366cb6956056c9a42b32b7592a276656, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4278190080
+      objectReference: {fileID: 0}
+    - target: {fileID: 1120797337390687297, guid: 366cb6956056c9a42b32b7592a276656, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2014166238747859816, guid: 366cb6956056c9a42b32b7592a276656, type: 3}
       propertyPath: m_IgnoreReversedGraphics
       value: 1
@@ -148833,6 +148865,14 @@ PrefabInstance:
     - target: {fileID: 8191612898656508667, guid: 366cb6956056c9a42b32b7592a276656, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8911427100617377758, guid: 366cb6956056c9a42b32b7592a276656, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9061034215605512440, guid: 366cb6956056c9a42b32b7592a276656, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
