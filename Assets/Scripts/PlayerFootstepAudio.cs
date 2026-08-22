@@ -16,16 +16,21 @@ public class PlayerFootstepAudio : MonoBehaviour
     public float pitchMax = 1.1f;
     public float volumeRandomization = 0.15f;
 
-    private AudioSource audioSource;
+    [SerializeField] private AudioSource audioSource;
 
     private void Awake()
     {
-        audioSource = GetComponent<AudioSource>();
-
-        // Upewniamy siê, ¿e AudioSource jest poprawnie skonfigurowane do kroków
-        audioSource.spatialBlend = 1f; // Pe³ne 3D
-        audioSource.playOnAwake = false;
-        audioSource.loop = false;
+        if (audioSource != null)
+        {
+            // Upewniamy siê, ¿e AudioSource jest poprawnie skonfigurowane do kroków
+            audioSource.spatialBlend = 1f; // Pe³ne 3D
+            audioSource.playOnAwake = false;
+            audioSource.loop = false;
+        }
+        else
+        {
+            Debug.LogError("Audio source jest null");
+        }
     }
 
     /// <summary>
