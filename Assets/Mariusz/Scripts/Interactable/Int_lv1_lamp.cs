@@ -1,16 +1,26 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Interactable))]
-public class Int_lv1_lamp : MonoBehaviour
+public class Int_lv1_lamp : Lvl3InteractionDialogueBase
 {
     [SerializeField] private DetectiveIdeaPoint lampIdeaPoint;
-    [SerializeField, TextArea] private string topText =
-        "Ta lampa mogla oswietlic wiecej niz tylko zakurzony pokoj.";
+    [Header("Lamp Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] lampDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Ta lampa mogla oswietlic wiecej niz tylko zakurzony pokoj.",
+            duration = 3f
+        }
+    };
 
     private Interactable interactable;
     private Collider interactionCollider;
     private bool performed;
     private bool completed;
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => lampDialogue;
 
     private void Start()
     {
@@ -39,13 +49,8 @@ public class Int_lv1_lamp : MonoBehaviour
         if (completed)
             return;
 
-        if (player != null)
-            player.currentInteractable = null;
-
         performed = true;
-
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText(topText, "");
+        PlayDialogue(player, lampDialogue);
 
         lampIdeaPoint?.RevealFromExternalSource();
         CompleteInteraction();

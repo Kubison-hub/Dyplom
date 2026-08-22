@@ -9,7 +9,7 @@ public class lvl2_Int_EthelWallButton : MonoBehaviour
     public GameObject hiddenRoom;
     public bool performed = false;
     [SerializeField] private Renderer intRenderer;
-    public string text = "Nie da siê wcisn¹æ...";
+    public string text = "Nie da siÄ™ wcisnÄ…Ä‡...";
     public GameObject door;
     public GameObject button;
     [SerializeField] private GameObject blackBoard;
@@ -57,8 +57,11 @@ public class lvl2_Int_EthelWallButton : MonoBehaviour
         closedRotation = door.transform.localRotation;
         openRotation = closedRotation * Quaternion.Euler(openEuler);
 
-        hiddenRoom.gameObject.SetActive(false);
-        blackBoard.gameObject.SetActive(true);
+        if (hiddenRoom != null)
+            hiddenRoom.SetActive(false);
+
+        if (blackBoard != null)
+            blackBoard.SetActive(true);
     }
 
     public void PerformInteraction(PlayerController player)
@@ -68,7 +71,8 @@ public class lvl2_Int_EthelWallButton : MonoBehaviour
         if (canOpenDoor)
         {
             OpenHidenDoor();
-            hiddenRoom.gameObject.SetActive(true);
+            if (hiddenRoom != null)
+                hiddenRoom.SetActive(true);
             
             interactable.AddClue(1);
             interactable.isInteractableActive = false;
@@ -112,16 +116,22 @@ public class lvl2_Int_EthelWallButton : MonoBehaviour
         if (isOpen)
             return;
 
-        audioFX.Play();
-        stairsExit.hiddenDoorDiscovered = true;
-        Renderer renderer = blackBoard.GetComponent<Renderer>();
-        renderer.material = newMaterial;
+        if (audioFX != null)
+            audioFX.Play();
+
+        if (stairsExit != null)
+            stairsExit.hiddenDoorDiscovered = true;
+
+        Renderer renderer = blackBoard != null ? blackBoard.GetComponent<Renderer>() : null;
 
         if (renderer == null)
         {
             Debug.LogError("blackBoard has no Renderer");
             return;
         }
+
+        if (newMaterial != null)
+            renderer.material = newMaterial;
 
         isOpen = true;
         
@@ -194,7 +204,7 @@ public class lvl2_Int_EthelWallButton : MonoBehaviour
 
         if (!material.HasProperty(colorProperty))
         {
-            Debug.LogError("Materia³ nie ma _Color ani _BaseColor");
+            Debug.LogError("MateriaÅ‚ nie ma _Color ani _BaseColor");
             fadeCoroutine = null;
             yield break;
         }
@@ -218,16 +228,17 @@ public class lvl2_Int_EthelWallButton : MonoBehaviour
         color.a = targetAlpha;
         material.SetColor(colorProperty, color);
 
-        blackBoard.SetActive(false);
+        if (blackBoard != null)
+            blackBoard.SetActive(false);
         fadeCoroutine = null;
     }
 
     private IEnumerator AddText(string stringText)
     {
+        if (PlayerTopText.Instance != null)
+            PlayerTopText.Instance.ShowTopText(stringText, string.Empty);
 
-        ClueManager.Instance.SherlockText.text = stringText;
         yield return new WaitForSeconds(3);
-        ClueManager.Instance.SherlockText.text = "";
         interactable.isInteractableActive = true;
 
     }

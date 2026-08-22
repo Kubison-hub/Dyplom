@@ -16,16 +16,23 @@ public class PlayerTopText : MonoBehaviour
     [SerializeField] private Vector3 sherlockWorldOffset = new Vector3(0f, 2.1f, 0f);
     [SerializeField] private Transform watsonAnchor;
     [SerializeField] private Vector3 watsonWorldOffset = new Vector3(0f, 2.1f, 0f);
+    [SerializeField] private Transform ethelAnchor;
+    [SerializeField] private Vector3 ethelWorldOffset = new Vector3(0f, 2.1f, 0f);
+    [SerializeField] private Transform selmaAnchor;
+    [SerializeField] private Vector3 selmaWorldOffset = new Vector3(0f, 2.1f, 0f);
 
     [Header("Text Fields")]
     public TMP_Text sherlockTopText;
     public TMP_Text watsonTopText;
+    public TMP_Text ethelTopText;
+    public TMP_Text selmaTopText;
 
     [Header("Typography")]
     [SerializeField, Min(1f)] private float unifiedFontSize = 24f;
 
     public float textTime = 3f;
     private Coroutine topTextCoroutine;
+    private Coroutine ethelTopTextCoroutine;
 
     private void Awake()
     {
@@ -33,12 +40,16 @@ public class PlayerTopText : MonoBehaviour
         ConfigureCanvas();
         ConfigureTextTypography(sherlockTopText);
         ConfigureTextTypography(watsonTopText);
+        ConfigureTextTypography(ethelTopText);
+        ConfigureTextTypography(selmaTopText);
     }
 
     private void LateUpdate()
     {
         UpdateTextPosition(sherlockTopText, sherlockAnchor, sherlockWorldOffset);
         UpdateTextPosition(watsonTopText, watsonAnchor, watsonWorldOffset);
+        UpdateTextPosition(ethelTopText, ethelAnchor, ethelWorldOffset);
+        UpdateTextPosition(selmaTopText, selmaAnchor, selmaWorldOffset);
     }
 
     public void ShowTopText(string sText = "", string wText = "")
@@ -64,6 +75,37 @@ public class PlayerTopText : MonoBehaviour
             watsonTopText.text = wText;
     }
 
+    public void ShowWatsonTopText(string wText)
+    {
+        if (topTextCoroutine != null)
+            StopCoroutine(topTextCoroutine);
+
+        if (sherlockTopText != null)
+            sherlockTopText.text = "";
+
+        if (watsonTopText != null)
+            watsonTopText.text = wText;
+
+        topTextCoroutine = StartCoroutine(ClearWatsonTopTextAfterDelay(wText));
+    }
+
+    public void ShowEthelTopText(string text, float duration = -1f)
+    {
+        if (ethelTopTextCoroutine != null)
+            StopCoroutine(ethelTopTextCoroutine);
+
+        if (ethelTopText != null)
+            ethelTopText.text = text;
+
+        ethelTopTextCoroutine = StartCoroutine(ClearEthelTopTextAfterDelay(text, duration));
+    }
+
+    public void ShowSelmaTopTextPersistent(string text)
+    {
+        if (selmaTopText != null)
+            selmaTopText.text = text;
+    }
+
     public void ClearTopTextIfMatches(string sText = "", string wText = "")
     {
         if (sherlockTopText != null && sherlockTopText.text == sText)
@@ -71,6 +113,12 @@ public class PlayerTopText : MonoBehaviour
 
         if (watsonTopText != null && watsonTopText.text == wText)
             watsonTopText.text = "";
+    }
+
+    public void ClearSelmaTopTextIfMatches(string text)
+    {
+        if (selmaTopText != null && selmaTopText.text == text)
+            selmaTopText.text = "";
     }
 
     public IEnumerator ShowTopTextCor(string sText, string wText)
@@ -91,6 +139,26 @@ public class PlayerTopText : MonoBehaviour
         }
 
         topTextCoroutine = null;
+    }
+
+    private IEnumerator ClearWatsonTopTextAfterDelay(string wText)
+    {
+        yield return new WaitForSeconds(textTime);
+
+        if (watsonTopText != null && watsonTopText.text == wText)
+            watsonTopText.text = "";
+
+        topTextCoroutine = null;
+    }
+
+    private IEnumerator ClearEthelTopTextAfterDelay(string text, float duration)
+    {
+        yield return new WaitForSeconds(duration > 0f ? duration : textTime);
+
+        if (ethelTopText != null && ethelTopText.text == text)
+            ethelTopText.text = "";
+
+        ethelTopTextCoroutine = null;
     }
 
     private void ConfigureCanvas()

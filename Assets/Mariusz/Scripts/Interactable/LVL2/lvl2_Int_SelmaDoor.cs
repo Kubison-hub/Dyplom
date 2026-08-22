@@ -35,7 +35,7 @@ public class lvl2_Int_SelmaDoor : MonoBehaviour
 
     private Interactable interactable;
     public bool setActiveOnStart = false;
-    public string text = "Zamkniête, nie powinno to stanowiæ problemu";
+    public string text = "ZamkniÄ™te, nie powinno to stanowiÄ‡ problemu";
     private bool firsInteraction = true;
     [SerializeField] private Material newMaterial;
 
@@ -43,9 +43,11 @@ public class lvl2_Int_SelmaDoor : MonoBehaviour
 
     [Header("Lockpick Tutorial Popup")]
     [SerializeField] private bool showLockpickTutorialPopup = true;
-    [SerializeField] private string lockpickTutorialTitle = "Otwieranie Zamków";
+    [Tooltip("Legacy Level 2 popup. Disabled by default because it can conflict with the current tutorial timeline.")]
+    [SerializeField] private bool useLegacyLockpickTutorialPopup;
+    [SerializeField] private string lockpickTutorialTitle = "Otwieranie ZamkÃ³w";
     [SerializeField, TextArea] private string lockpickTutorialText =
-        "Sherlock potrafi otwieraæ zamki, mo¿e to wymagaæ cierpliwoœci...";
+        "Sherlock potrafi otwieraÄ‡ zamki, moÅ¼e to wymagaÄ‡ cierpliwoÅ›ci...";
     [SerializeField] private VideoClip lockpickTutorialVideoClip;
     private void Start()
     {
@@ -115,7 +117,7 @@ public class lvl2_Int_SelmaDoor : MonoBehaviour
 
         if (!material.HasProperty(colorProperty))
         {
-            Debug.LogError("Materia³ nie ma _Color ani _BaseColor");
+            Debug.LogError("MateriaÅ‚ nie ma _Color ani _BaseColor");
             yield break;
         }
 
@@ -144,12 +146,13 @@ public class lvl2_Int_SelmaDoor : MonoBehaviour
 
     private IEnumerator AddText()
     {
-        ClueManager.Instance.SherlockText.text = text;
+        if (PlayerTopText.Instance != null)
+            PlayerTopText.Instance.ShowTopText(text, string.Empty);
+
         yield return new WaitForSeconds(3);
-        ClueManager.Instance.SherlockText.text = "";
 
         TutorialTimeline tutorialTimeline = TutorialTimeline.Instance;
-        if (showLockpickTutorialPopup && tutorialTimeline != null)
+        if (useLegacyLockpickTutorialPopup && showLockpickTutorialPopup && tutorialTimeline != null)
         {
             tutorialTimeline.ShowGameplayTutorialPopup(
                 lockpickTutorialTitle,

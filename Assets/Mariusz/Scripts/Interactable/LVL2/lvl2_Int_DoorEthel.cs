@@ -22,8 +22,9 @@ public class lvl2_Int_DoorEthel : MonoBehaviour
     [SerializeField] private AudioSource audiosource;
 
     [SerializeField] private Material newMaterial;
+    [SerializeField] private Collider intCollider;
 
-    
+
 
     private void Start()
     {
@@ -59,7 +60,8 @@ public class lvl2_Int_DoorEthel : MonoBehaviour
         interactable.isInteractableActive = false;
         player.currentInteractable = null;
 
-        ////intCollider.enabled = false;
+        if (intCollider != null)
+            intCollider.enabled = false;
         //this.gameObject.SetActive(false);
     }
 
@@ -89,7 +91,7 @@ public class lvl2_Int_DoorEthel : MonoBehaviour
 
         if (!material.HasProperty(colorProperty))
         {
-            Debug.LogError("Materia≥ nie ma _Color ani _BaseColor");
+            Debug.LogError("Materia≈Ç nie ma _Color ani _BaseColor");
             yield break;
         }
 

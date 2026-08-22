@@ -31,7 +31,8 @@ public class lvl2_Int_Mirror : MonoBehaviour
     private Interactable interactable;
     private bool firsInteraction = true;
 
-    public string text = "Zamkniête, powinienem móc to otworzyæ";
+    [Header("Top Text")]
+    [TextArea] public string text = "ZamkniÄ™te, powinienem mÃ³c to otworzyÄ‡";
 
     [Header("LockPick")]
     [SerializeField] private LockPickMinigameController minigamePrefab;
@@ -114,10 +115,10 @@ public class lvl2_Int_Mirror : MonoBehaviour
 
     private IEnumerator AddText()
     {
-        
-        ClueManager.Instance.SherlockText.text = text;
+        if (PlayerTopText.Instance != null)
+            PlayerTopText.Instance.ShowTopText(text, string.Empty);
+
         yield return new WaitForSeconds(3);
-        ClueManager.Instance.SherlockText.text = "";
         interactable.isInteractableActive = true;
 
     }

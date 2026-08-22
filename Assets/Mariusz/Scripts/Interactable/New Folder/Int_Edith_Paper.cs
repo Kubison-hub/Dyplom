@@ -8,6 +8,7 @@ public class Int_Edith_Paper : MonoBehaviour
     public GameObject paper;
     public AudioSource paper_Audio;
     [SerializeField] private Int_EdithExamBody edith;
+    [SerializeField, Range(0, 2)] private int edithClueIndex = 1;
 
     private void Start()
     {
@@ -29,7 +30,7 @@ public class Int_Edith_Paper : MonoBehaviour
         player.currentInteractable = null;
 
         interactable.AddClue(0);
-        edith?.RegisterExamClue();
+        edith?.RegisterExamClue(edithClueIndex, player);
 
         if (paper_Audio != null)
         {

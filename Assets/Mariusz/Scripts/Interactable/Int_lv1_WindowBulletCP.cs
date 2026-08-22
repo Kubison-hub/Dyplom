@@ -1,15 +1,27 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Interactable))]
-public class Int_lv1_WindowBulletCP : MonoBehaviour
+public class Int_lv1_WindowBulletCP : Lvl3InteractionDialogueBase
 {
     [SerializeField] private Int_lv1_WindowBullet windowExamination;
     [SerializeField] private AudioSource foundAudio;
+    [Header("Bullet Found Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] bulletFoundDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Doskonale.",
+            duration = 2f
+        }
+    };
 
     private Interactable interactable;
     private Collider interactionCollider;
     private Renderer[] objectRenderers;
     private bool performed;
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => bulletFoundDialogue;
 
     private void Start()
     {
@@ -26,9 +38,7 @@ public class Int_lv1_WindowBulletCP : MonoBehaviour
         performed = true;
         foundAudio?.Play();
         windowExamination?.RegisterWindowClue();
-
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText("Doskonale", "");
+        PlayDialogue(player, bulletFoundDialogue);
 
         if (interactable != null)
         {
@@ -51,7 +61,5 @@ public class Int_lv1_WindowBulletCP : MonoBehaviour
                 objectRenderer.enabled = false;
         }
 
-        if (player != null)
-            player.currentInteractable = null;
     }
 }

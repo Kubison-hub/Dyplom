@@ -14,7 +14,7 @@ public class lvl2_Int_HidenDoorSwitcher : MonoBehaviour
     public lvl2_Int_EthelWallButton wallButton;
     public GameObject button;
 
-    public string text = "potrzebny specjalny kluczyk, gdzie on mo¿e byæ?";
+    public string text = "potrzebny specjalny kluczyk, gdzie on moÅ¼e byÄ‡?";
 
     [SerializeField] private AudioSource audioFx;
 
@@ -69,10 +69,10 @@ public class lvl2_Int_HidenDoorSwitcher : MonoBehaviour
 
     private IEnumerator AddText()
     {
-        
-        ClueManager.Instance.SherlockText.text = text;
+        if (PlayerTopText.Instance != null)
+            PlayerTopText.Instance.ShowTopText(text, string.Empty);
+
         yield return new WaitForSeconds(2);
-        ClueManager.Instance.SherlockText.text = "";
         interactable.isInteractableActive = true;
 
     }

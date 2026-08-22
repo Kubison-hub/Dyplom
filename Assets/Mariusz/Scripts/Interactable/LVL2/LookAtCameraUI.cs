@@ -2,11 +2,17 @@ using UnityEngine;
 
 public class LookAtCameraUI : MonoBehaviour
 {
+    [SerializeField] private bool autoFindMainCamera = true;
     [SerializeField] private bool lockYOnly = true;
     [SerializeField] private bool flipForward = true;
     [SerializeField] private Vector3 rotationOffset = Vector3.zero;
 
     private Transform target;
+
+    private void Start()
+    {
+        TryFindMainCamera();
+    }
 
     public void SetCamera(Camera camera)
     {
@@ -21,6 +27,9 @@ public class LookAtCameraUI : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (target == null)
+            TryFindMainCamera();
+
         if (target == null)
             return;
 
@@ -40,5 +49,13 @@ public class LookAtCameraUI : MonoBehaviour
         targetRotation *= Quaternion.Euler(rotationOffset);
 
         transform.rotation = targetRotation;
+    }
+
+    private void TryFindMainCamera()
+    {
+        if (!autoFindMainCamera || Camera.main == null)
+            return;
+
+        target = Camera.main.transform;
     }
 }

@@ -14,6 +14,9 @@ public class lvl2_Int_Book : MonoBehaviour
     [SerializeField] private Renderer intRenderer;
     [SerializeField] private AudioSource audioFX;
 
+    [Header("Top Text")]
+    [SerializeField, TextArea] private string topText = "Znalazłem mały kluczyk.";
+
     public bool keyFounded = false;
 
     private void Start()
@@ -29,13 +32,22 @@ public class lvl2_Int_Book : MonoBehaviour
         if (intRenderer != null)
             intRenderer.enabled = false;
 
-        switcher.canOpen = true;
+        if (switcher != null)
+            switcher.canOpen = true;
+
         interactable.AddClue(0);
 
-        audioFX.Play();
+        if (audioFX != null)
+            audioFX.Play();
 
-        spline1.gameObject.SetActive(false);
-        spline2.gameObject.SetActive(false);
+        if (PlayerTopText.Instance != null)
+            PlayerTopText.Instance.ShowTopText(topText, string.Empty);
+
+        if (spline1 != null)
+            spline1.SetActive(false);
+
+        if (spline2 != null)
+            spline2.SetActive(false);
         Debug.Log("KEY ADDED");
         keyFounded = true;
 

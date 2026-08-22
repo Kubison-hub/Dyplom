@@ -216,6 +216,16 @@ public class CameraController : MonoBehaviour
         hasScriptedHorizontalOrbit = false;
     }
 
+    public bool IsHorizontalAxisAt(float horizontalAxisValue, float tolerance = 0.5f)
+    {
+        if (orbitalFollow == null)
+            return true;
+
+        return Mathf.Abs(Mathf.DeltaAngle(
+            orbitalFollow.HorizontalAxis.Value,
+            horizontalAxisValue)) <= Mathf.Max(0.01f, tolerance);
+    }
+
     public void LockCurrentHorizontalRotation()
     {
         if (orbitalFollow == null)

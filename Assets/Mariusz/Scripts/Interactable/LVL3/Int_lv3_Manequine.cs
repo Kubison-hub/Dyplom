@@ -1,0 +1,298 @@
+using System.Collections;
+using UnityEngine;
+
+[RequireComponent(typeof(Interactable))]
+public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
+{
+    [Header("Repeat Inspection Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] secondInteractionDialogueLines;
+
+    [Header("Secret Door Trap")]
+    [SerializeField] private Animator[] secretDoorAnimators;
+    [SerializeField] private string secretDoorCloseTrigger = "Close";
+    [SerializeField] private bool setOpenedBoolOnDoors;
+    [SerializeField] private string openedBool = "Opened";
+    [SerializeField] private AudioSource[] secretDoorAudioSources;
+    [SerializeField] private Collider[] collidersToEnableWhenClosed;
+    [Tooltip("Optional marker the characters face when the trap doors close. Defaults to the first door animator.")]
+    [SerializeField] private Transform trapDoorLookTarget;
+    [SerializeField, Min(0.01f)] private float characterTurnDuration = 0.35f;
+
+    [Header("Blackboard Trap Reveal")]
+    [Tooltip("Blackboard covering the area after the trap doors close.")]
+    [SerializeField] private GameObject blackBoardToEnableOnTrap;
+    [SerializeField] private Material blackBoardFadeMaterial;
+    [Tooltip("Delay after the Close trigger before the blackboard fades in.")]
+    [SerializeField, Min(0f)] private float blackBoardFadeDelay = 0.35f;
+    [SerializeField, Min(0.01f)] private float blackBoardFadeDuration = 1f;
+    [SerializeField, Range(0f, 1f)] private float blackBoardTargetAlpha = 1f;
+
+    [Header("Mannequin Trap Animation")]
+    [Tooltip("Leave empty to rotate the object that owns this component.")]
+    [SerializeField] private Transform mannequinTransform;
+    [SerializeField] private float mannequinLocalYRotation = 360f;
+    [SerializeField, Min(0.01f)] private float mannequinRotationDuration = 0.8f;
+    [SerializeField] private AudioSource mannequinTrapAudioSource;
+    [SerializeField] private AudioClip mannequinTrapAudioClip;
+
+    [Header("Trap Result Dialogue")]
+    [SerializeField] private bool disableAfterTrigger = true;
+    [SerializeField] private Lvl3DialogueLine[] trapResultDialogueLines;
+    [SerializeField] private DetectiveIdeaPoint trapDoorIdeaPoint;
+
+    private bool triggered;
+    private bool hasBeenExamined;
+    private bool revealTrapDoorIdeaAfterDialogue;
+    public bool IsFirstInspection => !hasBeenExamined;
+    public bool IsTrapTriggered => triggered;
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => new[]
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Ciekawa konstrukcja. Lepiej jej nie przenosić bez powodu.",
+            duration = 3f
+        },
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Watson,
+            text = "Zgadzam się, Sherlocku.",
+            duration = 2f
+        }
+    };
+
+    private void Reset() => Setup();
+    private void OnValidate() => Setup();
+    private void Awake() => Setup();
+
+    public void PerformInteraction(PlayerController player)
+    {
+        if (hasBeenExamined)
+        {
+            PlayDialogue(player, secondInteractionDialogueLines);
+            return;
+        }
+
+        hasBeenExamined = true;
+        PlayInteractionDialogue(player);
+    }
+
+    public void TriggerWatsonTrap(PlayerController player)
+    {
+        if (player != null)
+            player.currentInteractable = null;
+
+        if (triggered)
+            return;
+
+        triggered = true;
+
+        foreach (Animator doorAnimator in secretDoorAnimators)
+        {
+            if (doorAnimator == null)
+                continue;
+
+            if (!string.IsNullOrWhiteSpace(secretDoorCloseTrigger))
+                doorAnimator.SetTrigger(secretDoorCloseTrigger);
+
+            if (setOpenedBoolOnDoors && !string.IsNullOrWhiteSpace(openedBool))
+                doorAnimator.SetBool(openedBool, false);
+        }
+
+        foreach (AudioSource doorAudioSource in secretDoorAudioSources)
+        {
+            if (doorAudioSource != null)
+                doorAudioSource.Play();
+        }
+
+        StartCoroutine(FadeBlackBoardInAfterDoorClose());
+        StartCoroutine(RotateCharactersTowardTrapDoor());
+
+        if (mannequinTrapAudioSource != null && mannequinTrapAudioClip != null)
+            mannequinTrapAudioSource.PlayOneShot(mannequinTrapAudioClip);
+
+        StartCoroutine(RotateMannequin());
+
+        foreach (Collider doorCollider in collidersToEnableWhenClosed)
+        {
+            if (doorCollider != null)
+                doorCollider.enabled = true;
+        }
+
+        if (disableAfterTrigger)
+        {
+            Interactable interactable = GetComponent<Interactable>();
+            if (interactable != null)
+                interactable.isInteractableActive = false;
+        }
+
+        revealTrapDoorIdeaAfterDialogue = true;
+        PlayDialogue(player, trapResultDialogueLines);
+    }
+
+    private IEnumerator RotateMannequin()
+    {
+        Transform target = mannequinTransform != null ? mannequinTransform : transform;
+        Quaternion startRotation = target.localRotation;
+        Quaternion endRotation = startRotation * Quaternion.Euler(0f, mannequinLocalYRotation, 0f);
+        float elapsed = 0f;
+
+        while (elapsed < mannequinRotationDuration)
+        {
+            elapsed += Time.deltaTime;
+            float progress = Mathf.SmoothStep(0f, 1f, elapsed / mannequinRotationDuration);
+            target.localRotation = Quaternion.SlerpUnclamped(startRotation, endRotation, progress);
+            yield return null;
+        }
+
+        target.localRotation = endRotation;
+    }
+
+    private IEnumerator FadeBlackBoardInAfterDoorClose()
+    {
+        if (blackBoardFadeDelay > 0f)
+            yield return new WaitForSeconds(blackBoardFadeDelay);
+
+        if (blackBoardToEnableOnTrap == null)
+            yield break;
+
+        blackBoardToEnableOnTrap.SetActive(true);
+
+        Renderer blackBoardRenderer = blackBoardToEnableOnTrap.GetComponent<Renderer>();
+        if (blackBoardRenderer == null)
+            yield break;
+
+        if (blackBoardFadeMaterial != null)
+            blackBoardRenderer.material = blackBoardFadeMaterial;
+
+        Material material = blackBoardRenderer.material;
+        string colorProperty = material.HasProperty("_BaseColor") ? "_BaseColor" : "_Color";
+        if (!material.HasProperty(colorProperty))
+            yield break;
+
+        Color color = material.GetColor(colorProperty);
+        color.a = 0f;
+        material.SetColor(colorProperty, color);
+
+        float elapsed = 0f;
+        while (elapsed < blackBoardFadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            color.a = Mathf.Lerp(0f, blackBoardTargetAlpha, elapsed / blackBoardFadeDuration);
+            material.SetColor(colorProperty, color);
+            yield return null;
+        }
+
+        color.a = blackBoardTargetAlpha;
+        material.SetColor(colorProperty, color);
+    }
+
+    private IEnumerator RotateCharactersTowardTrapDoor()
+    {
+        Transform lookTarget = trapDoorLookTarget;
+        if (lookTarget == null && secretDoorAnimators != null)
+        {
+            foreach (Animator doorAnimator in secretDoorAnimators)
+            {
+                if (doorAnimator != null)
+                {
+                    lookTarget = doorAnimator.transform;
+                    break;
+                }
+            }
+        }
+
+        if (lookTarget == null)
+            yield break;
+
+        Transform sherlock = SwitchCharacter.Instance != null
+            ? SwitchCharacter.Instance.sherlockTransform
+            : null;
+        Transform watson = SwitchCharacter.Instance != null
+            ? SwitchCharacter.Instance.watsonTransform
+            : null;
+
+        Quaternion sherlockStart = sherlock != null ? sherlock.rotation : Quaternion.identity;
+        Quaternion watsonStart = watson != null ? watson.rotation : Quaternion.identity;
+        Quaternion sherlockTarget = GetLookRotation(sherlock, lookTarget, sherlockStart);
+        Quaternion watsonTarget = GetLookRotation(watson, lookTarget, watsonStart);
+        float elapsed = 0f;
+
+        while (elapsed < characterTurnDuration)
+        {
+            elapsed += Time.deltaTime;
+            float progress = Mathf.SmoothStep(0f, 1f, elapsed / characterTurnDuration);
+
+            if (sherlock != null)
+                sherlock.rotation = Quaternion.Slerp(sherlockStart, sherlockTarget, progress);
+
+            if (watson != null)
+                watson.rotation = Quaternion.Slerp(watsonStart, watsonTarget, progress);
+
+            yield return null;
+        }
+
+        if (sherlock != null)
+            sherlock.rotation = sherlockTarget;
+
+        if (watson != null)
+            watson.rotation = watsonTarget;
+    }
+
+    private static Quaternion GetLookRotation(Transform character, Transform lookTarget, Quaternion fallback)
+    {
+        if (character == null || lookTarget == null)
+            return fallback;
+
+        Vector3 direction = lookTarget.position - character.position;
+        direction.y = 0f;
+        return direction.sqrMagnitude > 0.001f ? Quaternion.LookRotation(direction) : fallback;
+    }
+
+    protected override void OnDialogueSequenceCompleted(Lvl3DialogueLine[] lines)
+    {
+        if (!revealTrapDoorIdeaAfterDialogue || lines != trapResultDialogueLines)
+            return;
+
+        revealTrapDoorIdeaAfterDialogue = false;
+        trapDoorIdeaPoint?.RevealFromExternalSource();
+    }
+
+    private void Setup()
+    {
+        SetupInteractable(InteractionType.Int_lv3_Manequine);
+
+        if (secondInteractionDialogueLines == null || secondInteractionDialogueLines.Length == 0)
+        {
+            secondInteractionDialogueLines = new[]
+            {
+                new Lvl3DialogueLine
+                {
+                    speaker = Lvl3DialogueSpeaker.Sherlock,
+                    text = "Lepiej zostawmy go w spokoju, Watsonie.",
+                    duration = 2.5f
+                }
+            };
+        }
+
+        if (trapResultDialogueLines != null && trapResultDialogueLines.Length > 0)
+            return;
+
+        trapResultDialogueLines = new[]
+        {
+            new Lvl3DialogueLine
+            {
+                speaker = Lvl3DialogueSpeaker.Sherlock,
+                text = "Watsonie, to była pułapka.",
+                duration = 2.5f
+            },
+            new Lvl3DialogueLine
+            {
+                speaker = Lvl3DialogueSpeaker.Watson,
+                text = "Manekin nie jest tym, czym się wydawał.",
+                duration = 3f
+            }
+        };
+    }
+}

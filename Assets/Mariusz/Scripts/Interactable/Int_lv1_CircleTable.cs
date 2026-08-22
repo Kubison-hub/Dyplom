@@ -1,15 +1,25 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Interactable))]
-public class Int_lv1_CircleTable : MonoBehaviour
+public class Int_lv1_CircleTable : Lvl3InteractionDialogueBase
 {
     [SerializeField] private DetectiveIdeaPoint circleTableIdeaPoint;
     [SerializeField] private TableFigurePuzzle tableFigurePuzzle;
-    [SerializeField, TextArea] private string topText =
-        "Okra\u0328g\u0142y st\u00f3\u0142 ca\u0142y pokryty jest runami. To nie jest dekoracja.";
+    [Header("Circle Table Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] circleTableDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Okrągły stół cały pokryty jest runami. To nie jest dekoracja.",
+            duration = 3f
+        }
+    };
     public GameObject[] nextInteractions;
     private Interactable interactable;
     private bool performed;
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => circleTableDialogue;
 
     private void Start()
     {
@@ -24,8 +34,7 @@ public class Int_lv1_CircleTable : MonoBehaviour
 
         performed = true;
 
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText(topText, "");
+        PlayDialogue(player, circleTableDialogue);
 
         FindCircleTableIdeaPointIfNeeded();
         circleTableIdeaPoint?.RevealFromExternalSource();
@@ -42,8 +51,6 @@ public class Int_lv1_CircleTable : MonoBehaviour
             interactable.interactiveShader = null;
         }
 
-        if (player != null)
-            player.currentInteractable = null;
     }
 
     private void FindCircleTableIdeaPointIfNeeded()

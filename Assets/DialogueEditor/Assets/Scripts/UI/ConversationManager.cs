@@ -190,17 +190,17 @@ namespace DialogueEditor
                 }
             }
 
-            if (Int_VioletDialog.Instance != null)
-            {
-                if (Int_VioletDialog.Instance.performed && !Int_VioletDialog.Instance.dialogPerformed)
-                {
-                    Int_VioletDialog.Instance.performed = true;
-                    Int_VioletDialog.Instance.dialogPerformed = true;
-                    Int_VioletDialog.Instance.MoveToPosition();
-                    Int_VioletDialog.Instance.isVioletInRoom = false;
+            //if (Int_VioletDialog.Instance != null)
+            //{
+            //    if (Int_VioletDialog.Instance.performed && !Int_VioletDialog.Instance.dialogPerformed)
+            //    {
+            //        Int_VioletDialog.Instance.performed = true;
+            //        Int_VioletDialog.Instance.dialogPerformed = true;
+            //        Int_VioletDialog.Instance.MoveToPosition();
+            //        Int_VioletDialog.Instance.isVioletInRoom = false;
 
-                }
-            }
+            //    }
+            //}
         }
 
         public void SelectNextOption()

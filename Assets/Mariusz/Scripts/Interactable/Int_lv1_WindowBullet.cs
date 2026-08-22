@@ -1,13 +1,21 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Interactable))]
-public class Int_lv1_WindowBullet : MonoBehaviour
+public class Int_lv1_WindowBullet : Lvl3InteractionDialogueBase
 {
     [Header("Window Clue")]
     [SerializeField] private GameObject clueToFind;
     [SerializeField] private DetectiveIdeaPoint windowBulletIdeaPoint;
-    [SerializeField, TextArea] private string topText =
-        "Kula utkwila w oknie. Jej slad cierpliwie zdradza kierunek strzalu.";
+    [Header("Window Examination Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] windowExaminationDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Kula utkwiła w oknie. Jej ślad cierpliwie zdradza kierunek strzału.",
+            duration = 3f
+        }
+    };
 
     [Header("Examination Zone")]
     [SerializeField, Min(0.1f)] private float examinationZoneRange = 1.5f;
@@ -26,6 +34,8 @@ public class Int_lv1_WindowBullet : MonoBehaviour
     private bool isCameraInExaminationMode;
     private bool clueFound;
     private bool completed;
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => windowExaminationDialogue;
 
     private void Start()
     {
@@ -74,8 +84,7 @@ public class Int_lv1_WindowBullet : MonoBehaviour
         isExamining = true;
         clueFound = false;
 
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText(topText, "");
+        PlayDialogue(player, windowExaminationDialogue);
 
         if (interactable != null)
         {
@@ -98,7 +107,6 @@ public class Int_lv1_WindowBullet : MonoBehaviour
         if (isInsideExaminationZone)
             EnterExaminationCamera();
 
-        player.currentInteractable = null;
     }
 
     public void RegisterWindowClue()

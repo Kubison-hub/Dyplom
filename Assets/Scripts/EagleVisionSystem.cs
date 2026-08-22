@@ -1,18 +1,18 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.Rendering.Universal; // Konieczne dla obs�ugi URP i Kamery
+using UnityEngine.Rendering.Universal; // Konieczne dla obs?ugi URP i Kamery
 
 public class EagleVisionSystem : MonoBehaviour
 {
-    [Header("Post-Processing (Ciemny �wiat)")]
-    public Volume eagleVisionVolume; // Tw�j drugi Volume z priority 1
+    [Header("Post-Processing (Ciemny ?wiat)")]
+    public Volume eagleVisionVolume; // Tw?j drugi Volume z priority 1
     public float transitionSpeed = 3f;
     [Tooltip("Wolniejszy, lagodny powrot do normalnego widzenia.")]
     public float exitTransitionSpeed = 0.35f;
 
-    [Header("Ustawienia Renderera (Pod�wietlanie)")]
-    // Index 0 to zazwyczaj domy�lny renderer, Index 1 to ten z Eagle Vision
-    // Wyja�nienie konfiguracji poni�ej kodu
+    [Header("Ustawienia Renderera (Pod?wietlanie)")]
+    // Index 0 to zazwyczaj domy?lny renderer, Index 1 to ten z Eagle Vision
+    // Wyja?nienie konfiguracji poni?ej kodu
     public int normalRendererIndex = 0;
     public int eagleRendererIndex = 1;
 
@@ -33,7 +33,7 @@ public class EagleVisionSystem : MonoBehaviour
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        // Pobieramy komponent URP z G��wnej Kamery, �eby m�c zmienia� renderery
+        // Pobieramy komponent URP z G??wnej Kamery, ?eby m?c zmienia? renderery
         if (Camera.main != null)
         {
             cameraData = Camera.main.GetComponent<UniversalAdditionalCameraData>();
@@ -49,8 +49,23 @@ public class EagleVisionSystem : MonoBehaviour
 
     void Update()
     {
-
-        bool shouldBeActive = Input.GetKey(visionHoldKey) || Input.GetKey(magnifierHoldKey) ||
+        bool tutorialBlocksVisionInput = TutorialTimeline.Instance != null &&
+                                         TutorialTimeline.Instance.BlocksWorldInput;
+        bool puzzleForcesVision =
+            (TutorialTimeline.Instance != null && TutorialTimeline.Instance.KeepsEagleVisionActive) ||
+            (BasementIdeaPointPuzzle.Instance != null && BasementIdeaPointPuzzle.Instance.KeepsEagleVisionActive);
+        bool magnifierActivatesVision = !tutorialBlocksVisionInput &&
+                                       Input.GetKey(magnifierHoldKey) &&
+                                       !IsWatsonActive();
+        bool watsonEscortActivatesVision = !tutorialBlocksVisionInput &&
+                                           IsWatsonActive() &&
+                                           Input.GetKey(magnifierHoldKey) &&
+                                           WatsonEscortController.Instance != null &&
+                                           WatsonEscortController.Instance.IsEscorting;
+        bool shouldBeActive = (!tutorialBlocksVisionInput && Input.GetKey(visionHoldKey)) ||
+                              magnifierActivatesVision ||
+                              watsonEscortActivatesVision ||
+                              puzzleForcesVision ||
                               IsIdeaSequenceActive() ||
                               Time.unscaledTime < forcedActiveUntil;
         if (isActive != shouldBeActive)
@@ -60,7 +75,9 @@ public class EagleVisionSystem : MonoBehaviour
             Scan();
         }
 
-        // 3. P�ynne przej�cie Volume (zostaje bez zmian, bo reaguje na isActive)
+        SyncSherlockScannerState();
+
+        // 3. P?ynne przej?cie Volume (zostaje bez zmian, bo reaguje na isActive)
         float targetWeight = isActive ? 1f : 0f;
         if (eagleVisionVolume != null)
         {
@@ -68,6 +85,10 @@ public class EagleVisionSystem : MonoBehaviour
             float blend = 1f - Mathf.Exp(-Mathf.Max(0.01f, speed) * Time.unscaledDeltaTime);
             eagleVisionVolume.weight = Mathf.Lerp(eagleVisionVolume.weight, targetWeight, blend);
         }
+    }
+    private bool IsWatsonActive()
+    {
+        return SwitchCharacter.Instance != null && SwitchCharacter.Instance.activePlayerIndex == 1;
     }
 
     public bool IsMagnifierHeld()
@@ -90,22 +111,34 @@ public class EagleVisionSystem : MonoBehaviour
         return DetectiveIdeaManager.Instance != null && DetectiveIdeaManager.Instance.IsDraggingIdea();
     }
 
+    // Keeps Sherlock's scan wave aligned with Eagle Vision even if a character switch
+    // or component start order left the scanner in an outdated state.
+    private void SyncSherlockScannerState()
+    {
+        if (eagleVisionScanner == null || SwitchCharacter.Instance == null)
+            return;
+
+        bool shouldScanSherlock = isActive && SwitchCharacter.Instance.activePlayerIndex == 0;
+        if (eagleVisionScanner.isScanning != shouldScanSherlock)
+            eagleVisionScanner.ScanSherlock(shouldScanSherlock);
+    }
+
 
     //void Update()
     //{
-    //    // W��czanie / Wy��czanie pod klawiszem E
+    //    // W??czanie / Wy??czanie pod klawiszem E
     //    if (Input.GetKeyDown(KeyCode.V))
     //    {
 
     //        isActive = !isActive;
-    //        SwitchRenderer(); // Zmieniamy spos�b renderowania (widzenie przez �ciany)
+    //        SwitchRenderer(); // Zmieniamy spos?b renderowania (widzenie przez ?ciany)
 
     //        Scan();
 
     //    }
 
-    //    // P�ynne przej�cie kolor�w (Volume)
-    //    //Je�li isActive = true, waga d��y do 1.Je�li false, do 0.
+    //    // P?ynne przej?cie kolor?w (Volume)
+    //    //Je?li isActive = true, waga d??y do 1.Je?li false, do 0.
 
     //   float targetWeight = isActive ? 1f : 0f;
     //    if (eagleVisionVolume != null)
@@ -140,7 +173,7 @@ public class EagleVisionSystem : MonoBehaviour
     {
         if (cameraData == null) return;
 
-        // Je�li tryb aktywny -> ustaw renderer nr 1 (Eagle). Je�li nie -> nr 0 (Normal).
+        // Je?li tryb aktywny -> ustaw renderer nr 1 (Eagle). Je?li nie -> nr 0 (Normal).
         int indexToSet = isActive ? eagleRendererIndex : normalRendererIndex;
         Debug.Log($"EagleVision isActive = {isActive}");
         cameraData.SetRenderer(indexToSet);

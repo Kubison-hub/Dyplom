@@ -14,13 +14,17 @@ public class InventoryManager : MonoBehaviour
     public GameObject iconKey;
     public GameObject iconHammer;
     public GameObject iconGlass;
-
+
+    public GameObject iconPendulum;
+    public GameObject iconDoll;
     // Zmienne pomocnicze
     public bool keyInInv = false;
 
     // --- NOWOï¿½ï¿½: Lista przedmiotï¿½w (Dla Systemu Zapisu) ---
     // SaveLoadManager bierze tï¿½ listï¿½ i zapisuje do pliku.
-    public List<ItemType> items = new List<ItemType>();
+    public List<ItemType> items = new List<ItemType>();
+    [Header("Slots")]
+    [Min(1)] public int maxSlots = 3;
     // ------------------------------------------------------
 
     private void Awake()
@@ -59,12 +63,20 @@ public class InventoryManager : MonoBehaviour
     }
 
     // --- Gï¿½ï¿½wna funkcja dodawania przedmiotï¿½w ---
-    public void AddItem(ItemType itemType)
+    public bool TryAddItem(ItemType itemType)
     {
-        // 1. DODAJEMY DO LISTY (To jest kluczowe dla zapisu gry!)
+        if (items.Contains(itemType))
+            return true;
+
+        if (items.Count >= maxSlots)
+        {
+            Debug.Log("Brak miejsca w ekwipunku!");
+            return false;
+        }
+
+        // List order is the slot order: first free position is slot 1, then 2, then 3.
         items.Add(itemType);
 
-        // 2. Wï¿½ï¿½czamy odpowiedniï¿½ ikonkï¿½ (Twoja logika wizualna)
         switch (itemType)
         {
             case ItemType.Czerwona:
@@ -82,7 +94,24 @@ public class InventoryManager : MonoBehaviour
                 if (iconGlass) iconGlass.SetActive(true);
                 Debug.Log("Ekwipunek: Niebieska Figurka");
                 break;
+
+            case ItemType.Wahadlo:
+                if (iconPendulum) iconPendulum.SetActive(true);
+                Debug.Log("Ekwipunek: Wahad³o od zegara");
+                break;
+
+            case ItemType.Lalka:
+                if (iconDoll) iconDoll.SetActive(true);
+                Debug.Log("Ekwipunek: Lalka");
+                break;
         }
+
+        return true;
+    }
+
+    public void AddItem(ItemType itemType)
+    {
+        TryAddItem(itemType);
     }
 }
 
@@ -91,5 +120,7 @@ public enum ItemType
 {
     Czerwona,
     Zielona,
-    Niebieska
+    Niebieska,
+    Wahadlo,
+    Lalka
 }

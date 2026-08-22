@@ -14,12 +14,25 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
     [SerializeField] private bool representsWatson = true;
     [SerializeField, Min(0)] private int sherlockPlayerIndex = 0;
     [SerializeField, Min(0)] private int watsonPlayerIndex = 1;
+    [SerializeField] private GameObject questionMarkToHide;
+    [SerializeField] private GameObject deactivateOnTutorialComplete;
 
     [Header("Opening Dialogue")]
-    [SerializeField, TextArea] private string sherlockOpeningText =
-        "Watsonie, czas spojrzeć na tę sprawę z innej perspektywy.";
-    [SerializeField, TextArea] private string watsonOpeningText =
-        "W rzeczy samej, Sherlocku. Jestem do usług.";
+    [SerializeField] private Lvl3DialogueLine[] openingDialogueLines =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Watsonie, czas spojrzeć na tę sprawę z innej perspektywy.",
+            duration = 3f
+        },
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Watson,
+            text = "W rzeczy samej, Sherlocku. Jestem do usług.",
+            duration = 3f
+        }
+    };
 
     [Header("Tutorial Popup")]
     [SerializeField] private string tutorialTitle = "Watson";
@@ -27,11 +40,32 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
         "W grze możesz sterować także Watsonem. Wciśnij spację, aby przełączać się pomiędzy postaciami.";
     [SerializeField] private VideoClip tutorialVideoClip;
 
-    [Header("After Switching")]
-    [SerializeField, TextArea] private string sherlockAfterSwitchText =
-        "Spróbuj wyciągnąć jakieś informacje, Watsonie.";
-    [SerializeField, TextArea] private string watsonAfterSwitchText =
-        "W rzeczy samej, Sherlock.";
+    [Header("After Popup Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] afterPopupDialogueLines =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Spróbuj wyciągnąć jakieś informacje, Watsonie.",
+            duration = 3f
+        },
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Watson,
+            text = "W rzeczy samej, Sherlock.",
+            duration = 3f
+        }
+    };
+    [SerializeField] private AudioSource sherlockVoiceSource;
+    [SerializeField] private AudioSource watsonVoiceSource;
+
+    [Header("After Switching Popup")]
+    [SerializeField] private string afterSwitchTutorialTitle = "Watson";
+    [SerializeField, TextArea] private string afterSwitchTutorialText =
+        "Watson może rozmawiać ze świadkami i pomagać Sherlockowi w śledztwie.";
+    [SerializeField] private VideoClip afterSwitchTutorialVideoClip;
+
+    [Header("Repeat Lines")]
     [SerializeField, TextArea] private string watsonRepeatText = "Sherlock?";
     [SerializeField, TextArea] private string sherlockRepeatText = "Watson?";
 
@@ -41,6 +75,9 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
     {
         interactable = GetComponent<Interactable>();
         interactable.SetInteractionType(InteractionType.Int_WatsonSwitchTutorial);
+
+        if (deactivateOnTutorialComplete == null)
+            deactivateOnTutorialComplete = gameObject;
     }
 
     public void PerformInteraction(PlayerController player)
@@ -58,6 +95,7 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
             return;
         }
 
+        questionMarkToHide?.SetActive(false);
         StartCoroutine(RunTutorial(player));
     }
 
@@ -70,15 +108,9 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
         if (switchCharacter != null)
             switchCharacter.canSwitch = false;
 
-        PlayerTopText topText = PlayerTopText.Instance;
-        if (topText != null)
-        {
-            topText.ShowTopText(sherlockOpeningText, watsonOpeningText);
-            yield return new WaitForSeconds(topText.textTime * 2f);
-        }
+        yield return PlayDialogueLines(openingDialogueLines);
 
         TutorialTimeline timeline = TutorialTimeline.Instance;
-        topText?.ShowTopTextPersistent("", "");
         if (timeline != null)
         {
             timeline.ShowGameplayTutorialPopup(tutorialTitle, tutorialText, tutorialVideoClip);
@@ -100,17 +132,23 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
         while (switchCharacter.activePlayerIndex != watsonPlayerIndex)
             yield return null;
 
-        switchCharacter.canSwitch = false;
+        yield return PlayDialogueLines(afterPopupDialogueLines);
 
-        if (PlayerTopText.Instance != null)
+        if (timeline != null)
         {
-            PlayerTopText.Instance.ShowTopText(sherlockAfterSwitchText, watsonAfterSwitchText);
-            yield return new WaitForSeconds(PlayerTopText.Instance.textTime * 2f);
+            timeline.ShowGameplayTutorialPopup(
+                afterSwitchTutorialTitle,
+                afterSwitchTutorialText,
+                afterSwitchTutorialVideoClip);
+            yield return null;
+
+            while (timeline.BlocksWorldInput)
+                yield return null;
         }
 
         tutorialCompleted = true;
         tutorialInProgress = false;
-        switchCharacter.canSwitch = true;
+        deactivateOnTutorialComplete?.SetActive(false);
     }
 
     private void ShowRepeatLine()
@@ -122,6 +160,31 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
             PlayerTopText.Instance.ShowTopText("", watsonRepeatText);
         else if (!representsWatson && SwitchCharacter.Instance.activePlayerIndex == watsonPlayerIndex)
             PlayerTopText.Instance.ShowTopText(sherlockRepeatText, "");
+    }
+
+    private IEnumerator PlayDialogueLines(Lvl3DialogueLine[] dialogueLines)
+    {
+        if (dialogueLines == null)
+            yield break;
+
+        foreach (Lvl3DialogueLine line in dialogueLines)
+        {
+            string sherlockText = line.speaker == Lvl3DialogueSpeaker.Sherlock ? line.text : string.Empty;
+            string watsonText = line.speaker == Lvl3DialogueSpeaker.Watson ? line.text : string.Empty;
+            PlayerTopText.Instance?.ShowTopTextPersistent(sherlockText, watsonText);
+
+            AudioSource voiceSource = line.speaker == Lvl3DialogueSpeaker.Sherlock
+                ? sherlockVoiceSource
+                : watsonVoiceSource;
+            if (voiceSource != null && line.voiceClip != null)
+            {
+                voiceSource.Stop();
+                voiceSource.PlayOneShot(line.voiceClip);
+            }
+
+            yield return new WaitForSeconds(line.duration > 0f ? line.duration : 3f);
+            PlayerTopText.Instance?.ClearTopTextIfMatches(sherlockText, watsonText);
+        }
     }
 
     private static void ClearCurrentInteraction(PlayerController player)

@@ -32,6 +32,8 @@ public class Int_LibraryKey : MonoBehaviour
         if (librarySafe != null)
             librarySafe.SetKeyFound(true);
 
+        MagnifierGlassController.ForceCloseLoupeUntilKeyReleased();
+
         if (PlayerTopText.Instance != null)
             PlayerTopText.Instance.ShowTopText("I jest kluczyk, jakie to proste...", "");
 

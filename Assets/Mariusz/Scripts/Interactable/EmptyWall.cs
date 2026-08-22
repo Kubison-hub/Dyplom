@@ -3,7 +3,7 @@ using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.Video;
 
-public class EmptyWall : MonoBehaviour
+public class EmptyWall : Lvl3InteractionDialogueBase
 {
 
     private Interactable interactable;
@@ -30,6 +30,16 @@ public class EmptyWall : MonoBehaviour
     [SerializeField] private string tutorialPopupTitle = "BADANIE SCENY";
     [SerializeField, TextArea] private string tutorialPopupText;
     [SerializeField] private VideoClip tutorialPopupVideoClip;
+    [Header("Initial Examination Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] initialDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Ta œciana pustki siê nie boi, Watsonie.",
+            duration = 3f
+        }
+    };
 
     private Collider intCollider;
     private PlayerController examiningPlayer;
@@ -40,6 +50,10 @@ public class EmptyWall : MonoBehaviour
     private bool tutorialPopupShown;
     private bool tutorialPopupPending;
     private Coroutine tutorialPopupCoroutine;
+    private bool waitingForInitialDialogue;
+    private bool initialDialogueCompleted;
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => initialDialogue;
 
     private void Start()
     {
@@ -105,18 +119,36 @@ public class EmptyWall : MonoBehaviour
 
         if (!performed)
         {
-            PlayerTopText.Instance?.ShowTopText("Ta œciana pustki siê nie boi Watsonie", "");
             //interactable.AddClue(0, cardPosition);
             performed = true;
             ActiveNextInteractions(true);
+            waitingForInitialDialogue = initialDialogue != null && initialDialogue.Length > 0;
+            initialDialogueCompleted = !waitingForInitialDialogue;
+            if (waitingForInitialDialogue)
+                PlayDialogue(player, initialDialogue);
 
-            // The wall remains interactable while the puzzle is unfinished, but no longer needs QuestionFX.
-            interactable.allowQuestionFXWhenInactive = false;
-            interactable.SetQuestionFXEagleVisionState(false);
+            DisableWallInteractionPresentation();
         }
 
         BeginExamination(player);
         player.currentInteractable = null;
+    }
+    private void DisableWallInteractionPresentation()
+    {
+        if (interactable != null)
+        {
+            interactable.isInteractableActive = false;
+            interactable.allowQuestionFXWhenInactive = false;
+            interactable.SetQuestionFXEagleVisionState(false);
+
+            if (interactable.interactiveShader != null)
+                interactable.interactiveShader.SetActive(false);
+
+            interactable.interactiveShader = null;
+        }
+
+        if (intCollider != null)
+            intCollider.enabled = false;
     }
     private void BeginExamination(PlayerController player)
     {
@@ -147,20 +179,8 @@ public class EmptyWall : MonoBehaviour
         if (playerZone != null)
             Destroy(playerZone);
 
-        if (interactable != null)
-        {
-            interactable.isInteractableActive = false;
-            interactable.allowQuestionFXWhenInactive = false;
-            interactable.SetQuestionFXEagleVisionState(false);
+        DisableWallInteractionPresentation();
 
-            if (interactable.interactiveShader != null)
-                interactable.interactiveShader.SetActive(false);
-
-            interactable.interactiveShader = null;
-        }
-
-        if (intCollider != null)
-            intCollider.enabled = false;
 
         enabled = false;
     }
@@ -195,7 +215,7 @@ public class EmptyWall : MonoBehaviour
 
     private void ShowTutorialPopupIfNeeded()
     {
-        if (!showTutorialPopup || tutorialPopupShown || tutorialPopupPending || TutorialTimeline.Instance == null)
+        if (!initialDialogueCompleted || !showTutorialPopup || tutorialPopupShown || tutorialPopupPending || TutorialTimeline.Instance == null)
             return;
 
         tutorialPopupPending = true;
@@ -236,6 +256,18 @@ public class EmptyWall : MonoBehaviour
     }
 
 
+
+    protected override void OnDialogueSequenceCompleted(Lvl3DialogueLine[] lines)
+    {
+        if (!waitingForInitialDialogue || lines != initialDialogue)
+            return;
+
+        waitingForInitialDialogue = false;
+        initialDialogueCompleted = true;
+
+        if (isMonitoringExamination && isPlayerInsideZone)
+            ShowTutorialPopupIfNeeded();
+    }
     private void ActiveNextInteractions(bool active)
     {
         foreach (var nextInteraction in nextInteractions)

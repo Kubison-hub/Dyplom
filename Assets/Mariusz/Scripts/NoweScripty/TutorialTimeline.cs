@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.AI;
 using UnityEngine.Video;
 
 public class TutorialTimeline : MonoBehaviour
 {
     public static TutorialTimeline Instance { get; private set; }
     public bool BlocksWorldInput => activeTutorialPopup != null || releasePopupInputCoroutine != null;
+    public bool KeepsEagleVisionActive =>
+        currentStage == TutorialStage.WaitingForIdeaLineTutorialClose ||
+        currentStage == TutorialStage.IdeaLinePuzzleActive;
 
     public enum TutorialStage
     {
@@ -39,6 +43,12 @@ public class TutorialTimeline : MonoBehaviour
     [SerializeField] private string openingPopupTitle = "PORUSZANIE SIE";
     [SerializeField, TextArea] private string openingPopupText;
     [SerializeField] private VideoClip openingPopupVideoClip;
+
+    [Header("Tutorial Popup Audio")]
+    [SerializeField] private AudioSource tutorialPopupAudioSource;
+    [SerializeField] private AudioClip tutorialPopupOpenAudio;
+    [SerializeField] private AudioClip tutorialPopupCloseAudio;
+
     [Header("Focus Tutorial Popup")]
     [SerializeField] private bool showFocusTutorialPopup;
     [SerializeField, Min(0f)] private float focusTutorialPopupDelay = 10f;
@@ -52,17 +62,25 @@ public class TutorialTimeline : MonoBehaviour
     [SerializeField] private DetectiveIdeaPoint[] requiredIdeaPoints;
     [SerializeField] private PlayerController ideaLineTutorialPlayer;
     [SerializeField] private Transform ipTutorialPosition;
+    [SerializeField] private PlayerController ideaLineTutorialWatson;
+    [SerializeField] private Transform watsonIdeaLineTutorialPosition;
     [SerializeField, Min(0.05f)] private float arrivalDistance = 0.1f;
     [SerializeField, Min(1f)] private float rotationSpeed = 360f;
     [SerializeField, Min(0.05f)] private float eagleVisionHoldRefreshDuration = 0.25f;
     [SerializeField] private float ideaLineTutorialHorizontalAxis = 161.2f;
     [SerializeField, Min(0.1f)] private float ideaLineTutorialOrbitSpeed = 2.5f;
-    [SerializeField, Min(0f)] private float cameraSettleDuration = 2f;
+    [SerializeField, Min(0.01f)] private float ideaLineTutorialOrbitTolerance = 0.5f;
+    [SerializeField, Min(0f)] private float cameraSettleDuration = 5f;
     [SerializeField] private string ideaLineTutorialId = "IdeaLinePuzzleTutorial";
     [SerializeField] private string ideaLineTutorialPopupTitle = "LACZENIE FAKTOW";
     [SerializeField, TextArea] private string ideaLineTutorialText =
         "Sherlock to mistrz dedukcji:\n- Polacz fakty w odpowiedniej kolejnosci.";
     [SerializeField] private VideoClip ideaLineTutorialPopupVideoClip;
+
+    [Header("Idea Line Puzzle Music")]
+    [SerializeField] private GameMusicManager gameMusicManager;
+    [SerializeField] private AudioClip ideaLinePuzzleMusic;
+    [SerializeField] private bool loopIdeaLinePuzzleMusic;
 
     [Header("Legacy Tutorial Objective Panel")]
     [Tooltip("Kept only to hide the retired panel at runtime. Use ClueManager and CluesLog for visible progress.")]
@@ -88,6 +106,7 @@ public class TutorialTimeline : MonoBehaviour
     private GameObject activeTutorialPopup;
     private bool activePopupReturnsToPreviousStage;
     private TutorialStage popupReturnStage;
+    private Coroutine moveWatsonToIdeaLineTutorialCoroutine;
 
     private void Awake()
     {
@@ -290,6 +309,9 @@ public class TutorialTimeline : MonoBehaviour
         popup.Configure(title, content, videoClip);
         activeTutorialPopup = popup.gameObject;
 
+        if (tutorialPopupAudioSource != null && tutorialPopupOpenAudio != null)
+            tutorialPopupAudioSource.PlayOneShot(tutorialPopupOpenAudio);
+
         Time.timeScale = 0f;
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
@@ -319,6 +341,9 @@ public class TutorialTimeline : MonoBehaviour
     {
         if (activeTutorialPopup == null)
             return;
+
+        if (tutorialPopupAudioSource != null && tutorialPopupCloseAudio != null)
+            tutorialPopupAudioSource.PlayOneShot(tutorialPopupCloseAudio);
 
         Destroy(activeTutorialPopup);
         activeTutorialPopup = null;
@@ -390,6 +415,12 @@ public class TutorialTimeline : MonoBehaviour
 
     private IEnumerator MovePlayerToIdeaLineTutorialPosition(PlayerController player)
     {
+        StartWatsonMoveToIdeaLineTutorialPosition();
+        KeepEagleVisionForced();
+        SetCameraZoom(CameraZoomState.Wide);
+        SetCameraHorizontalOrbit(ideaLineTutorialHorizontalAxis, ideaLineTutorialOrbitSpeed);
+        onIdeaLinePuzzleTutorialStarted?.Invoke();
+
         player.navMeshAgent.ResetPath();
         player.navMeshAgent.isStopped = false;
         player.navMeshAgent.SetDestination(ipTutorialPosition.position);
@@ -397,6 +428,7 @@ public class TutorialTimeline : MonoBehaviour
         while (player.navMeshAgent.pathPending ||
                player.navMeshAgent.remainingDistance > Mathf.Max(player.navMeshAgent.stoppingDistance, arrivalDistance))
         {
+            MaintainIdeaLineTutorialCameraOrbit();
             yield return null;
         }
 
@@ -405,6 +437,7 @@ public class TutorialTimeline : MonoBehaviour
 
         while (Quaternion.Angle(player.transform.rotation, ipTutorialPosition.rotation) > 0.5f)
         {
+            MaintainIdeaLineTutorialCameraOrbit();
             player.transform.rotation = Quaternion.RotateTowards(
                 player.transform.rotation,
                 ipTutorialPosition.rotation,
@@ -415,21 +448,14 @@ public class TutorialTimeline : MonoBehaviour
         player.transform.rotation = ipTutorialPosition.rotation;
         player.navMeshAgent.updateRotation = true;
 
-        KeepEagleVisionForced();
-        SetCameraZoom(CameraZoomState.Wide);
-        SetCameraHorizontalOrbit(ideaLineTutorialHorizontalAxis, ideaLineTutorialOrbitSpeed);
-        onIdeaLinePuzzleTutorialStarted?.Invoke();
-
-        // Existing scene instances may still have this serialized as 0. Keep a visible beat
-        // for the Wide preset and horizontal orbit before the tutorial popup pauses the game.
-        float cameraSettleEnd = Time.unscaledTime + Mathf.Max(2f, cameraSettleDuration);
-        while (Time.unscaledTime < cameraSettleEnd)
+        while (moveWatsonToIdeaLineTutorialCoroutine != null)
         {
-            KeepEagleVisionForced();
+            MaintainIdeaLineTutorialCameraOrbit();
             yield return null;
         }
 
         currentStage = TutorialStage.WaitingForIdeaLineTutorialClose;
+        PlayIdeaLinePuzzleMusic();
         ShowGameplayTutorialPopup(
             ideaLineTutorialPopupTitle,
             ideaLineTutorialText,
@@ -439,6 +465,57 @@ public class TutorialTimeline : MonoBehaviour
         moveToIdeaLineTutorialCoroutine = null;
     }
 
+    private void StartWatsonMoveToIdeaLineTutorialPosition()
+    {
+        if (moveWatsonToIdeaLineTutorialCoroutine != null || watsonIdeaLineTutorialPosition == null)
+            return;
+
+        PlayerController watson = GetIdeaLineTutorialWatson();
+        if (watson == null)
+        {
+            Debug.LogWarning("TutorialTimeline: Assign Idea Line Tutorial Watson or add Watson to Tutorial Players.", this);
+            return;
+        }
+
+        moveWatsonToIdeaLineTutorialCoroutine = StartCoroutine(
+            MoveWatsonToIdeaLineTutorialPosition(watson));
+    }
+
+    private IEnumerator MoveWatsonToIdeaLineTutorialPosition(PlayerController watson)
+    {
+        NavMeshAgent agent = watson != null ? watson.navMeshAgent : null;
+        if (agent == null || !agent.isOnNavMesh ||
+            !NavMesh.SamplePosition(watsonIdeaLineTutorialPosition.position, out NavMeshHit destination, 1f, NavMesh.AllAreas))
+        {
+            Debug.LogWarning("TutorialTimeline: Watson Idea Line Position is not on the NavMesh.", watsonIdeaLineTutorialPosition);
+            moveWatsonToIdeaLineTutorialCoroutine = null;
+            yield break;
+        }
+
+        agent.updateRotation = true;
+        agent.isStopped = false;
+        agent.SetDestination(destination.position);
+
+        while (agent.pathPending)
+            yield return null;
+
+        if (agent.pathStatus == NavMeshPathStatus.PathComplete)
+        {
+            while (agent.hasPath &&
+                   agent.remainingDistance > Mathf.Max(agent.stoppingDistance, arrivalDistance))
+            {
+                yield return null;
+            }
+        }
+        else
+        {
+            Debug.LogWarning("TutorialTimeline: Watson cannot reach Watson Idea Line Position.", watsonIdeaLineTutorialPosition);
+        }
+
+        agent.ResetPath();
+        moveWatsonToIdeaLineTutorialCoroutine = null;
+    }
+
     private void FinishIdeaLinePuzzleTutorial()
     {
         StopCameraHorizontalOrbit();
@@ -446,6 +523,17 @@ public class TutorialTimeline : MonoBehaviour
         currentStage = TutorialStage.IdeaLinePuzzleActive;
         LogIdeaLineTutorial("Idea line tutorial closed. Player input restored; Eagle Vision remains forced until the puzzle is solved.");
         onIdeaLinePuzzleTutorialClosed?.Invoke();
+    }
+
+    private void PlayIdeaLinePuzzleMusic()
+    {
+        if (ideaLinePuzzleMusic == null)
+            return;
+
+        if (gameMusicManager == null)
+            gameMusicManager = FindFirstObjectByType<GameMusicManager>();
+
+        gameMusicManager?.ChangeMusic(ideaLinePuzzleMusic, loopIdeaLinePuzzleMusic);
     }
 
     private bool AreAllRequiredIdeaPointsDiscovered()
@@ -569,6 +657,23 @@ public class TutorialTimeline : MonoBehaviour
         return null;
     }
 
+    private PlayerController GetIdeaLineTutorialWatson()
+    {
+        if (ideaLineTutorialWatson != null)
+            return ideaLineTutorialWatson;
+
+        if (tutorialPlayers == null)
+            return null;
+
+        foreach (PlayerController player in tutorialPlayers)
+        {
+            if (player != null && player.playerCharacter == PlayerCharacter.Watson)
+                return player;
+        }
+
+        return null;
+    }
+
     private void KeepEagleVisionForced()
     {
         if (EagleVisionSystem.Instance != null)
@@ -597,6 +702,29 @@ public class TutorialTimeline : MonoBehaviour
             if (cameraController != null)
                 cameraController.OrbitHorizontalAxisTo(horizontalAxisValue, orbitSpeed);
         }
+    }
+
+    private void MaintainIdeaLineTutorialCameraOrbit()
+    {
+        SetCameraHorizontalOrbit(ideaLineTutorialHorizontalAxis, ideaLineTutorialOrbitSpeed);
+        KeepEagleVisionForced();
+    }
+
+    private bool AreTutorialCamerasAtHorizontalAxis(float horizontalAxisValue)
+    {
+        if (tutorialCameras == null || tutorialCameras.Length == 0)
+            return true;
+
+        foreach (CameraController cameraController in tutorialCameras)
+        {
+            if (cameraController != null &&
+                !cameraController.IsHorizontalAxisAt(horizontalAxisValue, ideaLineTutorialOrbitTolerance))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private void StopCameraHorizontalOrbit()

@@ -34,6 +34,8 @@ public class GameMusicManager : MonoBehaviour
     {
         if (utwory.Length == 0) return;
 
+        audioSource.loop = false;
+
         // Ustawiamy klip w AudioSource na ten z obecnego indeksu
         audioSource.clip = utwory[aktualnyIndeks];
         audioSource.Play();
@@ -48,6 +50,20 @@ public class GameMusicManager : MonoBehaviour
         }
     }
 
+    // Odtwarza wybrany utwór. Gdy loop jest wylaczone, playlista wznawia sie po jego zakonczeniu.
+    public void ChangeMusic(AudioClip newTrack, bool loop = false)
+    {
+        if (newTrack == null)
+            return;
+
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
+
+        audioSource.Stop();
+        audioSource.clip = newTrack;
+        audioSource.loop = loop;
+        audioSource.Play();
+    }
     // Tê funkcjê wykorzystamy w przysz³oœci do zmiany muzyki na konkretn¹ (system warunkowy)
     public void ZmienUtworWymuszenie(AudioClip nowyUtwor)
     {

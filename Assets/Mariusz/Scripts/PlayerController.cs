@@ -1,13 +1,13 @@
-using DialogueEditor;
+ï»¿using DialogueEditor;
 using System.Collections;           // Potrzebne do integracji z systemem dialogowym
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.EventSystems; // Potrzebne do wykrywania klikniêæ na UI
+using UnityEngine.EventSystems; // Potrzebne do wykrywania klikniÄ™Ä‡ na UI
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Klasa PlayerController zaimplementowana z blokadami dla Dialogów, Dziennika i UI.
+/// Klasa PlayerController zaimplementowana z blokadami dla DialogÃ³w, Dziennika i UI.
 /// </summary>
 
 
@@ -23,9 +23,13 @@ public class PlayerController : MonoBehaviour
 
     public PlayerCharacter playerCharacter = PlayerCharacter.None;
 
-    private Animator animator;
+    [Header("Animation")]
+    [Tooltip("Assign the Animator that drives this character's visible model. If empty, the Animator on this GameObject is used.")]
+    [SerializeField] private Animator animator;
     private Rigidbody rb;
     public NavMeshAgent navMeshAgent;
+    private bool hasTemporaryMovementSpeed;
+    private float temporaryMovementSpeed;
 
     public LayerMask interactableMask;
     public LayerMask groundMask;
@@ -33,6 +37,9 @@ public class PlayerController : MonoBehaviour
     public Interactable currentInteractable = null;
     public Transform currentInteractionPoint;
     public float interactionPointRotationSpeed = 360f;
+
+    private bool hasAutoInteractionApproachPoint;
+    private Vector3 autoInteractionApproachPoint;
     
     public AudioClip[] FootstepAudioClips;
 
@@ -52,13 +59,18 @@ public class PlayerController : MonoBehaviour
     private bool isThinking = false;
     private bool isPerformingInteraction = false;
     private NavMeshPath lightMazePath;
+    private Interactable hoveredInteractable;
     private void Awake()
     {
-        animator = GetComponent<Animator>();
+        if (animator == null)
+            animator = GetComponent<Animator>();
+
+        if (animator == null)
+            Debug.LogError($"{name}: PlayerController could not find a character Animator.", this);
         rb = GetComponent<Rigidbody>();
         playerInput = GetComponent<PlayerInput>();
 
-        // Upewniamy siê, ¿e Rigidbody nie koliduje fizycznie (u¿ywamy CharacterController)
+        // Upewniamy siÄ™, Å¼e Rigidbody nie koliduje fizycznie (uÅ¼ywamy CharacterController)
         if (rb.isKinematic == false) rb.isKinematic = true;
 
         if (playerCharacter == PlayerCharacter.None)
@@ -82,11 +94,53 @@ public class PlayerController : MonoBehaviour
         HandleAnimations();
 
         UpdateMovementSpeed();
+        UpdateInteractionShaderHover();
 
 
     }
 
 
+    private void UpdateInteractionShaderHover()
+    {
+        if (playerInput == null || !playerInput.enabled || Mouse.current == null || Camera.main == null)
+        {
+            SetHoveredInteractable(null);
+            return;
+        }
+
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            SetHoveredInteractable(null);
+            return;
+        }
+
+        Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+        Interactable nextHovered = null;
+
+        if (Physics.Raycast(ray, out RaycastHit hit, 100f, interactableMask))
+            nextHovered = hit.collider.GetComponentInParent<Interactable>();
+
+        SetHoveredInteractable(nextHovered);
+    }
+
+    private void SetHoveredInteractable(Interactable nextHovered)
+    {
+        if (hoveredInteractable == nextHovered)
+            return;
+
+        if (hoveredInteractable != null)
+            hoveredInteractable.SetInteractionShaderHover(false);
+
+        hoveredInteractable = nextHovered;
+
+        if (hoveredInteractable != null)
+            hoveredInteractable.SetInteractionShaderHover(true);
+    }
+
+    private void OnDisable()
+    {
+        SetHoveredInteractable(null);
+    }
     private void CheckUILock()
     {
         // --- 1. SPRAWDZANIE BLOKAD (DIALOG / DZIENNIK) ---
@@ -94,21 +148,21 @@ public class PlayerController : MonoBehaviour
         // Czy trwa dialog?
         bool dialogAktywny = (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive);
 
-        // Czy otwarty jest dziennik? (Sprawdzamy null, ¿eby nie wywali³o b³êdu jeœli nie ma Managera)
+        // Czy otwarty jest dziennik? (Sprawdzamy null, Å¼eby nie wywaliÅ‚o bÅ‚Ä™du jeÅ›li nie ma Managera)
         bool dziennikAktywny = (JournalManager.Instance != null && JournalManager.Instance.isJournalOpen);
 
-        // Jeœli któraœ z blokad jest aktywna...
+        // JeÅ›li ktÃ³raÅ› z blokad jest aktywna...
         if (dialogAktywny || dziennikAktywny || tutorialMovementLocked || minigameMovementLocked)
         {
             // ...zablokuj NavMesh.
             LockMovement();
 
-            // Przerwij funkcjê Update (nie wykonuj ruchu)
+            // Przerwij funkcjÄ™ Update (nie wykonuj ruchu)
             return;
         }
         else
         {
-            // Je¿eli nie, odblokuj NavMesh
+            // JeÅ¼eli nie, odblokuj NavMesh
             UnlockMovement();
         }
     }
@@ -188,7 +242,7 @@ public class PlayerController : MonoBehaviour
         
         if (Physics.Raycast(ray, out RaycastHit hit, 100f, interactableMask))
         {
-            Interactable interactable = hit.collider.GetComponent<Interactable>();
+            Interactable interactable = hit.collider.GetComponentInParent<Interactable>();
 
             if (interactable == null)
             {
@@ -210,6 +264,19 @@ public class PlayerController : MonoBehaviour
                 TutorialTimeline.Instance.NotifyIdeaPuzzleGroundClick();
 
             if (!CanMoveToPointInLightMaze(groundHit.point))
+                return;
+
+            // Escort uses its already visible world-space preview; this click confirms it.
+            if (WatsonEscortController.Instance != null &&
+                WatsonEscortController.Instance.TryBeginPlacementFromPointer(this))
+                return;
+
+            if (WatsonEscortController.Instance != null &&
+                WatsonEscortController.Instance.TryHandleGroundClick(this, groundHit.point))
+                return;
+
+            if (WatsonCarryController.Instance != null &&
+                WatsonCarryController.Instance.TryHandleGroundClick(this, groundHit.point))
                 return;
 
             MoveToPoint(groundHit.point);
@@ -277,18 +344,117 @@ public class PlayerController : MonoBehaviour
     }
     public void MoveToPoint(Vector3 point)
     {
+        float blockerRadius = navMeshAgent != null ? navMeshAgent.radius : 0.2f;
+        if (WatsonCarryable.IsWorldPositionBlocked(point, blockerRadius))
+        {
+            currentInteractable = null;
+            currentInteractionPoint = null;
+            ClearAutoInteractionApproachPoint();
+            return;
+        }
+        if (!NavMeshWallGuard.TryGetClearPath(navMeshAgent, point, out NavMeshPath clearPath))
+            return;
+
         isPerformingInteraction = false;
         currentInteractable = null;
-        navMeshAgent.destination = point;
+        currentInteractionPoint = null;
+        ClearAutoInteractionApproachPoint();
+        navMeshAgent.SetPath(clearPath);
         NavMeshDestinationMarker.GetOrCreate().ShowAt(point, navMeshAgent);
     }
 
+    public void SetAutoInteractionApproachPoint(Vector3 point)
+    {
+        autoInteractionApproachPoint = point;
+        hasAutoInteractionApproachPoint = true;
+    }
+
+    public void ClearAutoInteractionApproachPoint()
+    {
+        hasAutoInteractionApproachPoint = false;
+    }
     public void MoveToInteractable()
     {
         NavMeshDestinationMarker.HideCurrent();
-        navMeshAgent.SetDestination(currentInteractionPoint.position);
+
+        if (currentInteractable == null)
+            return;
+
+        if (currentInteractionPoint == null)
+        {
+            if (hasAutoInteractionApproachPoint)
+            {
+                if (!NavMeshWallGuard.TryGetClearPath(navMeshAgent, autoInteractionApproachPoint, out NavMeshPath approachPath))
+                {
+                    currentInteractable = null;
+                    ClearAutoInteractionApproachPoint();
+                    return;
+                }
+
+                navMeshAgent.SetPath(approachPath);
+                return;
+            }
+
+            navMeshAgent.ResetPath();
+            StartCoroutine(RotateAndPerform());
+            return;
+        }
+
+
+        if (!NavMeshWallGuard.TryGetClearPath(navMeshAgent, currentInteractionPoint.position, out NavMeshPath interactionPath))
+        {
+            currentInteractable = null;
+            currentInteractionPoint = null;
+            return;
+        }
+
+        navMeshAgent.SetPath(interactionPath);
     }
 
+    public void RotateTowardsInteractableAndShowTopText(Interactable interactable, string message)
+    {
+        if (interactable == null)
+            return;
+
+        currentInteractable = interactable;
+        currentInteractionPoint = null;
+        navMeshAgent.ResetPath();
+        StartCoroutine(RotateAndShowBlockedInteractionText(message));
+    }
+
+    private IEnumerator RotateAndShowBlockedInteractionText(string message)
+    {
+        if (currentInteractable == null)
+            yield break;
+
+        isPerformingInteraction = true;
+        navMeshAgent.updateRotation = false;
+        if (PlayerTopText.Instance != null)
+        {
+            if (playerCharacter == PlayerCharacter.Watson || CompareTag("PlayerB"))
+                PlayerTopText.Instance.ShowWatsonTopText(message);
+            else
+                PlayerTopText.Instance.ShowTopText(message, string.Empty);
+        }
+        else
+            Debug.Log(message);
+
+        Quaternion targetRotation = GetCurrentInteractableRotation();
+        while (Quaternion.Angle(transform.rotation, targetRotation) > 1f)
+        {
+            transform.rotation = Quaternion.RotateTowards(
+                transform.rotation,
+                targetRotation,
+                interactionPointRotationSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        transform.rotation = targetRotation;
+        navMeshAgent.updateRotation = true;
+        currentInteractable = null;
+        currentInteractionPoint = null;
+        isPerformingInteraction = false;
+    }
     private void CheckInteractionArrival()
     {
         if (isPerformingInteraction)
@@ -318,9 +484,7 @@ public class PlayerController : MonoBehaviour
         isPerformingInteraction = true;
         navMeshAgent.updateRotation = false;
 
-        Quaternion targetRotation = currentInteractionPoint != null
-            ? currentInteractionPoint.rotation
-            : transform.rotation;
+        Quaternion targetRotation = GetCurrentInteractionTargetRotation();
 
         while (Quaternion.Angle(transform.rotation, targetRotation) > 1f)
         {
@@ -341,12 +505,38 @@ public class PlayerController : MonoBehaviour
             currentInteractable.PerformInteraction(this);
         }
 
+        ClearAutoInteractionApproachPoint();
         isPerformingInteraction = false;
 
         
    
     }
 
+    private Quaternion GetCurrentInteractableRotation()
+    {
+        if (currentInteractable == null)
+            return transform.rotation;
+
+        Vector3 directionToInteractable = currentInteractable.transform.position - transform.position;
+        directionToInteractable.y = 0f;
+        return directionToInteractable.sqrMagnitude > 0.001f
+            ? Quaternion.LookRotation(directionToInteractable)
+            : transform.rotation;
+    }
+    private Quaternion GetCurrentInteractionTargetRotation()
+    {
+        if (currentInteractionPoint != null)
+            return currentInteractionPoint.rotation;
+
+        if (currentInteractable == null)
+            return transform.rotation;
+
+        Vector3 directionToInteractable = currentInteractable.transform.position - transform.position;
+        directionToInteractable.y = 0f;
+        return directionToInteractable.sqrMagnitude > 0.001f
+            ? Quaternion.LookRotation(directionToInteractable)
+            : transform.rotation;
+    }
     private void RotateToInteractionPoint2()
     {
         if (currentInteractable == null)
@@ -359,16 +549,25 @@ public class PlayerController : MonoBehaviour
         );
     }
 
-    private float transitionSpeed = 2f; // 1 / 0.5s = 2 (prêdkoœæ zmiany)
+    private float transitionSpeed = 2f; // 1 / 0.5s = 2 (prÄ™dkoÅ›Ä‡ zmiany)
 
     private void HandleAnimations()
     {
+        if (animator == null)
+            return;
        
         bool isWalking = navMeshAgent.velocity.magnitude > 0.1f;
         animator.SetBool("IsWalking", isWalking);
 
-        isThinking = EagleVisionSystem.Instance.isActive && SwitchCharacter.Instance.activePlayerIndex == 0;
-        animator.SetBool("IsThinking", isThinking);
+        if (playerCharacter == PlayerCharacter.Sherlock)
+        {
+            isThinking = EagleVisionSystem.Instance.isActive && SwitchCharacter.Instance.activePlayerIndex == 0;
+            animator.SetBool("IsThinking", isThinking);
+        }
+        else
+        {
+            isThinking = false;
+        }
 
         float targetL0 = 1f;
         float targetL1 = 0f;
@@ -396,12 +595,15 @@ public class PlayerController : MonoBehaviour
             targetWalkSpeed = 1f;
         }
 
-        float currentL0 = animator.GetLayerWeight(0);
-        float currentL1 = animator.GetLayerWeight(1);
+        float currentL0 = animator.layerCount > 0 ? animator.GetLayerWeight(0) : 0f;
+        float currentL1 = animator.layerCount > 1 ? animator.GetLayerWeight(1) : 0f;
         float currentWalkSpeed = animator.GetFloat("WalkSpeed");
 
-        animator.SetLayerWeight(0, Mathf.MoveTowards(currentL0, targetL0, Time.deltaTime * transitionSpeed));
-        animator.SetLayerWeight(1, Mathf.MoveTowards(currentL1, targetL1, Time.deltaTime * transitionSpeed));
+        if (animator.layerCount > 0)
+            animator.SetLayerWeight(0, Mathf.MoveTowards(currentL0, targetL0, Time.deltaTime * transitionSpeed));
+
+        if (animator.layerCount > 1)
+            animator.SetLayerWeight(1, Mathf.MoveTowards(currentL1, targetL1, Time.deltaTime * transitionSpeed));
 
         animator.SetFloat("WalkSpeed", Mathf.MoveTowards(currentWalkSpeed, targetWalkSpeed, Time.deltaTime * transitionSpeed));
     }
@@ -451,10 +653,27 @@ public class PlayerController : MonoBehaviour
     {
         if (navMeshAgent == null) return;
 
-        navMeshAgent.speed = isThinking ? (normalSpeed * thinkingMultiplier) : normalSpeed;
+        navMeshAgent.speed = hasTemporaryMovementSpeed
+            ? temporaryMovementSpeed
+            : isThinking ? (normalSpeed * thinkingMultiplier) : normalSpeed;
 
-        // Opcjonalnie: Zmieñ te¿ szybkoœæ obrotu, ¿eby postaæ by³a "ciê¿sza"
+        // Opcjonalnie: ZmieÅ„ teÅ¼ szybkoÅ›Ä‡ obrotu, Å¼eby postaÄ‡ byÅ‚a "ciÄ™Å¼sza"
         //navMeshAgent.angularSpeed = isThinking ? 60f : 120f;
+    }
+
+    public void SetTemporaryMovementSpeed(float speed)
+    {
+        temporaryMovementSpeed = Mathf.Max(0.1f, speed);
+        hasTemporaryMovementSpeed = true;
+
+        if (navMeshAgent != null)
+            navMeshAgent.speed = temporaryMovementSpeed;
+    }
+
+    public void ClearTemporaryMovementSpeed()
+    {
+        hasTemporaryMovementSpeed = false;
+        UpdateMovementSpeed();
     }
 
     public void OnDebugRestart(InputAction.CallbackContext context)

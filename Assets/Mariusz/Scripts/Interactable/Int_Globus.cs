@@ -21,14 +21,33 @@ public class Int_Globus : MonoBehaviour, IVioletRoomInteractionGate
     [Header("Violet Gate")]
     [SerializeField] private Int_VioletDialog violetDialog;
     [SerializeField] private Transform waitInteractionPoint;
-    [SerializeField, TextArea] private string violetPresentText =
-        "Lepiej by\u0142oby pomyszkowa\u0107 tu w samotno\u015bci.";
+    [SerializeField] private GameObject activateOnFirstVioletGate;
+    [SerializeField] private Transform intPointWatson;
+
+    [Header("Violet Present Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] violetPresentDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Lepiej by\u0142oby pomyszkowa\u0107 tu w samotno\u015bci.",
+            duration = 3f
+        }
+    };
+    [SerializeField] private AudioSource sherlockVoiceSource;
+    [SerializeField] private AudioSource watsonVoiceSource;
+
+    [Header("Debug")]
+    [SerializeField] private bool debugIsVioletInRoom;
+    [SerializeField] private bool debugIsLibraryObserved;
+    [SerializeField] private bool debugVioletGateRedirected;
 
     private Vector3 baseLocalEulerAngles;
     private Collider interactionCollider;
     private bool firstInteraction = true;
     private bool isSpinning;
     private bool isWalkingToWaitPoint;
+    private bool firstVioletGateTriggered;
 
     private void Start()
     {
@@ -73,7 +92,11 @@ public class Int_Globus : MonoBehaviour, IVioletRoomInteractionGate
     public bool RedirectWhenVioletIsInRoom(PlayerController player)
     {
         // Sherlock may always inspect the mechanism once. Violet only blocks the actual spin.
-        if (firstInteraction || !IsVioletInRoom())
+        if (firstInteraction)
+            return false;
+
+        debugVioletGateRedirected = IsVioletInRoom();
+        if (!debugVioletGateRedirected)
             return false;
 
         if (player == null)
@@ -83,7 +106,8 @@ public class Int_Globus : MonoBehaviour, IVioletRoomInteractionGate
 
         if (waitInteractionPoint == null)
         {
-            ShowVioletPresentText();
+            isWalkingToWaitPoint = true;
+            StartCoroutine(PlayVioletGateDialogue());
             return true;
         }
 
@@ -102,7 +126,10 @@ public class Int_Globus : MonoBehaviour, IVioletRoomInteractionGate
         if (violetDialog == null)
             violetDialog = Int_VioletDialog.Instance;
 
-        return violetDialog != null && violetDialog.isVioletInRoom;
+        violetDialog?.RefreshLibraryAwareness();
+        debugIsVioletInRoom = violetDialog != null && violetDialog.isVioletInRoom;
+        debugIsLibraryObserved = violetDialog != null && violetDialog.IsLibraryObserved;
+        return debugIsVioletInRoom || debugIsLibraryObserved;
     }
 
     private IEnumerator ShowVioletTextAtWaitPoint(PlayerController player)
@@ -119,15 +146,58 @@ public class Int_Globus : MonoBehaviour, IVioletRoomInteractionGate
         }
 
         if (player != null)
-            ShowVioletPresentText();
+            yield return PlayVioletGateDialogue();
 
+    }
+
+    private IEnumerator PlayVioletGateDialogue()
+    {
+        if (violetPresentDialogue != null)
+        {
+            foreach (Lvl3DialogueLine line in violetPresentDialogue)
+            {
+                string sherlockText = line.speaker == Lvl3DialogueSpeaker.Sherlock ? line.text : string.Empty;
+                string watsonText = line.speaker == Lvl3DialogueSpeaker.Watson ? line.text : string.Empty;
+                PlayerTopText.Instance?.ShowTopTextPersistent(sherlockText, watsonText);
+
+                AudioSource voiceSource = line.speaker == Lvl3DialogueSpeaker.Sherlock
+                    ? sherlockVoiceSource
+                    : watsonVoiceSource;
+                if (voiceSource != null && line.voiceClip != null)
+                {
+                    voiceSource.Stop();
+                    voiceSource.PlayOneShot(line.voiceClip);
+                }
+
+                yield return new WaitForSeconds(line.duration > 0f ? line.duration : 3f);
+                PlayerTopText.Instance?.ClearTopTextIfMatches(sherlockText, watsonText);
+            }
+        }
+
+        ActivateFirstVioletGateObject();
+        MoveWatsonToGatePoint();
         isWalkingToWaitPoint = false;
     }
 
-    private void ShowVioletPresentText()
+    private void ActivateFirstVioletGateObject()
     {
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText(violetPresentText, "");
+        if (firstVioletGateTriggered)
+            return;
+
+        firstVioletGateTriggered = true;
+        if (activateOnFirstVioletGate != null)
+            activateOnFirstVioletGate.SetActive(true);
+    }
+
+    private void MoveWatsonToGatePoint()
+    {
+        if (intPointWatson == null || SwitchCharacter.Instance == null ||
+            SwitchCharacter.Instance.players == null || SwitchCharacter.Instance.players.Length < 2 ||
+            SwitchCharacter.Instance.players[1] == null)
+            return;
+
+        PlayerController watson = SwitchCharacter.Instance.players[1].GetComponent<PlayerController>();
+        watson?.MoveToPoint(intPointWatson.position);
     }
 
     private IEnumerator ShowMechanismText()

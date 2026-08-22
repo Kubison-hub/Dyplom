@@ -25,12 +25,12 @@ public class DoorSwitcher : MonoBehaviour
     {
         interactable = GetComponent<Interactable>();
 
-        wallAnimator = secretWall.GetComponent<Animator>();
+        if (wallAnimator == null && secretWall != null)
+            wallAnimator = secretWall.GetComponent<Animator>();
     }
 
     public void Interact(PlayerController player)
     {
-        MovePlayerToInteractionPoint(player);
         playerInput = player.GetComponent<PlayerInput>();
     }
 
@@ -44,7 +44,7 @@ public class DoorSwitcher : MonoBehaviour
 
         if (!CheckPositionEmpty(basePoint, 0.5f, player.gameObject))
         {
-            targetPosition += transform.right * 1f; // Przesuniêcie w bok
+            targetPosition += transform.right * 1f; // PrzesuniÄ™cie w bok
         }
 
         player.currentInteractable = interactable;
@@ -63,10 +63,16 @@ public class DoorSwitcher : MonoBehaviour
     {
         if (canOpen)
         {
+            if (wallAnimator == null)
+            {
+                Debug.LogError($"{name}: DoorSwitcher has no Wall Animator assigned.", this);
+                return;
+            }
+
             if (!isOpen)
             {
                 wallAnimator.SetTrigger("Open");
-                PlayerTopText.Instance.ShowTopText("Brawo Watsonie!, ciekawe jak¹ tajemnicê skrywa to tajne przejœcie", "W rzeczy samej Sherlock");
+                PlayerTopText.Instance.ShowTopText("Brawo Watsonie!, ciekawe jakÄ… tajemnicÄ™ skrywa to tajne przejÅ›cie", "W rzeczy samej Sherlock");
                 isOpen = true;
                 hidenRoom.isActive = true;
                 hidenRoom.discovered = true;
@@ -85,8 +91,9 @@ public class DoorSwitcher : MonoBehaviour
 
         else
         {
-            wallAnimator.SetTrigger("TryOpen");
-            PlayerTopText.Instance.ShowTopText("Hmm, wygl¹da na to, ¿e komoda specjalnie blokuje dojœcie do œciany", "Dok³adnie, wydaje siê zbyt ciê¿ka aby przepchaæ j¹ rêcznie.");
+            if (wallAnimator != null)
+                wallAnimator.SetTrigger("TryOpen");
+            PlayerTopText.Instance.ShowTopText("Hmm, wyglÄ…da na to, Å¼e komoda specjalnie blokuje dojÅ›cie do Å›ciany", "DokÅ‚adnie, wydaje siÄ™ zbyt ciÄ™Å¼ka aby przepchaÄ‡ jÄ… rÄ™cznie.");
         }
             
     }

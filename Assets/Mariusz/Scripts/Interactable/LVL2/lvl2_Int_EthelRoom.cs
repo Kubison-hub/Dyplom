@@ -14,7 +14,10 @@ public class lvl2_Int_EthelRoom : MonoBehaviour
     public GameObject spline1;
     public GameObject spline2;
 
-   public lvl2_Int_Mirror mirror;
+    public lvl2_Int_Mirror mirror;
+
+    [Header("Top Text")]
+    [SerializeField, TextArea] private string roomDiscoveryText = "Nie znalazłem Ethel w jej pokoju.";
 
     private void Start()
     {
@@ -25,17 +28,25 @@ public class lvl2_Int_EthelRoom : MonoBehaviour
 
     public void AddSplines()
     {
+        if (performed)
+            return;
+
+        performed = true;
         StartCoroutine(AddClue());
 
-       
+        if (PlayerTopText.Instance != null)
+            PlayerTopText.Instance.ShowTopText(roomDiscoveryText, string.Empty);
+
         //EagleVisionScanner.Instance.footprintsSplines.Add(spline);
 
-        if (!mirror.isOpen)
+        if (mirror == null || !mirror.isOpen)
         {
-            spline1.gameObject.SetActive(true);
+            if (spline1 != null)
+                spline1.SetActive(true);
         }
         
-        spline2.gameObject.SetActive(true);
+        if (spline2 != null)
+            spline2.SetActive(true);
 
 
 
@@ -49,7 +60,7 @@ public class lvl2_Int_EthelRoom : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("PlayerA"))
+        if (!performed && other.CompareTag("PlayerA"))
         {
             AddSplines();
 
@@ -59,8 +70,11 @@ public class lvl2_Int_EthelRoom : MonoBehaviour
     private IEnumerator AddClue()
     {
         yield return new WaitForSeconds(1);
-        interactable.AddClue(0);
-        interactable.isInteractableActive = false;
+        if (interactable != null)
+        {
+            interactable.AddClue(0);
+            interactable.isInteractableActive = false;
+        }
         yield return new WaitForSeconds(3);
         
 

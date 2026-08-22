@@ -1,11 +1,16 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 using UnityEngine.InputSystem;
 
 public class DetectiveIdeaManager : MonoBehaviour
 {
     public static DetectiveIdeaManager Instance { get; private set; }
+
+    // Subscribers can consume an empty click while Vision Eye is active.
+    public event Func<bool> OnEmptyVisionClick;
 
     [Header("Puzzle")]
     public DetectiveSequencePuzzle activePuzzle;
@@ -45,6 +50,15 @@ public class DetectiveIdeaManager : MonoBehaviour
     [SerializeField, Min(0.01f)] private float sequenceLookAtSmoothTime = 0.25f;
     [SerializeField, Min(0f)] private float sequenceLookAtMaxDistanceFromPlayer = 3f;
 
+    [Header("Sherlock Head Rig During Line Drag")]
+    [Tooltip("Rig with Sherlock's Multi-Aim Constraint for the head.")]
+    [SerializeField] private Rig headRig;
+    [Tooltip("Assign the Transform used as the source target by the Multi-Aim Constraint.")]
+    [SerializeField] private Transform headRigLookTarget;
+    [SerializeField] private bool headRigOnlyWhenSherlockIsActive = true;
+    [SerializeField, Min(0.01f)] private float headRigBlendDuration = 0.2f;
+    [SerializeField, Min(0.01f)] private float headRigTargetSmoothTime = 0.08f;
+
     private readonly List<DetectiveIdeaPoint> visiblePoints = new List<DetectiveIdeaPoint>();
     private readonly List<LineRenderer> acceptedLines = new List<LineRenderer>();
     private readonly List<LineRenderer> activeSequenceLines = new List<LineRenderer>();
@@ -66,6 +80,10 @@ public class DetectiveIdeaManager : MonoBehaviour
     private DetectiveIdeaPoint magnifierDiscoveryCandidate;
     private float magnifierDiscoveryStartedAt;
     private int sequenceProgressIndex;
+    private bool connectionsEnabled = true;
+    private bool puzzleCompletionEnabled = true;
+    private Vector3 headRigTargetVelocity;
+    private bool resetHeadRigTargetOnNextDrag = true;
 
     private void Awake()
     {
@@ -87,8 +105,16 @@ public class DetectiveIdeaManager : MonoBehaviour
     {
         RestoreSequenceLookAt();
 
+        if (headRig != null)
+            headRig.weight = 0f;
+
         if (sequenceLookAtTarget != null)
             Destroy(sequenceLookAtTarget.gameObject);
+    }
+
+    private void LateUpdate()
+    {
+        UpdateHeadRigForDraggedLine();
     }
 
     private void SetRejectedLinesVisible(bool visible)
@@ -108,6 +134,17 @@ public class DetectiveIdeaManager : MonoBehaviour
 
     private void Update()
     {
+        if (!IsSherlockActive())
+        {
+            wasDetectiveVisionActive = false;
+            ClearHover();
+            CancelDrag();
+            HideVisiblePoints();
+            SetAcceptedLinesVisible(false);
+            SetRejectedLinesVisible(false);
+            return;
+        }
+
         if (puzzleCompleted)
         {
             if (holdSolvedSequenceLookAt)
@@ -156,7 +193,13 @@ public class DetectiveIdeaManager : MonoBehaviour
 
     public bool TryHandlePointerPress()
     {
+        if (!IsSherlockActive())
+            return false;
+
         if (puzzleCompleted)
+            return false;
+
+        if (!connectionsEnabled)
             return false;
 
         if (!IsDetectiveVisionActive())
@@ -169,9 +212,12 @@ public class DetectiveIdeaManager : MonoBehaviour
         if (point == null)
         {
             if (dragSource != null)
+            {
                 CancelDrag();
+                return true;
+            }
 
-            return false;
+            return TryConsumeEmptyVisionClick();
         }
 
         if (!point.IsDiscovered)
@@ -192,8 +238,74 @@ public class DetectiveIdeaManager : MonoBehaviour
         return dragSource != null;
     }
 
+    private bool TryConsumeEmptyVisionClick()
+    {
+        if (OnEmptyVisionClick == null)
+            return false;
+
+        foreach (Delegate listener in OnEmptyVisionClick.GetInvocationList())
+        {
+            if (((Func<bool>)listener).Invoke())
+                return true;
+        }
+
+        return false;
+    }
+
+    public void BeginPuzzleSession(
+        DetectiveSequencePuzzle puzzle,
+        bool enableConnections = false,
+        bool enablePuzzleCompletion = true)
+    {
+        CancelDrag();
+        ClearHover();
+        DestroySessionLines();
+        HideVisiblePoints();
+        visiblePoints.Clear();
+
+        if (solvedSequenceLookAtCoroutine != null)
+            StopCoroutine(solvedSequenceLookAtCoroutine);
+
+        solvedSequenceLookAtCoroutine = null;
+        holdSolvedSequenceLookAt = false;
+        RestoreSequenceLookAt();
+
+        activePuzzle = puzzle;
+        puzzleCompleted = false;
+        sequenceProgressIndex = 0;
+        connectionsEnabled = enableConnections;
+        puzzleCompletionEnabled = enablePuzzleCompletion;
+        wasDetectiveVisionActive = false;
+        detectiveVisionActivatedAt = Time.unscaledTime;
+    }
+
+    public void SetConnectionsEnabled(bool enabled)
+    {
+        connectionsEnabled = enabled;
+
+        if (!enabled)
+            CancelDrag();
+    }
+
+    public void SetPuzzleCompletionEnabled(bool enabled)
+    {
+        puzzleCompletionEnabled = enabled;
+
+        if (puzzleCompletionEnabled &&
+            activePuzzle != null &&
+            !activePuzzle.IsSolved &&
+            sequenceProgressIndex >= activePuzzle.correctSequence.Count)
+        {
+            activePuzzle.SolveFromOrderedSequence();
+            CompletePuzzle();
+        }
+    }
+
     public bool IsPointerOverDiscoveredIdeaPoint()
     {
+        if (!IsSherlockActive())
+            return false;
+
         if (!IsDetectiveVisionActive())
             return false;
 
@@ -204,6 +316,12 @@ public class DetectiveIdeaManager : MonoBehaviour
     private bool IsDetectiveVisionActive()
     {
         return EagleVisionSystem.Instance != null && EagleVisionSystem.Instance.isActive;
+    }
+
+    private bool IsSherlockActive()
+    {
+        return SwitchCharacter.Instance == null ||
+               SwitchCharacter.Instance.activePlayerIndex == 0;
     }
 
     public void DiscoverPoint(DetectiveIdeaPoint point)
@@ -280,7 +398,9 @@ public class DetectiveIdeaManager : MonoBehaviour
             previewLine = null;
             sequenceProgressIndex++;
 
-            if (activePuzzle != null && sequenceProgressIndex >= activePuzzle.correctSequence.Count)
+            if (activePuzzle != null &&
+                puzzleCompletionEnabled &&
+                sequenceProgressIndex >= activePuzzle.correctSequence.Count)
             {
                 activePuzzle.SolveFromOrderedSequence();
                 CompletePuzzle();
@@ -449,6 +569,49 @@ public class DetectiveIdeaManager : MonoBehaviour
             UpdateSequenceLookAt(pointerPosition);
         else
             RestoreSequenceLookAt();
+    }
+
+    private void UpdateHeadRigForDraggedLine()
+    {
+        if (headRig == null)
+            return;
+
+        bool sherlockIsActive = SwitchCharacter.Instance == null ||
+                                SwitchCharacter.Instance.activePlayerIndex == 0;
+        bool shouldUseHeadRig = dragSource != null &&
+                                 previewLine != null &&
+                                 (!headRigOnlyWhenSherlockIsActive || sherlockIsActive);
+
+        float targetWeight = shouldUseHeadRig ? 1f : 0f;
+        headRig.weight = Mathf.MoveTowards(
+            headRig.weight,
+            targetWeight,
+            Time.unscaledDeltaTime / headRigBlendDuration);
+
+        if (!shouldUseHeadRig || headRigLookTarget == null)
+        {
+            if (!shouldUseHeadRig)
+                resetHeadRigTargetOnNextDrag = true;
+
+            return;
+        }
+
+        Vector3 lineHeadPosition = previewLine.GetPosition(1);
+        if (resetHeadRigTargetOnNextDrag)
+        {
+            headRigLookTarget.position = lineHeadPosition;
+            headRigTargetVelocity = Vector3.zero;
+            resetHeadRigTargetOnNextDrag = false;
+            return;
+        }
+
+        headRigLookTarget.position = Vector3.SmoothDamp(
+            headRigLookTarget.position,
+            lineHeadPosition,
+            ref headRigTargetVelocity,
+            headRigTargetSmoothTime,
+            Mathf.Infinity,
+            Time.unscaledDeltaTime);
     }
 
     private void UpdateSequenceLookAt(Vector3 cursorPosition)
@@ -713,6 +876,27 @@ public class DetectiveIdeaManager : MonoBehaviour
         hoveredPoint = null;
         dragSource = null;
         previewLine = null;
+    }
+
+    private void DestroySessionLines()
+    {
+        DestroyPreviewLine();
+        DestroyPreviewLineDescription();
+
+        foreach (LineRenderer line in acceptedLines)
+        {
+            if (line != null)
+                Destroy(line.gameObject);
+        }
+        acceptedLines.Clear();
+        activeSequenceLines.Clear();
+
+        foreach (LineRenderer line in rejectedLines)
+        {
+            if (line != null)
+                Destroy(line.gameObject);
+        }
+        rejectedLines.Clear();
     }
 
     private void CreatePreviewLineDescription(DetectiveIdeaPoint point)

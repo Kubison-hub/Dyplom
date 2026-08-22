@@ -2,11 +2,19 @@ using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Interactable))]
-public class Int_lv1_Fireplace : MonoBehaviour
+public class Int_lv1_Fireplace : Lvl3InteractionDialogueBase
 {
     [SerializeField] private DetectiveIdeaPoint firePlaceIdeaPoint;
-    [SerializeField, TextArea] private string topText =
-        "Przy zgaszonym świetle kominek był jedynym źródłem światła w salonie.";
+    [Header("Fireplace Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] fireplaceDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Przy zgaszonym świetle kominek był jedynym źródłem światła w salonie.",
+            duration = 3f
+        }
+    };
 
     [Header("Completion FX")]
     [SerializeField, Min(0f)] private float completionQuestionFxRate = 7f;
@@ -15,6 +23,8 @@ public class Int_lv1_Fireplace : MonoBehaviour
 
     private Interactable interactable;
     private bool performed;
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => fireplaceDialogue;
 
     private void Start()
     {
@@ -28,9 +38,7 @@ public class Int_lv1_Fireplace : MonoBehaviour
             return;
 
         performed = true;
-
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText(topText, "");
+        PlayDialogue(player, fireplaceDialogue);
 
         FindFirePlaceIdeaPointIfNeeded();
         firePlaceIdeaPoint?.RevealFromExternalSource();
@@ -48,8 +56,6 @@ public class Int_lv1_Fireplace : MonoBehaviour
             StartCoroutine(FadeOutQuestionFX());
         }
 
-        if (player != null)
-            player.currentInteractable = null;
     }
 
     private IEnumerator FadeOutQuestionFX()

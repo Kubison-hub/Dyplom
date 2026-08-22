@@ -6,7 +6,7 @@ using UnityEngine.AI;
 using UnityEngine.Video;
 
 
-public class Int_EdithExamBody : MonoBehaviour
+public class Int_EdithExamBody : Lvl3InteractionDialogueBase
 {
     private bool interactionPerforming = false;
     private Interactable interactable;
@@ -47,6 +47,21 @@ public class Int_EdithExamBody : MonoBehaviour
     [SerializeField] private string tutorialPopupTitle = "BADANIE CIALA";
     [SerializeField, TextArea] private string tutorialPopupText;
     [SerializeField] private VideoClip tutorialPopupVideoClip;
+    [Header("Initial Examination Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] initialExaminationDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Przyjrzyjmy się jej uważnie, Watsonie.",
+            duration = 3f
+        }
+    };
+    [Header("Examination CP Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] ringCpDialogue;
+    [SerializeField] private Lvl3DialogueLine[] paperCpDialogue;
+    [SerializeField] private Lvl3DialogueLine[] bulletCpDialogue;
+    [SerializeField] private Lvl3DialogueLine[] allCpCollectedDialogue;
     [Header("Detective Idea")]
     [SerializeField] private DetectiveIdeaPoint edithIdeaPoint;
     //ClueCards Positions
@@ -72,8 +87,12 @@ public class Int_EdithExamBody : MonoBehaviour
     private bool tutorialPopupShown;
     private bool tutorialPopupPending;
     private Coroutine tutorialPopupCoroutine;
+    private bool waitingForInitialDialogue;
+    private bool initialDialogueCompleted;
+    private bool completionDialoguePending;
 
     public bool IsExaminationCompleted => examinationCompleted || edithIdeaRevealed;
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => initialExaminationDialogue;
 
 
     private void Start()
@@ -123,6 +142,11 @@ public class Int_EdithExamBody : MonoBehaviour
         if (!performed)
         {
             performed = true;
+            waitingForInitialDialogue = initialExaminationDialogue != null && initialExaminationDialogue.Length > 0;
+            initialDialogueCompleted = !waitingForInitialDialogue;
+
+            if (waitingForInitialDialogue)
+                PlayDialogue(player, initialExaminationDialogue);
         }
 
         if (intCollider != null)
@@ -189,17 +213,44 @@ public class Int_EdithExamBody : MonoBehaviour
 
     public void RegisterExamClue()
     {
+        RegisterExamClue(-1, null);
+    }
+
+    public void RegisterExamClue(int clueIndex, PlayerController player)
+    {
         if (!performed || examinationCompleted || edithIdeaRevealed)
             return;
+
+        Lvl3DialogueLine[] clueDialogue = GetClueDialogue(clueIndex);
+        if (clueDialogue != null && clueDialogue.Length > 0)
+            PlayDialogue(player, clueDialogue);
 
         collectedExamClueCount++;
         if (collectedExamClueCount < requiredCluesToRevealIdea)
             return;
 
+        completionDialoguePending = allCpCollectedDialogue != null && allCpCollectedDialogue.Length > 0;
         edithIdeaRevealed = true;
         FindEdithIdeaPointIfNeeded();
         edithIdeaPoint?.RevealFromExternalSource();
         EndExamination(true);
+
+        if (completionDialoguePending && (clueDialogue == null || clueDialogue.Length == 0))
+        {
+            completionDialoguePending = false;
+            PlayDialogue(null, allCpCollectedDialogue);
+        }
+    }
+
+    private Lvl3DialogueLine[] GetClueDialogue(int clueIndex)
+    {
+        return clueIndex switch
+        {
+            0 => ringCpDialogue,
+            1 => paperCpDialogue,
+            2 => bulletCpDialogue,
+            _ => null
+        };
     }
 
     private void EndExamination(bool completed)
@@ -266,10 +317,7 @@ public class Int_EdithExamBody : MonoBehaviour
                                   cameraController.SetZoomPreset(examinationPresetName);
         cameraController?.OrbitHorizontalAxisTo(examinationHorizontalAxis, examinationOrbitSpeed);
 
-        if (useLegacyShotTutorial)
-            ShotTutorial();
-
-        ShowTutorialPopupIfNeeded();
+        ShowExaminationTutorialsIfReady();
     }
 
     public void ShotTutorial()
@@ -337,7 +385,7 @@ public class Int_EdithExamBody : MonoBehaviour
 
     private void ShowTutorialPopupIfNeeded()
     {
-        if (!showTutorialPopup || tutorialPopupShown || tutorialPopupPending || TutorialTimeline.Instance == null)
+        if (!initialDialogueCompleted || !showTutorialPopup || tutorialPopupShown || tutorialPopupPending || TutorialTimeline.Instance == null)
             return;
 
         tutorialPopupPending = true;
@@ -369,6 +417,43 @@ public class Int_EdithExamBody : MonoBehaviour
 
         tutorialPopupCoroutine = null;
         tutorialPopupPending = false;
+    }
+
+    private void ShowExaminationTutorialsIfReady()
+    {
+        if (!initialDialogueCompleted)
+            return;
+
+        if (useLegacyShotTutorial)
+            ShotTutorial();
+
+        ShowTutorialPopupIfNeeded();
+    }
+
+    protected override void OnDialogueSequenceCompleted(Lvl3DialogueLine[] lines)
+    {
+        if (waitingForInitialDialogue && lines == initialExaminationDialogue)
+        {
+            waitingForInitialDialogue = false;
+            initialDialogueCompleted = true;
+
+            if (interactionPerforming && isExaminationCameraActive)
+                ShowExaminationTutorialsIfReady();
+            return;
+        }
+
+        if (!completionDialoguePending || !IsCpDialogue(lines))
+            return;
+
+        completionDialoguePending = false;
+        PlayDialogue(null, allCpCollectedDialogue);
+    }
+
+    private bool IsCpDialogue(Lvl3DialogueLine[] lines)
+    {
+        return lines == ringCpDialogue ||
+               lines == paperCpDialogue ||
+               lines == bulletCpDialogue;
     }
 
     private void SetExaminationGuidanceVisible(bool visible)

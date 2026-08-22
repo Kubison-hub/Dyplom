@@ -16,6 +16,9 @@ public class lvl2_Int_Letter : MonoBehaviour
 
     [SerializeField] private Renderer rend;
 
+    [Header("Top Text")]
+    [SerializeField, TextArea] private string topText = "Ten list może wyjaśnić więcej, niż się wydaje.";
+
 
 
     private void Start()
@@ -31,8 +34,14 @@ public class lvl2_Int_Letter : MonoBehaviour
         interactable.AddClue(0);
         AddLetter();
 
-        audioFX.pitch = Random.Range(0.8f, 1.2f);
-        audioFX.Play();
+        if (audioFX != null)
+        {
+            audioFX.pitch = Random.Range(0.8f, 1.2f);
+            audioFX.Play();
+        }
+
+        if (PlayerTopText.Instance != null)
+            PlayerTopText.Instance.ShowTopText(topText, string.Empty);
 
         interactable.isInteractableActive = false;
         player.currentInteractable = null;
@@ -40,7 +49,8 @@ public class lvl2_Int_Letter : MonoBehaviour
         ////intCollider.enabled = false;
         if (deactivateAfterPerform)
         {
-            rend.enabled = false;
+            if (rend != null)
+                rend.enabled = false;
             //this.gameObject.SetActive(false);
         }
         
@@ -51,8 +61,11 @@ public class lvl2_Int_Letter : MonoBehaviour
         if (!letterAdded)
         {
             letterAdded = true;
-            hatchExit.AddLetter();
-            stairsExit.AddLetter();
+            if (hatchExit != null)
+                hatchExit.AddLetter();
+
+            if (stairsExit != null)
+                stairsExit.AddLetter();
             Debug.Log("Letter Added");
         }
        

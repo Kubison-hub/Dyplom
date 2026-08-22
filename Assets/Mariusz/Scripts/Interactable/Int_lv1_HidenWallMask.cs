@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 [RequireComponent(typeof(Interactable))]
-public class Int_lv1_HidenWallMask : MonoBehaviour
+public class Int_lv1_HidenWallMask : Lvl3InteractionDialogueBase
 {
     [Header("Mask Detection")]
     [SerializeField] private bool startPuzzleActive = true;
@@ -35,12 +36,28 @@ public class Int_lv1_HidenWallMask : MonoBehaviour
     [Header("Completion")]
     [SerializeField, TextArea] private string firstDiscoveryText =
         "Ciekawy wzor. Lupa wydobywa go spod warstwy kurzu.";
-    [SerializeField, TextArea] private string completedText =
-        "Maska. A wiec gospodarz lubil tajemnice bardziej niz swieze powietrze.";
+    [Header("Completion Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] completionDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Maska. A wiec gospodarz lubil tajemnice bardziej niz swieze powietrze.",
+            duration = 3f
+        }
+    };
     [SerializeField] private Transform cardPosition;
     [SerializeField] private DetectiveIdeaPoint ideaPoint;
     [SerializeField] private GameObject[] activateOnSolved;
     [SerializeField] private bool deactivateSegmentsOnSolved = true;
+
+    [Header("Watson After Completion")]
+    [Tooltip("Optional marker. Watson moves here after the Completion Dialogue has finished.")]
+    [SerializeField] private Transform watsonCompletionPosition;
+    [SerializeField, Min(0.01f)] private float watsonArrivalDistance = 0.1f;
+    [SerializeField, Min(0.1f)] private float watsonRotationSpeed = 360f;
+    [SerializeField, Min(0.1f)] private float watsonNavMeshSampleRadius = 1f;
+    [SerializeField] private string watsonThinkingParameter = "IsThinking";
 
     private readonly List<LineRenderer> segments = new List<LineRenderer>();
     private readonly HashSet<LineRenderer> discoveredSegments = new HashSet<LineRenderer>();
@@ -52,6 +69,9 @@ public class Int_lv1_HidenWallMask : MonoBehaviour
     private bool maskVisualsVisible;
     private int undiscoveredLayer = -1;
     private int discoveredLayer = -1;
+    private Coroutine watsonCompletionCoroutine;
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => completionDialogue;
 
     public float Progress => segments.Count == 0 ? 0f : (float)discoveredSegments.Count / segments.Count;
 
@@ -309,7 +329,7 @@ public class Int_lv1_HidenWallMask : MonoBehaviour
             return;
 
         solved = true;
-        ShowTopText(completedText);
+        PlayDialogue(null, completionDialogue);
 
         if (interactable.clues != null && interactable.clues.Length > 0)
             interactable.AddClue(0, cardPosition);
@@ -344,5 +364,104 @@ public class Int_lv1_HidenWallMask : MonoBehaviour
     {
         if (!string.IsNullOrWhiteSpace(text) && PlayerTopText.Instance != null)
             PlayerTopText.Instance.ShowTopText(text, "");
+    }
+
+    protected override void OnDialogueSequenceCompleted(Lvl3DialogueLine[] lines)
+    {
+        if (lines != completionDialogue || watsonCompletionPosition == null)
+            return;
+
+        if (watsonCompletionCoroutine != null)
+            StopCoroutine(watsonCompletionCoroutine);
+
+        watsonCompletionCoroutine = StartCoroutine(MoveWatsonToCompletionPosition());
+    }
+
+    private IEnumerator MoveWatsonToCompletionPosition()
+    {
+        PlayerController watson = FindWatson();
+        if (watson == null)
+        {
+            Debug.LogWarning("Int_lv1_HidenWallMask: Watson was not found for the completion movement.", this);
+            yield break;
+        }
+
+        NavMeshAgent agent = watson.GetComponent<NavMeshAgent>();
+        Vector3 destination = watsonCompletionPosition.position;
+
+        if (NavMesh.SamplePosition(destination, out NavMeshHit navMeshHit, watsonNavMeshSampleRadius, NavMesh.AllAreas))
+            destination = navMeshHit.position;
+
+        if (agent != null && agent.isOnNavMesh)
+        {
+            agent.isStopped = false;
+            agent.SetDestination(destination);
+
+            while (agent.isOnNavMesh &&
+                   (agent.pathPending || agent.remainingDistance > watsonArrivalDistance))
+            {
+                if (!agent.pathPending && agent.pathStatus != NavMeshPathStatus.PathComplete)
+                {
+                    Debug.LogWarning("Int_lv1_HidenWallMask: Watson cannot reach the completion marker.", watsonCompletionPosition);
+                    break;
+                }
+
+                yield return null;
+            }
+
+            if (agent.isOnNavMesh)
+                agent.ResetPath();
+        }
+        else
+        {
+            watson.transform.position = destination;
+        }
+
+        while (Quaternion.Angle(watson.transform.rotation, watsonCompletionPosition.rotation) > 0.1f)
+        {
+            watson.transform.rotation = Quaternion.RotateTowards(
+                watson.transform.rotation,
+                watsonCompletionPosition.rotation,
+                watsonRotationSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        watson.transform.rotation = watsonCompletionPosition.rotation;
+        SetWatsonThinking(watson, true);
+        watsonCompletionCoroutine = null;
+    }
+
+    private void SetWatsonThinking(PlayerController watson, bool isThinking)
+    {
+        if (watson == null || string.IsNullOrWhiteSpace(watsonThinkingParameter))
+            return;
+
+        Animator watsonAnimator = watson.GetComponentInChildren<Animator>();
+        if (watsonAnimator != null)
+            watsonAnimator.SetBool(watsonThinkingParameter, isThinking);
+    }
+
+    private static PlayerController FindWatson()
+    {
+        if (SwitchCharacter.Instance != null && SwitchCharacter.Instance.players != null)
+        {
+            foreach (var playerInput in SwitchCharacter.Instance.players)
+            {
+                if (playerInput == null)
+                    continue;
+
+                PlayerController player = playerInput.GetComponent<PlayerController>();
+                if (player != null && player.playerCharacter == PlayerCharacter.Watson)
+                    return player;
+            }
+        }
+
+        foreach (PlayerController player in FindObjectsByType<PlayerController>(FindObjectsSortMode.None))
+        {
+            if (player != null && player.playerCharacter == PlayerCharacter.Watson)
+                return player;
+        }
+
+        return null;
     }
 }

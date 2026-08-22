@@ -26,6 +26,12 @@ public class HiddenPassageVisionReveal : MonoBehaviour
     [Header("Ghost Room Fade")]
     [SerializeField, Min(0.01f)] private float ghostFadeDuration = 0.75f;
 
+    [Header("Ghost Room Blackboard")]
+    [Tooltip("Blackboard covering the reconstructed room outside EagleVision.")]
+    [SerializeField] private GameObject ghostRoomBlackboard;
+    [SerializeField] private Material ghostRoomBlackboardFadeMaterial;
+    [SerializeField, Min(0.01f)] private float ghostRoomBlackboardFadeDuration = 0.5f;
+
     private Renderer[] visionRenderers;
     private bool[] realWallInitialStates;
     private bool[] realWallColliderInitialStates;
@@ -37,6 +43,7 @@ public class HiddenPassageVisionReveal : MonoBehaviour
     private readonly List<GhostRendererMaterialTarget> ghostMaterialTargets = new List<GhostRendererMaterialTarget>();
     private MaterialPropertyBlock propertyBlock;
     private Coroutine ghostFadeCoroutine;
+    private Coroutine blackboardFadeCoroutine;
     private float ghostVisibility;
 
     private struct GhostRendererMaterialTarget
@@ -61,6 +68,7 @@ public class HiddenPassageVisionReveal : MonoBehaviour
 
         SetGhostVisibility(0f);
         SetVisionRenderersVisible(false);
+        SetGhostRoomBlackboardVisibleImmediately(true);
         RestoreRealWallRenderers();
         SetGhostWallAnimation(false);
     }
@@ -85,12 +93,14 @@ public class HiddenPassageVisionReveal : MonoBehaviour
                 SetRealWallCollidersEnabled(false);
                 SetGhostVisibility(0f);
                 FadeGhostRoom(1f);
+                FadeGhostRoomBlackboard(false);
             }
             else
             {
                 RestoreRealWallRenderers();
                 RestoreRealWallColliders();
                 FadeGhostRoom(0f);
+                FadeGhostRoomBlackboard(true);
             }
 
             SetGhostWallAnimation(visionActive);
@@ -110,6 +120,8 @@ public class HiddenPassageVisionReveal : MonoBehaviour
         StopGhostFade();
         SetGhostVisibility(0f);
         SetVisionRenderersVisible(false);
+        StopGhostRoomBlackboardFade();
+        SetGhostRoomBlackboardVisibleImmediately(true);
         SetGhostWallAnimation(false);
     }
 
@@ -225,24 +237,25 @@ public class HiddenPassageVisionReveal : MonoBehaviour
     {
         if (ghostFadeRoots == null || ghostFadeRoots.Length == 0)
         {
-            return includeChildRenderers
+            Renderer[] renderers = includeChildRenderers
                 ? GetComponentsInChildren<Renderer>(true)
                 : GetComponents<Renderer>();
+            return ExcludeGhostRoomBlackboardRenderers(renderers);
         }
 
-        HashSet<Renderer> renderers = new HashSet<Renderer>();
+        HashSet<Renderer> collectedRenderers = new HashSet<Renderer>();
         foreach (Transform fadeRoot in ghostFadeRoots)
         {
             if (fadeRoot == null)
                 continue;
 
             foreach (Renderer renderer in fadeRoot.GetComponentsInChildren<Renderer>(true))
-                renderers.Add(renderer);
+                collectedRenderers.Add(renderer);
         }
 
-        Renderer[] result = new Renderer[renderers.Count];
-        renderers.CopyTo(result);
-        return result;
+        Renderer[] result = new Renderer[collectedRenderers.Count];
+        collectedRenderers.CopyTo(result);
+        return ExcludeGhostRoomBlackboardRenderers(result);
     }
 
     private void FadeGhostRoom(float targetVisibility)
@@ -293,6 +306,130 @@ public class HiddenPassageVisionReveal : MonoBehaviour
             propertyBlock.Clear();
             propertyBlock.SetFloat(GhostVisibilityProperty, ghostVisibility);
             target.renderer.SetPropertyBlock(propertyBlock, target.materialIndex);
+        }
+    }
+
+    private Renderer[] ExcludeGhostRoomBlackboardRenderers(Renderer[] renderers)
+    {
+        if (ghostRoomBlackboard == null || renderers == null)
+            return renderers;
+
+        List<Renderer> filtered = new List<Renderer>();
+        Transform blackboardTransform = ghostRoomBlackboard.transform;
+        foreach (Renderer renderer in renderers)
+        {
+            if (renderer == null || renderer.transform == blackboardTransform ||
+                renderer.transform.IsChildOf(blackboardTransform))
+            {
+                continue;
+            }
+
+            filtered.Add(renderer);
+        }
+
+        return filtered.ToArray();
+    }
+
+    private void FadeGhostRoomBlackboard(bool shouldBeVisible)
+    {
+        if (ghostRoomBlackboard == null)
+            return;
+
+        StopGhostRoomBlackboardFade();
+        blackboardFadeCoroutine = StartCoroutine(FadeGhostRoomBlackboardRoutine(shouldBeVisible));
+    }
+
+    private IEnumerator FadeGhostRoomBlackboardRoutine(bool shouldBeVisible)
+    {
+        bool wasActive = ghostRoomBlackboard.activeSelf;
+        if (shouldBeVisible && !wasActive)
+            ghostRoomBlackboard.SetActive(true);
+
+        Renderer[] renderers = ghostRoomBlackboard.GetComponentsInChildren<Renderer>(true);
+        if (renderers.Length == 0)
+        {
+            ghostRoomBlackboard.SetActive(shouldBeVisible);
+            blackboardFadeCoroutine = null;
+            yield break;
+        }
+
+        if (ghostRoomBlackboardFadeMaterial != null)
+        {
+            foreach (Renderer renderer in renderers)
+                renderer.material = ghostRoomBlackboardFadeMaterial;
+        }
+
+        float startAlpha = shouldBeVisible && !wasActive ? 0f : GetBlackboardAlpha(renderers[0]);
+        float targetAlpha = shouldBeVisible ? 1f : 0f;
+        SetBlackboardAlpha(renderers, startAlpha);
+
+        float elapsed = 0f;
+        while (elapsed < ghostRoomBlackboardFadeDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            SetBlackboardAlpha(renderers, Mathf.Lerp(startAlpha, targetAlpha, elapsed / ghostRoomBlackboardFadeDuration));
+            yield return null;
+        }
+
+        SetBlackboardAlpha(renderers, targetAlpha);
+        if (!shouldBeVisible)
+            ghostRoomBlackboard.SetActive(false);
+
+        blackboardFadeCoroutine = null;
+    }
+
+    private void StopGhostRoomBlackboardFade()
+    {
+        if (blackboardFadeCoroutine == null)
+            return;
+
+        StopCoroutine(blackboardFadeCoroutine);
+        blackboardFadeCoroutine = null;
+    }
+
+    private void SetGhostRoomBlackboardVisibleImmediately(bool visible)
+    {
+        if (ghostRoomBlackboard == null)
+            return;
+
+        ghostRoomBlackboard.SetActive(true);
+        Renderer[] renderers = ghostRoomBlackboard.GetComponentsInChildren<Renderer>(true);
+        if (ghostRoomBlackboardFadeMaterial != null)
+        {
+            foreach (Renderer renderer in renderers)
+                renderer.material = ghostRoomBlackboardFadeMaterial;
+        }
+
+        SetBlackboardAlpha(renderers, visible ? 1f : 0f);
+        if (!visible)
+            ghostRoomBlackboard.SetActive(false);
+    }
+
+    private static float GetBlackboardAlpha(Renderer renderer)
+    {
+        if (renderer == null)
+            return 1f;
+
+        Material material = renderer.material;
+        string colorProperty = material.HasProperty("_BaseColor") ? "_BaseColor" : "_Color";
+        return material.HasProperty(colorProperty) ? material.GetColor(colorProperty).a : 1f;
+    }
+
+    private static void SetBlackboardAlpha(Renderer[] renderers, float alpha)
+    {
+        foreach (Renderer renderer in renderers)
+        {
+            if (renderer == null)
+                continue;
+
+            Material material = renderer.material;
+            string colorProperty = material.HasProperty("_BaseColor") ? "_BaseColor" : "_Color";
+            if (!material.HasProperty(colorProperty))
+                continue;
+
+            Color color = material.GetColor(colorProperty);
+            color.a = alpha;
+            material.SetColor(colorProperty, color);
         }
     }
 

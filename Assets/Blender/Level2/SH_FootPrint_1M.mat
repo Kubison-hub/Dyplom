@@ -66,7 +66,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Footprints:
-        m_Texture: {fileID: 2800000, guid: ec2f7bd768a0d7848ad4a1617dc49836, type: 3}
+        m_Texture: {fileID: 2800000, guid: fba869bba29df3e4a87d7a59de4c5ee1, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
@@ -147,7 +147,11 @@ Material:
     - _Color: {r: 0.04055196, g: 0.16981131, b: 0, a: 0.49803922}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Max: {r: 0, g: 0, b: 0, a: 0}
+<<<<<<< Updated upstream
     - _PlayerPosition: {r: -172.73544, g: 0.038554788, b: -6.16099, a: 0}
+=======
+    - _PlayerPosition: {r: -8.797642, g: 0.038555145, b: -8.508495, a: 0}
+>>>>>>> Stashed changes
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _Vector2: {r: 0.3, g: 0.3, b: 0, a: 0}
     - _Vector3: {r: 0, g: 0, b: 0, a: 0}

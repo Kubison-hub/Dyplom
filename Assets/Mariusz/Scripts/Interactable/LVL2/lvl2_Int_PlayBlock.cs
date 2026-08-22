@@ -7,6 +7,10 @@ public class lvl2_Int_PlayBlock : MonoBehaviour
     public bool performed = false;
     public bool EthelRoomBlocks;
 
+    [Header("Top Text")]
+    [SerializeField, TextArea] private string playBlocksText = "Te klocki muszą do czegoś służyć.";
+    [SerializeField, TextArea] private string ethelRoomBlocksText = "Klocki Ethel tworzą znajomy wzór.";
+
     private void Start()
     {
         interactable = GetComponent<Interactable>();
@@ -19,11 +23,13 @@ public class lvl2_Int_PlayBlock : MonoBehaviour
         if (EthelRoomBlocks)
         {
             interactable.AddClue(0);
+            ShowTopText(ethelRoomBlocksText);
             Debug.Log("Ethel Room PlayBlocks interacted");
         }
         else
         {
             interactable.AddClue(1);
+            ShowTopText(playBlocksText);
             Debug.Log("PlayBlock interacted");
         }
         
@@ -33,6 +39,12 @@ public class lvl2_Int_PlayBlock : MonoBehaviour
 
         ////intCollider.enabled = false;
         //this.gameObject.SetActive(false);
+    }
+
+    private void ShowTopText(string text)
+    {
+        if (PlayerTopText.Instance != null)
+            PlayerTopText.Instance.ShowTopText(text, string.Empty);
     }
 //FIX
 

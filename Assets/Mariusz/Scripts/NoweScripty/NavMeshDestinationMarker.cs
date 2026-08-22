@@ -27,6 +27,9 @@ public class NavMeshDestinationMarker : MonoBehaviour
     private NavMeshAgent trackedAgent;
     private Vector3 baseScale;
     private float shownAtTime;
+    private bool previewVisible;
+    private float previewVisibilityMultiplier = 1f;
+    private Color previewRingColor;
 
     public static NavMeshDestinationMarker GetOrCreate()
     {
@@ -48,14 +51,40 @@ public class NavMeshDestinationMarker : MonoBehaviour
     {
         EnsureVisual();
         trackedAgent = agent;
+        previewVisible = false;
+        previewVisibilityMultiplier = 1f;
+        previewRingColor = ringColor;
         transform.position = destination + Vector3.up * groundOffset;
         shownAtTime = Time.unscaledTime;
         gameObject.SetActive(true);
     }
 
+    public void ShowPreview(Vector3 destination, Quaternion rotation)
+    {
+        EnsureVisual();
+        trackedAgent = null;
+        previewVisible = true;
+        previewVisibilityMultiplier = 1f;
+        previewRingColor = ringColor;
+        transform.position = destination + Vector3.up * groundOffset;
+        transform.rotation = rotation;
+        gameObject.SetActive(true);
+    }
+
+    public void SetPreviewVisibilityMultiplier(float multiplier)
+    {
+        previewVisibilityMultiplier = Mathf.Clamp01(multiplier);
+    }
+
+    public void SetPreviewColor(Color color)
+    {
+        previewRingColor = color;
+    }
+
     public void Hide()
     {
         trackedAgent = null;
+        previewVisible = false;
         gameObject.SetActive(false);
     }
 
@@ -82,13 +111,15 @@ public class NavMeshDestinationMarker : MonoBehaviour
         transform.localScale = baseScale * scalePulse;
 
         float alphaWave = (Mathf.Sin(time * alphaPulseSpeed) + 1f) * 0.5f;
-        Color pulseColor = ringColor;
+        Color sourceColor = previewVisible ? previewRingColor : ringColor;
+        Color pulseColor = sourceColor;
         float lifetimeAlpha = GetLifetimeAlpha(time);
-        pulseColor.a = Mathf.Lerp(minimumAlpha, ringColor.a, alphaWave) * lifetimeAlpha;
+        float previewAlpha = previewVisible ? previewVisibilityMultiplier : 1f;
+        pulseColor.a = Mathf.Lerp(minimumAlpha, sourceColor.a, alphaWave) * lifetimeAlpha * previewAlpha;
         lineRenderer.startColor = pulseColor;
         lineRenderer.endColor = pulseColor;
 
-        if (lifetimeAlpha <= 0f)
+        if (!previewVisible && lifetimeAlpha <= 0f)
             Hide();
     }
 
@@ -162,6 +193,9 @@ public class NavMeshDestinationMarker : MonoBehaviour
 
     private float GetLifetimeAlpha(float currentTime)
     {
+        if (previewVisible)
+            return 1f;
+
         float elapsed = currentTime - shownAtTime;
         if (elapsed <= visibleDuration)
             return 1f;

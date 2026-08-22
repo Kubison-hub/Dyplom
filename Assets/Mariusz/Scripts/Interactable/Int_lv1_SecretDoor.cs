@@ -3,11 +3,18 @@ using UnityEngine;
 using UnityEngine.Video;
 
 [RequireComponent(typeof(Interactable))]
-public class Int_lv1_SecretDoor : MonoBehaviour
+public class Int_lv1_SecretDoor : Lvl3InteractionDialogueBase
 {
-    [Header("Narration")]
-    [SerializeField, TextArea] private string topText =
-        "W jaki sposób otworzyć to tajne przejście?";
+    [Header("Secret Door Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] secretDoorDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "W jaki sposób otworzyć to tajne przejście?",
+            duration = 3f
+        }
+    };
 
     [Header("Footsteps Tutorial")]
     [SerializeField, Min(0f)] private float tutorialDelay = 1f;
@@ -28,6 +35,9 @@ public class Int_lv1_SecretDoor : MonoBehaviour
     private Interactable interactable;
     private Collider interactionCollider;
     private bool performed;
+    private bool tutorialStarted;
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => secretDoorDialogue;
 
     private void Start()
     {
@@ -44,13 +54,13 @@ public class Int_lv1_SecretDoor : MonoBehaviour
     public void PerformInteraction(PlayerController player)
     {
         if (performed)
+        {
+            PlayDialogue(player, secretDoorDialogue);
             return;
+        }
 
         performed = true;
         player.currentInteractable = null;
-
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText(topText, "");
 
         if (interactable != null)
         {
@@ -65,6 +75,24 @@ public class Int_lv1_SecretDoor : MonoBehaviour
         if (interactionCollider != null)
             interactionCollider.enabled = false;
 
+        if (secretDoorDialogue != null && secretDoorDialogue.Length > 0)
+            PlayDialogue(player, secretDoorDialogue);
+        else
+            StartFootstepsTutorial();
+    }
+
+    protected override void OnDialogueSequenceCompleted(Lvl3DialogueLine[] lines)
+    {
+        if (lines == secretDoorDialogue)
+            StartFootstepsTutorial();
+    }
+
+    private void StartFootstepsTutorial()
+    {
+        if (tutorialStarted)
+            return;
+
+        tutorialStarted = true;
         StartCoroutine(RunFootstepsTutorial());
     }
 
@@ -98,6 +126,17 @@ public class Int_lv1_SecretDoor : MonoBehaviour
 
         if (cameraChanged && returnToPreviousCameraAfterTutorial)
             cameraController.ReturnToPreviousZoomState(cameraTransitionSpeed);
+
+        EnableRepeatableInteraction();
+    }
+
+    private void EnableRepeatableInteraction()
+    {
+        if (interactable != null)
+            interactable.isInteractableActive = true;
+
+        if (interactionCollider != null)
+            interactionCollider.enabled = true;
     }
 
     private void SetFootprintSplinesActive(bool active)

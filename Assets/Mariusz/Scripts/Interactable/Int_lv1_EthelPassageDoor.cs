@@ -1,32 +1,69 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Interactable))]
-public class Int_lv1_EthelPassageDoor : MonoBehaviour
+public class Int_lv1_EthelPassageDoor : Lvl3InteractionDialogueBase
 {
-    [SerializeField, TextArea] private string firstInteractionText =
-        "Tutaj zamyka sie ten rozdzial, Watsonie. Musze isc na gore poszukac Malej Ethel. Czuje, ze ona jest kluczem do zagadki.";
+    [Header("Passage Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] firstPassageDialogueLines =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Tutaj zamyka sie ten rozdzial, Watsonie. Musze isc na gore poszukac Malej Ethel. Czuje, ze ona jest kluczem do zagadki.",
+            duration = 5f
+        }
+    };
 
-    [SerializeField, TextArea] private string repeatedInteractionText =
-        "Tedy nie przejde. Musze poszukac Malej Ethel na gorze.";
+    [SerializeField] private Lvl3DialogueLine[] repeatedPassageDialogueLines =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Tedy nie przejde. Musze poszukac Malej Ethel na gorze.",
+            duration = 3f
+        }
+    };
 
-    private Interactable interactable;
+    [Header("Stairs Progress")]
+    [SerializeField] private Int_StairsUp stairsUp;
+
     private bool hasBeenUsed;
+
+    [SerializeField] private GameObject nextInteraction;
+
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => firstPassageDialogueLines;
 
     private void Start()
     {
-        interactable = GetComponent<Interactable>();
-        interactable.SetInteractionType(InteractionType.Int_lv1_EthelPassageDoor);
+        SetupInteractable(InteractionType.Int_lv1_EthelPassageDoor);
+
+        if (stairsUp == null)
+            stairsUp = FindFirstObjectByType<Int_StairsUp>();
     }
 
     public void PerformInteraction(PlayerController player)
     {
-        string text = hasBeenUsed ? repeatedInteractionText : firstInteractionText;
-        hasBeenUsed = true;
+        if (!hasBeenUsed)
+        {
+            hasBeenUsed = true;
+            ActivateStairsGoal();
+            PlayDialogue(player, firstPassageDialogueLines);
+            nextInteraction.SetActive(true);
+            return;
+        }
 
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText(text, "");
+        PlayDialogue(player, repeatedPassageDialogueLines);
+    }
 
-        if (player != null)
-            player.currentInteractable = null;
+    private void ActivateStairsGoal()
+    {
+        if (stairsUp == null)
+        {
+            Debug.LogWarning($"{name}: Int_StairsUp is not assigned.", this);
+            return;
+        }
+
+        stairsUp.isSherlockWantToGoUpstairs = true;
     }
 }

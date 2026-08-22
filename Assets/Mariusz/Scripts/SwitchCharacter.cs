@@ -37,6 +37,7 @@ public class SwitchCharacter : MonoBehaviour
     [SerializeField] private Transform watsonReturnPoint;
     [SerializeField] private NavMeshAgent watsonNavMeshAgent;
     [SerializeField, Min(0.1f)] private float watsonReturnSampleRadius = 1f;
+    [SerializeField] private bool returnWatsonToMarkerWhenUncontrolled = false;
 
     public bool canSwitch = true;
 
@@ -71,6 +72,9 @@ public class SwitchCharacter : MonoBehaviour
 
     private void Update()
     {
+        if (TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput)
+            return;
+
         if (Keyboard.current != null && Keyboard.current[characterSwitchKey].wasPressedThisFrame)
         {
             int nextIndex = (activePlayerIndex + 1) % players.Length;
@@ -88,6 +92,11 @@ public class SwitchCharacter : MonoBehaviour
     {
         if (canSwitch)
         {
+            float previousHorizontalAxis = 0f;
+            bool shouldPreserveCameraAxis = index != activePlayerIndex &&
+                                            TryGetCameraHorizontalAxis(activePlayerIndex, out previousHorizontalAxis);
+            if (shouldPreserveCameraAxis)
+                SetCameraHorizontalAxis(index, previousHorizontalAxis);
             for (int i = 0; i < players.Length; i++)
             {
                 players[i].enabled = (i == index);
@@ -99,7 +108,7 @@ public class SwitchCharacter : MonoBehaviour
 
             if (index == watsonPlayerIndex)
                 StopWatsonReturn();
-            else
+            else if (returnWatsonToMarkerWhenUncontrolled)
                 ReturnWatsonToMarker();
 
             SetWallTransparencyTarget(players[index].gameObject.transform);
@@ -173,6 +182,33 @@ public class SwitchCharacter : MonoBehaviour
         }
     }
 
+    private bool TryGetCameraHorizontalAxis(int playerIndex, out float horizontalAxis)
+    {
+        horizontalAxis = 0f;
+        if (playersCamera == null || playerIndex < 0 || playerIndex >= playersCamera.Length ||
+            playersCamera[playerIndex] == null)
+            return false;
+
+        CinemachineOrbitalFollow orbitalFollow =
+            playersCamera[playerIndex].GetComponentInChildren<CinemachineOrbitalFollow>(true);
+        if (orbitalFollow == null)
+            return false;
+
+        horizontalAxis = orbitalFollow.HorizontalAxis.Value;
+        return true;
+    }
+
+    private void SetCameraHorizontalAxis(int playerIndex, float horizontalAxis)
+    {
+        if (playersCamera == null || playerIndex < 0 || playerIndex >= playersCamera.Length ||
+            playersCamera[playerIndex] == null)
+            return;
+
+        CinemachineOrbitalFollow orbitalFollow =
+            playersCamera[playerIndex].GetComponentInChildren<CinemachineOrbitalFollow>(true);
+        if (orbitalFollow != null)
+            orbitalFollow.HorizontalAxis.Value = horizontalAxis;
+    }
     private void SetWallTransparencyTarget(Transform target)
     {
 

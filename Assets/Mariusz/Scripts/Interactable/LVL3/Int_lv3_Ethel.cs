@@ -1,28 +1,215 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.AI;
 
 [RequireComponent(typeof(Interactable))]
 public class Int_lv3_Ethel : MonoBehaviour
 {
+    [Header("Ethel Movement")]
+    [SerializeField] private NavMeshAgent ethelAgent;
+    [SerializeField] private Transform firstTarget;
+    [SerializeField] private Transform secondTarget;
+    [SerializeField, Min(0.05f)] private float arrivalDistance = 0.15f;
+    [SerializeField] private bool runToFirstTarget = true;
+    [SerializeField] private bool runToSecondTarget = true;
+    [SerializeField, Min(0.1f)] private float walkingSpeed = 1.6f;
+    [SerializeField, Min(0.1f)] private float runningSpeed = 3.5f;
+
+    [Header("Ethel Animation")]
+    [SerializeField] private Animator ethelAnimator;
+    [SerializeField] private string isWalkingParameter = "IsWalking";
+    [SerializeField] private string isRunningParameter = "IsRunning";
+
+    [Header("Ethel Dialogue")]
+    [TextArea]
+    [SerializeField] private string firstInteractionText = "Chodźcie za mną.";
+    [SerializeField] private AudioSource ethelVoiceSource;
+    [SerializeField] private AudioClip firstInteractionAudio;
+    [SerializeField, Min(0.1f)] private float dialogueDuration = 2.5f;
+
+    [Header("After Opening The Door")]
+    [SerializeField, Min(0f)] private float doorOpenWaitDuration = 1.5f;
+    [TextArea]
+    [SerializeField] private string afterDoorText = "T�dy!";
+    [SerializeField] private AudioClip afterDoorAudio;
+
+    [Header("Secret Door")]
+    [SerializeField] private Animator ethelSecretDoorAnimator;
+    [SerializeField] private string openDoorTrigger = "Open";
+    [SerializeField] private string openedDoorBool = "Opened";
+    [SerializeField] private AudioSource secretDoorAudioSource;
+
+    [Header("Blackboard Reveal")]
+    [Tooltip("Temporary blackboard hiding the area beyond Ethel's secret door.")]
+    [SerializeField] private GameObject blackBoardToDisableOnDoorOpen;
+    [SerializeField] private Material blackBoardFadeMaterial;
+    [Tooltip("Delay after the door Open trigger before fading the blackboard.")]
+    [SerializeField, Min(0f)] private float blackBoardFadeDelay = 0.35f;
+    [SerializeField, Min(0.01f)] private float blackBoardFadeDuration = 1f;
+
+    [Header("Next Interaction")]
+    [Tooltip("Whole GameObject with Int_lv3_Ethel_2. It is enabled after Ethel reaches Second Target.")]
+    [SerializeField] private GameObject ethel2InteractionGameObject;
+
     private Interactable interactable;
+    private bool sequenceStarted;
 
-    private void Reset()
-    {
-        SetupInteractable();
-    }
-
-    private void OnValidate()
-    {
-        SetupInteractable();
-    }
+    private void Reset() => SetupInteractable();
+    private void OnValidate() => SetupInteractable();
 
     private void Awake()
     {
         SetupInteractable();
+
+        if (ethelAgent == null)
+            ethelAgent = GetComponent<NavMeshAgent>();
+
+        if (ethelAgent == null)
+            ethelAgent = gameObject.AddComponent<NavMeshAgent>();
+
+        if (ethelAnimator == null)
+            ethelAnimator = GetComponentInChildren<Animator>(true);
+
     }
 
     public void PerformInteraction(PlayerController player)
     {
-        Debug.Log("ETHEL INTERACTION");
+        if (sequenceStarted)
+            return;
+
+        sequenceStarted = true;
+        if (interactable != null)
+            interactable.isInteractableActive = false;
+
+        if (player != null)
+            player.currentInteractable = null;
+
+        StartCoroutine(RunEthelSequence());
+    }
+
+    private IEnumerator RunEthelSequence()
+    {
+        ShowEthelText(firstInteractionText, firstInteractionAudio);
+
+        yield return MoveEthelTo(firstTarget, runToFirstTarget);
+
+        if (ethelSecretDoorAnimator != null && !string.IsNullOrWhiteSpace(openDoorTrigger))
+            ethelSecretDoorAnimator.SetTrigger(openDoorTrigger);
+
+        if (ethelSecretDoorAnimator != null && !string.IsNullOrWhiteSpace(openedDoorBool))
+            ethelSecretDoorAnimator.SetBool(openedDoorBool, true);
+
+        secretDoorAudioSource?.Play();
+        StartCoroutine(FadeBlackBoardAfterDoorOpen());
+
+        if (doorOpenWaitDuration > 0f)
+            yield return new WaitForSeconds(doorOpenWaitDuration);
+
+        ShowEthelText(afterDoorText, afterDoorAudio);
+        yield return MoveEthelTo(secondTarget, runToSecondTarget);
+
+        if (ethel2InteractionGameObject != null)
+            ethel2InteractionGameObject.SetActive(true);
+    }
+
+    private IEnumerator MoveEthelTo(Transform target, bool run)
+    {
+        if (target == null || ethelAgent == null)
+        {
+            Debug.LogWarning($"{nameof(Int_lv3_Ethel)} on '{name}' is missing a NavMeshAgent or movement target.", this);
+            yield break;
+        }
+
+        if (!ethelAgent.isOnNavMesh)
+        {
+            Debug.LogWarning($"{nameof(Int_lv3_Ethel)} on '{name}' is not placed on the NavMesh.", this);
+            yield break;
+        }
+
+        ethelAgent.speed = run ? runningSpeed : walkingSpeed;
+        SetMovementAnimation(!run, run);
+        ethelAgent.isStopped = false;
+        ethelAgent.SetDestination(target.position);
+
+        while (ethelAgent.pathPending)
+            yield return null;
+
+        if (ethelAgent.pathStatus != NavMeshPathStatus.PathComplete)
+        {
+            SetMovementAnimation(false, false);
+            Debug.LogWarning($"{nameof(Int_lv3_Ethel)} cannot reach '{target.name}' on the NavMesh.", this);
+            yield break;
+        }
+
+        while (ethelAgent.remainingDistance > Mathf.Max(arrivalDistance, ethelAgent.stoppingDistance))
+            yield return null;
+
+        ethelAgent.ResetPath();
+        SetMovementAnimation(false, false);
+        transform.rotation = target.rotation;
+    }
+
+    private void SetMovementAnimation(bool walking, bool running)
+    {
+        if (ethelAnimator == null)
+            return;
+
+        if (!string.IsNullOrWhiteSpace(isWalkingParameter))
+            ethelAnimator.SetBool(isWalkingParameter, walking);
+
+        if (!string.IsNullOrWhiteSpace(isRunningParameter))
+            ethelAnimator.SetBool(isRunningParameter, running);
+    }
+
+    private void ShowEthelText(string text, AudioClip clip)
+    {
+        PlayerTopText.Instance?.ShowEthelTopText(text, dialogueDuration);
+
+        if (ethelVoiceSource != null && clip != null)
+            ethelVoiceSource.PlayOneShot(clip);
+    }
+
+    private IEnumerator FadeBlackBoardAfterDoorOpen()
+    {
+        if (blackBoardFadeDelay > 0f)
+            yield return new WaitForSeconds(blackBoardFadeDelay);
+
+        if (blackBoardToDisableOnDoorOpen == null)
+            yield break;
+
+        Renderer blackBoardRenderer = blackBoardToDisableOnDoorOpen.GetComponent<Renderer>();
+        if (blackBoardRenderer == null)
+        {
+            blackBoardToDisableOnDoorOpen.SetActive(false);
+            yield break;
+        }
+
+        if (blackBoardFadeMaterial != null)
+            blackBoardRenderer.material = blackBoardFadeMaterial;
+
+        Material material = blackBoardRenderer.material;
+        string colorProperty = material.HasProperty("_BaseColor") ? "_BaseColor" : "_Color";
+        if (!material.HasProperty(colorProperty))
+        {
+            blackBoardToDisableOnDoorOpen.SetActive(false);
+            yield break;
+        }
+
+        Color color = material.GetColor(colorProperty);
+        float startAlpha = color.a;
+        float elapsed = 0f;
+
+        while (elapsed < blackBoardFadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            color.a = Mathf.Lerp(startAlpha, 0f, elapsed / blackBoardFadeDuration);
+            material.SetColor(colorProperty, color);
+            yield return null;
+        }
+
+        color.a = 0f;
+        material.SetColor(colorProperty, color);
+        blackBoardToDisableOnDoorOpen.SetActive(false);
     }
 
     private void SetupInteractable()
@@ -31,8 +218,6 @@ public class Int_lv3_Ethel : MonoBehaviour
 
         interactable = GetComponent<Interactable>();
         if (interactable != null)
-        {
             interactable.SetInteractionType(InteractionType.Int_lv3_Ethel);
-        }
     }
 }

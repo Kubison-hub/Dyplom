@@ -7,6 +7,7 @@ public class Int_Edith_Ring : MonoBehaviour
     public bool performed = false;
 
     [SerializeField] private Int_EdithExamBody edith;
+    [SerializeField, Range(0, 2)] private int edithClueIndex = 0;
 
     private void Start()
     {
@@ -28,7 +29,7 @@ public class Int_Edith_Ring : MonoBehaviour
         player.currentInteractable = null;
 
         interactable.AddClue(0);
-        edith?.RegisterExamClue();
+        edith?.RegisterExamClue(edithClueIndex, player);
 
         //intCollider.enabled = false;
         //this.gameObject.SetActive(false);

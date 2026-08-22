@@ -8,8 +8,7 @@ public class Int_Edith_BulletHole : MonoBehaviour
 
     [SerializeField] private Int_EdithExamBody edith;
     [SerializeField] private DetectiveIdeaPoint ideaPoint;
-    [SerializeField, TextArea] private string foundTopText =
-        "Pocisk wskaże nam trajektorię lotu";
+    [SerializeField, Range(0, 2)] private int edithClueIndex = 2;
 
     private void Start()
     {
@@ -38,11 +37,8 @@ public class Int_Edith_BulletHole : MonoBehaviour
         performed = true;
 
         interactable?.AddClue(0);
-        edith?.RegisterExamClue();
+        edith?.RegisterExamClue(edithClueIndex, player);
         ideaPoint?.RevealFromExternalSource();
-
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText(foundTopText, "");
 
         if (interactable != null)
         {
