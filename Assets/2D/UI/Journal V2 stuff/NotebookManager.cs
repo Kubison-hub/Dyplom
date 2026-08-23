@@ -6,13 +6,13 @@ using TMPro;
 public class NotebookManager : MonoBehaviour
 {
     [Header("UI Panels")]
-    public GameObject notebookPanel;     // T³o ca³ego notatnika
-    public GameObject categoryPanel;     // Panel z trzema kategoriami
-    public GameObject noteListPanel;     // Panel z list¹ wygenerowanych notatek i przyciskiem "Wróæ"
-    public GameObject noteDisplayArea;   // Panel z otwart¹ kartk¹ papieru
+    public GameObject notebookPanel;
+    public GameObject categoryPanel;
+    public GameObject noteListPanel;
+    public GameObject noteDisplayArea;
 
     [Header("List Settings")]
-    public Transform noteListContent;    // Miejsce (rodzic), gdzie generuj¹ siê przyciski
+    public Transform noteListContent;
 
     [Header("Prefabs & UI Elements")]
     public GameObject noteButtonPrefab;
@@ -43,9 +43,14 @@ public class NotebookManager : MonoBehaviour
 
         if (!isActive)
         {
-            // Otwieramy notatnik - zawsze wymuszamy ekran startowy z kategoriami
-            BackToCategories();
+            BackToCategories(); // Pokazujemy kategorie na start
         }
+    }
+
+    // Funkcja do fizycznego przycisku zamykania Notatnika
+    public void CloseNotebook()
+    {
+        notebookPanel.SetActive(false);
     }
 
     // Wywo³ywane przez przyciski kategorii (0, 1, 2)
@@ -53,7 +58,6 @@ public class NotebookManager : MonoBehaviour
     {
         NoteCategory selectedCategory = (NoteCategory)categoryIndex;
 
-        // UKRYWAMY panel kategorii, POKAZUJEMY panel listy notatek
         categoryPanel.SetActive(false);
         noteListPanel.SetActive(true);
         noteDisplayArea.SetActive(false);
@@ -64,7 +68,7 @@ public class NotebookManager : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        // Generuj now¹ listê
+        // Generuj now¹ listê dla wybranej kategorii
         foreach (NoteData note in allNotes)
         {
             if (note.category == selectedCategory)
@@ -74,7 +78,6 @@ public class NotebookManager : MonoBehaviour
         }
     }
 
-    // NOWA FUNKCJA - podepnij j¹ pod przycisk "Wróæ"
     public void BackToCategories()
     {
         categoryPanel.SetActive(true);
@@ -82,22 +85,10 @@ public class NotebookManager : MonoBehaviour
         noteDisplayArea.SetActive(false);
     }
 
-    // NOWA FUNKCJA - zamykanie notatnika
-    public void CloseNotebook()
-    {
-        notebookPanel.SetActive(false); // Wy³¹cza ca³kowicie g³ówny panel notatnika
-
-        // UWAGA: Jeœli w funkcji ToggleNotebook() odblokowywa³eœ kursor, 
-        // tutaj musisz go z powrotem zablokowaæ i ukryæ, np.:
-        // Cursor.lockState = CursorLockMode.Locked;
-        // Cursor.visible = false;
-    }
-
-    // NOWA FUNKCJA - podepnij pod przycisk "Wróæ do listy" (ten na kartce)
     public void BackToNoteList()
     {
-        noteListPanel.SetActive(true);   // Pokazujemy z powrotem listê notatek
-        noteDisplayArea.SetActive(false); // Ukrywamy kartkê z tekstem
+        noteListPanel.SetActive(true);
+        noteDisplayArea.SetActive(false);
     }
 
     private void CreateNoteButton(NoteData note)
@@ -109,7 +100,7 @@ public class NotebookManager : MonoBehaviour
 
     private void OpenNote(NoteData note)
     {
-        noteListPanel.SetActive(false); // Dodaliœmy to: ukrywa listê, ¿eby nie blokowa³a klikniêæ w tle!
+        noteListPanel.SetActive(false);
         noteDisplayArea.SetActive(true);
 
         displayTitle.text = note.noteTitle;

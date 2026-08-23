@@ -2,17 +2,17 @@ using UnityEngine;
 
 public enum NoteCategory
 {
-    Obserwacje,
-    Osoby,
-    Obiekty
+    Obserwacje, // Indeks 0
+    Osoby,      // Indeks 1
+    Obiekty     // Indeks 2
 }
 
 [CreateAssetMenu(fileName = "Nowa Notatka", menuName = "Notatnik/Notatka")]
 public class NoteData : ScriptableObject
 {
-    public string noteTitle; // Tytu³ widoczny na przycisku
-    public NoteCategory category; // Kategoria notatki
+    public string noteTitle;
+    public NoteCategory category;
     [TextArea(5, 15)]
-    public string content; // Treœæ notatki
-    public Sprite customPaperGraphic; // Opcjonalna inna grafika kartki
+    public string content;
+    public Sprite customPaperGraphic;
 }
