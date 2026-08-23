@@ -106,6 +106,9 @@ public class SwitchCharacter : MonoBehaviour
 
             activePlayerIndex = index;
 
+            if (index != 0)
+                DetectiveIdeaManager.Instance?.ClearForNonSherlock();
+
             if (index == watsonPlayerIndex)
                 StopWatsonReturn();
             else if (returnWatsonToMarkerWhenUncontrolled)

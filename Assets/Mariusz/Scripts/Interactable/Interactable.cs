@@ -437,6 +437,46 @@ public class Interactable : MonoBehaviour
             }
         }
 
+        if (interactionType == InteractionType.Int_lv1_WoodBlockButton)
+        {
+            Int_lv1_WoodBlockButton interaction = GetComponent<Int_lv1_WoodBlockButton>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+                return;
+            }
+        }
+
+        if (interactionType == InteractionType.Int_lv2_WoodBlockButton)
+        {
+            Int_lv2_WoodBlockButton interaction = GetComponent<Int_lv2_WoodBlockButton>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+                return;
+            }
+        }
+
+        if (interactionType == InteractionType.Int_lv2_WoodBrickWall)
+        {
+            Int_lv2_WoodBrickWall interaction = GetComponent<Int_lv2_WoodBrickWall>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+                return;
+            }
+        }
+
+        if (interactionType == InteractionType.Int_lv2_WoodBrickWallButton)
+        {
+            Int_lv2_WoodBrickWallButton interaction = GetComponent<Int_lv2_WoodBrickWallButton>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+                return;
+            }
+        }
+
         if (interactionType == InteractionType.Int_EthelGotoLastPoint)
         {
             Int_EthelGotoLastPoint ethelGoToLastPoint = GetComponent<Int_EthelGotoLastPoint>();
@@ -2137,5 +2177,9 @@ public enum InteractionType
     Int_lv1_SherlockWatsonSelmaDialog,
     Int_EthelGotoLastPoint,
     Int_SherlockWatsonGoToLastPoint,
-    Int_SetupLastPoints
+    Int_SetupLastPoints,
+    Int_lv1_WoodBlockButton,
+    Int_lv2_WoodBlockButton,
+    Int_lv2_WoodBrickWall,
+    Int_lv2_WoodBrickWallButton
 }

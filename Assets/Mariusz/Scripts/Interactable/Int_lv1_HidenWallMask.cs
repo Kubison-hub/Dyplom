@@ -51,6 +51,10 @@ public class Int_lv1_HidenWallMask : Lvl3InteractionDialogueBase
     [SerializeField] private GameObject[] activateOnSolved;
     [SerializeField] private bool deactivateSegmentsOnSolved = true;
 
+    [Header("Completion Camera")]
+    [SerializeField] private CameraController completionCameraController;
+    [SerializeField] private CameraZoomState completionZoomState = CameraZoomState.Wide;
+
     [Header("Watson After Completion")]
     [Tooltip("Optional marker. Watson moves here after the Completion Dialogue has finished.")]
     [SerializeField] private Transform watsonCompletionPosition;
@@ -89,6 +93,9 @@ public class Int_lv1_HidenWallMask : Lvl3InteractionDialogueBase
 
         if (magnifier == null)
             magnifier = FindFirstObjectByType<MagnifierGlassController>();
+
+        if (completionCameraController == null)
+            completionCameraController = FindFirstObjectByType<CameraController>();
 
         if (ideaPoint != null)
             ideaPoint.discoveryMode = DetectiveIdeaPoint.DiscoveryMode.External;
@@ -335,6 +342,7 @@ public class Int_lv1_HidenWallMask : Lvl3InteractionDialogueBase
             interactable.AddClue(0, cardPosition);
 
         ideaPoint?.RevealFromExternalSource();
+        completionCameraController?.SetZoomState(completionZoomState);
 
         // The pattern has been fully examined, so it should no longer advertise itself in Eagle Vision.
         interactable.isInteractableActive = false;

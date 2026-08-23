@@ -16,6 +16,8 @@ public class EmptyWall : Lvl3InteractionDialogueBase
     [SerializeField] private DetectiveIdeaPoint ideaPoint;
     [SerializeField] private CameraController cameraController;
     [SerializeField] private string wallExamPresetName = "WallExam";
+    [Tooltip("Used when the linked IdeaPoint is discovered and the wall examination ends.")]
+    [SerializeField] private CameraZoomState completedIdeaPointZoomState = CameraZoomState.Wide;
     [Header("Wall Examination Zone")]
     [SerializeField, Min(0.1f)] private float playerZoneRange = 3f;
     [SerializeField] private Vector3 playerZoneOffset;
@@ -94,7 +96,7 @@ public class EmptyWall : Lvl3InteractionDialogueBase
 
             isPlayerInsideZone = false;
             cameraController?.StopScriptedHorizontalOrbit();
-            cameraController?.ReturnToPreviousZoomState(wallExamZoomSmoothSpeed);
+            cameraController?.SetZoomState(completedIdeaPointZoomState);
             isWallExamCameraActive = false;
             SetWallInteractionShaderVisible(true);
             CancelPendingTutorialPopup();
@@ -172,7 +174,7 @@ public class EmptyWall : Lvl3InteractionDialogueBase
         CancelPendingTutorialPopup();
         cameraController?.StopScriptedHorizontalOrbit();
         if (isWallExamCameraActive)
-            cameraController?.ReturnToPreviousZoomState(wallExamZoomSmoothSpeed);
+            cameraController?.SetZoomState(completedIdeaPointZoomState);
 
         isWallExamCameraActive = false;
 

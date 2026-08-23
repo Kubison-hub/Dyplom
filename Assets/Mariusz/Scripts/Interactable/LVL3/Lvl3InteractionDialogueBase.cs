@@ -24,7 +24,8 @@ public abstract class Lvl3InteractionDialogueBase : MonoBehaviour
     [SerializeField] private bool repeatable = true;
     [SerializeField] private Lvl3DialogueLine[] dialogueLines;
 
-    [Header("Dialogue Audio")]
+    [Header("Dialogue Audio Overrides")]
+    [Tooltip("Optional per-interaction overrides. Leave empty to use DialogueAudioRegistry.")]
     [SerializeField] private AudioSource sherlockVoiceSource;
     [SerializeField] private AudioSource watsonVoiceSource;
     [SerializeField] private AudioSource selmaVoiceSource;
@@ -126,8 +127,9 @@ public abstract class Lvl3InteractionDialogueBase : MonoBehaviour
             StopCoroutine(dialogueCoroutine);
 
         dialogueCoroutine = null;
-        sherlockVoiceSource?.Stop();
-        watsonVoiceSource?.Stop();
+        GetVoiceSource(Lvl3DialogueSpeaker.Sherlock)?.Stop();
+        GetVoiceSource(Lvl3DialogueSpeaker.Watson)?.Stop();
+        GetVoiceSource(Lvl3DialogueSpeaker.Selma)?.Stop();
 
         if (activeDialogueOwner == this)
             activeDialogueOwner = null;
@@ -138,7 +140,18 @@ public abstract class Lvl3InteractionDialogueBase : MonoBehaviour
         if (line.voiceClip == null)
             return;
 
-        AudioSource source = line.speaker switch
+        AudioSource source = GetVoiceSource(line.speaker);
+
+        if (source == null)
+            return;
+
+        source.Stop();
+        source.PlayOneShot(line.voiceClip);
+    }
+
+    private AudioSource GetVoiceSource(Lvl3DialogueSpeaker speaker)
+    {
+        AudioSource localSource = speaker switch
         {
             Lvl3DialogueSpeaker.Sherlock => sherlockVoiceSource,
             Lvl3DialogueSpeaker.Watson => watsonVoiceSource,
@@ -146,11 +159,17 @@ public abstract class Lvl3InteractionDialogueBase : MonoBehaviour
             _ => null
         };
 
-        if (source == null)
-            return;
+        if (localSource != null)
+            return localSource;
 
-        source.Stop();
-        source.PlayOneShot(line.voiceClip);
+        DialogueAudioRegistry registry = DialogueAudioRegistry.Instance;
+        return speaker switch
+        {
+            Lvl3DialogueSpeaker.Sherlock => registry != null ? registry.SherlockVoiceSource : null,
+            Lvl3DialogueSpeaker.Watson => registry != null ? registry.WatsonVoiceSource : null,
+            Lvl3DialogueSpeaker.Selma => registry != null ? registry.SelmaVoiceSource : null,
+            _ => null
+        };
     }
 
     private void EnsureDefaultDialogueLines()

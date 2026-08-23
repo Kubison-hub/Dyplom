@@ -62,6 +62,7 @@ public class WatsonEscortController : MonoBehaviour
     private bool hasEscortRangeOrigin;
     private bool isPlacementWithinRange;
     private MaterialPropertyBlock placementPreviewPropertyBlock;
+    private float sherlockActiveEscortElapsed;
 
     public bool IsEscorting => escortedNpc != null;
 
@@ -83,6 +84,8 @@ public class WatsonEscortController : MonoBehaviour
 
     private void Update()
     {
+        UpdateSherlockEscortTimeout();
+
         bool watsonGripActive = MagnifierGlassController.IsWatsonGripActive;
         if (!watsonGripActive)
         {
@@ -98,6 +101,23 @@ public class WatsonEscortController : MonoBehaviour
             return;
 
         UpdatePlacementPreview();
+    }
+
+    private void UpdateSherlockEscortTimeout()
+    {
+        if (escortedNpc == null || escortRoutine != null || !escortedNpc.IsReadyForEscort)
+            return;
+
+        if (SwitchCharacter.Instance == null || SwitchCharacter.Instance.activePlayerIndex != 0)
+            return;
+
+        float timeout = escortedNpc.SherlockActiveFarewellDelay;
+        if (timeout <= 0f)
+            return;
+
+        sherlockActiveEscortElapsed += Time.deltaTime;
+        if (sherlockActiveEscortElapsed >= timeout)
+            DismissEscort(true);
     }
 
     public bool TryStartEscort(WatsonEscortNPC npc, PlayerController player)
@@ -116,8 +136,15 @@ public class WatsonEscortController : MonoBehaviour
             StopCoroutine(escortRoutine);
 
         escortedNpc = npc;
+        sherlockActiveEscortElapsed = 0f;
         escortRoutine = StartCoroutine(ApproachNpcAndBeginEscort());
         return true;
+    }
+
+    public void ForceFarewell()
+    {
+        if (escortedNpc != null)
+            DismissEscort(true);
     }
 
     public bool TryHandleGroundClick(PlayerController player, Vector3 groundPoint)
@@ -362,6 +389,7 @@ public class WatsonEscortController : MonoBehaviour
 
         escortedNpc = null;
         hasEscortRangeOrigin = false;
+        sherlockActiveEscortElapsed = 0f;
     }
 
     private bool MoveWatsonTo(Vector3 destination)

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class lvl2_Int_Mirror : MonoBehaviour
+public class lvl2_Int_Mirror : Lvl3InteractionDialogueBase
 {
 
    
@@ -31,9 +31,6 @@ public class lvl2_Int_Mirror : MonoBehaviour
     private Interactable interactable;
     private bool firsInteraction = true;
 
-    [Header("Top Text")]
-    [TextArea] public string text = "Zamknięte, powinienem móc to otworzyć";
-
     [Header("LockPick")]
     [SerializeField] private LockPickMinigameController minigamePrefab;
     [SerializeField] private Transform minigameTransform;
@@ -43,6 +40,20 @@ public class lvl2_Int_Mirror : MonoBehaviour
 
     [SerializeField] private lvl2_Int_Book book;
     [SerializeField] private AudioSource cabinetCloseAudio;
+
+    [Header("First Interaction Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] firstInteractionDialogue;
+
+    [Header("Lockpick Tutorial Popup")]
+    [SerializeField] private bool showLockpickTutorialPopup = true;
+    [SerializeField] private string lockpickTutorialTitle = "Otwieranie Zamków";
+    [SerializeField, TextArea] private string lockpickTutorialText =
+        "Sherlock potrafi otwierać zamki, może to wymagać cierpliwości...";
+    [SerializeField] private UnityEngine.Video.VideoClip lockpickTutorialVideoClip;
+
+    private bool waitingForFirstInteractionDialogue;
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => firstInteractionDialogue;
 
     private void Start()
     {
@@ -61,10 +72,23 @@ public class lvl2_Int_Mirror : MonoBehaviour
 
         if (firsInteraction)
         {
-            cabinetCloseAudio.Play();
-            StartCoroutine(AddText());
+            if (cabinetCloseAudio != null)
+                cabinetCloseAudio.Play();
+
+            interactable.isInteractableActive = false;
             firsInteraction = false;
             player.currentInteractable = null;
+            cameraController?.SetZoomState(CameraZoomState.Narrow);
+
+            if (firstInteractionDialogue != null && firstInteractionDialogue.Length > 0)
+            {
+                waitingForFirstInteractionDialogue = true;
+                PlayDialogue(player, firstInteractionDialogue);
+            }
+            else
+            {
+                StartCoroutine(ShowLockpickTutorialSequence());
+            }
         }
         else
         {
@@ -113,14 +137,34 @@ public class lvl2_Int_Mirror : MonoBehaviour
         door.transform.localRotation = openRotation;
     }
 
-    private IEnumerator AddText()
+    protected override void OnDialogueSequenceCompleted(Lvl3DialogueLine[] lines)
     {
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText(text, string.Empty);
+        if (!waitingForFirstInteractionDialogue || lines != firstInteractionDialogue)
+            return;
 
-        yield return new WaitForSeconds(3);
+        waitingForFirstInteractionDialogue = false;
+        StartCoroutine(ShowLockpickTutorialSequence());
+    }
+
+    private IEnumerator ShowLockpickTutorialSequence()
+    {
+        TutorialTimeline tutorialTimeline = TutorialTimeline.Instance;
+        if (showLockpickTutorialPopup && tutorialTimeline != null)
+        {
+            bool tutorialWasShown = tutorialTimeline.TryShowLockpickTutorialPopup(
+                lockpickTutorialTitle,
+                lockpickTutorialText,
+                lockpickTutorialVideoClip);
+
+            if (tutorialWasShown)
+            {
+                yield return null;
+                while (tutorialTimeline.BlocksWorldInput)
+                    yield return null;
+            }
+        }
+
         interactable.isInteractableActive = true;
-
     }
 
 

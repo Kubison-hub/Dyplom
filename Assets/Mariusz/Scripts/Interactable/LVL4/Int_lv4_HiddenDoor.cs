@@ -18,6 +18,9 @@ public class Int_lv4_HiddenDoor : Lvl3InteractionDialogueBase
     [SerializeField] private Transform inventoryRoot;
     [Tooltip("Fallback for quick tests when an inventory root is not assigned.")]
     [SerializeField] private bool keyObjectActiveMeansOwned = true;
+    [Tooltip("When enabled, this door also accepts the chosen item from InventoryManager.")]
+    [SerializeField] private bool useInventoryItemKey;
+    [SerializeField] private ItemType requiredInventoryItem = ItemType.WoodBlockLevel1;
 
     [Header("Key In Door")]
     [SerializeField] private GameObject keyGameObject;
@@ -129,10 +132,34 @@ public class Int_lv4_HiddenDoor : Lvl3InteractionDialogueBase
         StartCoroutine(OpenDoor(player));
     }
 
+    public void OpenWithInstalledWoodBlock(PlayerController player)
+    {
+        if (opened)
+            return;
+
+        hasKey = true;
+        keyPresented = true;
+        if (keyGameObject != null)
+            keyGameObject.SetActive(true);
+
+        StartCoroutine(OpenDoor(player));
+    }
+
+    public void SetHasKey(bool value)
+    {
+        hasKey = value;
+    }
+
     private bool PlayerHasKey()
     {
         if (hasKey)
             return true;
+
+        if (useInventoryItemKey && InventoryManager.Instance != null &&
+            InventoryManager.Instance.items.Contains(requiredInventoryItem))
+        {
+            return true;
+        }
 
         if (hiddenDoorKeyInventoryObject == null)
             return false;

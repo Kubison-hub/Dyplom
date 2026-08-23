@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Video;
 
 /// <summary>
@@ -12,8 +13,12 @@ public class TutorialPopupWindow : MonoBehaviour
     [SerializeField] private VideoPlayer tutorialVideoPlayer;
     [SerializeField] private GameObject tutorialVideoContainer;
 
+    private float openedAtUnscaledTime;
+
     public void Configure(string title, string content, VideoClip videoClip)
     {
+        openedAtUnscaledTime = Time.unscaledTime;
+
         if (titleText != null)
             titleText.text = title;
 
@@ -36,5 +41,17 @@ public class TutorialPopupWindow : MonoBehaviour
             tutorialVideoPlayer.isLooping = true;
             tutorialVideoPlayer.Play();
         }
+    }
+
+    private void Update()
+    {
+        // A popup must be dismissible even when another tutorial state suppresses TutorialTimeline.Update.
+        if (Time.unscaledTime - openedAtUnscaledTime < 0.15f)
+            return;
+
+        bool leftClick = Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
+        bool escape = Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame;
+        if (leftClick || escape || Input.GetMouseButtonDown(0))
+            TutorialTimeline.Instance?.CloseGameplayTutorialPopup();
     }
 }

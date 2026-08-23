@@ -25,6 +25,9 @@ public class Int_Edith_Paper : MonoBehaviour
 
     public void PerformInteraction(PlayerController player)
     {
+        if (performed || edith == null || !edith.IsExaminationActive)
+            return;
+
         performed = true;
         interactable.isInteractableActive = false;
         player.currentInteractable = null;

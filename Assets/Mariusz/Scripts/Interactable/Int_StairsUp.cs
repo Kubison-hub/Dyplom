@@ -188,6 +188,7 @@ public class Int_StairsUp : MonoBehaviour
         {
             performed = true;
             player.currentInteractable = null;
+            WatsonEscortController.Instance?.ForceFarewell();
             StartCoroutine(GoUpStairs(player));
             return;
         }
@@ -208,7 +209,8 @@ public class Int_StairsUp : MonoBehaviour
             
             player.currentInteractable = null;
 
-            
+            if (player != null && player.playerCharacter == PlayerCharacter.Sherlock)
+                WatsonEscortController.Instance?.ForceFarewell();
             StartCoroutine(GoUpStairs(player));
         }
         else

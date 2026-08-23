@@ -55,6 +55,7 @@ public class DetectiveIdeaPoint : MonoBehaviour
     public string ideaId;
     public string ideaTitle = "Trop";
     [TextArea] public string ideaDescription = "";
+    [SerializeField, Min(0f)] private float ideaDescriptionDelay = 0.2f;
 
     [Header("Discovery")]
     [Tooltip("Magnifier: discover with F. External: reveal only from another script. MagnifierOrExternal: either source.")]
@@ -96,6 +97,7 @@ public class DetectiveIdeaPoint : MonoBehaviour
     private Renderer visualRenderer;
     private Material visualInstance;
     private Coroutine questionFXDisableCoroutine;
+    private Coroutine ideaTextCoroutine;
 
     private void Awake()
     {
@@ -269,8 +271,21 @@ public class DetectiveIdeaPoint : MonoBehaviour
 
     public void ShowIdeaText()
     {
+        if (ideaTextCoroutine != null)
+            StopCoroutine(ideaTextCoroutine);
+
+        ideaTextCoroutine = StartCoroutine(ShowIdeaTextAfterDelay());
+    }
+
+    private IEnumerator ShowIdeaTextAfterDelay()
+    {
+        if (ideaDescriptionDelay > 0f)
+            yield return new WaitForSeconds(ideaDescriptionDelay);
+
         if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText(ideaTitle, ideaDescription);
+            PlayerTopText.Instance.ShowTopText(ideaDescription, string.Empty);
+
+        ideaTextCoroutine = null;
     }
 
     public void ShowIdeaTitle()

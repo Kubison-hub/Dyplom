@@ -34,6 +34,7 @@ public class DetectiveIdeaManager : MonoBehaviour
     public bool showDraggedLineDescription = true;
     public Color lineDescriptionColor = new Color(0.68f, 0.88f, 0.7f, 1f);
     [Min(0.01f)] public float lineDescriptionFontSize = 0.16f;
+    [Min(0.1f)] public float lineDescriptionSizeMultiplier = 8f;
     public Vector3 lineDescriptionScreenOffset = new Vector3(0.2f, 0.1f, 0f);
 
     [Header("Visibility")]
@@ -82,6 +83,7 @@ public class DetectiveIdeaManager : MonoBehaviour
     private int sequenceProgressIndex;
     private bool connectionsEnabled = true;
     private bool puzzleCompletionEnabled = true;
+    private bool consumeNextEmptyVisionClick;
     private Vector3 headRigTargetVelocity;
     private bool resetHeadRigTargetOnNextDrag = true;
 
@@ -157,6 +159,7 @@ public class DetectiveIdeaManager : MonoBehaviour
         if (!detectiveVisionActive)
         {
             wasDetectiveVisionActive = false;
+            consumeNextEmptyVisionClick = false;
             ClearHover();
             CancelDrag();
             HideVisiblePoints();
@@ -217,6 +220,15 @@ public class DetectiveIdeaManager : MonoBehaviour
                 return true;
             }
 
+            // A failed link has already ended the drag. Consume one ground
+            // click so leaving a failed attempt feels the same as cancelling
+            // an active line manually.
+            if (consumeNextEmptyVisionClick)
+            {
+                consumeNextEmptyVisionClick = false;
+                return true;
+            }
+
             return TryConsumeEmptyVisionClick();
         }
 
@@ -273,6 +285,7 @@ public class DetectiveIdeaManager : MonoBehaviour
         activePuzzle = puzzle;
         puzzleCompleted = false;
         sequenceProgressIndex = 0;
+        consumeNextEmptyVisionClick = false;
         connectionsEnabled = enableConnections;
         puzzleCompletionEnabled = enablePuzzleCompletion;
         wasDetectiveVisionActive = false;
@@ -299,6 +312,31 @@ public class DetectiveIdeaManager : MonoBehaviour
             activePuzzle.SolveFromOrderedSequence();
             CompletePuzzle();
         }
+    }
+
+    /// <summary>
+    /// Ends the current visual Idea Point session when control leaves Sherlock.
+    /// Discovered facts remain discovered; only their world presentation and
+    /// the in-progress deduction trail are cleared.
+    /// </summary>
+    public void ClearForNonSherlock()
+    {
+        wasDetectiveVisionActive = false;
+        consumeNextEmptyVisionClick = false;
+        ClearHover();
+        CancelDrag();
+        DestroySessionLines();
+        RestoreSequenceLookAt();
+
+        foreach (DetectiveIdeaPoint point in visiblePoints)
+        {
+            if (point != null)
+                point.SetVisible(false);
+        }
+
+        visiblePoints.Clear();
+        SetAcceptedLinesVisible(false);
+        SetRejectedLinesVisible(false);
     }
 
     public bool IsPointerOverDiscoveredIdeaPoint()
@@ -415,6 +453,7 @@ public class DetectiveIdeaManager : MonoBehaviour
         KeepRejectedLine(target);
         ClearActiveSequenceLines();
         sequenceProgressIndex = 0;
+        consumeNextEmptyVisionClick = true;
 
         if (dragSource != null && dragSource != hoveredPoint)
             dragSource.SetHovered(false);
@@ -912,10 +951,15 @@ public class DetectiveIdeaManager : MonoBehaviour
 
         previewLineDescription = descriptionObject.AddComponent<TextMeshPro>();
         previewLineDescription.text = point.ideaDescription;
-        previewLineDescription.fontSize = lineDescriptionFontSize;
+        if (PlayerTopText.Instance != null && PlayerTopText.Instance.sherlockTopText != null)
+            previewLineDescription.font = PlayerTopText.Instance.sherlockTopText.font;
+
+        previewLineDescription.fontSize = lineDescriptionFontSize * lineDescriptionSizeMultiplier;
         previewLineDescription.color = lineDescriptionColor;
         previewLineDescription.alignment = TextAlignmentOptions.Right;
         previewLineDescription.enableWordWrapping = false;
+        previewLineDescription.enableAutoSizing = false;
+        previewLineDescription.sortingOrder = 20;
         UpdatePreviewLineDescription();
     }
 
@@ -929,7 +973,13 @@ public class DetectiveIdeaManager : MonoBehaviour
                          cameraTransform.up * lineDescriptionScreenOffset.y +
                          cameraTransform.forward * lineDescriptionScreenOffset.z;
 
-        previewLineDescription.transform.position = dragSource.AnchorPosition + offset;
+        // The description belongs to the moving head of the deduction line,
+        // not to its source Idea Point.
+        Vector3 lineHeadPosition = previewLine != null
+            ? previewLine.GetPosition(1)
+            : GetPointerWorldPosition();
+
+        previewLineDescription.transform.position = lineHeadPosition + offset;
         previewLineDescription.transform.rotation = cameraTransform.rotation;
     }
 

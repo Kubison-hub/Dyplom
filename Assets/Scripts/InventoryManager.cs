@@ -14,15 +14,24 @@ public class InventoryManager : MonoBehaviour
     public GameObject iconKey;
     public GameObject iconHammer;
     public GameObject iconGlass;
-
+
+
     public GameObject iconPendulum;
     public GameObject iconDoll;
+    public GameObject iconWoodBlockLevel1;
+    public GameObject iconWoodBlockLevel2;
     // Zmienne pomocnicze
     public bool keyInInv = false;
 
+    [Header("Wood Block Selection")]
+    [SerializeField] private ItemType selectedWoodBlock;
+    [SerializeField] private bool hasSelectedWoodBlock;
+    public ItemType SelectedWoodBlock => selectedWoodBlock;
+
     // --- NOWO��: Lista przedmiot�w (Dla Systemu Zapisu) ---
     // SaveLoadManager bierze t� list� i zapisuje do pliku.
-    public List<ItemType> items = new List<ItemType>();
+    public List<ItemType> items = new List<ItemType>();
+
     [Header("Slots")]
     [Min(1)] public int maxSlots = 3;
     // ------------------------------------------------------
@@ -104,9 +113,94 @@ public class InventoryManager : MonoBehaviour
                 if (iconDoll) iconDoll.SetActive(true);
                 Debug.Log("Ekwipunek: Lalka");
                 break;
+
+            case ItemType.WoodBlockLevel1:
+                if (iconWoodBlockLevel1) iconWoodBlockLevel1.SetActive(true);
+                Debug.Log("Ekwipunek: Drewniany blok - poziom 1");
+                break;
+
+            case ItemType.WoodBlockLevel2:
+                if (iconWoodBlockLevel2) iconWoodBlockLevel2.SetActive(true);
+                Debug.Log("Ekwipunek: Drewniany blok - poziom 2");
+                break;
         }
 
+
+        if (IsWoodBlock(itemType))
+        {
+            selectedWoodBlock = itemType;
+            hasSelectedWoodBlock = true;
+        }
         return true;
+    }
+
+    public bool TrySelectWoodBlock(ItemType itemType)
+    {
+        if (!IsWoodBlock(itemType) || !items.Contains(itemType))
+            return false;
+
+        selectedWoodBlock = itemType;
+        hasSelectedWoodBlock = true;
+        return true;
+    }
+
+    public bool TryTakeSelectedWoodBlock(out ItemType itemType)
+    {
+        itemType = default;
+        if (!TryGetSelectedWoodBlock(out itemType))
+            return false;
+
+        return TryRemoveItem(itemType);
+    }
+
+    public bool TryRemoveItem(ItemType itemType)
+    {
+        if (!items.Remove(itemType))
+            return false;
+
+        if (itemType == ItemType.WoodBlockLevel1 && iconWoodBlockLevel1 != null)
+            iconWoodBlockLevel1.SetActive(false);
+        else if (itemType == ItemType.WoodBlockLevel2 && iconWoodBlockLevel2 != null)
+            iconWoodBlockLevel2.SetActive(false);
+
+        if (hasSelectedWoodBlock && selectedWoodBlock == itemType)
+            hasSelectedWoodBlock = TryGetAnyWoodBlock(out selectedWoodBlock);
+
+        return true;
+    }
+
+    private bool TryGetSelectedWoodBlock(out ItemType itemType)
+    {
+        if (hasSelectedWoodBlock && items.Contains(selectedWoodBlock))
+        {
+            itemType = selectedWoodBlock;
+            return true;
+        }
+
+        return TryGetAnyWoodBlock(out itemType);
+    }
+
+    private bool TryGetAnyWoodBlock(out ItemType itemType)
+    {
+        if (items.Contains(ItemType.WoodBlockLevel1))
+        {
+            itemType = ItemType.WoodBlockLevel1;
+            return true;
+        }
+
+        if (items.Contains(ItemType.WoodBlockLevel2))
+        {
+            itemType = ItemType.WoodBlockLevel2;
+            return true;
+        }
+
+        itemType = default;
+        return false;
+    }
+
+    private static bool IsWoodBlock(ItemType itemType)
+    {
+        return itemType == ItemType.WoodBlockLevel1 || itemType == ItemType.WoodBlockLevel2;
     }
 
     public void AddItem(ItemType itemType)
@@ -122,5 +216,7 @@ public enum ItemType
     Zielona,
     Niebieska,
     Wahadlo,
-    Lalka
+    Lalka,
+    WoodBlockLevel1,
+    WoodBlockLevel2
 }

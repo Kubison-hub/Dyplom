@@ -44,53 +44,90 @@ public class lvl2_Int_EthelWallButton : MonoBehaviour
     private Coroutine addClueCoroutine;
     private bool firstTry = true;
     public bool canOpenDoor;
+    [Header("Door Match")]
+    [Tooltip("Enable only on the wall where this wooden button belongs.")]
+    [SerializeField] private bool isCorrectDoor;
+    [Tooltip("Optional owner when this component is used on a mounted WoodBrickWall button outside its hierarchy.")]
+    [SerializeField] private Int_lv2_WoodBrickWall woodBrickWallOwner;
+    [Header("Required Wood Block")]
+    [SerializeField] private bool requireInventoryWoodBlock;
+    [SerializeField] private ItemType requiredInventoryWoodBlock = ItemType.WoodBlockLevel2;
     private void Start()
     {
         interactable = GetComponent<Interactable>();
 
-        if (door == null)
+        if (door == null && IsCorrectDoor())
         {
-            Debug.LogError("Door is null");
-            return;
+            Debug.LogError("lvl2_Int_EthelWallButton: Door is null for a button marked as correct.", this);
         }
 
-        closedRotation = door.transform.localRotation;
-        openRotation = closedRotation * Quaternion.Euler(openEuler);
+        if (door != null)
+        {
+            closedRotation = door.transform.localRotation;
+            openRotation = closedRotation * Quaternion.Euler(openEuler);
+        }
 
         if (hiddenRoom != null)
             hiddenRoom.SetActive(false);
 
+        if (blackBoard != null)
         if (blackBoard != null)
             blackBoard.SetActive(true);
     }
 
     public void PerformInteraction(PlayerController player)
     {
+        Int_lv2_WoodBrickWall woodBrickWall = woodBrickWallOwner != null
+            ? woodBrickWallOwner
+            : GetComponentInParent<Int_lv2_WoodBrickWall>();
+        if (woodBrickWall != null && woodBrickWall.IsMountedWallButton(this))
+        {
+            woodBrickWall.UseMountedBlock(player);
+            return;
+        }
+
         Debug.Log(interactable.name + ", interaction Performed");
 
-        if (canOpenDoor)
+        if (IsCorrectDoor())
         {
-            OpenHidenDoor();
-            if (hiddenRoom != null)
-                hiddenRoom.SetActive(true);
-            
-            interactable.AddClue(1);
-            interactable.isInteractableActive = false;
+            OpenWithInstalledWoodBlock(player);
         }
         else
         {
-            if (firstTry)
-            {
-                firstTry = false;
-                addClueCoroutine = StartCoroutine(AddClue(player));
-            }
-            else
-            {
-                StartCoroutine(AddText(text));
-            }  
+            StartCoroutine(AddText(text));
         }
 
         player.currentInteractable = null;
+    }
+
+    private bool CanOpenDoor()
+    {
+        return IsCorrectDoor();
+    }
+
+    public bool IsCorrectDoor()
+    {
+        return isCorrectDoor || canOpenDoor;
+    }
+
+    public void OpenWithInstalledWoodBlock(PlayerController player)
+    {
+        if (!IsCorrectDoor())
+        {
+            StartCoroutine(AddText(text));
+            return;
+        }
+
+        if (isOpen)
+            return;
+
+        OpenHidenDoor();
+        if (hiddenRoom != null)
+            hiddenRoom.SetActive(true);
+
+        interactable?.AddClue(1);
+        if (player != null)
+            player.currentInteractable = null;
     }
 
     private IEnumerator AddClue(PlayerController player)

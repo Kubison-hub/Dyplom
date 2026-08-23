@@ -1,0 +1,227 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+[RequireComponent(typeof(Interactable))]
+public class Int_lv2_WoodBrickWall : Lvl3InteractionDialogueBase
+{
+    [Serializable]
+    private class WoodBlockWallVariant
+    {
+        public ItemType itemType;
+        [Tooltip("The matching wooden block model shown while this block is mounted in the wall.")]
+        public GameObject wallEquivalent;
+        [Tooltip("This mounted block's button. Its Is Correct Door setting decides whether it opens these doors.")]
+        public lvl2_Int_EthelWallButton ethelWallButton;
+        [Tooltip("Optional objects enabled only while this block is mounted.")]
+        public GameObject[] activateWhileMounted;
+        [Tooltip("Optional objects disabled only while this block is mounted.")]
+        public GameObject[] deactivateWhileMounted;
+    }
+
+    [Header("Wooden Blocks")]
+    [SerializeField] private WoodBlockWallVariant[] blockVariants;
+    [SerializeField] private ItemType correctWoodBlock = ItemType.WoodBlockLevel2;
+
+    [Header("Door To Test")]
+    [SerializeField] private lvl2_Int_EthelWallButton ethelWallButton;
+    [SerializeField] private Int_lv4_HiddenDoor hiddenDoor;
+
+    [Header("Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] noBlockDialogue;
+    [SerializeField] private Lvl3DialogueLine[] insertDialogue;
+    [SerializeField] private Lvl3DialogueLine[] wrongBlockDialogue;
+    [SerializeField] private Lvl3DialogueLine[] returnDialogue;
+    [SerializeField] private Lvl3DialogueLine[] alreadyRejectedBlockDialogue;
+
+    private WoodBlockWallVariant mountedVariant;
+    private bool blockWasTested;
+    private bool correctBlockAccepted;
+    private Interactable socketInteractable;
+    private readonly HashSet<ItemType> rejectedBlockTypes = new HashSet<ItemType>();
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => noBlockDialogue;
+
+    private void Awake()
+    {
+        SetupInteractable(InteractionType.Int_lv2_WoodBrickWall);
+        socketInteractable = GetComponent<Interactable>();
+        SetMountedVisual(null, false);
+    }
+
+    private void Reset() => SetupInteractable(InteractionType.Int_lv2_WoodBrickWall);
+    private void OnValidate() => SetupInteractable(InteractionType.Int_lv2_WoodBrickWall);
+
+    public void PerformInteraction(PlayerController player)
+    {
+        if (mountedVariant == null)
+        {
+            TryInsertSelectedBlock(player);
+            return;
+        }
+
+        UseMountedBlock(player);
+    }
+
+    public void UseMountedBlock(PlayerController player)
+    {
+        if (mountedVariant == null)
+            return;
+
+        // The correct wooden button stays mounted after it opens the door.
+        if (correctBlockAccepted)
+            return;
+
+        if (!blockWasTested)
+        {
+            blockWasTested = true;
+            TestMountedBlock(player);
+            return;
+        }
+
+        ReturnMountedBlock(player);
+    }
+
+    public bool IsMountedWallButton(lvl2_Int_EthelWallButton wallButton)
+    {
+        return mountedVariant != null && mountedVariant.ethelWallButton == wallButton;
+    }
+
+    private void TryInsertSelectedBlock(PlayerController player)
+    {
+        if (InventoryManager.Instance == null ||
+            !InventoryManager.Instance.TryTakeSelectedWoodBlock(out ItemType selectedBlock))
+        {
+            PlayDialogue(player, noBlockDialogue);
+            return;
+        }
+
+        if (rejectedBlockTypes.Contains(selectedBlock))
+        {
+            InventoryManager.Instance.TryAddItem(selectedBlock);
+            PlayDialogue(player, alreadyRejectedBlockDialogue);
+            return;
+        }
+
+        WoodBlockWallVariant variant = FindVariant(selectedBlock);
+        if (variant == null)
+        {
+            InventoryManager.Instance.TryAddItem(selectedBlock);
+            PlayDialogue(player, noBlockDialogue);
+            return;
+        }
+
+        mountedVariant = variant;
+        blockWasTested = false;
+        correctBlockAccepted = false;
+        SetMountedVisual(mountedVariant, true);
+        if (socketInteractable != null)
+            socketInteractable.isInteractableActive = false;
+        PlayDialogue(player, insertDialogue);
+    }
+
+    private void TestMountedBlock(PlayerController player)
+    {
+        if (!IsMountedBlockCorrect())
+        {
+            rejectedBlockTypes.Add(mountedVariant.itemType);
+            PlayDialogue(player, wrongBlockDialogue);
+            return;
+        }
+
+        correctBlockAccepted = true;
+        SetMountedVisual(mountedVariant, true);
+
+        lvl2_Int_EthelWallButton mountedButton = GetMountedEthelWallButton();
+        if (mountedButton != null)
+        {
+            mountedButton.OpenWithInstalledWoodBlock(player);
+            return;
+        }
+
+        if (hiddenDoor != null)
+            hiddenDoor.OpenWithInstalledWoodBlock(player);
+    }
+
+    private bool IsMountedBlockCorrect()
+    {
+        // Level 2's physical Ethel wall button owns the door-match decision.
+        // The fallback remains for older scenes and walls that open a Level 4 HiddenDoor instead.
+        lvl2_Int_EthelWallButton mountedButton = GetMountedEthelWallButton();
+        if (mountedButton != null)
+            return mountedButton.IsCorrectDoor();
+
+        return mountedVariant != null && mountedVariant.itemType == correctWoodBlock;
+    }
+
+    private lvl2_Int_EthelWallButton GetMountedEthelWallButton()
+    {
+        if (mountedVariant != null && mountedVariant.ethelWallButton != null)
+            return mountedVariant.ethelWallButton;
+
+        return ethelWallButton;
+    }
+
+    private void ReturnMountedBlock(PlayerController player)
+    {
+        if (mountedVariant == null || InventoryManager.Instance == null ||
+            !InventoryManager.Instance.TryAddItem(mountedVariant.itemType))
+        {
+            PlayDialogue(player, noBlockDialogue);
+            return;
+        }
+
+        SetMountedVisual(mountedVariant, false);
+        mountedVariant = null;
+        blockWasTested = false;
+        correctBlockAccepted = false;
+        if (socketInteractable != null)
+            socketInteractable.isInteractableActive = true;
+        PlayDialogue(player, returnDialogue);
+    }
+
+    private WoodBlockWallVariant FindVariant(ItemType itemType)
+    {
+        if (blockVariants == null)
+            return null;
+
+        foreach (WoodBlockWallVariant variant in blockVariants)
+        {
+            if (variant != null && variant.itemType == itemType)
+                return variant;
+        }
+
+        return null;
+    }
+
+    private void SetMountedVisual(WoodBlockWallVariant mounted, bool isMounted)
+    {
+        if (blockVariants == null)
+            return;
+
+        foreach (WoodBlockWallVariant variant in blockVariants)
+        {
+            if (variant == null)
+                continue;
+
+            bool active = isMounted && variant == mounted;
+            if (variant.wallEquivalent != null)
+                variant.wallEquivalent.SetActive(active);
+
+            SetObjectsActive(variant.activateWhileMounted, active);
+            SetObjectsActive(variant.deactivateWhileMounted, !active);
+        }
+    }
+
+    private static void SetObjectsActive(GameObject[] objects, bool active)
+    {
+        if (objects == null)
+            return;
+
+        foreach (GameObject current in objects)
+        {
+            if (current != null)
+                current.SetActive(active);
+        }
+    }
+}

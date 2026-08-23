@@ -28,7 +28,7 @@ public class Int_Edith_BulletHole : MonoBehaviour
 
     public void PerformInteraction(PlayerController player)
     {
-        if (performed)
+        if (performed || edith == null || !edith.IsExaminationActive)
             return;
 
         if (player != null)

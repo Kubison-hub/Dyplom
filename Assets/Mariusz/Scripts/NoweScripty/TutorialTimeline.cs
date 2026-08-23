@@ -4,11 +4,13 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.AI;
+using UnityEngine.InputSystem;
 using UnityEngine.Video;
 
 public class TutorialTimeline : MonoBehaviour
 {
     public static TutorialTimeline Instance { get; private set; }
+    public static bool LockpickTutorialShown { get; private set; }
     public bool BlocksWorldInput => activeTutorialPopup != null || releasePopupInputCoroutine != null;
     public bool KeepsEagleVisionActive =>
         currentStage == TutorialStage.WaitingForIdeaLineTutorialClose ||
@@ -123,8 +125,8 @@ public class TutorialTimeline : MonoBehaviour
     {
         if (activeTutorialPopup != null && activePopupReturnsToPreviousStage)
         {
-            if (Input.GetMouseButtonDown(0))
-                CloseActiveTutorialPopup();
+            if (WasPopupCloseRequestedThisFrame())
+                CloseGameplayTutorialPopup();
 
             return;
         }
@@ -159,8 +161,8 @@ public class TutorialTimeline : MonoBehaviour
 
         if (currentStage == TutorialStage.WaitingForOpeningPopupClose)
         {
-            if (Input.GetMouseButtonDown(0))
-                CloseActiveTutorialPopup();
+            if (WasPopupCloseRequestedThisFrame())
+                CloseGameplayTutorialPopup();
 
             return;
         }
@@ -274,6 +276,16 @@ public class TutorialTimeline : MonoBehaviour
         SetTutorialMovementLocked(false);
     }
 
+    public bool TryShowLockpickTutorialPopup(string title, string content, VideoClip videoClip)
+    {
+        if (LockpickTutorialShown || tutorialPopupPrefab == null || activeTutorialPopup != null)
+            return false;
+
+        LockpickTutorialShown = true;
+        ShowGameplayTutorialPopup(title, content, videoClip);
+        return true;
+    }
+
     // Compatibility with the existing TutorialManager startup call.
     public void ShowGameplayTutorialPopup(int legacyPopupIndex)
     {
@@ -337,7 +349,7 @@ public class TutorialTimeline : MonoBehaviour
         currentStage = TutorialStage.WaitingForOpeningPopupClose;
     }
 
-    private void CloseActiveTutorialPopup()
+    public void CloseGameplayTutorialPopup()
     {
         if (activeTutorialPopup == null)
             return;
@@ -355,11 +367,18 @@ public class TutorialTimeline : MonoBehaviour
         releasePopupInputCoroutine = StartCoroutine(ReleasePopupInputAfterMouseRelease());
     }
 
+    private static bool WasPopupCloseRequestedThisFrame()
+    {
+        bool leftClick = Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
+        bool escape = Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame;
+        return leftClick || escape || Input.GetMouseButtonDown(0);
+    }
+
     private IEnumerator ReleasePopupInputAfterMouseRelease()
     {
         yield return null;
 
-        while (Input.GetMouseButton(0))
+        while ((Mouse.current != null && Mouse.current.leftButton.isPressed) || Input.GetMouseButton(0))
             yield return null;
 
         releasePopupInputCoroutine = null;
@@ -492,6 +511,12 @@ public class TutorialTimeline : MonoBehaviour
             yield break;
         }
 
+        WatsonCompanionController companionController = watson.GetComponent<WatsonCompanionController>();
+        companionController?.ClearInteractionFocus();
+        watson.currentInteractable = null;
+        watson.currentInteractionPoint = null;
+
+        agent.ResetPath();
         agent.updateRotation = true;
         agent.isStopped = false;
         agent.SetDestination(destination.position);
@@ -504,8 +529,26 @@ public class TutorialTimeline : MonoBehaviour
             while (agent.hasPath &&
                    agent.remainingDistance > Mathf.Max(agent.stoppingDistance, arrivalDistance))
             {
+                // A previous interaction reaction may have disabled agent rotation.
+                // Keep the NavMeshAgent responsible for facing Watson along his path.
+                agent.updateRotation = true;
                 yield return null;
             }
+
+            agent.ResetPath();
+            agent.updateRotation = false;
+
+            while (Quaternion.Angle(watson.transform.rotation, watsonIdeaLineTutorialPosition.rotation) > 0.5f)
+            {
+                watson.transform.rotation = Quaternion.RotateTowards(
+                    watson.transform.rotation,
+                    watsonIdeaLineTutorialPosition.rotation,
+                    rotationSpeed * Time.deltaTime);
+                yield return null;
+            }
+
+            watson.transform.rotation = watsonIdeaLineTutorialPosition.rotation;
+            agent.updateRotation = true;
         }
         else
         {

@@ -196,10 +196,13 @@ public class DetectiveSequencePuzzle : MonoBehaviour
 
     private void ShowConnectionText(DetectiveIdeaPoint.IdeaConnection connection, bool repeated)
     {
-        if (repeated)
-            ShowTopText(connection.repeatDescription, "");
-        else
-            ShowTopText(connection.firstDescription, "");
+        // A repeated attempt should always be readable. Most connections only
+        // need one authored line, so fall back to it when no repeat text exists.
+        string description = repeated && !string.IsNullOrWhiteSpace(connection.repeatDescription)
+            ? connection.repeatDescription
+            : connection.firstDescription;
+
+        ShowTopText(description, "");
     }
 
     private string GetConnectionKey(DetectiveIdeaPoint first, DetectiveIdeaPoint second)

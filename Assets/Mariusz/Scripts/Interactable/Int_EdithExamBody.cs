@@ -64,6 +64,9 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     [SerializeField] private Lvl3DialogueLine[] allCpCollectedDialogue;
     [Header("Detective Idea")]
     [SerializeField] private DetectiveIdeaPoint edithIdeaPoint;
+    [Header("Examination Clue Points")]
+    [Tooltip("CP GameObjects are disabled at scene start and enabled only after examining Lady Edith's body.")]
+    [SerializeField] private GameObject[] examinationClueObjects;
     //ClueCards Positions
     public Transform cp0;
     public Transform cp1;
@@ -92,6 +95,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     private bool completionDialoguePending;
 
     public bool IsExaminationCompleted => examinationCompleted || edithIdeaRevealed;
+    public bool IsExaminationActive => interactionPerforming && !examinationCompleted && !edithIdeaRevealed;
     protected override Lvl3DialogueLine[] DefaultDialogueLines => initialExaminationDialogue;
 
 
@@ -101,6 +105,8 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         FindEdithIdeaPointIfNeeded();
         if (cameraController == null)
             cameraController = FindFirstObjectByType<CameraController>();
+
+        SetExaminationClueObjectsActive(false);
         //watsonNavMesh = watsonGO.GetComponent<NavMeshAgent>();
         //watsonAnimator = watsonGO.GetComponent <Animator>();
         //sherlockAnimator = sherlockGO.GetComponent<Animator>();
@@ -163,7 +169,10 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         }
 
         if (!interactionPerforming)
+        {
             BeginExamination(player);
+            SetExaminationClueObjectsActive(true);
+        }
 
         player.currentInteractable = null;
 
@@ -304,6 +313,18 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
             EnterExaminationCamera();
         else
             ExitExaminationCamera();
+    }
+
+    private void SetExaminationClueObjectsActive(bool active)
+    {
+        if (examinationClueObjects == null)
+            return;
+
+        foreach (GameObject clueObject in examinationClueObjects)
+        {
+            if (clueObject != null)
+                clueObject.SetActive(active);
+        }
     }
 
     private void EnterExaminationCamera()

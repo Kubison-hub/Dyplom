@@ -21,6 +21,10 @@ public class WatsonEscortNPC : MonoBehaviour
     [SerializeField] private Transform rootPosition;
     [SerializeField, Min(0.1f)] private float rootPositionSampleRadius = 1.5f;
 
+    [Header("Sherlock Escort Timeout")]
+    [Tooltip("How long Watson may remain escorting this NPC while Sherlock is the active character. Set to 0 to disable the automatic farewell.")]
+    [SerializeField, Min(0f)] private float sherlockActiveFarewellDelay = 20f;
+
     [Header("Dialogue")]
     [SerializeField] private Lvl3DialogueLine[] approachDialogueLines;
     [SerializeField] private Lvl3DialogueLine[] destinationDialogueLines;
@@ -55,6 +59,7 @@ public class WatsonEscortNPC : MonoBehaviour
         : interactable != null ? interactable.interactiveShader : null;
     public WatsonEscortInfluencePoint[] InfluencePoints => influencePoints;
     public bool UseGlobalInfluencePointsWhenListEmpty => useGlobalInfluencePointsWhenListEmpty;
+    public float SherlockActiveFarewellDelay => sherlockActiveFarewellDelay;
 
     private void Awake()
     {

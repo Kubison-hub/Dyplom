@@ -24,6 +24,9 @@ public class Int_Edith_Ring : MonoBehaviour
 
     public void PerformInteraction(PlayerController player)
     {
+        if (performed || edith == null || !edith.IsExaminationActive)
+            return;
+
         performed = true;
         interactable.isInteractableActive = false;
         player.currentInteractable = null;

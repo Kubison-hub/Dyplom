@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Video;
 
 
-public class lvl2_Int_SelmaDoor : MonoBehaviour
+public class lvl2_Int_SelmaDoor : Lvl3InteractionDialogueBase
 {
     
     public GameObject door;
@@ -35,20 +35,23 @@ public class lvl2_Int_SelmaDoor : MonoBehaviour
 
     private Interactable interactable;
     public bool setActiveOnStart = false;
-    public string text = "Zamknięte, nie powinno to stanowić problemu";
     private bool firsInteraction = true;
     [SerializeField] private Material newMaterial;
 
     [SerializeField] private AudioSource doorclosedAudio;
 
+    [Header("First Interaction Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] firstInteractionDialogue;
+
     [Header("Lockpick Tutorial Popup")]
     [SerializeField] private bool showLockpickTutorialPopup = true;
-    [Tooltip("Legacy Level 2 popup. Disabled by default because it can conflict with the current tutorial timeline.")]
-    [SerializeField] private bool useLegacyLockpickTutorialPopup;
     [SerializeField] private string lockpickTutorialTitle = "Otwieranie Zamków";
     [SerializeField, TextArea] private string lockpickTutorialText =
         "Sherlock potrafi otwierać zamki, może to wymagać cierpliwości...";
     [SerializeField] private VideoClip lockpickTutorialVideoClip;
+    private bool waitingForFirstInteractionDialogue;
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => firstInteractionDialogue;
     private void Start()
     {
         openRotation = Quaternion.Euler(openEuler);
@@ -71,11 +74,23 @@ public class lvl2_Int_SelmaDoor : MonoBehaviour
 
         if (firsInteraction)
         {
-            doorclosedAudio.Play();
+            if (doorclosedAudio != null)
+                doorclosedAudio.Play();
+
             interactable.isInteractableActive = false;
-            StartCoroutine(AddText());
             firsInteraction = false;
             player.currentInteractable = null;
+            cameraController?.SetZoomState(CameraZoomState.Narrow);
+
+            if (firstInteractionDialogue != null && firstInteractionDialogue.Length > 0)
+            {
+                waitingForFirstInteractionDialogue = true;
+                PlayDialogue(player, firstInteractionDialogue);
+            }
+            else
+            {
+                StartCoroutine(ShowLockpickTutorialSequence());
+            }
         }
         else
         {
@@ -144,24 +159,31 @@ public class lvl2_Int_SelmaDoor : MonoBehaviour
         fadeCoroutine = null;
     }
 
-    private IEnumerator AddText()
+    protected override void OnDialogueSequenceCompleted(Lvl3DialogueLine[] lines)
     {
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText(text, string.Empty);
+        if (!waitingForFirstInteractionDialogue || lines != firstInteractionDialogue)
+            return;
 
-        yield return new WaitForSeconds(3);
+        waitingForFirstInteractionDialogue = false;
+        StartCoroutine(ShowLockpickTutorialSequence());
+    }
 
+    private IEnumerator ShowLockpickTutorialSequence()
+    {
         TutorialTimeline tutorialTimeline = TutorialTimeline.Instance;
-        if (useLegacyLockpickTutorialPopup && showLockpickTutorialPopup && tutorialTimeline != null)
+        if (showLockpickTutorialPopup && tutorialTimeline != null)
         {
-            tutorialTimeline.ShowGameplayTutorialPopup(
+            bool tutorialWasShown = tutorialTimeline.TryShowLockpickTutorialPopup(
                 lockpickTutorialTitle,
                 lockpickTutorialText,
                 lockpickTutorialVideoClip);
 
-            yield return null;
-            while (tutorialTimeline.BlocksWorldInput)
+            if (tutorialWasShown)
+            {
                 yield return null;
+                while (tutorialTimeline.BlocksWorldInput)
+                    yield return null;
+            }
         }
 
         interactable.isInteractableActive = true;
