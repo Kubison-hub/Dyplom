@@ -20,12 +20,15 @@ public class PlayerTopText : MonoBehaviour
     [SerializeField] private Vector3 ethelWorldOffset = new Vector3(0f, 2.1f, 0f);
     [SerializeField] private Transform selmaAnchor;
     [SerializeField] private Vector3 selmaWorldOffset = new Vector3(0f, 2.1f, 0f);
+    [SerializeField] private Transform violetAnchor;
+    [SerializeField] private Vector3 violetWorldOffset = new Vector3(0f, 2.1f, 0f);
 
     [Header("Text Fields")]
     public TMP_Text sherlockTopText;
     public TMP_Text watsonTopText;
     public TMP_Text ethelTopText;
     public TMP_Text selmaTopText;
+    public TMP_Text violetTopText;
 
     [Header("Typography")]
     [SerializeField, Min(1f)] private float unifiedFontSize = 24f;
@@ -42,6 +45,7 @@ public class PlayerTopText : MonoBehaviour
         ConfigureTextTypography(watsonTopText);
         ConfigureTextTypography(ethelTopText);
         ConfigureTextTypography(selmaTopText);
+        ConfigureTextTypography(violetTopText);
     }
 
     private void LateUpdate()
@@ -50,6 +54,7 @@ public class PlayerTopText : MonoBehaviour
         UpdateTextPosition(watsonTopText, watsonAnchor, watsonWorldOffset);
         UpdateTextPosition(ethelTopText, ethelAnchor, ethelWorldOffset);
         UpdateTextPosition(selmaTopText, selmaAnchor, selmaWorldOffset);
+        UpdateTextPosition(violetTopText, violetAnchor, violetWorldOffset);
     }
 
     public void ShowTopText(string sText = "", string wText = "")
@@ -106,6 +111,12 @@ public class PlayerTopText : MonoBehaviour
             selmaTopText.text = text;
     }
 
+    public void ShowVioletTopTextPersistent(string text)
+    {
+        if (violetTopText != null)
+            violetTopText.text = text;
+    }
+
     public void ClearTopTextIfMatches(string sText = "", string wText = "")
     {
         if (sherlockTopText != null && sherlockTopText.text == sText)
@@ -119,6 +130,42 @@ public class PlayerTopText : MonoBehaviour
     {
         if (selmaTopText != null && selmaTopText.text == text)
             selmaTopText.text = "";
+    }
+
+    public void ClearVioletTopTextIfMatches(string text)
+    {
+        if (violetTopText != null && violetTopText.text == text)
+            violetTopText.text = "";
+    }
+
+    public void ClearAllTopText()
+    {
+        if (topTextCoroutine != null)
+        {
+            StopCoroutine(topTextCoroutine);
+            topTextCoroutine = null;
+        }
+
+        if (ethelTopTextCoroutine != null)
+        {
+            StopCoroutine(ethelTopTextCoroutine);
+            ethelTopTextCoroutine = null;
+        }
+
+        if (sherlockTopText != null)
+            sherlockTopText.text = "";
+
+        if (watsonTopText != null)
+            watsonTopText.text = "";
+
+        if (ethelTopText != null)
+            ethelTopText.text = "";
+
+        if (selmaTopText != null)
+            selmaTopText.text = "";
+
+        if (violetTopText != null)
+            violetTopText.text = "";
     }
 
     public IEnumerator ShowTopTextCor(string sText, string wText)

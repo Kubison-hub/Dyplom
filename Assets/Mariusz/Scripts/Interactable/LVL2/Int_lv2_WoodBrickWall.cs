@@ -34,9 +34,13 @@ public class Int_lv2_WoodBrickWall : Lvl3InteractionDialogueBase
     [SerializeField] private Lvl3DialogueLine[] returnDialogue;
     [SerializeField] private Lvl3DialogueLine[] alreadyRejectedBlockDialogue;
 
+    [Header("Notebook")]
+    [SerializeField] private int openedDoorNoteIndex = 0;
+
     private WoodBlockWallVariant mountedVariant;
     private bool blockWasTested;
     private bool correctBlockAccepted;
+    private bool openedDoorNoteAdded;
     private Interactable socketInteractable;
     private readonly HashSet<ItemType> rejectedBlockTypes = new HashSet<ItemType>();
 
@@ -46,6 +50,8 @@ public class Int_lv2_WoodBrickWall : Lvl3InteractionDialogueBase
     {
         SetupInteractable(InteractionType.Int_lv2_WoodBrickWall);
         socketInteractable = GetComponent<Interactable>();
+        if (socketInteractable != null)
+            socketInteractable.addDatabaseNotesAutomatically = false;
         SetMountedVisual(null, false);
     }
 
@@ -90,7 +96,7 @@ public class Int_lv2_WoodBrickWall : Lvl3InteractionDialogueBase
     private void TryInsertSelectedBlock(PlayerController player)
     {
         if (InventoryManager.Instance == null ||
-            !InventoryManager.Instance.TryTakeSelectedWoodBlock(out ItemType selectedBlock))
+            !TryTakePreferredWallBlock(out ItemType selectedBlock))
         {
             PlayDialogue(player, noBlockDialogue);
             return;
@@ -120,6 +126,24 @@ public class Int_lv2_WoodBrickWall : Lvl3InteractionDialogueBase
         PlayDialogue(player, insertDialogue);
     }
 
+    private bool TryTakePreferredWallBlock(out ItemType selectedBlock)
+    {
+        selectedBlock = default;
+
+        // Element 0 is the intended block for this wall. Prefer it even when the
+        // inventory UI currently has the other wooden block selected.
+        if (blockVariants != null && blockVariants.Length > 0 &&
+            blockVariants[0] != null &&
+            InventoryManager.Instance.items.Contains(blockVariants[0].itemType) &&
+            InventoryManager.Instance.TryRemoveItem(blockVariants[0].itemType))
+        {
+            selectedBlock = blockVariants[0].itemType;
+            return true;
+        }
+
+        return InventoryManager.Instance.TryTakeSelectedWoodBlock(out selectedBlock);
+    }
+
     private void TestMountedBlock(PlayerController player)
     {
         if (!IsMountedBlockCorrect())
@@ -136,11 +160,24 @@ public class Int_lv2_WoodBrickWall : Lvl3InteractionDialogueBase
         if (mountedButton != null)
         {
             mountedButton.OpenWithInstalledWoodBlock(player);
+            AddOpenedDoorNotebookNote();
             return;
         }
 
         if (hiddenDoor != null)
+        {
             hiddenDoor.OpenWithInstalledWoodBlock(player);
+            AddOpenedDoorNotebookNote();
+        }
+    }
+
+    private void AddOpenedDoorNotebookNote()
+    {
+        if (openedDoorNoteAdded || openedDoorNoteIndex < 0 || socketInteractable == null)
+            return;
+
+        openedDoorNoteAdded = true;
+        socketInteractable.AddNote(openedDoorNoteIndex);
     }
 
     private bool IsMountedBlockCorrect()

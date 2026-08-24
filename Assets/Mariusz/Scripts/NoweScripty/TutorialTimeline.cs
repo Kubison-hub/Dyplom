@@ -314,6 +314,8 @@ public class TutorialTimeline : MonoBehaviour
         if (tutorialPopupPrefab == null || activeTutorialPopup != null)
             return;
 
+        PlayerTopText.Instance?.ClearAllTopText();
+
         TutorialPopupWindow popup = tutorialPopupParent != null
             ? Instantiate(tutorialPopupPrefab, tutorialPopupParent, false)
             : Instantiate(tutorialPopupPrefab);

@@ -328,11 +328,9 @@ public class DetectiveIdeaManager : MonoBehaviour
         DestroySessionLines();
         RestoreSequenceLookAt();
 
-        foreach (DetectiveIdeaPoint point in visiblePoints)
-        {
-            if (point != null)
-                point.SetVisible(false);
-        }
+        // The cache is presentation-only. Rebuild it before hiding so points
+        // discovered before a character switch cannot remain visible or be lost.
+        HideVisiblePoints(includeAllDiscoveredPoints: true);
 
         visiblePoints.Clear();
         SetAcceptedLinesVisible(false);
@@ -799,8 +797,11 @@ public class DetectiveIdeaManager : MonoBehaviour
             visiblePoints.Add(point);
     }
 
-    private void HideVisiblePoints()
+    private void HideVisiblePoints(bool includeAllDiscoveredPoints = false)
     {
+        if (includeAllDiscoveredPoints)
+            RestoreDiscoveredPointsToVisibleCache();
+
         for (int i = visiblePoints.Count - 1; i >= 0; i--)
         {
             DetectiveIdeaPoint point = visiblePoints[i];
@@ -810,8 +811,7 @@ public class DetectiveIdeaManager : MonoBehaviour
                 continue;
             }
 
-            if (!showDiscoveredPointsWhileActive || !point.IsDiscovered || !IsDetectiveVisionActive())
-                point.SetVisible(false);
+            point.SetVisible(false);
         }
     }
 
@@ -850,6 +850,9 @@ public class DetectiveIdeaManager : MonoBehaviour
         if (!showDiscoveredPointsWhileActive)
             return;
 
+        if (visible)
+            RestoreDiscoveredPointsToVisibleCache();
+
         for (int i = visiblePoints.Count - 1; i >= 0; i--)
         {
             DetectiveIdeaPoint point = visiblePoints[i];
@@ -861,6 +864,19 @@ public class DetectiveIdeaManager : MonoBehaviour
 
             if (point.IsDiscovered)
                 point.SetVisible(visible);
+        }
+    }
+
+    private void RestoreDiscoveredPointsToVisibleCache()
+    {
+        DetectiveIdeaPoint[] scenePoints = FindObjectsByType<DetectiveIdeaPoint>(
+            FindObjectsInactive.Exclude,
+            FindObjectsSortMode.None);
+
+        foreach (DetectiveIdeaPoint point in scenePoints)
+        {
+            if (point != null && point.IsDiscovered)
+                RememberVisiblePoint(point);
         }
     }
 

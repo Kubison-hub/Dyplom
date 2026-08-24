@@ -36,11 +36,19 @@ public class Int_lv4_HiddenDoor : Lvl3InteractionDialogueBase
     [SerializeField] private string openTrigger = "Open";
     [SerializeField] private AudioSource doorAudioSource;
     [SerializeField] private AudioClip doorOpenAudio;
+    [Tooltip("Room revealed immediately after the door receives its Open trigger.")]
+    [SerializeField] private GameObject roomToActivateAfterOpening;
+    [Header("Reparent Before Opening")]
+    [Tooltip("Leave empty to reparent the Door Animator GameObject.")]
+    [SerializeField] private Transform objectToReparentBeforeOpening;
+    [SerializeField] private Transform newParentBeforeOpening;
 
     [Header("BlackBoard Reveal")]
     [SerializeField] private GameObject blackBoard;
+    [Tooltip("Fade material, used like lvl2_Int_EthelWallButton before hiding the blackboard.")]
+    [SerializeField] private Material blackBoardFadeMaterial;
     [SerializeField, Min(0f)] private float blackBoardFadeDelay = 0.1f;
-    [SerializeField, Min(0.01f)] private float blackBoardFadeDuration = 0.5f;
+    [SerializeField, Min(0.01f)] private float blackBoardFadeDuration = 3.5f;
     [SerializeField] private bool deactivateBlackBoardAfterFade = true;
 
     [Header("After Opening")]
@@ -245,8 +253,13 @@ public class Int_lv4_HiddenDoor : Lvl3InteractionDialogueBase
         if (doorAudioSource != null && doorOpenAudio != null)
             doorAudioSource.PlayOneShot(doorOpenAudio);
 
+        ReparentDoorBeforeOpening();
+
         if (doorAnimator != null && !string.IsNullOrWhiteSpace(openTrigger))
             doorAnimator.SetTrigger(openTrigger);
+
+        if (roomToActivateAfterOpening != null)
+            roomToActivateAfterOpening.SetActive(true);
 
         if (blackBoardFadeDelay > 0f)
             yield return new WaitForSeconds(blackBoardFadeDelay);
@@ -284,6 +297,19 @@ public class Int_lv4_HiddenDoor : Lvl3InteractionDialogueBase
         }
     }
 
+    private void ReparentDoorBeforeOpening()
+    {
+        if (newParentBeforeOpening == null)
+            return;
+
+        Transform target = objectToReparentBeforeOpening;
+        if (target == null && doorAnimator != null)
+            target = doorAnimator.transform;
+
+        if (target != null && target.parent != newParentBeforeOpening)
+            target.SetParent(newParentBeforeOpening, true);
+    }
+
     private IEnumerator FadeBlackBoard()
     {
         if (blackBoard == null)
@@ -296,11 +322,21 @@ public class Int_lv4_HiddenDoor : Lvl3InteractionDialogueBase
             yield break;
         }
 
+        if (blackBoardFadeMaterial != null)
+        {
+            foreach (Renderer renderer in renderers)
+            {
+                if (renderer != null)
+                    renderer.material = blackBoardFadeMaterial;
+            }
+        }
+
+        float startAlpha = GetBlackBoardAlpha(renderers[0]);
         float elapsed = 0f;
         while (elapsed < blackBoardFadeDuration)
         {
             elapsed += Time.deltaTime;
-            float alpha = Mathf.Lerp(1f, 0f, elapsed / blackBoardFadeDuration);
+            float alpha = Mathf.Lerp(startAlpha, 0f, elapsed / blackBoardFadeDuration);
             SetBlackBoardAlpha(renderers, alpha);
             yield return null;
         }
@@ -331,6 +367,16 @@ public class Int_lv4_HiddenDoor : Lvl3InteractionDialogueBase
                 material.SetColor("_Color", color);
             }
         }
+    }
+
+    private static float GetBlackBoardAlpha(Renderer renderer)
+    {
+        if (renderer == null || renderer.material == null)
+            return 1f;
+
+        Material material = renderer.material;
+        string colorProperty = material.HasProperty("_BaseColor") ? "_BaseColor" : "_Color";
+        return material.HasProperty(colorProperty) ? material.GetColor(colorProperty).a : 1f;
     }
 
     private IEnumerator RotateSherlockTowardWatson()

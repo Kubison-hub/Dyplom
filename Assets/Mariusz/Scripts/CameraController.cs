@@ -27,6 +27,7 @@ public class CameraController : MonoBehaviour
     private float lastManualCameraInputTime;
     private bool autoRotationSuppressedByManualInput;
     private bool dialogAutoRotateActive;
+    private bool dialogAutoRotationSuppressedByManualInput;
     private bool dialogueJustEndedThisFrame;
     private bool hasScriptedHorizontalOrbit;
     private float scriptedHorizontalOrbitTarget;
@@ -260,7 +261,13 @@ public class CameraController : MonoBehaviour
     private void RegisterManualCameraInput()
     {
         if (dialogAutoRotateActive)
+        {
+            // The player has taken over the framing. Keep dialogue zoom, but never
+            // re-enable the dialogue orbit until this conversation ends.
+            dialogAutoRotationSuppressedByManualInput = true;
+            dialogueAutoRotationWeight = 0f;
             return;
+        }
 
         lastManualCameraInputTime = Time.unscaledTime;
 
@@ -295,10 +302,18 @@ public class CameraController : MonoBehaviour
                 dialoguePreviousZoomIndex = targetZoomIndex;
                 SetZoomPreset(dialogueZoomPresetName, dialogueZoomTransitionSpeed);
                 autoRotateCamera = false;
+                dialogAutoRotationSuppressedByManualInput = false;
             }
 
             dialogAutoRotateActive = true;
             autoRotationSuppressedByManualInput = false;
+
+            if (dialogAutoRotationSuppressedByManualInput)
+            {
+                dialogueAutoRotationWeight = 0f;
+                return;
+            }
+
             dialogueAutoRotationWeight = Mathf.MoveTowards(
                 dialogueAutoRotationWeight,
                 1f,
@@ -309,6 +324,7 @@ public class CameraController : MonoBehaviour
         if (dialogAutoRotateActive)
         {
             dialogAutoRotateActive = false;
+            dialogAutoRotationSuppressedByManualInput = false;
             dialogueJustEndedThisFrame = true;
             autoRotationSuppressedByManualInput = false;
             autoRotateCamera = false;

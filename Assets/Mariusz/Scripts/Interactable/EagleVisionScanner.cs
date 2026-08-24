@@ -41,6 +41,9 @@ public class EagleVisionScanner : MonoBehaviour
     public GameObject magnififierGlassCanvas;
     public GameObject toolTipCanvas;
 
+    private bool toolTipSuppressedByDialogue;
+    private bool toolTipWasActiveBeforeDialogue;
+
     public List<GameObject> footprintsSplines = new List<GameObject>();
 
 
@@ -71,6 +74,7 @@ public class EagleVisionScanner : MonoBehaviour
 
     private void Update()
     {
+        UpdateTooltipDialogueVisibility();
         FindshaderFootPrints();
 
         if (isScanning)
@@ -121,6 +125,34 @@ public class EagleVisionScanner : MonoBehaviour
         }
 
         Debug.Log($"Scanner State: {isActive}");
+    }
+
+    private void UpdateTooltipDialogueVisibility()
+    {
+        if (toolTipPanel == null)
+            return;
+
+        bool dialogueActive = DialogueEditor.ConversationManager.Instance != null &&
+                              (DialogueEditor.ConversationManager.Instance.inConversation ||
+                               DialogueEditor.ConversationManager.Instance.IsConversationActive);
+
+        if (dialogueActive)
+        {
+            if (!toolTipSuppressedByDialogue)
+            {
+                toolTipWasActiveBeforeDialogue = toolTipPanel.activeSelf;
+                toolTipPanel.SetActive(false);
+                toolTipSuppressedByDialogue = true;
+            }
+
+            return;
+        }
+
+        if (toolTipSuppressedByDialogue)
+        {
+            toolTipPanel.SetActive(toolTipWasActiveBeforeDialogue);
+            toolTipSuppressedByDialogue = false;
+        }
     }
 
     public void SetTooltipParentForLoupe(bool loupeActive)

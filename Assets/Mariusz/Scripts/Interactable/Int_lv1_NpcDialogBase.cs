@@ -1,12 +1,18 @@
 using DialogueEditor;
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Interactable))]
 public abstract class Int_lv1_NpcDialogBase : MonoBehaviour
 {
     [SerializeField] private SmartNPC smartNPC;
+    [Header("Face Player Before Dialogue")]
+    [SerializeField] private bool facePlayerBeforeDialogue = true;
+    [SerializeField, Min(1f)] private float facePlayerTurnSpeed = 360f;
+    [SerializeField, Min(0.1f)] private float facePlayerTolerance = 1f;
 
     private Interactable interactable;
+    private bool dialogueStarting;
 
     protected abstract InteractionType RequiredInteractionType { get; }
 
@@ -24,7 +30,7 @@ public abstract class Int_lv1_NpcDialogBase : MonoBehaviour
 
     public void PerformInteraction(PlayerController player)
     {
-        if (ConversationManager.Instance == null || ConversationManager.Instance.IsConversationActive)
+        if (dialogueStarting || ConversationManager.Instance == null || ConversationManager.Instance.IsConversationActive)
         {
             Debug.LogWarning($"Cannot start {name} dialog while another conversation is active.");
             ClearPlayerInteraction(player);
@@ -38,12 +44,27 @@ public abstract class Int_lv1_NpcDialogBase : MonoBehaviour
             return;
         }
 
+        ClearPlayerInteraction(player);
+        StartCoroutine(BeginDialogue(player));
+    }
+
+    private IEnumerator BeginDialogue(PlayerController player)
+    {
+        dialogueStarting = true;
+
+        if (facePlayerBeforeDialogue)
+            yield return NpcDialogueFacingUtility.FacePlayer(
+                smartNPC.transform,
+                player != null ? player.transform : null,
+                facePlayerTurnSpeed,
+                facePlayerTolerance);
+
         smartNPC.SprawdzIZacznijRozmowe();
 
         if (!ConversationManager.Instance.IsConversationActive)
             StartConversationWithoutTrigger(player);
 
-        ClearPlayerInteraction(player);
+        dialogueStarting = false;
     }
 
     private void StartConversationWithoutTrigger(PlayerController player)

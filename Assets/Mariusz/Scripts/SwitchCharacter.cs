@@ -75,6 +75,9 @@ public class SwitchCharacter : MonoBehaviour
         if (TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput)
             return;
 
+        if (NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen)
+            return;
+
         if (Keyboard.current != null && Keyboard.current[characterSwitchKey].wasPressedThisFrame)
         {
             int nextIndex = (activePlayerIndex + 1) % players.Length;

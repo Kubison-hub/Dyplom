@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 using TMPro;
 
 public class NotebookManager : MonoBehaviour
 {
+    public static NotebookManager Instance;
     [Header("UI Panels")]
     public GameObject notebookPanel;
     public GameObject categoryPanel;
@@ -23,6 +25,21 @@ public class NotebookManager : MonoBehaviour
     [Header("Database")]
     public List<NoteData> allNotes;
 
+    private PlayerInput notebookLockedInput;
+    private bool notebookDisabledInput;
+
+    public bool IsNotebookOpen => notebookPanel != null && notebookPanel.activeSelf;
+
+    private void Awake()
+    {
+        if (Instance == null)
+            Instance = this;
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+    }
     private void Start()
     {
         notebookPanel.SetActive(false);
@@ -38,19 +55,55 @@ public class NotebookManager : MonoBehaviour
 
     public void ToggleNotebook()
     {
-        bool isActive = notebookPanel.activeSelf;
-        notebookPanel.SetActive(!isActive);
-
-        if (!isActive)
+        if (IsNotebookOpen)
         {
-            BackToCategories(); // Pokazujemy kategorie na start
+            CloseNotebook();
+            return;
         }
+
+        notebookPanel.SetActive(true);
+        LockActivePlayerInput();
+        BackToCategories();
     }
 
     // Funkcja do fizycznego przycisku zamykania Notatnika
     public void CloseNotebook()
     {
-        notebookPanel.SetActive(false);
+        if (notebookPanel != null)
+            notebookPanel.SetActive(false);
+
+        RestoreActivePlayerInput();
+    }
+
+    private void LockActivePlayerInput()
+    {
+        if (notebookDisabledInput || SwitchCharacter.Instance == null)
+            return;
+
+        PlayerInput[] players = SwitchCharacter.Instance.players;
+        int activeIndex = SwitchCharacter.Instance.activePlayerIndex;
+        if (players == null || activeIndex < 0 || activeIndex >= players.Length)
+            return;
+
+        PlayerInput activePlayerInput = players[activeIndex];
+        if (activePlayerInput == null || !activePlayerInput.inputIsActive)
+            return;
+
+        notebookLockedInput = activePlayerInput;
+        notebookLockedInput.DeactivateInput();
+        notebookDisabledInput = true;
+    }
+
+    private void RestoreActivePlayerInput()
+    {
+        if (!notebookDisabledInput)
+            return;
+
+        if (notebookLockedInput != null)
+            notebookLockedInput.ActivateInput();
+
+        notebookLockedInput = null;
+        notebookDisabledInput = false;
     }
 
     // Wywo³ywane przez przyciski kategorii (0, 1, 2)
@@ -110,5 +163,17 @@ public class NotebookManager : MonoBehaviour
         {
             paperImage.sprite = note.customPaperGraphic;
         }
+    }
+
+    public void AddNote(NoteData note)
+    {
+        if (note == null)
+            return;
+
+        if (allNotes == null)
+            allNotes = new List<NoteData>();
+
+        if (!allNotes.Contains(note))
+            allNotes.Add(note);
     }
 }

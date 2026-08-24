@@ -24,6 +24,15 @@ public class Mysz : MonoBehaviour
 
     void Update()
     {
+        if (DialogueEditor.ConversationManager.Instance != null &&
+            (DialogueEditor.ConversationManager.Instance.inConversation ||
+             DialogueEditor.ConversationManager.Instance.IsConversationActive))
+        {
+            HideTooltip();
+            ToggleIntShader(false);
+            return;
+        }
+
         UpdateTooltipPosition();
         CheckObjectUnderMouse();
     }

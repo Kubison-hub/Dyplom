@@ -18,6 +18,12 @@ public class lvl2_Int_HatchExit : MonoBehaviour
     [Header("Level Transition")]
     [Tooltip("Root GameObject of Level 1, disabled when the player uses the stairs to reach Level 2.")]
     [SerializeField] private GameObject levelOneRoot;
+    [Tooltip("Disabled immediately when this hatch interaction begins.")]
+    [SerializeField] private GameObject[] deactivateOnInteractionStart;
+    [Tooltip("Activated immediately before teleporting the player into the hidden room.")]
+    [SerializeField] private GameObject[] activateBeforeTeleport;
+    [Tooltip("Activated immediately before teleporting the player into the hidden room.")]
+    [SerializeField] private GameObject[] blackboardsToActivateBeforeTeleport;
 
     [SerializeField] private int requiredLetters = 3;
     private int lettersCollected = 0;
@@ -43,6 +49,7 @@ public class lvl2_Int_HatchExit : MonoBehaviour
         performed = true;
         Debug.Log(interactable.name + ", interaction Performed");
 
+        DeactivateObjectsAtInteractionStart();
 
         TryExit(player);
 
@@ -51,6 +58,18 @@ public class lvl2_Int_HatchExit : MonoBehaviour
 
         
         
+    }
+
+    private void DeactivateObjectsAtInteractionStart()
+    {
+        if (deactivateOnInteractionStart == null)
+            return;
+
+        foreach (GameObject gameObjectToDeactivate in deactivateOnInteractionStart)
+        {
+            if (gameObjectToDeactivate != null)
+                gameObjectToDeactivate.SetActive(false);
+        }
     }
 
     public void TryExit(PlayerController player)
@@ -67,6 +86,8 @@ public class lvl2_Int_HatchExit : MonoBehaviour
         if (levelOneRoot != null)
             levelOneRoot.SetActive(true);
 
+        SetObjectsActiveBeforeTeleport(activateBeforeTeleport);
+        SetBlackboardsActiveBeforeTeleport();
         TeleportToHiddenRoom(player);
         
     }
@@ -91,6 +112,24 @@ public class lvl2_Int_HatchExit : MonoBehaviour
         player.transform.rotation = hiddenRoomStartPosition.rotation;
         player.currentInteractable = null;
     }
+
+    private void SetBlackboardsActiveBeforeTeleport()
+    {
+        SetObjectsActiveBeforeTeleport(blackboardsToActivateBeforeTeleport);
+    }
+
+    private static void SetObjectsActiveBeforeTeleport(GameObject[] objectsToActivate)
+    {
+        if (objectsToActivate == null)
+            return;
+
+        foreach (GameObject target in objectsToActivate)
+        {
+            if (target != null)
+                target.SetActive(true);
+        }
+    }
+
     private IEnumerator AddText()
     {
         if (PlayerTopText.Instance != null)

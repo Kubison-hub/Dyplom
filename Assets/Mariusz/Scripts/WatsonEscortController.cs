@@ -66,6 +66,11 @@ public class WatsonEscortController : MonoBehaviour
 
     public bool IsEscorting => escortedNpc != null;
 
+    public bool IsEscortingNpc(WatsonEscortNPC npc)
+    {
+        return npc != null && escortedNpc == npc;
+    }
+
     private void Awake()
     {
         Instance = this;
@@ -117,7 +122,7 @@ public class WatsonEscortController : MonoBehaviour
 
         sherlockActiveEscortElapsed += Time.deltaTime;
         if (sherlockActiveEscortElapsed >= timeout)
-            DismissEscort(true);
+            DismissEscort(true, true);
     }
 
     public bool TryStartEscort(WatsonEscortNPC npc, PlayerController player)
@@ -369,7 +374,7 @@ public class WatsonEscortController : MonoBehaviour
         escortRoutine = null;
     }
 
-    private void DismissEscort(bool playFarewell)
+    private void DismissEscort(bool playFarewell, bool useSherlockActiveFarewellDialogue = false)
     {
         if (escortRoutine != null)
             StopCoroutine(escortRoutine);
@@ -384,7 +389,12 @@ public class WatsonEscortController : MonoBehaviour
             escortedNpc.StopMoving();
             escortedNpc.EndEscort();
             if (playFarewell)
-                escortedNpc.PlayFarewellDialogue();
+            {
+                if (useSherlockActiveFarewellDialogue)
+                    escortedNpc.PlaySherlockActiveFarewellDialogue();
+                else
+                    escortedNpc.PlayFarewellDialogue();
+            }
         }
 
         escortedNpc = null;

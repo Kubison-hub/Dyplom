@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// One scene-level source of character voices for dialogue-line interactions.
-/// Assign these three sources once on a persistent scene object.
+/// Assign these character sources once on a persistent scene object.
 /// </summary>
 [DisallowMultipleComponent]
 public class DialogueAudioRegistry : MonoBehaviour
@@ -12,10 +12,12 @@ public class DialogueAudioRegistry : MonoBehaviour
     [SerializeField] private AudioSource sherlockVoiceSource;
     [SerializeField] private AudioSource watsonVoiceSource;
     [SerializeField] private AudioSource selmaVoiceSource;
+    [SerializeField] private AudioSource violetVoiceSource;
 
     public AudioSource SherlockVoiceSource => sherlockVoiceSource;
     public AudioSource WatsonVoiceSource => watsonVoiceSource;
     public AudioSource SelmaVoiceSource => selmaVoiceSource;
+    public AudioSource VioletVoiceSource => violetVoiceSource;
 
     private void Awake()
     {

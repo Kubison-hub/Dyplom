@@ -43,6 +43,12 @@ public class PlayerController : MonoBehaviour
     
     public AudioClip[] FootstepAudioClips;
 
+    [Header("Unreachable Interaction Feedback")]
+    [SerializeField, TextArea] private string sherlockUnreachableInteractionText = "Nie mogę się tam dostać.";
+    [SerializeField] private AudioClip sherlockUnreachableInteractionAudioClip;
+    [SerializeField, TextArea] private string watsonUnreachableInteractionText = "Nie mogę się tam dostać.";
+    [SerializeField] private AudioClip watsonUnreachableInteractionAudioClip;
+
     private bool canMove = true;
     private bool tutorialMovementLocked;
     private bool minigameMovementLocked;
@@ -102,6 +108,12 @@ public class PlayerController : MonoBehaviour
 
     private void UpdateInteractionShaderHover()
     {
+        if (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
+        {
+            SetHoveredInteractable(null);
+            return;
+        }
+
         if (playerInput == null || !playerInput.enabled || Mouse.current == null || Camera.main == null)
         {
             SetHoveredInteractable(null);
@@ -150,9 +162,10 @@ public class PlayerController : MonoBehaviour
 
         // Czy otwarty jest dziennik? (Sprawdzamy null, żeby nie wywaliło błędu jeśli nie ma Managera)
         bool dziennikAktywny = (JournalManager.Instance != null && JournalManager.Instance.isJournalOpen);
+        bool notebookAktywny = NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen;
 
         // Jeśli któraś z blokad jest aktywna...
-        if (dialogAktywny || dziennikAktywny || tutorialMovementLocked || minigameMovementLocked)
+        if (dialogAktywny || dziennikAktywny || notebookAktywny || tutorialMovementLocked || minigameMovementLocked)
         {
             // ...zablokuj NavMesh.
             LockMovement();
@@ -212,6 +225,8 @@ public class PlayerController : MonoBehaviour
 
     public void OnLeftClick(InputAction.CallbackContext context)
     {
+        if (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
+            return;
 
         if (!context.performed || !canMove)
             return;
@@ -221,6 +236,9 @@ public class PlayerController : MonoBehaviour
 
     private void HandleLeftClick()
     {
+        if (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
+            return;
+
         if (TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput)
             return;
 
@@ -388,6 +406,7 @@ public class PlayerController : MonoBehaviour
                 {
                     currentInteractable = null;
                     ClearAutoInteractionApproachPoint();
+                    ShowUnreachableInteractionFeedback();
                     return;
                 }
 
@@ -405,10 +424,46 @@ public class PlayerController : MonoBehaviour
         {
             currentInteractable = null;
             currentInteractionPoint = null;
+            ShowUnreachableInteractionFeedback();
             return;
         }
 
         navMeshAgent.SetPath(interactionPath);
+    }
+
+    private void ShowUnreachableInteractionFeedback()
+    {
+        bool isWatson = playerCharacter == PlayerCharacter.Watson || CompareTag("PlayerB");
+        string text = isWatson ? watsonUnreachableInteractionText : sherlockUnreachableInteractionText;
+        AudioClip audioClip = isWatson
+            ? watsonUnreachableInteractionAudioClip
+            : sherlockUnreachableInteractionAudioClip;
+
+        if (PlayerTopText.Instance != null)
+        {
+            if (isWatson)
+                PlayerTopText.Instance.ShowWatsonTopText(text);
+            else
+                PlayerTopText.Instance.ShowTopText(text, string.Empty);
+        }
+        else
+        {
+            Debug.Log(text);
+        }
+
+        if (audioClip == null)
+            return;
+
+        DialogueAudioRegistry registry = DialogueAudioRegistry.Instance;
+        AudioSource voiceSource = isWatson
+            ? registry != null ? registry.WatsonVoiceSource : null
+            : registry != null ? registry.SherlockVoiceSource : null;
+
+        if (voiceSource == null)
+            return;
+
+        voiceSource.Stop();
+        voiceSource.PlayOneShot(audioClip);
     }
 
     public void RotateTowardsInteractableAndShowTopText(Interactable interactable, string message)
@@ -502,7 +557,10 @@ public class PlayerController : MonoBehaviour
 
         if (currentInteractable != null)
         {
-            currentInteractable.PerformInteraction(this);
+            Interactable performedInteractable = currentInteractable;
+            performedInteractable.PerformInteraction(this);
+            if (performedInteractable.addDatabaseNotesAutomatically)
+                performedInteractable.AddAllDatabaseNotes();
         }
 
         ClearAutoInteractionApproachPoint();

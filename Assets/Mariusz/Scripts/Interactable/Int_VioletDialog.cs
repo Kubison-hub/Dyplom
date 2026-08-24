@@ -1,4 +1,5 @@
 using DialogueEditor;
+using System.Collections;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -18,6 +19,11 @@ public class Int_VioletDialog : MonoBehaviour
 
     public bool isVioletInRoom = true;
 
+    [Header("Face Player Before Dialogue")]
+    [SerializeField] private bool facePlayerBeforeDialogue = true;
+    [SerializeField, Min(1f)] private float facePlayerTurnSpeed = 360f;
+    [SerializeField, Min(0.1f)] private float facePlayerTolerance = 1f;
+
     [Header("Library Awareness")]
     [Tooltip("Assign the Violet GameObject that actually carries WatsonEscortNPC and NavMeshAgent.")]
     [SerializeField] private Transform violetPositionTarget;
@@ -34,6 +40,7 @@ public class Int_VioletDialog : MonoBehaviour
     public Transform moveDestination;
     private Vector3 destination;
     private bool isLibraryObserved;
+    private bool dialogueStarting;
     private void Start()
     {
 
@@ -80,7 +87,7 @@ public class Int_VioletDialog : MonoBehaviour
 
     public void PerformInteraction(PlayerController player)
     {
-        if (ConversationManager.Instance != null && !ConversationManager.Instance.IsConversationActive)
+        if (!dialogueStarting && ConversationManager.Instance != null && !ConversationManager.Instance.IsConversationActive)
         {
             if (!performed)
             {
@@ -88,11 +95,9 @@ public class Int_VioletDialog : MonoBehaviour
                 interactable.AddClue(0, cardPosition);
             }
 
-            smartNPC.SprawdzIZacznijRozmowe();
-           
             destination = moveDestination.position;
-            
             player.currentInteractable = null;
+            StartCoroutine(BeginDialogue(player));
 
         }
         else
@@ -106,6 +111,23 @@ public class Int_VioletDialog : MonoBehaviour
 
         //intCollider.enabled = false;
         //this.gameObject.SetActive(false);
+    }
+
+    private IEnumerator BeginDialogue(PlayerController player)
+    {
+        dialogueStarting = true;
+
+        if (facePlayerBeforeDialogue && smartNPC != null)
+        {
+            yield return NpcDialogueFacingUtility.FacePlayer(
+                smartNPC.transform,
+                player != null ? player.transform : null,
+                facePlayerTurnSpeed,
+                facePlayerTolerance);
+        }
+
+        smartNPC?.SprawdzIZacznijRozmowe();
+        dialogueStarting = false;
     }
 
     public void ChangeCamera()

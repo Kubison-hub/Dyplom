@@ -17,6 +17,9 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
     [SerializeField] private GameObject questionMarkToHide;
     [SerializeField] private GameObject deactivateOnTutorialComplete;
 
+    [Header("Immediate Watson Reaction")]
+    [SerializeField, Min(1f)] private float watsonTurnSpeed = 360f;
+
     [Header("Opening Dialogue")]
     [SerializeField] private Lvl3DialogueLine[] openingDialogueLines =
     {
@@ -70,6 +73,7 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
     [SerializeField, TextArea] private string sherlockRepeatText = "Watson?";
 
     private Interactable interactable;
+    private Coroutine watsonTurnCoroutine;
 
     private void Awake()
     {
@@ -97,6 +101,24 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
 
         questionMarkToHide?.SetActive(false);
         StartCoroutine(RunTutorial(player));
+    }
+
+    public void NotifyInteractionSelected(PlayerController player)
+    {
+        if (tutorialCompleted || tutorialInProgress || player == null ||
+            player.playerCharacter != PlayerCharacter.Sherlock)
+        {
+            return;
+        }
+
+        PlayerController watson = FindWatson();
+        if (watson == null)
+            return;
+
+        if (watsonTurnCoroutine != null)
+            StopCoroutine(watsonTurnCoroutine);
+
+        watsonTurnCoroutine = StartCoroutine(RotateWatsonToward(player.transform, watson));
     }
 
     private IEnumerator RunTutorial(PlayerController player)
@@ -191,5 +213,50 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
     {
         if (player != null)
             player.currentInteractable = null;
+    }
+
+    private IEnumerator RotateWatsonToward(Transform sherlock, PlayerController watson)
+    {
+        if (sherlock == null || watson == null)
+            yield break;
+
+        bool restoreAgentRotation = watson.navMeshAgent != null && watson.navMeshAgent.updateRotation;
+        if (watson.navMeshAgent != null)
+            watson.navMeshAgent.updateRotation = false;
+
+        while (sherlock != null && watson != null)
+        {
+            Vector3 direction = sherlock.position - watson.transform.position;
+            direction.y = 0f;
+            if (direction.sqrMagnitude <= 0.001f)
+                break;
+
+            Quaternion targetRotation = Quaternion.LookRotation(direction.normalized);
+            watson.transform.rotation = Quaternion.RotateTowards(
+                watson.transform.rotation,
+                targetRotation,
+                watsonTurnSpeed * Time.deltaTime);
+
+            if (Quaternion.Angle(watson.transform.rotation, targetRotation) <= 0.5f)
+                break;
+
+            yield return null;
+        }
+
+        if (watson != null && watson.navMeshAgent != null)
+            watson.navMeshAgent.updateRotation = restoreAgentRotation;
+
+        watsonTurnCoroutine = null;
+    }
+
+    private static PlayerController FindWatson()
+    {
+        foreach (PlayerController candidate in FindObjectsByType<PlayerController>(FindObjectsSortMode.None))
+        {
+            if (candidate != null && candidate.playerCharacter == PlayerCharacter.Watson)
+                return candidate;
+        }
+
+        return null;
     }
 }

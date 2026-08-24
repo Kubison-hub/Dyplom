@@ -10,6 +10,8 @@ public class Int_lv3_ClockSecretPassage : Lvl3ClockworkInteraction
     [SerializeField] private string openedBool = "Opened";
     [SerializeField] private AudioSource openAudioSource;
     [SerializeField] private Collider[] collidersToDisable;
+    [Tooltip("Objects to disable once the real passage opens, for example the temporary vision-passage GameObject.")]
+    [SerializeField] private GameObject[] gameObjectsToDisableOnOpen;
 
     [Header("Blackboard Reveal")]
     [Tooltip("Temporary blackboard hiding the room behind this passage.")]
@@ -64,6 +66,8 @@ public class Int_lv3_ClockSecretPassage : Lvl3ClockworkInteraction
         if (Interactable != null)
             Interactable.isInteractableActive = false;
 
+        DisableObjectsOnOpen();
+
         puzzleController.CompletePuzzle();
         ShowTopText("Udało się.", "Przejście stoi otworem.");
     }
@@ -93,10 +97,24 @@ public class Int_lv3_ClockSecretPassage : Lvl3ClockworkInteraction
         if (Interactable != null)
             Interactable.isInteractableActive = false;
 
+        DisableObjectsOnOpen();
+
         if (player != null)
             ShowTopTextForPlayer(player, "Udało się. Przejście stoi otworem.");
         else
             ShowTopText("Udało się.", "Przejście stoi otworem.");
+    }
+
+    private void DisableObjectsOnOpen()
+    {
+        if (gameObjectsToDisableOnOpen == null)
+            return;
+
+        foreach (GameObject target in gameObjectsToDisableOnOpen)
+        {
+            if (target != null)
+                target.SetActive(false);
+        }
     }
 
     private IEnumerator FadeBlackBoardAfterDoorOpen()

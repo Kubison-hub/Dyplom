@@ -8,6 +8,16 @@ public class Int_lv3_bsWallButton : Lvl3ClockworkInteraction
     [Tooltip("At least one assigned lamp must be active for this brick to be interactable.")]
     [SerializeField] private GameObject[] heldLamps;
 
+    [Header("Loupe QuestionFX Discovery")]
+    [SerializeField] private MagnifierGlassController magnifier;
+    [Tooltip("Leave empty to use this interaction's collider.")]
+    [SerializeField] private Collider loupeDetectionCollider;
+    [Tooltip("Leave empty to use Interactable.Question VFX.")]
+    [SerializeField] private GameObject questionFxObject;
+    [SerializeField, Min(0.1f)] private float loupeHoldDuration = 1f;
+    [SerializeField] private string unrevealedQuestionFxLayer = "Clues";
+    [SerializeField] private string revealedQuestionFxLayer = "Hidden";
+
     [Header("Secret Wall Door")]
     [SerializeField] private Int_lv3_SecretWallDoor secretWallDoor;
 
@@ -27,6 +37,8 @@ public class Int_lv3_bsWallButton : Lvl3ClockworkInteraction
     private bool interactionEnabledByPuzzle = true;
     private bool lightAvailabilityInitialized;
     private bool lightAvailable;
+    private bool questionFxRevealed;
+    private float loupeHoldStartedAt = -1f;
 
     protected override void Awake()
     {
@@ -40,12 +52,15 @@ public class Int_lv3_bsWallButton : Lvl3ClockworkInteraction
 
         interactionEnabledByPuzzle = Interactable == null || Interactable.isInteractableActive;
         CacheColliders();
+        ResolveLoupeDiscoveryReferences();
+        SetQuestionFxLayer(unrevealedQuestionFxLayer);
         UpdateLightAvailability();
     }
 
     private void Update()
     {
         UpdateLightAvailability();
+        UpdateLoupeQuestionFxDiscovery();
 
         if (holder != null && Vector3.Distance(holder.transform.position, GetHoldPoint().position) > holdRange)
             ForceRelease(true);
@@ -101,7 +116,87 @@ public class Int_lv3_bsWallButton : Lvl3ClockworkInteraction
         if (!lightAvailable)
             ForceRelease(true);
 
+        if (!lightAvailable)
+            loupeHoldStartedAt = -1f;
+
         ApplyInteractionAvailability();
+    }
+
+    private void UpdateLoupeQuestionFxDiscovery()
+    {
+        if (questionFxRevealed || !lightAvailable || !IsSherlockActive())
+        {
+            loupeHoldStartedAt = -1f;
+            return;
+        }
+
+        ResolveLoupeDiscoveryReferences();
+        if (magnifier == null || loupeDetectionCollider == null)
+        {
+            loupeHoldStartedAt = -1f;
+            return;
+        }
+
+        bool loupeOverButton = magnifier.TryGetActiveLoupeHit(out RaycastHit hit) &&
+                               IsLoupeHitOnButton(hit.collider);
+        if (!loupeOverButton)
+        {
+            loupeHoldStartedAt = -1f;
+            return;
+        }
+
+        if (loupeHoldStartedAt < 0f)
+            loupeHoldStartedAt = Time.unscaledTime;
+
+        if (Time.unscaledTime - loupeHoldStartedAt < loupeHoldDuration)
+            return;
+
+        questionFxRevealed = true;
+        loupeHoldStartedAt = -1f;
+        SetQuestionFxLayer(revealedQuestionFxLayer);
+    }
+
+    private void ResolveLoupeDiscoveryReferences()
+    {
+        if (magnifier == null)
+            magnifier = FindFirstObjectByType<MagnifierGlassController>();
+
+        if (loupeDetectionCollider == null)
+            loupeDetectionCollider = GetComponent<Collider>();
+
+        if (questionFxObject == null && Interactable != null && Interactable.questionVFX != null)
+        {
+            questionFxObject = Interactable.questionVFX.gameObject;
+            if (!questionFxRevealed)
+                SetQuestionFxLayer(unrevealedQuestionFxLayer);
+        }
+    }
+
+    private bool IsSherlockActive()
+    {
+        return SwitchCharacter.Instance == null || SwitchCharacter.Instance.activePlayerIndex == 0;
+    }
+
+    private bool IsLoupeHitOnButton(Collider hitCollider)
+    {
+        return hitCollider == loupeDetectionCollider ||
+               hitCollider != null && hitCollider.transform.IsChildOf(loupeDetectionCollider.transform);
+    }
+
+    private void SetQuestionFxLayer(string layerName)
+    {
+        if (questionFxObject == null || string.IsNullOrWhiteSpace(layerName))
+            return;
+
+        int layer = LayerMask.NameToLayer(layerName);
+        if (layer < 0)
+        {
+            Debug.LogWarning($"{name}: layer '{layerName}' does not exist.", this);
+            return;
+        }
+
+        foreach (Transform current in questionFxObject.GetComponentsInChildren<Transform>(true))
+            current.gameObject.layer = layer;
     }
 
     private void ApplyInteractionAvailability()

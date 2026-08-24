@@ -34,13 +34,6 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     [SerializeField] private string examinationPresetName = "EdithExam";
     [SerializeField] private float examinationHorizontalAxis = -80f;
     [SerializeField, Min(0.1f)] private float examinationOrbitSpeed = 1.5f;
-    [Header("Shot Tutorial")]
-    [SerializeField, TextArea] private string shotTutorialText = "Tutorial Znajdywanie";
-    [SerializeField] private string shotTutorialId = "ShotTutorial";
-    [SerializeField, Min(0f)] private float shotTutorialDelay = 1.5f;
-    [SerializeField, Range(0.1f, 1f)] private float shotTutorialScale = 0.5f;
-    [SerializeField] private Vector2 shotTutorialOffset = new Vector2(180f, 110f);
-    [SerializeField] private bool useLegacyShotTutorial;
     [Header("Tutorial Popup")]
     [SerializeField] private bool showTutorialPopup = true;
     [SerializeField, Min(0f)] private float tutorialPopupDelay = 1f;
@@ -62,6 +55,10 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     [SerializeField] private Lvl3DialogueLine[] paperCpDialogue;
     [SerializeField] private Lvl3DialogueLine[] bulletCpDialogue;
     [SerializeField] private Lvl3DialogueLine[] allCpCollectedDialogue;
+    [Header("All CP Collected Clue")]
+    [Tooltip("Index from Interactable > Clues. Set to -1 to skip adding a final clue.")]
+    [SerializeField] private int allCpCollectedClueIndex = -1;
+    [SerializeField] private Transform allCpCollectedClueCardPosition;
     [Header("Detective Idea")]
     [SerializeField] private DetectiveIdeaPoint edithIdeaPoint;
     [Header("Examination Clue Points")]
@@ -86,13 +83,13 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     private GameObject examinationZone;
     private bool isPlayerInsideExaminationZone;
     private bool isExaminationCameraActive;
-    private bool shotTutorialRequested;
     private bool tutorialPopupShown;
     private bool tutorialPopupPending;
     private Coroutine tutorialPopupCoroutine;
     private bool waitingForInitialDialogue;
     private bool initialDialogueCompleted;
     private bool completionDialoguePending;
+    private bool allCpCollectedClueAdded;
 
     public bool IsExaminationCompleted => examinationCompleted || edithIdeaRevealed;
     public bool IsExaminationActive => interactionPerforming && !examinationCompleted && !edithIdeaRevealed;
@@ -123,7 +120,9 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
 
         if (edithIdeaRevealed)
         {
-            EndExamination(true);
+            if (!completionDialoguePending)
+                EndExamination(true);
+
             return;
         }
 
@@ -238,17 +237,25 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         if (collectedExamClueCount < requiredCluesToRevealIdea)
             return;
 
-        completionDialoguePending = allCpCollectedDialogue != null && allCpCollectedDialogue.Length > 0;
+        AddAllCpCollectedClue();
+        completionDialoguePending = true;
         edithIdeaRevealed = true;
         FindEdithIdeaPointIfNeeded();
         edithIdeaPoint?.RevealFromExternalSource();
-        EndExamination(true);
 
-        if (completionDialoguePending && (clueDialogue == null || clueDialogue.Length == 0))
-        {
-            completionDialoguePending = false;
-            PlayDialogue(null, allCpCollectedDialogue);
-        }
+        // Keep this component enabled while the final CP dialogue is playing.
+        // Disabling it here would stop its dialogue coroutine and cut the audio off.
+        if (clueDialogue == null || clueDialogue.Length == 0)
+            ContinueAfterFinalClueDialogue();
+    }
+
+    private void AddAllCpCollectedClue()
+    {
+        if (allCpCollectedClueAdded || allCpCollectedClueIndex < 0 || interactable == null)
+            return;
+
+        allCpCollectedClueAdded = true;
+        interactable.AddClue(allCpCollectedClueIndex, allCpCollectedClueCardPosition);
     }
 
     private Lvl3DialogueLine[] GetClueDialogue(int clueIndex)
@@ -341,50 +348,6 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         ShowExaminationTutorialsIfReady();
     }
 
-    public void ShotTutorial()
-    {
-        if (shotTutorialRequested)
-            return;
-
-        shotTutorialRequested = true;
-        StartCoroutine(ShowShotTutorialAfterCameraSettles());
-    }
-
-    private IEnumerator ShowShotTutorialAfterCameraSettles()
-    {
-        if (shotTutorialDelay > 0f)
-            yield return new WaitForSecondsRealtime(shotTutorialDelay);
-
-        TutorialManager tutorialManager = TutorialManager.Instance;
-        if (tutorialManager == null)
-            yield break;
-
-        tutorialManager.PokazTutorial(shotTutorialText, shotTutorialId);
-        if (!tutorialManager.isTutorialActive || tutorialManager.tutorialPanel == null)
-            yield break;
-
-        Transform tutorialPanelTransform = tutorialManager.tutorialPanel.transform;
-        Vector3 originalScale = tutorialPanelTransform.localScale;
-        tutorialPanelTransform.localScale = originalScale * shotTutorialScale;
-
-        RectTransform tutorialPanelRect = tutorialPanelTransform as RectTransform;
-        Vector2 originalAnchoredPosition = tutorialPanelRect != null
-            ? tutorialPanelRect.anchoredPosition
-            : Vector2.zero;
-
-        if (tutorialPanelRect != null)
-            tutorialPanelRect.anchoredPosition = originalAnchoredPosition + shotTutorialOffset;
-
-        while (tutorialManager.isTutorialActive)
-            yield return null;
-
-        if (tutorialPanelTransform != null)
-            tutorialPanelTransform.localScale = originalScale;
-
-        if (tutorialPanelRect != null)
-            tutorialPanelRect.anchoredPosition = originalAnchoredPosition;
-    }
-
     private void ExitExaminationCamera()
     {
         if (!examinationCompleted && interactable != null)
@@ -445,9 +408,6 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         if (!initialDialogueCompleted)
             return;
 
-        if (useLegacyShotTutorial)
-            ShotTutorial();
-
         ShowTutorialPopupIfNeeded();
     }
 
@@ -463,11 +423,32 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
             return;
         }
 
-        if (!completionDialoguePending || !IsCpDialogue(lines))
+        if (!edithIdeaRevealed)
             return;
 
+        if (IsCpDialogue(lines))
+        {
+            ContinueAfterFinalClueDialogue();
+            return;
+        }
+
+        if (lines == allCpCollectedDialogue)
+        {
+            completionDialoguePending = false;
+            EndExamination(true);
+        }
+    }
+
+    private void ContinueAfterFinalClueDialogue()
+    {
+        if (allCpCollectedDialogue != null && allCpCollectedDialogue.Length > 0)
+        {
+            PlayDialogue(null, allCpCollectedDialogue);
+            return;
+        }
+
         completionDialoguePending = false;
-        PlayDialogue(null, allCpCollectedDialogue);
+        EndExamination(true);
     }
 
     private bool IsCpDialogue(Lvl3DialogueLine[] lines)

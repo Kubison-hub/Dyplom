@@ -1,4 +1,5 @@
 using DialogueEditor;
+using System.Collections;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -11,6 +12,13 @@ public class Int_SelmaDialog : MonoBehaviour
     public CinemachineCamera dialogCam;
     //public CinemachineSplineDolly splineDolly;
     public Transform cardPosition;
+
+    [Header("Face Player Before Dialogue")]
+    [SerializeField] private bool facePlayerBeforeDialogue = true;
+    [SerializeField, Min(1f)] private float facePlayerTurnSpeed = 360f;
+    [SerializeField, Min(0.1f)] private float facePlayerTolerance = 1f;
+
+    private bool dialogueStarting;
 
     private void Start()
     {
@@ -31,15 +39,13 @@ public class Int_SelmaDialog : MonoBehaviour
 
     public void PerformInteraction(PlayerController player)
     {
-        if (ConversationManager.Instance != null && !ConversationManager.Instance.IsConversationActive)
+        if (!dialogueStarting && ConversationManager.Instance != null && !ConversationManager.Instance.IsConversationActive)
         {
             interactable.isInteractableActive = false;
             interactable.AddClue(0, cardPosition);
             interactable.AddClue(1, cardPosition);
-            smartNPC.SprawdzIZacznijRozmowe();
-            
-            
             player.currentInteractable = null;
+            StartCoroutine(BeginDialogue(player));
 
         }
         else
@@ -53,6 +59,23 @@ public class Int_SelmaDialog : MonoBehaviour
 
         //intCollider.enabled = false;
         //this.gameObject.SetActive(false);
+    }
+
+    private IEnumerator BeginDialogue(PlayerController player)
+    {
+        dialogueStarting = true;
+
+        if (facePlayerBeforeDialogue && smartNPC != null)
+        {
+            yield return NpcDialogueFacingUtility.FacePlayer(
+                smartNPC.transform,
+                player != null ? player.transform : null,
+                facePlayerTurnSpeed,
+                facePlayerTolerance);
+        }
+
+        smartNPC?.SprawdzIZacznijRozmowe();
+        dialogueStarting = false;
     }
 
     public void ChangeCamera()

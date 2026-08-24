@@ -27,6 +27,12 @@ public class int_lv3_easyTable : MonoBehaviour
     [SerializeField] private Transform watsonDestination;
     [SerializeField, Min(0.1f)] private float watsonDestinationSampleRadius = 1f;
 
+    [Header("Completion Character Rotation")]
+    [SerializeField] private Transform sherlockLookTarget;
+    [SerializeField] private Transform watsonLookTarget;
+    [SerializeField, Min(1f)] private float completionRotationSpeed = 300f;
+    [SerializeField, Min(0.01f)] private float completionRotationTolerance = 0.5f;
+
     [Header("Completion Reveal")]
     [SerializeField] private CameraController cameraController;
     [SerializeField] private GameObject realRoom;
@@ -47,6 +53,11 @@ public class int_lv3_easyTable : MonoBehaviour
     [Header("Narration")]
     [SerializeField, TextArea] private string missingFiguresText = "Czegoś brakuje.";
 
+    [Header("Notebook Notes")]
+    [SerializeField] private int prePuzzleNoteIndex = 0;
+    [SerializeField] private int completedPuzzleNoteIndex = 1;
+    [SerializeField] private int completedPuzzleAdditionalNoteIndex = 2;
+
     private Interactable interactable;
     private Collider interactionCollider;
     private bool greenFigurePlaced;
@@ -59,6 +70,7 @@ public class int_lv3_easyTable : MonoBehaviour
     private readonly System.Collections.Generic.List<BackgroundMaterialTarget> backgroundMaterialTargets =
         new System.Collections.Generic.List<BackgroundMaterialTarget>();
     private MaterialPropertyBlock backgroundPropertyBlock;
+    private bool prePuzzleNoteAdded;
     public bool Opened { get; private set; }
 
     private struct BackgroundMaterialTarget
@@ -76,12 +88,15 @@ public class int_lv3_easyTable : MonoBehaviour
         backgroundPropertyBlock = new MaterialPropertyBlock();
         CacheBackgroundMaterialTargets();
         interactable.SetInteractionType(InteractionType.int_lv3_easyTable);
+        interactable.addDatabaseNotesAutomatically = false;
     }
 
     public void PerformInteraction(PlayerController player)
     {
         if (completed)
             return;
+
+        AddPrePuzzleNotebookNote();
 
         bool placedAnyFigure = false;
         if (InventoryManager.Instance != null)
@@ -135,6 +150,9 @@ public class int_lv3_easyTable : MonoBehaviour
             Debug.LogWarning($"{name}: Missing point or prefab for {itemType} figure.", this);
             return false;
         }
+
+        if (!InventoryManager.Instance.TryRemoveItem(itemType))
+            return false;
 
         GameObject placedFigure = Instantiate(figurePrefab, point.position, point.rotation, point);
         DisablePlacedFigureInteraction(placedFigure);
@@ -219,6 +237,8 @@ public class int_lv3_easyTable : MonoBehaviour
 
         RevealCompletedRoom();
         OpenSecretDoor();
+        AddCompletedPuzzleNotebookNote();
+        StartCoroutine(RotateCharactersAfterDoorOpens());
         cameraController?.SetZoomState(CameraZoomState.Medium);
         Debug.Log("Koniec interakcji: wszystkie figurki znajdują się na stole.");
 
@@ -236,6 +256,27 @@ public class int_lv3_easyTable : MonoBehaviour
 
         if (interactionCollider != null)
             interactionCollider.enabled = false;
+    }
+
+    private void AddPrePuzzleNotebookNote()
+    {
+        if (prePuzzleNoteAdded || prePuzzleNoteIndex < 0 || interactable == null)
+            return;
+
+        prePuzzleNoteAdded = true;
+        interactable.AddNote(prePuzzleNoteIndex);
+    }
+
+    private void AddCompletedPuzzleNotebookNote()
+    {
+        if (interactable == null)
+            return;
+
+        if (completedPuzzleNoteIndex >= 0)
+            interactable.AddNote(completedPuzzleNoteIndex);
+
+        if (completedPuzzleAdditionalNoteIndex >= 0)
+            interactable.AddNote(completedPuzzleAdditionalNoteIndex);
     }
 
     private void MoveWatsonToCompletionDestination()
@@ -259,8 +300,89 @@ public class int_lv3_easyTable : MonoBehaviour
             return;
         }
 
+        watsonAgent.ResetPath();
         watsonAgent.isStopped = false;
+        watsonAgent.updateRotation = true;
         watsonAgent.SetDestination(navMeshHit.position);
+    }
+
+    private IEnumerator RotateCharactersAfterDoorOpens()
+    {
+        yield return WaitForWatsonCompletionMovement();
+
+        Transform sherlock = GetPlayerTransform(0);
+        Transform watson = watsonAgent != null ? watsonAgent.transform : GetPlayerTransform(1);
+        Quaternion sherlockTargetRotation = GetRotationTowardsTarget(sherlock, sherlockLookTarget);
+        Quaternion watsonTargetRotation = GetRotationTowardsTarget(watson, watsonLookTarget);
+
+        bool rotateSherlock = sherlock != null && sherlockLookTarget != null;
+        bool rotateWatson = watson != null && watsonLookTarget != null;
+
+        while (rotateSherlock || rotateWatson)
+        {
+            if (rotateSherlock)
+            {
+                sherlock.rotation = Quaternion.RotateTowards(
+                    sherlock.rotation,
+                    sherlockTargetRotation,
+                    completionRotationSpeed * Time.deltaTime);
+                rotateSherlock = Quaternion.Angle(sherlock.rotation, sherlockTargetRotation) > completionRotationTolerance;
+            }
+
+            if (rotateWatson)
+            {
+                watson.rotation = Quaternion.RotateTowards(
+                    watson.rotation,
+                    watsonTargetRotation,
+                    completionRotationSpeed * Time.deltaTime);
+                rotateWatson = Quaternion.Angle(watson.rotation, watsonTargetRotation) > completionRotationTolerance;
+            }
+
+            yield return null;
+        }
+    }
+
+    private IEnumerator WaitForWatsonCompletionMovement()
+    {
+        if (watsonAgent == null || watsonDestination == null || !watsonAgent.isOnNavMesh)
+            yield break;
+
+        while (watsonAgent.pathPending)
+            yield return null;
+
+        if (watsonAgent.pathStatus != NavMeshPathStatus.PathComplete)
+            yield break;
+
+        while (watsonAgent.remainingDistance > watsonAgent.stoppingDistance + completionRotationTolerance)
+            yield return null;
+
+        watsonAgent.ResetPath();
+        watsonAgent.isStopped = true;
+    }
+
+    private static Transform GetPlayerTransform(int playerIndex)
+    {
+        if (SwitchCharacter.Instance == null || SwitchCharacter.Instance.players == null ||
+            playerIndex < 0 || playerIndex >= SwitchCharacter.Instance.players.Length)
+        {
+            return null;
+        }
+
+        return SwitchCharacter.Instance.players[playerIndex] != null
+            ? SwitchCharacter.Instance.players[playerIndex].transform
+            : null;
+    }
+
+    private static Quaternion GetRotationTowardsTarget(Transform character, Transform lookTarget)
+    {
+        if (character == null || lookTarget == null)
+            return Quaternion.identity;
+
+        Vector3 direction = lookTarget.position - character.position;
+        direction.y = 0f;
+        return direction.sqrMagnitude > 0.0001f
+            ? Quaternion.LookRotation(direction.normalized, Vector3.up)
+            : character.rotation;
     }
 
     private void RevealCompletedRoom()

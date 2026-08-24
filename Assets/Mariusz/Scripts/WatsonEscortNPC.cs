@@ -24,6 +24,8 @@ public class WatsonEscortNPC : MonoBehaviour
     [Header("Sherlock Escort Timeout")]
     [Tooltip("How long Watson may remain escorting this NPC while Sherlock is the active character. Set to 0 to disable the automatic farewell.")]
     [SerializeField, Min(0f)] private float sherlockActiveFarewellDelay = 20f;
+    [Tooltip("Played only when Sherlock being active ends this escort through the timeout. Leave empty to use the normal Farewell Dialogue Lines.")]
+    [SerializeField] private Lvl3DialogueLine[] sherlockActiveFarewellDialogueLines;
 
     [Header("Dialogue")]
     [SerializeField] private Lvl3DialogueLine[] approachDialogueLines;
@@ -32,6 +34,7 @@ public class WatsonEscortNPC : MonoBehaviour
     [SerializeField] private AudioSource sherlockVoiceSource;
     [SerializeField] private AudioSource watsonVoiceSource;
     [SerializeField] private AudioSource selmaVoiceSource;
+    [SerializeField] private AudioSource violetVoiceSource;
 
     [Header("Vision Eye")]
     [SerializeField] private bool showInteractionShaderInWatsonVision = true;
@@ -223,10 +226,25 @@ public class WatsonEscortNPC : MonoBehaviour
 
     public void PlayFarewellDialogue()
     {
+        PlayFarewellDialogue(farewellDialogueLines);
+    }
+
+    public void PlaySherlockActiveFarewellDialogue()
+    {
+        Lvl3DialogueLine[] dialogueLines = sherlockActiveFarewellDialogueLines != null &&
+                                            sherlockActiveFarewellDialogueLines.Length > 0
+            ? sherlockActiveFarewellDialogueLines
+            : farewellDialogueLines;
+
+        PlayFarewellDialogue(dialogueLines);
+    }
+
+    private void PlayFarewellDialogue(Lvl3DialogueLine[] dialogueLines)
+    {
         if (dialogueCoroutine != null)
             StopCoroutine(dialogueCoroutine);
 
-        dialogueCoroutine = StartCoroutine(PlayFarewellDialogueAndReturn());
+        dialogueCoroutine = StartCoroutine(PlayFarewellDialogueAndReturn(dialogueLines));
     }
 
     private void StartRandomDialogue(Lvl3DialogueLine[] lines)
@@ -243,11 +261,11 @@ public class WatsonEscortNPC : MonoBehaviour
         RestoreMovementSpeed();
     }
 
-    private IEnumerator PlayFarewellDialogueAndReturn()
+    private IEnumerator PlayFarewellDialogueAndReturn(Lvl3DialogueLine[] dialogueLines)
     {
-        if (farewellDialogueLines != null && farewellDialogueLines.Length > 0)
+        if (dialogueLines != null && dialogueLines.Length > 0)
         {
-            Lvl3DialogueLine line = farewellDialogueLines[UnityEngine.Random.Range(0, farewellDialogueLines.Length)];
+            Lvl3DialogueLine line = dialogueLines[UnityEngine.Random.Range(0, dialogueLines.Length)];
             yield return PlayDialogueLine(line);
         }
 
@@ -309,16 +327,33 @@ public class WatsonEscortNPC : MonoBehaviour
         string sherlockText = line.speaker == Lvl3DialogueSpeaker.Sherlock ? line.text : string.Empty;
         string watsonText = line.speaker == Lvl3DialogueSpeaker.Watson ? line.text : string.Empty;
         string selmaText = line.speaker == Lvl3DialogueSpeaker.Selma ? line.text : string.Empty;
+        string violetText = line.speaker == Lvl3DialogueSpeaker.Violet ? line.text : string.Empty;
         PlayerTopText.Instance?.ShowTopTextPersistent(sherlockText, watsonText);
         PlayerTopText.Instance?.ShowSelmaTopTextPersistent(selmaText);
+        PlayerTopText.Instance?.ShowVioletTopTextPersistent(violetText);
 
         AudioSource source = line.speaker switch
         {
             Lvl3DialogueSpeaker.Sherlock => sherlockVoiceSource,
             Lvl3DialogueSpeaker.Watson => watsonVoiceSource,
             Lvl3DialogueSpeaker.Selma => selmaVoiceSource,
+            Lvl3DialogueSpeaker.Violet => violetVoiceSource,
             _ => null
         };
+
+        if (source == null)
+        {
+            DialogueAudioRegistry registry = DialogueAudioRegistry.Instance;
+            source = line.speaker switch
+            {
+                Lvl3DialogueSpeaker.Sherlock => registry != null ? registry.SherlockVoiceSource : null,
+                Lvl3DialogueSpeaker.Watson => registry != null ? registry.WatsonVoiceSource : null,
+                Lvl3DialogueSpeaker.Selma => registry != null ? registry.SelmaVoiceSource : null,
+                Lvl3DialogueSpeaker.Violet => registry != null ? registry.VioletVoiceSource : null,
+                _ => null
+            };
+        }
+
         if (source != null && line.voiceClip != null)
         {
             source.Stop();
@@ -328,6 +363,7 @@ public class WatsonEscortNPC : MonoBehaviour
         yield return new WaitForSeconds(line.duration > 0f ? line.duration : 2f);
         PlayerTopText.Instance?.ClearTopTextIfMatches(sherlockText, watsonText);
         PlayerTopText.Instance?.ClearSelmaTopTextIfMatches(selmaText);
+        PlayerTopText.Instance?.ClearVioletTopTextIfMatches(violetText);
     }
 
     private bool HasAnimatorBool(string parameterName)

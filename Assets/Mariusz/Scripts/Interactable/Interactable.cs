@@ -66,6 +66,11 @@ public class Interactable : MonoBehaviour
 
     [Space]
     public Clues_SO[] clues;
+    [Header("Notebook")]
+    [Tooltip("Notes this interaction can add to the Notebook Manager database.")]
+    public NoteData[] databaseNotes;
+    [Tooltip("Adds every assigned Database Note after PerformInteraction. Disable this for interactions with custom note timing.")]
+    public bool addDatabaseNotesAutomatically = true;
     [Space]
 
 
@@ -145,6 +150,12 @@ public class Interactable : MonoBehaviour
 
     public void SetInteractionShaderHover(bool isHovered)
     {
+        if (DialogueEditor.ConversationManager.Instance != null &&
+            DialogueEditor.ConversationManager.Instance.IsConversationActive)
+        {
+            isHovered = false;
+        }
+
         interactionShaderHovered = isHovered;
         InteractionHoverLabelManager.SetHovered(this, isHovered);
 
@@ -198,6 +209,12 @@ public class Interactable : MonoBehaviour
         //if (!isInteractableActive || ConversationManager.Instance.inConversation 
         //    || TutorialManager.Instance.isTutorialActive) return;
 
+        if (DialogueEditor.ConversationManager.Instance != null &&
+            DialogueEditor.ConversationManager.Instance.IsConversationActive)
+        {
+            return;
+        }
+
         if (!isInteractableActive) return;
 
         if (!CanPlayerUseInteraction(player)) return;
@@ -205,6 +222,9 @@ public class Interactable : MonoBehaviour
         Int_lv1_SherlockWatsonSelmaDialog sherlockWatsonSelmaDialog =
             GetComponent<Int_lv1_SherlockWatsonSelmaDialog>();
         sherlockWatsonSelmaDialog?.NotifyInteractionSelected(player);
+
+        Int_WatsonSwitchTutorial watsonSwitchTutorial = GetComponent<Int_WatsonSwitchTutorial>();
+        watsonSwitchTutorial?.NotifyInteractionSelected(player);
 
         WatsonEscortNPC escortNpc = GetComponent<WatsonEscortNPC>();
         if (escortNpc != null && escortNpc.CanBeEscortedBy(player))
@@ -1956,6 +1976,46 @@ public class Interactable : MonoBehaviour
             //Destroy(ClueVisualFx, 5f);
         }
 
+    }
+
+    public void AddNote(int noteIndex)
+    {
+        if (databaseNotes == null || databaseNotes.Length == 0)
+        {
+            Debug.LogWarning($"{name}: AddNote called, but no Database Notes are assigned.");
+            return;
+        }
+
+        if (noteIndex < 0 || noteIndex >= databaseNotes.Length)
+        {
+            Debug.LogError($"{name}: note index {noteIndex} is outside assigned Database Notes range 0-{databaseNotes.Length - 1}.");
+            return;
+        }
+
+        NoteData note = databaseNotes[noteIndex];
+        if (note == null)
+        {
+            Debug.LogError($"{name}: Database Note at index {noteIndex} is null.");
+            return;
+        }
+
+        NotebookManager notebookManager = FindFirstObjectByType<NotebookManager>();
+        if (notebookManager == null)
+        {
+            Debug.LogWarning($"{name}: no NotebookManager was found in the scene.");
+            return;
+        }
+
+        notebookManager.AddNote(note);
+    }
+
+    public void AddAllDatabaseNotes()
+    {
+        if (databaseNotes == null)
+            return;
+
+        for (int i = 0; i < databaseNotes.Length; i++)
+            AddNote(i);
     }
     public void SetQuestionFXEagleVisionState(bool active)
     {

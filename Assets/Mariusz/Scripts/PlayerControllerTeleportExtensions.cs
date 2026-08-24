@@ -36,6 +36,8 @@ public static class PlayerControllerTeleportExtensions
         if (agent != null && agent.isOnNavMesh)
         {
             agent.ResetPath();
+            agent.updateRotation = true;
+            agent.velocity = Vector3.zero;
             agent.isStopped = false;
         }
     }

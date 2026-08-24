@@ -19,7 +19,10 @@ public class Int_Lvl_3_Leadder : Lvl3InteractionDialogueBase
 
     [Header("After Upper Floor Arrival")]
     [SerializeField] private Int_SetupLastPoints setupLastPoints;
-    [SerializeField] private Int_EthelGotoLastPoint ethelGoToLastPoint;
+    [Tooltip("Objects activated after Sherlock, Watson and Ethel reach the upper floor.")]
+    [SerializeField] private GameObject[] activateAfterTeleport;
+    [Tooltip("Activated after the group teleports upstairs. Use Int_lv4_EthelRun on this GameObject.")]
+    [SerializeField] private GameObject ethelRunAfterTeleport;
 
     [Header("Locked Dialogue")]
     [SerializeField] private Lvl3DialogueLine[] cannotGoDialogue;
@@ -60,20 +63,32 @@ public class Int_Lvl_3_Leadder : Lvl3InteractionDialogueBase
         yield return new WaitForEndOfFrame();
 
         interactingPlayer.CancelInteractionForTeleport();
+        SetObjectsActive(activateAfterTeleport);
 
         TeleportPlayer(PlayerCharacter.Sherlock, sherlockIntPoint);
         TeleportPlayer(PlayerCharacter.Watson, watsonIntPoint);
         TeleportTransform(ethel, ethelIntPoint);
-        DisableAgentRotation(interactingPlayer);
         interactingPlayer.ResumeAfterTeleport();
         Transform activeMarker = GetMarkerFor(interactingPlayer);
         if (activeMarker != null)
             interactingPlayer.LockRotationAfterTeleport(activeMarker.rotation, rotationLockDuration);
 
         setupLastPoints?.PerformInteraction(interactingPlayer);
-        ethelGoToLastPoint?.PerformInteraction(interactingPlayer);
+        ethelRunAfterTeleport?.SetActive(true);
 
         teleportQueued = false;
+    }
+
+    private static void SetObjectsActive(GameObject[] objectsToActivate)
+    {
+        if (objectsToActivate == null)
+            return;
+
+        foreach (GameObject target in objectsToActivate)
+        {
+            if (target != null)
+                target.SetActive(true);
+        }
     }
 
     private Transform GetMarkerFor(PlayerController player)
@@ -81,16 +96,6 @@ public class Int_Lvl_3_Leadder : Lvl3InteractionDialogueBase
         return player != null && player.playerCharacter == PlayerCharacter.Watson
             ? watsonIntPoint
             : sherlockIntPoint;
-    }
-
-    private static void DisableAgentRotation(PlayerController player)
-    {
-        if (player == null)
-            return;
-
-        NavMeshAgent agent = player.GetComponent<NavMeshAgent>();
-        if (agent != null && agent.isOnNavMesh)
-            agent.updateRotation = false;
     }
 
     private void TeleportPlayer(PlayerCharacter character, Transform marker)

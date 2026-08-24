@@ -26,6 +26,12 @@ public class Int_StairsUp : MonoBehaviour
     [SerializeField] private GameObject blackboardToEnableOnArrival;
     [SerializeField] private GameObject[] gameObjectsToEnableOnArrival;
 
+    [Header("Level 2 Arrival Music")]
+    [SerializeField] private GameMusicManager gameMusicManager;
+    [SerializeField] private AudioClip level2ArrivalMusic;
+    [Tooltip("When disabled, the playlist resumes after this track finishes.")]
+    [SerializeField] private bool loopLevel2ArrivalMusic;
+
     [Header("Availability")]
     [Tooltip("Enables the Selma monitoring and the full stairs interaction flow.")]
     public bool isSherlockWantToGoUpstairs = false;
@@ -234,6 +240,8 @@ public class Int_StairsUp : MonoBehaviour
         if (watsonPlayer != null && watsonPlayer != player)
             TeleportToLevel2Start(watsonPlayer, watsonLevel2StartingPoint);
 
+        PlayLevel2ArrivalMusic();
+
         yield return null;
 
         level_1.SetActive(false);
@@ -251,6 +259,17 @@ public class Int_StairsUp : MonoBehaviour
         player.currentInteractable = null;
 
         yield return null;
+    }
+
+    private void PlayLevel2ArrivalMusic()
+    {
+        if (level2ArrivalMusic == null)
+            return;
+
+        if (gameMusicManager == null)
+            gameMusicManager = FindFirstObjectByType<GameMusicManager>();
+
+        gameMusicManager?.ChangeMusic(level2ArrivalMusic, loopLevel2ArrivalMusic);
     }
 
     private static void TeleportToLevel2Start(PlayerController actor, Transform destination)

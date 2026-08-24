@@ -33,7 +33,7 @@ public class InteractionHoverLabelManager : MonoBehaviour
             return;
 
         InteractionHoverLabelManager manager = GetOrCreate();
-        if (isHovered && IsEagleVisionActive())
+        if (isHovered && IsEagleVisionActive() && !IsConversationActive())
             manager.Show(label);
         else
             manager.HideIfOwnedBy(label);
@@ -55,7 +55,8 @@ public class InteractionHoverLabelManager : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (!IsEagleVisionActive() || hoveredLabel == null || !hoveredLabel.isActiveAndEnabled)
+        if (IsConversationActive() || !IsEagleVisionActive() ||
+            hoveredLabel == null || !hoveredLabel.isActiveAndEnabled)
         {
             Hide();
             return;
@@ -202,5 +203,11 @@ public class InteractionHoverLabelManager : MonoBehaviour
     private static bool IsEagleVisionActive()
     {
         return EagleVisionSystem.Instance != null && EagleVisionSystem.Instance.isActive;
+    }
+
+    private static bool IsConversationActive()
+    {
+        return DialogueEditor.ConversationManager.Instance != null &&
+               DialogueEditor.ConversationManager.Instance.IsConversationActive;
     }
 }
