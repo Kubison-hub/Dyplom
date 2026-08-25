@@ -45350,10 +45350,8 @@ MonoBehaviour:
   cameraSettleDuration: 5
   ideaLineTutorialId: IdeaLinePuzzleTutorial
   ideaLineTutorialPopupTitle: "\u0141\u0105czenie Fakt\xF3w"
-  ideaLineTutorialText: 'Sherlock to mistrz dedukcji:
-
-    - Polacz fakty w odpowiedniej
-    kolejnosci.'
+  ideaLineTutorialText: "Sherlock to mistrz dedukcji:\n- Po\u0142\u0105cz fakty w
+    odpowiedniej kolejnosci."
   ideaLineTutorialPopupVideoClip: {fileID: 32900000, guid: bc9129a7522ef554fabe1b3bc77b60d7, type: 3}
   gameMusicManager: {fileID: 1427004023}
   ideaLinePuzzleMusic: {fileID: 0}
@@ -203184,7 +203182,7 @@ MonoBehaviour:
   tutorialPopupDelay: 0.1
   tutorialPopupTitle: "\u015Aledztwo"
   tutorialPopupText: "Zbadaj dok\u0142adnie obiekt aby uzyska\u0107 szczeg\xF3\u0142y.\\nSherlock
-    mo\u017Ce u\u017Cy\u0107 lupy (F) aby przyj\u017Ce\u0107 si\u0119 bli\u017Cej."
+    mo\u017Ce u\u017Cy\u0107 lupy (F) aby przyjrze\u0107 si\u0119 bli\u017Cej."
   tutorialPopupVideoClip: {fileID: 32900000, guid: b64baec8b777c7949bf50e2fedfc4fb4, type: 3}
   initialExaminationDialogue:
   - speaker: 0
@@ -261518,8 +261516,8 @@ MonoBehaviour:
     duration: 3.17
   tutorialDelay: 1.25
   tutorialPopupTitle: "\u015ALADY"
-  tutorialText: "Sherlock potrafi rozpoznawa\u0107 \u015Blady. Przytrzymaj Lewy Shift,
-    aby wej\u015B\u0107 w tryb skupienia."
+  tutorialText: "Sherlock potrafi rozpoznawa\u0107 \u015Blady za pomoc\u0105 swojej
+    lupy. Wci\u015Bnij (F) aby u\u017Cy\u0107 lupy."
   tutorialPopupVideoClip: {fileID: 32900000, guid: 1d7ff37bc3533a04f9b651adc2033b98, type: 3}
   scanner: {fileID: 0}
   footprintSplines:
