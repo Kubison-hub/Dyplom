@@ -11,6 +11,7 @@ public class Int_lv3_Doll : Lvl3ClockworkInteraction
     [Header("Pickup Object")]
     [Tooltip("Leave empty to hide this GameObject after the doll is collected.")]
     [SerializeField] private GameObject objectToHide;
+    [SerializeField] private Sprite inventoryIcon;
 
     [Header("Pickup Audio")]
     [SerializeField] private AudioSource pickupAudioSource;
@@ -47,7 +48,7 @@ public class Int_lv3_Doll : Lvl3ClockworkInteraction
         if (collected)
             return;
 
-        if (InventoryManager.Instance == null || !InventoryManager.Instance.TryAddItem(ItemType.Lalka))
+        if (InventoryManager.Instance == null || !InventoryManager.Instance.TryAddItem(ItemType.Lalka, inventoryIcon))
         {
             ShowTopTextForPlayer(player, noSpaceText);
             return;

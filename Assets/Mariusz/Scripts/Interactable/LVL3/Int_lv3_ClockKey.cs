@@ -6,6 +6,7 @@ public class Int_lv3_ClockKey : Lvl3ClockworkInteraction
     [SerializeField] private Int_lv3_Keyhole keyhole;
     [Tooltip("Leave empty to hide this key object after it is collected.")]
     [SerializeField] private GameObject objectToHide;
+    [SerializeField] private Sprite inventoryIcon;
 
     [Header("Pickup Audio")]
     [SerializeField] private AudioSource pickupAudioSource;
@@ -45,7 +46,7 @@ public class Int_lv3_ClockKey : Lvl3ClockworkInteraction
         if (collected)
             return;
 
-        if (InventoryManager.Instance == null || !InventoryManager.Instance.TryAddItem(ItemType.Wahadlo))
+        if (InventoryManager.Instance == null || !InventoryManager.Instance.TryAddItem(ItemType.Wahadlo, inventoryIcon))
         {
             ShowNoSpaceText(player);
             return;

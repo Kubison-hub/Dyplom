@@ -50,7 +50,6 @@ public class Table : MonoBehaviour
         else
         {
             PlayerTopText.Instance.ShowTopText("Figurka pasuje idealnie", "");
-            InventoryManager.Instance.iconKey.SetActive(false);
             key.SetActive(true);
             
         }
@@ -85,7 +84,7 @@ public class Table : MonoBehaviour
             PlayerTopText.Instance.ShowTopText("", "Sherlock, komoda ustêpuje miejsca do œciany!");
             wallSwitcher.canOpen = true;
             questDone = true;
-            InventoryManager.Instance.keyInInv = false;
+            InventoryManager.Instance.TryRemoveItem(ItemType.Czerwona);
         }
         
 

@@ -4,6 +4,7 @@ public class PickupItem : MonoBehaviour
 {
     [Header("Jaki to przedmiot?")]
     public ItemType itemType;
+    [SerializeField] private Sprite inventoryIcon;
 
     // --- FAZA 1: "ChodŸ do mnie" ---
     // Tê metodê wywo³uje Interactable po klikniêciu. 
@@ -27,18 +28,19 @@ public class PickupItem : MonoBehaviour
     // Tê metodê wywo³uje Interactable, gdy gracz ju¿ dojdzie na miejsce (stoppingDistance)
     public void PerformInteraction()
     {
-        // 1. Dodaj do ekwipunku
-        if (InventoryManager.Instance != null)
+        if (InventoryManager.Instance == null)
         {
-            InventoryManager.Instance.AddItem(itemType);
-            PlayerTopText.Instance.ShowTopText("To mo¿e siê przydaæ");
-        }
-        else
-        {
-            Debug.LogError("B£¥D: Brak InventoryManager na scenie!");
+            Debug.LogError("PickupItem: InventoryManager is missing.");
+            return;
         }
 
-        // 2. Usuñ obiekt ze sceny
+        if (!InventoryManager.Instance.TryAddItem(itemType, inventoryIcon))
+        {
+            PlayerTopText.Instance?.ShowTopText("Nie mam miejsca w ekwipunku.");
+            return;
+        }
+
+        PlayerTopText.Instance?.ShowTopText("To mo¿e siê przydaæ.");
         Destroy(gameObject);
     }
 }

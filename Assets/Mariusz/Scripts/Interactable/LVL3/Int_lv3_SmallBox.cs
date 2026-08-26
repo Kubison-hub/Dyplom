@@ -20,6 +20,11 @@ public class Int_lv3_SmallBox : Lvl3InteractionDialogueBase
     [SerializeField] private AudioSource pickupAudioSource;
     [SerializeField] private AudioClip pickupAudioClip;
 
+    [Header("Inventory")]
+    [SerializeField] private Sprite inventoryIcon;
+    [SerializeField] private ItemType inventoryItemType = ItemType.SmallBox;
+    [SerializeField] private string inventoryFullText = "Nie mam miejsca w ekwipunku.";
+
     private int interactionCount;
 
     protected override Lvl3DialogueLine[] DefaultDialogueLines => System.Array.Empty<Lvl3DialogueLine>();
@@ -43,6 +48,13 @@ public class Int_lv3_SmallBox : Lvl3InteractionDialogueBase
         if (interactionCount != 1)
             return;
 
+        if (InventoryManager.Instance == null ||
+            !InventoryManager.Instance.TryAddItem(inventoryItemType, inventoryIcon))
+        {
+            ShowInventoryFullText(player, isWatson);
+            return;
+        }
+
         interactionCount = 2;
         PlayDialogue(player, isWatson ? watsonSecondDialogueLines : secondDialogueLines);
 
@@ -50,6 +62,14 @@ public class Int_lv3_SmallBox : Lvl3InteractionDialogueBase
             pickupAudioSource.PlayOneShot(pickupAudioClip);
 
         HideBoxAndCompleteInteraction();
+    }
+
+    private void ShowInventoryFullText(PlayerController player, bool isWatson)
+    {
+        if (isWatson)
+            PlayerTopText.Instance?.ShowWatsonTopText(inventoryFullText);
+        else
+            PlayerTopText.Instance?.ShowTopText(inventoryFullText);
     }
 
     private void Setup()

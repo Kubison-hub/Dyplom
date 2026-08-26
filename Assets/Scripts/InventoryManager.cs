@@ -1,26 +1,37 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic; // <--- WAï¿½NE: To pozwala uï¿½ywaï¿½ Listy
 
 public class InventoryManager : MonoBehaviour
 {
+    [Serializable]
+    private class InventorySlot
+    {
+        public bool occupied;
+        public ItemType itemType;
+        public Sprite icon;
+    }
+
     public static InventoryManager Instance;
 
-    [Header("Gï¿½ï¿½wne Okno (dla Pauzy)")]
-    public GameObject inventoryWindow; // Przypisz tu panel caï¿½ego ekwipunku
+    [Header("Main Window")]
+    public GameObject inventoryWindow;
     public bool isInventoryOpen = false;
 
-    [Header("Ikony w UI (Canvas)")]
+    [Header("Legacy Item Icons")]
     public GameObject iconKey;
     public GameObject iconHammer;
     public GameObject iconGlass;
-
-
     public GameObject iconPendulum;
     public GameObject iconDoll;
     public GameObject iconWoodBlockLevel1;
     public GameObject iconWoodBlockLevel2;
-    // Zmienne pomocnicze
+
+    [Header("Three Slot UI")]
+    [Tooltip("Assign the Image component used by each of the three inventory slots.")]
+    [SerializeField] private Image[] slotIconImages = new Image[3];
+
     public bool keyInInv = false;
 
     [Header("Wood Block Selection")]
@@ -28,112 +39,98 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] private bool hasSelectedWoodBlock;
     public ItemType SelectedWoodBlock => selectedWoodBlock;
 
-    // --- NOWOï¿½ï¿½: Lista przedmiotï¿½w (Dla Systemu Zapisu) ---
-    // SaveLoadManager bierze tï¿½ listï¿½ i zapisuje do pliku.
+    // Kept public because save/load and gameplay puzzles use this list.
     public List<ItemType> items = new List<ItemType>();
 
     [Header("Slots")]
     [Min(1)] public int maxSlots = 3;
-    // ------------------------------------------------------
+    [SerializeField] private InventorySlot[] slots = new InventorySlot[3];
 
     private void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject);
     }
+
+    private readonly Dictionary<ItemType, Sprite> itemIconCache = new Dictionary<ItemType, Sprite>();
+    private readonly Dictionary<Image, Sprite> emptySlotSprites = new Dictionary<Image, Sprite>();
+    private readonly Dictionary<Image, Color> emptySlotColors = new Dictionary<Image, Color>();
 
     private void Start()
     {
-        // Na starcie ukrywamy okno, jeï¿½li jest przypisane
-        if (inventoryWindow != null) inventoryWindow.SetActive(false);
+        SynchronizeSlotsWithItems();
     }
 
     private void Update()
     {
-        // Otwieranie na TAB (moï¿½esz zmieniï¿½ lub usunï¿½ï¿½, jeï¿½li masz to w PlayerController)
         if (Input.GetKeyDown(KeyCode.Tab))
-        {
             ToggleInventory();
-        }
     }
 
-    // --- Obsï¿½uga otwierania/zamykania ---
     public void ToggleInventory()
     {
         isInventoryOpen = !isInventoryOpen;
-        if (inventoryWindow != null) inventoryWindow.SetActive(isInventoryOpen);
+        if (inventoryWindow != null)
+            inventoryWindow.SetActive(isInventoryOpen);
     }
 
-    // Funkcja dla Menu Pauzy
     public void ForceCloseInventory()
     {
-        if (inventoryWindow != null) inventoryWindow.SetActive(false);
+        if (inventoryWindow != null)
+            inventoryWindow.SetActive(false);
+
         isInventoryOpen = false;
     }
 
-    // --- Gï¿½ï¿½wna funkcja dodawania przedmiotï¿½w ---
     public bool TryAddItem(ItemType itemType)
     {
-        if (items.Contains(itemType))
-            return true;
+        return TryAddItem(itemType, null);
+    }
 
-        if (items.Count >= maxSlots)
+    public bool TryAddItem(ItemType itemType, Sprite itemIcon)
+    {
+        if (itemIcon != null)
+            itemIconCache[itemType] = itemIcon;
+
+        SynchronizeSlotsWithItems();
+
+        if (items.Contains(itemType))
+        {
+            int existingSlotIndex = FindSlotContaining(itemType);
+            if (existingSlotIndex >= 0 && itemIcon != null)
+            {
+                slots[existingSlotIndex].icon = itemIcon;
+                RefreshSlotIcons();
+            }
+
+            return true;
+        }
+
+        int freeSlotIndex = FindFirstFreeSlot();
+        if (freeSlotIndex < 0 || items.Count >= maxSlots)
         {
             Debug.Log("Brak miejsca w ekwipunku!");
             return false;
         }
 
-        // List order is the slot order: first free position is slot 1, then 2, then 3.
         items.Add(itemType);
-
-        switch (itemType)
-        {
-            case ItemType.Czerwona:
-                if (iconKey) iconKey.SetActive(true);
-                keyInInv = true;
-                Debug.Log("Ekwipunek: Czerwona Figurka");
-                break;
-
-            case ItemType.Zielona:
-                if (iconHammer) iconHammer.SetActive(true);
-                Debug.Log("Ekwipunek: Zielona Figurka");
-                break;
-
-            case ItemType.Niebieska:
-                if (iconGlass) iconGlass.SetActive(true);
-                Debug.Log("Ekwipunek: Niebieska Figurka");
-                break;
-
-            case ItemType.Wahadlo:
-                if (iconPendulum) iconPendulum.SetActive(true);
-                Debug.Log("Ekwipunek: Wahad³o od zegara");
-                break;
-
-            case ItemType.Lalka:
-                if (iconDoll) iconDoll.SetActive(true);
-                Debug.Log("Ekwipunek: Lalka");
-                break;
-
-            case ItemType.WoodBlockLevel1:
-                if (iconWoodBlockLevel1) iconWoodBlockLevel1.SetActive(true);
-                Debug.Log("Ekwipunek: Drewniany blok - poziom 1");
-                break;
-
-            case ItemType.WoodBlockLevel2:
-                if (iconWoodBlockLevel2) iconWoodBlockLevel2.SetActive(true);
-                Debug.Log("Ekwipunek: Drewniany blok - poziom 2");
-                break;
-        }
-
+        slots[freeSlotIndex].occupied = true;
+        slots[freeSlotIndex].itemType = itemType;
+        slots[freeSlotIndex].icon = ResolveItemIcon(itemType, itemIcon);
 
         if (IsWoodBlock(itemType))
         {
             selectedWoodBlock = itemType;
             hasSelectedWoodBlock = true;
         }
+
+        keyInInv = items.Contains(ItemType.Czerwona);
+        RefreshSlotIcons();
+        Debug.Log("Ekwipunek: dodano " + itemType + " do slotu " + (freeSlotIndex + 1) + ".");
         return true;
     }
-
     public bool TrySelectWoodBlock(ItemType itemType)
     {
         if (!IsWoodBlock(itemType) || !items.Contains(itemType))
@@ -155,18 +152,211 @@ public class InventoryManager : MonoBehaviour
 
     public bool TryRemoveItem(ItemType itemType)
     {
+        SynchronizeSlotsWithItems();
+
         if (!items.Remove(itemType))
             return false;
 
-        if (itemType == ItemType.WoodBlockLevel1 && iconWoodBlockLevel1 != null)
-            iconWoodBlockLevel1.SetActive(false);
-        else if (itemType == ItemType.WoodBlockLevel2 && iconWoodBlockLevel2 != null)
-            iconWoodBlockLevel2.SetActive(false);
+        int slotIndex = FindSlotContaining(itemType);
+        if (slotIndex >= 0)
+        {
+            slots[slotIndex].occupied = false;
+            slots[slotIndex].itemType = default;
+            slots[slotIndex].icon = null;
+        }
 
         if (hasSelectedWoodBlock && selectedWoodBlock == itemType)
             hasSelectedWoodBlock = TryGetAnyWoodBlock(out selectedWoodBlock);
 
+        keyInInv = items.Contains(ItemType.Czerwona);
+        RefreshSlotIcons();
         return true;
+    }
+
+    public bool AddItem(ItemType itemType)
+    {
+        return TryAddItem(itemType);
+    }
+
+    private void SynchronizeSlotsWithItems()
+    {
+        EnsureSlotStorage();
+
+        for (int i = 0; i < slots.Length; i++)
+        {
+            if (slots[i].occupied && !items.Contains(slots[i].itemType))
+            {
+                slots[i].occupied = false;
+                slots[i].itemType = default;
+                slots[i].icon = null;
+            }
+        }
+
+        foreach (ItemType item in items)
+        {
+            if (FindSlotContaining(item) >= 0)
+                continue;
+
+            int freeSlotIndex = FindFirstFreeSlot();
+            if (freeSlotIndex < 0)
+                break;
+
+            slots[freeSlotIndex].occupied = true;
+            slots[freeSlotIndex].itemType = item;
+            slots[freeSlotIndex].icon = ResolveItemIcon(item, null);
+        }
+
+        keyInInv = items.Contains(ItemType.Czerwona);
+        RefreshSlotIcons();
+    }
+
+    private void EnsureSlotStorage()
+    {
+        int slotCount = Mathf.Max(1, maxSlots);
+        if (slots != null && slots.Length == slotCount)
+        {
+            for (int i = 0; i < slots.Length; i++)
+            {
+                if (slots[i] == null)
+                    slots[i] = new InventorySlot();
+            }
+
+            return;
+        }
+
+        slots = new InventorySlot[slotCount];
+        for (int i = 0; i < slots.Length; i++)
+            slots[i] = new InventorySlot();
+    }
+
+    private int FindFirstFreeSlot()
+    {
+        for (int i = 0; i < slots.Length; i++)
+        {
+            if (!slots[i].occupied)
+                return i;
+        }
+
+        return -1;
+    }
+
+    private int FindSlotContaining(ItemType itemType)
+    {
+        for (int i = 0; i < slots.Length; i++)
+        {
+            if (slots[i].occupied && slots[i].itemType == itemType)
+                return i;
+        }
+
+        return -1;
+    }
+
+    private void RefreshSlotIcons()
+    {
+        bool usesSlotUi = HasSlotUi();
+        if (!usesSlotUi)
+            return;
+
+        for (int i = 0; i < slotIconImages.Length; i++)
+        {
+            Image slotIcon = slotIconImages[i];
+            if (slotIcon == null)
+                continue;
+
+            CacheEmptySlotVisual(slotIcon);
+
+            bool hasItem = i < slots.Length && slots[i].occupied;
+            Sprite icon = hasItem ? ResolveItemIcon(slots[i].itemType, slots[i].icon) : null;
+
+            // Never disable the assigned Image: it can be the slot's own background.
+            // Empty slots restore the artwork that was present before the game started.
+            slotIcon.enabled = true;
+            slotIcon.sprite = hasItem && icon != null ? icon : emptySlotSprites[slotIcon];
+            slotIcon.color = hasItem && icon != null ? Color.white : emptySlotColors[slotIcon];
+        }
+
+    }
+
+    private void CacheEmptySlotVisual(Image slotIcon)
+    {
+        if (!emptySlotSprites.ContainsKey(slotIcon))
+            emptySlotSprites.Add(slotIcon, slotIcon.sprite);
+
+        if (!emptySlotColors.ContainsKey(slotIcon))
+            emptySlotColors.Add(slotIcon, slotIcon.color);
+    }
+    private bool HasSlotUi()
+    {
+        if (slotIconImages == null)
+            return false;
+
+        foreach (Image slotIcon in slotIconImages)
+        {
+            if (slotIcon != null)
+                return true;
+        }
+
+        return false;
+    }
+    private void RefreshLegacyIcons()
+    {
+        SetLegacyIconActive(ItemType.Czerwona, items.Contains(ItemType.Czerwona));
+        SetLegacyIconActive(ItemType.Zielona, items.Contains(ItemType.Zielona));
+        SetLegacyIconActive(ItemType.Niebieska, items.Contains(ItemType.Niebieska));
+        SetLegacyIconActive(ItemType.Wahadlo, items.Contains(ItemType.Wahadlo));
+        SetLegacyIconActive(ItemType.Lalka, items.Contains(ItemType.Lalka));
+        SetLegacyIconActive(ItemType.WoodBlockLevel1, items.Contains(ItemType.WoodBlockLevel1));
+        SetLegacyIconActive(ItemType.WoodBlockLevel2, items.Contains(ItemType.WoodBlockLevel2));
+    }
+
+    private Sprite ResolveItemIcon(ItemType itemType, Sprite preferredIcon)
+    {
+        if (preferredIcon != null)
+            return preferredIcon;
+
+        if (itemIconCache.TryGetValue(itemType, out Sprite cachedIcon) && cachedIcon != null)
+            return cachedIcon;
+
+        return GetItemIcon(itemType);
+    }
+    private Sprite GetItemIcon(ItemType itemType)
+    {
+        GameObject iconObject = GetLegacyIconObject(itemType);
+        Image iconImage = iconObject != null ? iconObject.GetComponentInChildren<Image>(true) : null;
+        return iconImage != null ? iconImage.sprite : null;
+    }
+
+    private void SetAllLegacyIconsActive(bool active)
+    {
+        SetLegacyIconActive(ItemType.Czerwona, active);
+        SetLegacyIconActive(ItemType.Zielona, active);
+        SetLegacyIconActive(ItemType.Niebieska, active);
+        SetLegacyIconActive(ItemType.Wahadlo, active);
+        SetLegacyIconActive(ItemType.Lalka, active);
+        SetLegacyIconActive(ItemType.WoodBlockLevel1, active);
+        SetLegacyIconActive(ItemType.WoodBlockLevel2, active);
+    }
+
+    private void SetLegacyIconActive(ItemType itemType, bool active)
+    {
+        GameObject iconObject = GetLegacyIconObject(itemType);
+        if (iconObject != null)
+            iconObject.SetActive(active);
+    }
+
+    private GameObject GetLegacyIconObject(ItemType itemType)
+    {
+        return itemType switch
+        {
+            ItemType.Czerwona => iconKey,
+            ItemType.Zielona => iconHammer,
+            ItemType.Niebieska => iconGlass,
+            ItemType.Wahadlo => iconPendulum,
+            ItemType.Lalka => iconDoll,
+            ItemType.WoodBlockLevel1 => iconWoodBlockLevel1,
+            ItemType.WoodBlockLevel2 => iconWoodBlockLevel2,
+            _ => null
+        };
     }
 
     private bool TryGetSelectedWoodBlock(out ItemType itemType)
@@ -202,14 +392,8 @@ public class InventoryManager : MonoBehaviour
     {
         return itemType == ItemType.WoodBlockLevel1 || itemType == ItemType.WoodBlockLevel2;
     }
-
-    public void AddItem(ItemType itemType)
-    {
-        TryAddItem(itemType);
-    }
 }
 
-// Enum pozostaje bez zmian
 public enum ItemType
 {
     Czerwona,
@@ -218,5 +402,6 @@ public enum ItemType
     Wahadlo,
     Lalka,
     WoodBlockLevel1,
-    WoodBlockLevel2
+    WoodBlockLevel2,
+    SmallBox
 }

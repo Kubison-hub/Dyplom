@@ -6,6 +6,8 @@ public abstract class WoodBlockButtonPickupBase : Lvl3InteractionDialogueBase
     [Header("Inventory")]
     [SerializeField, TextArea] private string noSpaceText = "Nie mam miejsca, aby to podnieść.";
 
+    [SerializeField] private Sprite inventoryIcon;
+
     [Header("World Object")]
     [Tooltip("Optional visual child to hide after collection. Leave empty to hide this object's renderers and colliders.")]
     [SerializeField] private GameObject worldVisual;
@@ -37,7 +39,7 @@ public abstract class WoodBlockButtonPickupBase : Lvl3InteractionDialogueBase
         if (collected)
             return;
 
-        if (InventoryManager.Instance == null || !InventoryManager.Instance.TryAddItem(CollectedItemType))
+        if (InventoryManager.Instance == null || !InventoryManager.Instance.TryAddItem(CollectedItemType, inventoryIcon))
         {
             ShowNoSpaceText(player);
             return;

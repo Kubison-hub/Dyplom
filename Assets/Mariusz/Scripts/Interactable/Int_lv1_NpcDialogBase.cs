@@ -13,8 +13,12 @@ public abstract class Int_lv1_NpcDialogBase : MonoBehaviour
 
     private Interactable interactable;
     private bool dialogueStarting;
+    private Coroutine dialogueEndWatcher;
 
     protected abstract InteractionType RequiredInteractionType { get; }
+    protected virtual bool ShouldFacePlayerBeforeDialogue => facePlayerBeforeDialogue;
+    protected virtual void OnNpcDialogueStarted() { }
+    protected virtual void OnNpcDialogueFinished() { }
 
     protected virtual void Start()
     {
@@ -52,7 +56,7 @@ public abstract class Int_lv1_NpcDialogBase : MonoBehaviour
     {
         dialogueStarting = true;
 
-        if (facePlayerBeforeDialogue)
+        if (ShouldFacePlayerBeforeDialogue)
             yield return NpcDialogueFacingUtility.FacePlayer(
                 smartNPC.transform,
                 player != null ? player.transform : null,
@@ -64,7 +68,25 @@ public abstract class Int_lv1_NpcDialogBase : MonoBehaviour
         if (!ConversationManager.Instance.IsConversationActive)
             StartConversationWithoutTrigger(player);
 
+        OnNpcDialogueStarted();
+
+        if (dialogueEndWatcher != null)
+            StopCoroutine(dialogueEndWatcher);
+
+        dialogueEndWatcher = StartCoroutine(WaitForDialogueToFinish());
         dialogueStarting = false;
+    }
+
+    private IEnumerator WaitForDialogueToFinish()
+    {
+        // Let ConversationManager update its active state before checking it.
+        yield return null;
+
+        while (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
+            yield return null;
+
+        dialogueEndWatcher = null;
+        OnNpcDialogueFinished();
     }
 
     private void StartConversationWithoutTrigger(PlayerController player)

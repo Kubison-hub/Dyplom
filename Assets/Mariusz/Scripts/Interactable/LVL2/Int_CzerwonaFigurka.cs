@@ -5,6 +5,7 @@ public class Int_CzerwonaFigurka : MonoBehaviour
     public ItemType itemType;
     public GameObject spline;
     public bool performed = false;
+    [SerializeField] private Sprite inventoryIcon;
 
     [Header("Library Safe")]
     [SerializeField] private Animator safeAnimator;
@@ -15,8 +16,13 @@ public class Int_CzerwonaFigurka : MonoBehaviour
         // 1. Dodaj do ekwipunku
         if (InventoryManager.Instance != null && !performed)
         {
+            if (!InventoryManager.Instance.TryAddItem(itemType, inventoryIcon))
+            {
+                PlayerTopText.Instance?.ShowTopText("Nie mam miejsca w ekwipunku.");
+                return;
+            }
+
             performed = true;
-            InventoryManager.Instance.AddItem(itemType);
             PlayerTopText.Instance.ShowTopText("Czerowona Figurka");
             if (spline != null)
                 spline.SetActive(false);
