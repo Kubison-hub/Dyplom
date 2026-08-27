@@ -67,19 +67,21 @@ public class Int_lv3_ClockClue : Lvl3InteractionDialogueBase
 
     private void ResolveClue(PlayerController player)
     {
+        if (!discovered)
+        {
+            discovered = true;
+            oldClockIdeaPoint?.RevealFromExternalSource();
+        }
+
         bool trapTriggered = mannequinTrap != null && mannequinTrap.IsTrapTriggered;
         if (!trapTriggered)
         {
-            if (player != null)
-                PlayInteractionDialogue(player);
-
             loupeHoldStartedAt = -1f;
+            PlayInteractionDialogue(player);
             return;
         }
 
-        discovered = true;
         loupeHoldStartedAt = -1f;
-        oldClockIdeaPoint?.RevealFromExternalSource();
         PlayDialogue(player, afterTrapDialogueLines);
     }
 

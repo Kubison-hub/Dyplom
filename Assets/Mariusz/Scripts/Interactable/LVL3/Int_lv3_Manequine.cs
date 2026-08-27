@@ -7,6 +7,9 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
     [Header("Repeat Inspection Dialogue")]
     [SerializeField] private Lvl3DialogueLine[] secondInteractionDialogueLines;
 
+    [Header("Inspection Idea Point")]
+    [SerializeField] private DetectiveIdeaPoint mannequinIdeaPoint;
+
     [Header("Secret Door Trap")]
     [SerializeField] private Animator[] secretDoorAnimators;
     [SerializeField] private string secretDoorCloseTrigger = "Close";
@@ -42,6 +45,7 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
 
     private bool triggered;
     private bool hasBeenExamined;
+    private bool triggerTrapAfterInspectionDialogue;
     private bool revealTrapDoorIdeaAfterDialogue;
     public bool IsFirstInspection => !hasBeenExamined;
     public bool IsTrapTriggered => triggered;
@@ -75,6 +79,8 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
         }
 
         hasBeenExamined = true;
+        mannequinIdeaPoint?.RevealFromExternalSource();
+        triggerTrapAfterInspectionDialogue = true;
         PlayInteractionDialogue(player);
     }
 
@@ -252,6 +258,13 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
 
     protected override void OnDialogueSequenceCompleted(Lvl3DialogueLine[] lines)
     {
+        if (triggerTrapAfterInspectionDialogue && !triggered)
+        {
+            triggerTrapAfterInspectionDialogue = false;
+            TriggerWatsonTrap(null);
+            return;
+        }
+
         if (!revealTrapDoorIdeaAfterDialogue || lines != trapResultDialogueLines)
             return;
 

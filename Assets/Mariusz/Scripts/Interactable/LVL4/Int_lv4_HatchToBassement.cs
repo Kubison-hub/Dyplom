@@ -14,6 +14,9 @@ public class Int_lv4_HatchToBassement : MonoBehaviour
     [SerializeField] private float transitionDelay = 0.1f;
     [SerializeField] private Interactable interactable;
 
+    [Header("Basement Exposure")]
+    [SerializeField] private BasementExposureController basementExposureController;
+
     [Header("Level Transition")]
     [Tooltip("Root GameObject of Level 3, enabled before the characters are teleported into the basement.")]
     [SerializeField] private GameObject levelThreeRoot;
@@ -47,6 +50,11 @@ public class Int_lv4_HatchToBassement : MonoBehaviour
 
         TeleportPlayer(PlayerCharacter.Sherlock, sherlockBasementStartPoz);
         TeleportPlayer(PlayerCharacter.Watson, watsonBasementStartPoz);
+
+        if (basementExposureController == null)
+            basementExposureController = FindFirstObjectByType<BasementExposureController>();
+
+        basementExposureController?.EnterBasement();
 
         if (levelTwoRoot != null)
             levelTwoRoot.SetActive(false);

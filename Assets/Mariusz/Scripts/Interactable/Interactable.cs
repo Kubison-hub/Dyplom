@@ -568,6 +568,13 @@ public class Interactable : MonoBehaviour
             return;
         }
 
+        Int_lv3_Manequine mannequinInteraction = GetComponent<Int_lv3_Manequine>();
+        if (mannequinInteraction != null)
+        {
+            mannequinInteraction.PerformInteraction(player);
+            return;
+        }
+
         WatsonCarryable watsonCarryable = GetComponent<WatsonCarryable>();
         if (watsonCarryable != null && player != null && player.playerCharacter == PlayerCharacter.Watson)
         {
@@ -576,23 +583,9 @@ public class Interactable : MonoBehaviour
 
             if (mayCarryObject)
             {
-                Int_lv3_Manequine mannequin = GetComponent<Int_lv3_Manequine>();
-                if (mannequin != null)
-                {
-                    mannequin.TriggerWatsonTrap(player);
-                    return;
-                }
-
                 watsonCarryable.PerformInteraction(player);
                 return;
             }
-        }
-
-        Int_lv3_Manequine mannequinInteraction = GetComponent<Int_lv3_Manequine>();
-        if (mannequinInteraction != null)
-        {
-            mannequinInteraction.PerformInteraction(player);
-            return;
         }
 
         Int_lv3_ClockClue clockClue = GetComponent<Int_lv3_ClockClue>();
@@ -1726,8 +1719,7 @@ public class Interactable : MonoBehaviour
                                   player.CompareTag("PlayerA") ||
                                   (SwitchCharacter.Instance != null && SwitchCharacter.Instance.activePlayerIndex == 0);
 
-            // The mannequin has a normal inspection interaction for both characters,
-            // while Watson holding F triggers its carryable trap.
+            // The mannequin is inspected normally by either character.
             if (GetComponent<Int_lv3_Manequine>() != null)
                 return isWatson || canSherlockUse;
 

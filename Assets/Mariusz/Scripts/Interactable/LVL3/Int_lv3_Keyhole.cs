@@ -117,6 +117,10 @@ public class Int_lv3_Keyhole : Lvl3ClockworkInteraction
             StartCoroutine(AnimateInsertedKey());
         }
 
+        // Watson starts moving as soon as the key is used, while the mechanism opens.
+        if (watsonPosition != null)
+            StartCoroutine(MoveWatsonToPosition());
+
         if (smallBrickDoor != null)
         {
             Vector3 startPosition = smallBrickDoor.position;
@@ -134,9 +138,6 @@ public class Int_lv3_Keyhole : Lvl3ClockworkInteraction
 
             smallBrickDoor.position = targetPosition;
         }
-
-        if (watsonPosition != null)
-            StartCoroutine(MoveWatsonToPosition());
 
         foreach (GameObject nextInteraction in nextInteractionGameObjects)
         {

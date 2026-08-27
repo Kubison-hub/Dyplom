@@ -17,6 +17,9 @@ public class Int_Lvl_3_Leadder : Lvl3InteractionDialogueBase
     [SerializeField, Min(0.05f)] private float navMeshSampleRadius = 1f;
     [SerializeField, Min(0.05f)] private float rotationLockDuration = 0.75f;
 
+    [Header("Basement Exposure")]
+    [SerializeField] private BasementExposureController basementExposureController;
+
     [Header("After Upper Floor Arrival")]
     [SerializeField] private Int_SetupLastPoints setupLastPoints;
     [Tooltip("Objects activated after Sherlock, Watson and Ethel reach the upper floor.")]
@@ -64,6 +67,12 @@ public class Int_Lvl_3_Leadder : Lvl3InteractionDialogueBase
 
         interactingPlayer.CancelInteractionForTeleport();
         SetObjectsActive(activateAfterTeleport);
+
+        if (basementExposureController == null)
+            basementExposureController = FindFirstObjectByType<BasementExposureController>();
+
+        if (basementExposureController != null)
+            yield return basementExposureController.RestoreBeforeLeavingBasement();
 
         TeleportPlayer(PlayerCharacter.Sherlock, sherlockIntPoint);
         TeleportPlayer(PlayerCharacter.Watson, watsonIntPoint);
