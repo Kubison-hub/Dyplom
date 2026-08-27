@@ -51,31 +51,8 @@ public class MainMenu : MonoBehaviour
 
     public void PlayGame()
     {
-        if (PlayerPrefs.GetInt("IntroObejrzane", 0) == 1)
-        {
-            UnityEngine.Debug.Log("Intro ju¿ by³o ogl¹dane. Pomijam.");
-            LoadGameLevel();
-            return;
-        }
-
-        if (cinematicPanel != null && videoPlayer != null)
-        {
-            // Przed odpaleniem wideo warto wy³¹czyæ ca³e UI, ¿eby nic nie przeœwitywa³o
-            ShowCanvas(null);
-
-            cinematicPanel.SetActive(true);
-            videoPlayer.Play();
-            isPlayingIntro = true;
-            Cursor.visible = false;
-
-            PlayerPrefs.SetInt("IntroObejrzane", 1);
-            PlayerPrefs.Save();
-        }
-        else
-        {
-            UnityEngine.Debug.LogWarning("Brak VideoPlayera! £adujê grê od razu.");
-            LoadGameLevel();
-        }
+        // Po prostu zawsze ³adujemy scenê z komiksowym intrem
+        SceneManager.LoadScene("Intro");
     }
 
     void OnVideoFinished(VideoPlayer vp)
