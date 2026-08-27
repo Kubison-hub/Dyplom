@@ -1187,6 +1187,7 @@ GameObject:
   - component: {fileID: 534910990}
   - component: {fileID: 534910989}
   - component: {fileID: 534910991}
+  - component: {fileID: 534910992}
   m_Layer: 0
   m_Name: MenuManager
   m_TagString: Untagged
@@ -1242,6 +1243,19 @@ MonoBehaviour:
   cursorTexture: {fileID: 2800000, guid: 50491465c866da642aaf8a2c9286f4e7, type: 3}
   hotSpot: {x: 0, y: 0}
   cursorMode: 0
+--- !u!114 &534910992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 534910988}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17ea866c3ab14914d8e52aa55d578ff5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  creditsPanel: {fileID: 684709434}
 --- !u!1 &684709434 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 451960699844601469, guid: bfd884273cd9d8948ac82cc111a9c06f, type: 3}
