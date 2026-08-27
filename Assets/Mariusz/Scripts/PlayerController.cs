@@ -64,6 +64,7 @@ public class PlayerController : MonoBehaviour
 
     private bool isThinking = false;
     private bool isPerformingInteraction = false;
+    private bool isWaitingForInteractionReaction;
     private NavMeshPath lightMazePath;
     private Interactable hoveredInteractable;
     private void Awake()
@@ -374,6 +375,7 @@ public class PlayerController : MonoBehaviour
             return;
 
         isPerformingInteraction = false;
+        isWaitingForInteractionReaction = false;
         currentInteractable = null;
         currentInteractionPoint = null;
         ClearAutoInteractionApproachPoint();
@@ -390,6 +392,11 @@ public class PlayerController : MonoBehaviour
     public void ClearAutoInteractionApproachPoint()
     {
         hasAutoInteractionApproachPoint = false;
+    }
+
+    public void SetWaitingForInteractionReaction(bool isWaiting)
+    {
+        isWaitingForInteractionReaction = isWaiting;
     }
     public void MoveToInteractable()
     {
@@ -512,7 +519,7 @@ public class PlayerController : MonoBehaviour
     }
     private void CheckInteractionArrival()
     {
-        if (isPerformingInteraction)
+        if (isPerformingInteraction || isWaitingForInteractionReaction)
             return;
 
         if (currentInteractable == null)

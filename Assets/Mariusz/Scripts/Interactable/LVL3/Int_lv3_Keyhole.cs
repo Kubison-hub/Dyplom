@@ -103,6 +103,8 @@ public class Int_lv3_Keyhole : Lvl3ClockworkInteraction
     private IEnumerator OpenWithKey(PlayerController player)
     {
         isOpening = true;
+        InventoryManager.Instance?.TryRemoveItem(ItemType.Wahadlo);
+
         if (keySuccessDialogueCoroutine != null)
             StopCoroutine(keySuccessDialogueCoroutine);
 

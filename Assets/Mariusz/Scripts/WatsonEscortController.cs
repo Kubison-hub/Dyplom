@@ -66,6 +66,10 @@ public class WatsonEscortController : MonoBehaviour
 
     public bool IsEscorting => escortedNpc != null;
 
+    private float ActiveEscortRange => escortedNpc != null && escortedNpc.EscortRangeOverride > 0f
+        ? escortedNpc.EscortRangeOverride
+        : maxEscortRange;
+
     public bool IsEscortingNpc(WatsonEscortNPC npc)
     {
         return npc != null && escortedNpc == npc;
@@ -746,7 +750,7 @@ public class WatsonEscortController : MonoBehaviour
 
         Vector3 flatDestination = destination;
         flatDestination.y = 0f;
-        return Vector3.Distance(escortRangeOrigin, flatDestination) <= maxEscortRange;
+        return Vector3.Distance(escortRangeOrigin, flatDestination) <= ActiveEscortRange;
     }
 
     private void UpdateEscortRangeOrigin()
@@ -758,12 +762,13 @@ public class WatsonEscortController : MonoBehaviour
 
     private float GetRangeVisibilityMultiplier(Vector3 destination)
     {
-        if (!hasEscortRangeOrigin || maxEscortRange <= 0f)
+        float escortRange = ActiveEscortRange;
+        if (!hasEscortRangeOrigin || escortRange <= 0f)
             return 1f;
 
         Vector3 flatDestination = destination;
         flatDestination.y = 0f;
-        float normalizedDistance = Vector3.Distance(escortRangeOrigin, flatDestination) / maxEscortRange;
+        float normalizedDistance = Vector3.Distance(escortRangeOrigin, flatDestination) / escortRange;
         return 1f - Mathf.InverseLerp(rangePreviewFadeStart, 1f, normalizedDistance);
     }
 

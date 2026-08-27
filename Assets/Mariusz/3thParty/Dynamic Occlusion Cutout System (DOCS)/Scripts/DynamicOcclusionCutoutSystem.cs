@@ -80,7 +80,7 @@ namespace PxP.DOCS
             }
 
             Vector3 targetPosition = m_target.position + (Vector3.up * targetHeightCorrection);
-            direction = m_camera.transform.position - m_target.position;
+            direction = m_camera.transform.position - targetPosition;
 
             if (Physics.SphereCast(targetPosition, radius, direction, out RaycastHit hitInfo))
             {

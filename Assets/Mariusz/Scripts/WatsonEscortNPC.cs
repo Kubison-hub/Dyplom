@@ -16,6 +16,10 @@ public class WatsonEscortNPC : MonoBehaviour
     [Tooltip("Visible model or rig that should rotate toward Watson. Leave empty to rotate this NPC root.")]
     [SerializeField] private Transform rotationTarget;
 
+    [Header("Escort Range")]
+    [Tooltip("Maximum distance Watson may escort this NPC. Set to 0 to use Max Escort Range from Watson Escort Controller.")]
+    [SerializeField, Min(0f)] private float escortRangeOverride;
+
     [Header("Return to Root")]
     [Tooltip("NPC returns here after its farewell dialogue. Leave empty to keep the NPC at the escorted destination.")]
     [SerializeField] private Transform rootPosition;
@@ -63,6 +67,7 @@ public class WatsonEscortNPC : MonoBehaviour
     public WatsonEscortInfluencePoint[] InfluencePoints => influencePoints;
     public bool UseGlobalInfluencePointsWhenListEmpty => useGlobalInfluencePointsWhenListEmpty;
     public float SherlockActiveFarewellDelay => sherlockActiveFarewellDelay;
+    public float EscortRangeOverride => escortRangeOverride;
 
     private void Awake()
     {

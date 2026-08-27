@@ -37,11 +37,11 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
         }
     };
 
-    [Header("Tutorial Popup")]
-    [SerializeField] private string tutorialTitle = "Watson";
+    [Header("Tutorial Panel")]
+    [Tooltip("Unique ID used by TutorialManager so this panel is only shown once.")]
+    [SerializeField] private string tutorialPanelId = "WatsonSwitchTutorial";
     [SerializeField, TextArea] private string tutorialText =
         "W grze możesz sterować także Watsonem. Wciśnij spację, aby przełączać się pomiędzy postaciami.";
-    [SerializeField] private VideoClip tutorialVideoClip;
 
     [Header("After Popup Dialogue")]
     [SerializeField] private Lvl3DialogueLine[] afterPopupDialogueLines =
@@ -121,6 +121,24 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
         watsonTurnCoroutine = StartCoroutine(RotateWatsonToward(player.transform, watson));
     }
 
+    public bool RequiresWatsonReactionBeforeApproach(PlayerController player)
+    {
+        return !tutorialCompleted &&
+               !tutorialInProgress &&
+               player != null &&
+               player.playerCharacter == PlayerCharacter.Sherlock &&
+               watsonTurnCoroutine != null;
+    }
+
+    public void MovePlayerAfterWatsonReaction(PlayerController player)
+    {
+        if (player != null)
+        {
+            player.SetWaitingForInteractionReaction(true);
+            StartCoroutine(WaitForWatsonReactionThenApproach(player));
+        }
+    }
+
     private IEnumerator RunTutorial(PlayerController player)
     {
         tutorialInProgress = true;
@@ -132,13 +150,13 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
 
         yield return PlayDialogueLines(openingDialogueLines);
 
-        TutorialTimeline timeline = TutorialTimeline.Instance;
-        if (timeline != null)
+        TutorialManager tutorialManager = TutorialManager.Instance;
+        if (tutorialManager != null)
         {
-            timeline.ShowGameplayTutorialPopup(tutorialTitle, tutorialText, tutorialVideoClip);
+            tutorialManager.PokazTutorial(tutorialText, tutorialPanelId);
             yield return null;
 
-            while (timeline.BlocksWorldInput)
+            while (tutorialManager.BlocksWorldInput)
                 yield return null;
         }
 
@@ -156,6 +174,7 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
 
         yield return PlayDialogueLines(afterPopupDialogueLines);
 
+        TutorialTimeline timeline = TutorialTimeline.Instance;
         if (timeline != null)
         {
             timeline.ShowGameplayTutorialPopup(
@@ -247,6 +266,19 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
             watson.navMeshAgent.updateRotation = restoreAgentRotation;
 
         watsonTurnCoroutine = null;
+    }
+
+    private IEnumerator WaitForWatsonReactionThenApproach(PlayerController player)
+    {
+        while (watsonTurnCoroutine != null)
+            yield return null;
+
+        player?.SetWaitingForInteractionReaction(false);
+
+        if (player == null || player.currentInteractable != interactable)
+            yield break;
+
+        player.MoveToInteractable();
     }
 
     private static PlayerController FindWatson()

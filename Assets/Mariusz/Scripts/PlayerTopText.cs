@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerTopText : MonoBehaviour
 {
@@ -46,6 +47,11 @@ public class PlayerTopText : MonoBehaviour
         ConfigureTextTypography(ethelTopText);
         ConfigureTextTypography(selmaTopText);
         ConfigureTextTypography(violetTopText);
+        UpdateBubbleVisibility(sherlockTopText);
+        UpdateBubbleVisibility(watsonTopText);
+        UpdateBubbleVisibility(ethelTopText);
+        UpdateBubbleVisibility(selmaTopText);
+        UpdateBubbleVisibility(violetTopText);
     }
 
     private void LateUpdate()
@@ -238,9 +244,14 @@ public class PlayerTopText : MonoBehaviour
 
         Vector3 screenPosition = cameraToUse.WorldToScreenPoint(anchor.position + worldOffset);
         bool isInFrontOfCamera = screenPosition.z > 0f;
-        text.enabled = isInFrontOfCamera;
+        bool hasContent = !string.IsNullOrWhiteSpace(text.text);
+        text.enabled = isInFrontOfCamera && hasContent;
 
-        if (!isInFrontOfCamera)
+        GameObject bubble = GetBubbleRoot(text);
+        if (bubble != null)
+            bubble.SetActive(isInFrontOfCamera && hasContent);
+
+        if (!isInFrontOfCamera || !hasContent)
             return;
 
         RectTransform canvasRect = topTextCanvas.transform as RectTransform;
@@ -254,7 +265,28 @@ public class PlayerTopText : MonoBehaviour
                 canvasCamera,
                 out Vector2 localPosition))
         {
-            text.rectTransform.anchoredPosition = localPosition;
+            RectTransform positionRoot = bubble != null
+                ? bubble.transform as RectTransform
+                : text.rectTransform;
+
+            if (positionRoot != null)
+                positionRoot.anchoredPosition = localPosition;
         }
+    }
+
+    private static GameObject GetBubbleRoot(TMP_Text text)
+    {
+        if (text == null || text.transform.parent == null)
+            return null;
+
+        Transform parent = text.transform.parent;
+        return parent.GetComponent<Image>() != null ? parent.gameObject : null;
+    }
+
+    private static void UpdateBubbleVisibility(TMP_Text text)
+    {
+        GameObject bubble = GetBubbleRoot(text);
+        if (bubble != null)
+            bubble.SetActive(!string.IsNullOrWhiteSpace(text.text));
     }
 }

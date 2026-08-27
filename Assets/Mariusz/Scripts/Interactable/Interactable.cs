@@ -321,6 +321,13 @@ public class Interactable : MonoBehaviour
                 player.SetAutoInteractionApproachPoint(approachPoint);
         }
 
+        if (watsonSwitchTutorial != null &&
+            watsonSwitchTutorial.RequiresWatsonReactionBeforeApproach(player))
+        {
+            watsonSwitchTutorial.MovePlayerAfterWatsonReaction(player);
+            return;
+        }
+
         player.MoveToInteractable();
 
         if (stairsUp != null)
@@ -1754,6 +1761,13 @@ public class Interactable : MonoBehaviour
     {
         if (player == null)
             return;
+
+        // This tutorial has its own pre-approach Watson reaction: turn only, no companion walk.
+        if (GetComponent<Int_WatsonSwitchTutorial>() != null)
+        {
+            WatsonCompanionController.Instance?.ClearInteractionFocus();
+            return;
+        }
 
         Int_lv3_Manequine mannequin = GetComponent<Int_lv3_Manequine>();
         bool isRepeatMannequinInspection = mannequin != null && !mannequin.IsFirstInspection;

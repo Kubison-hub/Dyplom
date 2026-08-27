@@ -229,6 +229,7 @@ public class Int_lv4_HiddenDoor : Lvl3InteractionDialogueBase
     private IEnumerator OpenDoor(PlayerController player)
     {
         opened = true;
+        ConsumeRequiredInventoryItem();
         PlayDialogue(player, keyUseDialogue);
 
         if (keyAudioSource != null && keyUseAudio != null)
@@ -308,6 +309,14 @@ public class Int_lv4_HiddenDoor : Lvl3InteractionDialogueBase
 
         if (target != null && target.parent != newParentBeforeOpening)
             target.SetParent(newParentBeforeOpening, true);
+    }
+
+    private void ConsumeRequiredInventoryItem()
+    {
+        if (InventoryManager.Instance == null)
+            return;
+
+        InventoryManager.Instance.TryRemoveItem(requiredInventoryItem);
     }
 
     private IEnumerator FadeBlackBoard()

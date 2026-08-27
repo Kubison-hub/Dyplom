@@ -89,9 +89,10 @@ public class TutorialManager : MonoBehaviour
     }
     private IEnumerator PokazStartowyTutorial()
     {
+        
         yield return new WaitForSeconds(0.1f);
         //TutorialTimeline.Instance.ShowGameplayTutorialPopup(0);
-        PokazTutorial("Wciœnij Lewy Przycisk Myszy, aby siê poruszyæ, Wciœnij Lewy Shift, aby wejœæ w tryb skupienia.", "MoveTutorial");
+        PokazTutorial("Witaj w demie gry \"Sherlock Holmes: Duchy Przesz³oœci\".\n\nWciœnij Lewy Przycisk Myszy, aby siê poruszyæ.\nWciœnij Lewy Shift, aby wejœæ w tryb skupienia.", "MoveTutorial");
     }
 
 

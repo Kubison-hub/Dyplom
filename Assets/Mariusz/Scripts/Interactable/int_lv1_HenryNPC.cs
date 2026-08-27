@@ -13,6 +13,15 @@ public class int_lv1_HenryNPC : Int_lv1_NpcDialogBase
     protected override InteractionType RequiredInteractionType => InteractionType.int_lv1_HenryNPC;
     protected override bool ShouldFacePlayerBeforeDialogue => false;
 
+    private void Awake()
+    {
+        // Keeps the scene setup simple while still allowing an explicit rig assignment.
+        if (dialogueRig == null)
+            dialogueRig = GetComponentInChildren<Rig>(true);
+
+        SetRigWeightImmediate(0f);
+    }
+
     protected override void Start()
     {
         base.Start();
