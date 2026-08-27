@@ -41,6 +41,7 @@ public class PlayerTopText : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        ResolveMissingNpcAnchors();
         ConfigureCanvas();
         ConfigureTextTypography(sherlockTopText);
         ConfigureTextTypography(watsonTopText);
@@ -56,6 +57,7 @@ public class PlayerTopText : MonoBehaviour
 
     private void LateUpdate()
     {
+        ResolveMissingNpcAnchors();
         UpdateTextPosition(sherlockTopText, sherlockAnchor, sherlockWorldOffset);
         UpdateTextPosition(watsonTopText, watsonAnchor, watsonWorldOffset);
         UpdateTextPosition(ethelTopText, ethelAnchor, ethelWorldOffset);
@@ -281,6 +283,25 @@ public class PlayerTopText : MonoBehaviour
 
         Transform parent = text.transform.parent;
         return parent.GetComponent<Image>() != null ? parent.gameObject : null;
+    }
+
+    private void ResolveMissingNpcAnchors()
+    {
+        // Older scenes do not always serialize NPC anchors on PlayerTopText.
+        // Keep those dialogue bubbles usable until the references are assigned in the Inspector.
+        if (selmaAnchor == null)
+        {
+            GameObject selma = GameObject.Find("Selma_NPC");
+            if (selma != null)
+                selmaAnchor = selma.transform;
+        }
+
+        if (violetAnchor == null)
+        {
+            GameObject violet = GameObject.Find("Violet_NPC");
+            if (violet != null)
+                violetAnchor = violet.transform;
+        }
     }
 
     private static void UpdateBubbleVisibility(TMP_Text text)

@@ -13354,7 +13354,7 @@ MonoBehaviour:
     m_Bits: 130043
   selmaVisionTriggerInteraction: 1
   selmaBlocksStairsDialogue:
-  - speaker: 2
+  - speaker: 0
     text: "Musz\u0119 przekra\u015B\u0107 si\u0119 jako\u015B na g\xF3r\u0119."
     voiceClip: {fileID: 0}
     duration: 3
@@ -96571,7 +96571,7 @@ Transform:
   m_GameObject: {fileID: 736804356}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2, z: 0}
+  m_LocalPosition: {x: 0, y: 2.4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -96787,7 +96787,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -106155,8 +106155,8 @@ MonoBehaviour:
   violetVoiceSource: {fileID: 0}
   firstPassageDialogueLines:
   - speaker: 0
-    text: Tutaj zamyka sie ten rozdzial, Watsonie. Musze isc na gore poszukac Malej
-      Ethel. Czuje, ze ona jest kluczem do zagadki.
+    text: "Tutaj zamyka si\u0119 ten rozdzia\u0142. Musz\u0119 i\u015B\u0107 na g\xF3r\u0119,
+      poszuka\u0107 ma\u0142ej Ethel. Czuk\u0119, \u017Ce ona jest kliczem do zagadki..."
     voiceClip: {fileID: 0}
     duration: 5
   repeatedPassageDialogueLines:
@@ -112644,11 +112644,11 @@ MonoBehaviour:
   watsonAnchor: {fileID: 736804357}
   watsonWorldOffset: {x: 0, y: 0, z: 0}
   ethelAnchor: {fileID: 697357371}
-  ethelWorldOffset: {x: 0, y: -0.8, z: 0}
-  selmaAnchor: {fileID: 0}
-  selmaWorldOffset: {x: 0, y: 2.1, z: 0}
-  violetAnchor: {fileID: 0}
-  violetWorldOffset: {x: 0, y: 2.1, z: 0}
+  ethelWorldOffset: {x: 0, y: 0, z: 0}
+  selmaAnchor: {fileID: 971554138}
+  selmaWorldOffset: {x: 0, y: 0, z: 0}
+  violetAnchor: {fileID: 2054947838}
+  violetWorldOffset: {x: 0, y: 0, z: 0}
   sherlockTopText: {fileID: 755331836}
   watsonTopText: {fileID: 2100249509}
   ethelTopText: {fileID: 988972588}
@@ -128217,7 +128217,7 @@ Transform:
   m_GameObject: {fileID: 971554137}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.78369343, z: -0, w: 0.6211478}
-  m_LocalPosition: {x: 0, y: 1.9338554, z: 0}
+  m_LocalPosition: {x: 0, y: 2.2, z: 0}
   m_LocalScale: {x: 0.97619045, y: 0.96698093, z: 0.97619057}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -139193,7 +139193,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -145190,7 +145190,7 @@ Transform:
   m_GameObject: {fileID: 1087538647}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.000000025668161, y: 2, z: -0.000000057015114}
+  m_LocalPosition: {x: -0.000000025668161, y: 2.4, z: -0.000000057015114}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -265864,7 +265864,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1938904070
 Transform:
   m_ObjectHideFlags: 0
@@ -281189,6 +281189,37 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a272cf83217e6c144a765e2b1ca1563b, type: 3}
+--- !u!1 &2054947837
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2054947838}
+  m_Layer: 10
+  m_Name: TopTextTarget (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2054947838
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2054947837}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.93022555, z: -0, w: 0.3669884}
+  m_LocalPosition: {x: 0, y: 2.332, z: 0}
+  m_LocalScale: {x: 1.0249999, y: 1.0249997, z: 1.025}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2813010962879505694}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2055005765
 GameObject:
   m_ObjectHideFlags: 0
@@ -300646,6 +300677,7 @@ Transform:
   - {fileID: 1270444709}
   - {fileID: 146037415}
   - {fileID: 404879945}
+  - {fileID: 2054947838}
   m_Father: {fileID: 393082671}
   m_LocalEulerAnglesHint: {x: 0, y: -136.94, z: 0}
 --- !u!23 &2826996139390243426
