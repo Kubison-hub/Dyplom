@@ -2031,6 +2031,25 @@ public class Interactable : MonoBehaviour
         for (int i = 0; i < databaseNotes.Length; i++)
             AddNote(i);
     }
+
+    public void AddAndOpenNote(int noteIndex)
+    {
+        if (databaseNotes == null || noteIndex < 0 || noteIndex >= databaseNotes.Length)
+        {
+            Debug.LogWarning($"{name}: no valid Database Note exists at index {noteIndex}.");
+            return;
+        }
+
+        NoteData note = databaseNotes[noteIndex];
+        NotebookManager notebookManager = FindFirstObjectByType<NotebookManager>();
+        if (note == null || notebookManager == null)
+        {
+            Debug.LogWarning($"{name}: cannot add and open the requested Database Note.");
+            return;
+        }
+
+        notebookManager.ShowNoteImmediately(note);
+    }
     public void SetQuestionFXEagleVisionState(bool active)
     {
         if (questionVFX == null)

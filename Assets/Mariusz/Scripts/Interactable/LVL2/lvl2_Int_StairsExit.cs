@@ -1,16 +1,60 @@
 using System.Collections;
 using UnityEngine;
 
-public class lvl2_Int_StairsExit : MonoBehaviour
+public class lvl2_Int_StairsExit : Lvl3InteractionDialogueBase
 {
     private Interactable interactable;
 
-    public string text = "Nie ma sensu na razie wracaæ na dó³";
-    public string text2 = "Korci mnie aby sprawdziæ, czy jest tu gdzieœ drugie wyjœcie";
-    public string text3 = "Powiniem sprawdziæ dok¹d prowadzi tajne przejœcie z pokoju Ethel";
+    [Header("Dialogue Lines")]
+    [SerializeField] private Lvl3DialogueLine[] missingLettersDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Nie ma sensu na razie wracaæ na dó³",
+            duration = 3f
+        }
+    };
 
-    public string allLettersText = "Chyba mam wszystko, czego tutaj potrzebujê";
-    public string ethelText = "Muszê jeszcze znaleŸæ ma³¹ Ethel";
+    [SerializeField] private Lvl3DialogueLine[] hiddenDoorNotFoundDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Korci mnie, aby sprawdziæ, czy jest tu gdzieœ drugie wyjœcie",
+            duration = 3f
+        }
+    };
+
+    [SerializeField] private Lvl3DialogueLine[] hiddenDoorFoundDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Powinienem sprawdziæ, dok¹d prowadzi tajne przejœcie z pokoju Ethel",
+            duration = 3f
+        }
+    };
+
+    [SerializeField] private Lvl3DialogueLine[] allLettersDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Chyba mam wszystko, czego tutaj potrzebujê",
+            duration = 3f
+        }
+    };
+
+    [SerializeField] private Lvl3DialogueLine[] ethelNotFoundDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Muszê jeszcze znaleŸæ ma³¹ Ethel",
+            duration = 3f
+        }
+    };
 
     public bool performed = false;
     public bool ethelFounded = false;
@@ -18,22 +62,20 @@ public class lvl2_Int_StairsExit : MonoBehaviour
     [SerializeField] private int requiredLetters = 3;
     private int lettersCollected = 0;
 
-    
     public bool hiddenDoorDiscovered = false;
     public bool canExitByStairs = false;
 
     public GameObject level_2;
     public GameObject level_1;
-
-
     public Transform level1StartPoint;
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => missingLettersDialogue;
+
     public void AddLetter()
     {
         lettersCollected++;
         if (HasAllLetters())
-        {
-            StartCoroutine(AddAllLettersText());
-        }
+            StartCoroutine(ShowAllLettersDialogue());
     }
 
     public bool HasAllLetters()
@@ -50,20 +92,14 @@ public class lvl2_Int_StairsExit : MonoBehaviour
     {
         performed = true;
         Debug.Log(interactable.name + ", interaction Performed");
-
-
         TryExit(player);
 
-
-        player.currentInteractable = null;
-
-
-
+        if (player != null)
+            player.currentInteractable = null;
     }
 
     public void TryExit(PlayerController player)
     {
-
         if (canExitByStairs)
         {
             StartCoroutine(GoDownStairs(player));
@@ -72,71 +108,62 @@ public class lvl2_Int_StairsExit : MonoBehaviour
 
         if (!HasAllLetters())
         {
-            StartCoroutine(AddText(text));
+            PlayDialogue(player, missingLettersDialogue);
             Debug.Log("Brakuje listów");
             return;
         }
-        else
-        {
-            if (hiddenDoorDiscovered)
-            {
-                StartCoroutine(AddText(text3));
-            }
-            else
-            {
-                StartCoroutine(AddText(text2));
-            }
-        }
+
+        PlayDialogue(player, hiddenDoorDiscovered
+            ? hiddenDoorFoundDialogue
+            : hiddenDoorNotFoundDialogue);
     }
 
-       
-        
-
-    private IEnumerator AddText(string stringText)
+    private IEnumerator ShowAllLettersDialogue()
     {
-
-        ClueManager.Instance.SherlockText.text = stringText;
-        yield return new WaitForSeconds(3);
-        ClueManager.Instance.SherlockText.text = "";
-        interactable.isInteractableActive = true;
-
-    }
-
-    private IEnumerator AddAllLettersText()
-    {
-        yield return new WaitForSeconds(3);
-        ClueManager.Instance.SherlockText.text = allLettersText;
-        yield return new WaitForSeconds(3);
-        
+        yield return new WaitForSeconds(3f);
+        PlayDialogue(null, allLettersDialogue);
 
         if (!ethelFounded)
         {
-            ClueManager.Instance.SherlockText.text = ethelText;
-            yield return new WaitForSeconds(3);
-            ClueManager.Instance.SherlockText.text = "";
+            yield return new WaitForSeconds(GetDialogueDuration(allLettersDialogue));
+            PlayDialogue(null, ethelNotFoundDialogue);
         }
-        else
-        {
-            ClueManager.Instance.SherlockText.text = "";
-        }
+    }
 
+    private static float GetDialogueDuration(Lvl3DialogueLine[] lines)
+    {
+        if (lines == null || lines.Length == 0)
+            return 0f;
+
+        float totalDuration = 0f;
+        foreach (Lvl3DialogueLine line in lines)
+            totalDuration += line.duration > 0f ? line.duration : 3f;
+
+        return totalDuration;
     }
 
     private IEnumerator GoDownStairs(PlayerController player)
     {
+        if (player == null)
+            yield break;
+
         player.navMeshAgent.ResetPath();
+        if (level_1 != null)
+            level_1.SetActive(true);
 
-
-        level_1.SetActive(true);
         yield return null;
         player.navMeshAgent.ResetPath();
-        player.navMeshAgent.Warp(level1StartPoint.position);
-        player.transform.rotation = level1StartPoint.rotation;
-        yield return null;
 
-        level_2.SetActive(false);
+        if (level1StartPoint != null)
+        {
+            player.navMeshAgent.Warp(level1StartPoint.position);
+            player.transform.rotation = level1StartPoint.rotation;
+        }
+
+        yield return null;
+        if (level_2 != null)
+            level_2.SetActive(false);
+
         player.currentInteractable = null;
-
-        yield return null;
     }
 }

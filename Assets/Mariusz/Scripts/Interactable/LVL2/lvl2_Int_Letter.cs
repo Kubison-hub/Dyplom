@@ -1,38 +1,52 @@
-using TMPro;
+using System.Collections;
 using UnityEngine;
 
-public class lvl2_Int_Letter : MonoBehaviour
+public class lvl2_Int_Letter : Lvl3InteractionDialogueBase
 {
     private Interactable interactable;
 
     public bool performed = false;
-
     public bool deactivateAfterPerform = true;
     private bool letterAdded = false;
     public lvl2_Int_HatchExit hatchExit;
     public lvl2_Int_StairsExit stairsExit;
 
-    [SerializeField] AudioSource audioFX;
-
+    [SerializeField] private AudioSource audioFX;
     [SerializeField] private Renderer rend;
 
-    [Header("Top Text")]
-    [SerializeField, TextArea] private string topText = "Ten list moÅ¼e wyjaÅ›niÄ‡ wiÄ™cej, niÅ¼ siÄ™ wydaje.";
+    [Header("Pickup Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] pickupDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Ten list mo¿e wyjaœniæ wiêcej, ni¿ siê wydaje.",
+            duration = 3f
+        }
+    };
 
+    [Header("Notebook")]
+    [SerializeField] private bool openNotebookNoteAfterPickup = true;
+    [SerializeField, Min(0)] private int notebookNoteIndex = 0;
 
+    private Coroutine pickupCoroutine;
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => pickupDialogue;
 
     private void Start()
     {
         interactable = GetComponent<Interactable>();
+        if (interactable != null && openNotebookNoteAfterPickup)
+            interactable.addDatabaseNotesAutomatically = false;
     }
 
     public void PerformInteraction(PlayerController player)
     {
-        performed = true;
-        //Debug.Log(interactable.name + ", interaction Performed");
+        if (performed)
+            return;
 
+        performed = true;
         interactable.AddClue(0);
-        AddLetter();
 
         if (audioFX != null)
         {
@@ -40,34 +54,62 @@ public class lvl2_Int_Letter : MonoBehaviour
             audioFX.Play();
         }
 
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText(topText, string.Empty);
+        if (openNotebookNoteAfterPickup)
+            interactable.AddAndOpenNote(notebookNoteIndex);
 
         interactable.isInteractableActive = false;
-        player.currentInteractable = null;
+        if (player != null)
+            player.currentInteractable = null;
 
-        ////intCollider.enabled = false;
-        if (deactivateAfterPerform)
+        if (deactivateAfterPerform && rend != null)
+            rend.enabled = false;
+
+        if (pickupCoroutine != null)
+            StopCoroutine(pickupCoroutine);
+
+        pickupCoroutine = StartCoroutine(FinishPickupSequence(player));
+    }
+
+    private IEnumerator FinishPickupSequence(PlayerController player)
+    {
+        if (openNotebookNoteAfterPickup)
         {
-            if (rend != null)
-                rend.enabled = false;
-            //this.gameObject.SetActive(false);
+            yield return null;
+            while (NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen)
+                yield return null;
         }
-        
+
+        PlayDialogue(player, pickupDialogue);
+        yield return new WaitForSeconds(GetDialogueDuration(pickupDialogue));
+
+        AddLetter();
+        pickupCoroutine = null;
     }
 
     public void AddLetter()
     {
-        if (!letterAdded)
-        {
-            letterAdded = true;
-            if (hatchExit != null)
-                hatchExit.AddLetter();
+        if (letterAdded)
+            return;
 
-            if (stairsExit != null)
-                stairsExit.AddLetter();
-            Debug.Log("Letter Added");
-        }
-       
+        letterAdded = true;
+        if (hatchExit != null)
+            hatchExit.AddLetter();
+
+        if (stairsExit != null)
+            stairsExit.AddLetter();
+
+        Debug.Log("Letter Added");
+    }
+
+    private static float GetDialogueDuration(Lvl3DialogueLine[] lines)
+    {
+        if (lines == null || lines.Length == 0)
+            return 0f;
+
+        float totalDuration = 0f;
+        foreach (Lvl3DialogueLine line in lines)
+            totalDuration += line.duration > 0f ? line.duration : 3f;
+
+        return totalDuration;
     }
 }

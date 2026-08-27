@@ -11,6 +11,13 @@ public class TutorialManager : MonoBehaviour
     public GameObject tutorialPanel;
     public TextMeshProUGUI tutorialText;
 
+
+    [Header("Audio")]
+    [Tooltip("Optional source used for every standard tutorial panel sound.")]
+    [SerializeField] private AudioSource tutorialAudioSource;
+    [SerializeField] private AudioClip tutorialOpenClip;
+    [SerializeField] private AudioClip tutorialCloseClip;
+
     [Header("Ustawienia")]
     public bool isTutorialActive = false;
 
@@ -58,6 +65,7 @@ public class TutorialManager : MonoBehaviour
 
         if (tutorialText != null) tutorialText.text = tresc;
         if (tutorialPanel != null) tutorialPanel.SetActive(true);
+        PlayTutorialSound(tutorialOpenClip);
 
         isTutorialActive = true;
         Time.timeScale = 0f; // Pauza gry
@@ -68,6 +76,8 @@ public class TutorialManager : MonoBehaviour
 
     public void ZamknijTutorial()
     {
+        PlayTutorialSound(tutorialCloseClip);
+
         if (tutorialPanel != null) tutorialPanel.SetActive(false);
 
         isTutorialActive = false;
@@ -78,6 +88,12 @@ public class TutorialManager : MonoBehaviour
 
 
     }
+    private void PlayTutorialSound(AudioClip clip)
+    {
+        if (tutorialAudioSource != null && clip != null)
+            tutorialAudioSource.PlayOneShot(clip);
+    }
+
     private IEnumerator ReleaseWorldInputAfterMouseRelease()
     {
         yield return null;

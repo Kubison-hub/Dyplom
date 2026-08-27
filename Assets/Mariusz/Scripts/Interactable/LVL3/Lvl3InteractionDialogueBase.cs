@@ -43,6 +43,11 @@ public abstract class Lvl3InteractionDialogueBase : MonoBehaviour
     protected abstract Lvl3DialogueLine[] DefaultDialogueLines { get; }
     protected virtual void OnDialogueSequenceCompleted(Lvl3DialogueLine[] lines) { }
 
+    protected Lvl3DialogueLine[] ConfiguredDialogueLines =>
+        dialogueLines != null && dialogueLines.Length > 0
+            ? dialogueLines
+            : DefaultDialogueLines;
+
     protected void SetupInteractable(InteractionType interactionType)
     {
         lvl3_LayerUtility.SetOutlinedObjectsLayer(gameObject);
@@ -61,7 +66,7 @@ public abstract class Lvl3InteractionDialogueBase : MonoBehaviour
 
         performed = true;
 
-        PlayDialogue(player, dialogueLines);
+        PlayDialogue(player, ConfiguredDialogueLines);
     }
 
     protected void PlayDialogue(PlayerController player, Lvl3DialogueLine[] lines)
@@ -176,6 +181,11 @@ public abstract class Lvl3InteractionDialogueBase : MonoBehaviour
             return;
 
         AudioSource source = GetVoiceSource(line.speaker);
+
+        // Standalone test scenes, such as Level_2_DEV, may not contain the
+        // scene-wide dialogue registry. Use the interaction's own source then.
+        if (source == null)
+            source = GetComponent<AudioSource>();
 
         if (source == null)
             return;

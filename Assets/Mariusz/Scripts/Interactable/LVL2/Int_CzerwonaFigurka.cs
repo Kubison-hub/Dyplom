@@ -9,8 +9,6 @@ public class Int_CzerwonaFigurka : MonoBehaviour
 
     [Header("Library Safe")]
     [SerializeField] private Animator safeAnimator;
-    [SerializeField] private int_LibraryPainting libraryPainting;
-    [SerializeField] private float closedPaintingTargetX = -16.246f;
     public void PerformInteraction(PlayerController player)
     {
         // 1. Dodaj do ekwipunku
@@ -30,8 +28,6 @@ public class Int_CzerwonaFigurka : MonoBehaviour
             if (safeAnimator != null)
                 safeAnimator.SetTrigger("Close");
 
-            if (libraryPainting != null)
-                libraryPainting.MovePaintingToX(closedPaintingTargetX);
         }
         else
         {

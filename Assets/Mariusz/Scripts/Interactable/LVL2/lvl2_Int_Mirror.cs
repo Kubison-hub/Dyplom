@@ -1,230 +1,116 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class lvl2_Int_Mirror : Lvl3InteractionDialogueBase
 {
-
-   
-
-    public GameObject door;
-    public GameObject spline1;
-    public GameObject spline2;
-
-
-    public bool performed = false;
-
-    private Coroutine openCoroutine;
-    private Coroutine fadeCoroutine;
-
-    private Quaternion openRotation;
-    public bool isOpen = false;
-
+    [Header("Door")]
+    [SerializeField] private GameObject door;
+    [SerializeField] private GameObject spline1;
+    [Header("Unused Lever")]
+    [Tooltip("Former lever object. It remains disabled because this door now opens with the key.")]
+    [SerializeField] private GameObject doorSwitcher;
     [SerializeField] private Vector3 openEuler = new Vector3(0f, 90f, 0f);
+    [SerializeField, Min(0.1f)] private float openSpeed = 120f;
+    [SerializeField] private AudioSource doorOpenAudioSource;
+    [SerializeField] private AudioClip doorOpenAudio;
+    [SerializeField] private AudioSource lockedDoorAudioSource;
+    [SerializeField] private AudioClip lockedDoorAudio;
 
-    [SerializeField] private float openSpeed = 120f;
+    [Header("Required Key")]
+    [SerializeField] private lvl2_Int_Book book;
+    [SerializeField] private Lvl3DialogueLine[] missingKeyDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Potrzebuj� specjalnego kluczyka.",
+            duration = 3f
+        }
+    };
 
-    public GameObject doorSwitcher;
-    [SerializeField] private CameraController cameraController;
-    public bool canOpen = false;
+    public bool performed;
+    public bool isOpen;
 
     private Interactable interactable;
-    private bool firsInteraction = true;
+    private Coroutine openCoroutine;
+    private Quaternion openRotation;
 
-    [Header("LockPick")]
-    [SerializeField] private LockPickMinigameController minigamePrefab;
-    [SerializeField] private Transform minigameTransform;
-    [SerializeField] private Camera playerCamera;
-    private LockPickMinigameController currentMinigame;
-    [SerializeField] private LockPickAudioController audioController;
-
-    [SerializeField] private lvl2_Int_Book book;
-    [SerializeField] private AudioSource cabinetCloseAudio;
-
-    [Header("First Interaction Dialogue")]
-    [SerializeField] private Lvl3DialogueLine[] firstInteractionDialogue;
-
-    [Header("Lockpick Tutorial Popup")]
-    [SerializeField] private bool showLockpickTutorialPopup = true;
-    [SerializeField] private string lockpickTutorialTitle = "Otwieranie Zamków";
-    [SerializeField, TextArea] private string lockpickTutorialText =
-        "Sherlock potrafi otwierać zamki, może to wymagać cierpliwości...";
-    [SerializeField] private UnityEngine.Video.VideoClip lockpickTutorialVideoClip;
-
-    private bool waitingForFirstInteractionDialogue;
-
-    protected override Lvl3DialogueLine[] DefaultDialogueLines => firstInteractionDialogue;
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => missingKeyDialogue;
 
     private void Start()
     {
-        openRotation = Quaternion.Euler(openEuler);
         interactable = GetComponent<Interactable>();
+        openRotation = Quaternion.Euler(openEuler);
 
-        transform.parent = door.transform;
-        doorSwitcher.SetActive(false);
-       
+        if (doorSwitcher != null)
+            doorSwitcher.SetActive(false);
+
+        if (door != null)
+            transform.parent = door.transform;
     }
 
     public void PerformInteraction(PlayerController player)
     {
+        if (isOpen || openCoroutine != null)
+            return;
+
+        if (book == null || !book.keyFounded)
+        {
+            if (lockedDoorAudioSource != null && lockedDoorAudio != null)
+                lockedDoorAudioSource.PlayOneShot(lockedDoorAudio);
+
+            PlayDialogue(player, missingKeyDialogue);
+            return;
+        }
+
         performed = true;
-        //Debug.Log(interactable.name + ", interaction Performed");
-
-        if (firsInteraction)
-        {
-            if (cabinetCloseAudio != null)
-                cabinetCloseAudio.Play();
-
-            interactable.isInteractableActive = false;
-            firsInteraction = false;
+        if (player != null)
             player.currentInteractable = null;
-            cameraController?.SetZoomState(CameraZoomState.Narrow);
 
-            if (firstInteractionDialogue != null && firstInteractionDialogue.Length > 0)
-            {
-                waitingForFirstInteractionDialogue = true;
-                PlayDialogue(player, firstInteractionDialogue);
-            }
-            else
-            {
-                StartCoroutine(ShowLockpickTutorialSequence());
-            }
-        }
-        else
-        {
-            
-            LockPick();
-            player.currentInteractable = null;
-        }
-
-        player.currentInteractable = null;
-
-
-
-
-        ////intCollider.enabled = false;
-        //this.gameObject.SetActive(false);
+        openCoroutine = StartCoroutine(OpenDoor());
     }
 
     private IEnumerator OpenDoor()
     {
         isOpen = true;
 
-        doorSwitcher.SetActive(true);
+        if (doorOpenAudioSource != null && doorOpenAudio != null)
+            doorOpenAudioSource.PlayOneShot(doorOpenAudio);
 
+        if (spline1 != null)
+            spline1.SetActive(false);
 
-        spline1.gameObject.SetActive(false);
-
-        if (!book.keyFounded)
+        if (door == null)
         {
-            spline2.gameObject.SetActive(true);
+            FinishInteraction();
+            yield break;
         }
-        
-
-
 
         while (Quaternion.Angle(door.transform.localRotation, openRotation) > 0.5f)
         {
             door.transform.localRotation = Quaternion.RotateTowards(
                 door.transform.localRotation,
                 openRotation,
-                openSpeed * Time.deltaTime
-            );
-
+                openSpeed * Time.deltaTime);
             yield return null;
         }
 
         door.transform.localRotation = openRotation;
+        FinishInteraction();
     }
 
-    protected override void OnDialogueSequenceCompleted(Lvl3DialogueLine[] lines)
+    private void FinishInteraction()
     {
-        if (!waitingForFirstInteractionDialogue || lines != firstInteractionDialogue)
+        openCoroutine = null;
+
+        if (interactable == null)
             return;
 
-        waitingForFirstInteractionDialogue = false;
-        StartCoroutine(ShowLockpickTutorialSequence());
-    }
-
-    private IEnumerator ShowLockpickTutorialSequence()
-    {
-        TutorialTimeline tutorialTimeline = TutorialTimeline.Instance;
-        if (showLockpickTutorialPopup && tutorialTimeline != null)
-        {
-            bool tutorialWasShown = tutorialTimeline.TryShowLockpickTutorialPopup(
-                lockpickTutorialTitle,
-                lockpickTutorialText,
-                lockpickTutorialVideoClip);
-
-            if (tutorialWasShown)
-            {
-                yield return null;
-                while (tutorialTimeline.BlocksWorldInput)
-                    yield return null;
-            }
-        }
-
-        interactable.isInteractableActive = true;
-    }
-
-
-    public void LockPick()
-    {
-        
-        cameraController.SetZoomState(CameraZoomState.Narrow);
-
-        if (currentMinigame != null)
-            return;
-
-        ClueManager.Instance.isLockpicking = true;
-
-        currentMinigame = Instantiate(
-            minigamePrefab,
-            minigameTransform.position,
-            minigameTransform.rotation
-        );
-
-        currentMinigame.Open(
-            playerCamera,
-            audioController,
-            HandleUnlocked,
-            HandleClosed,5, 4
-        );
-
-    }
-    private void HandleUnlocked()
-    {
-        audioController.PlayUnlock();
-        cameraController.ReturnToPreviousZoomState();
-        ClueManager.Instance.isLockpicking = false;
-        Debug.Log("Door unlocked");
-
-        openCoroutine = StartCoroutine(OpenDoor());
         interactable.isInteractableActive = false;
-        
+        interactable.allowQuestionFXWhenInactive = false;
+        interactable.SetQuestionFXEagleVisionState(false);
 
-        interactable.interactiveShader = null;
-
-        interactable.isInteractableActive = false;
-
-
-        if (currentMinigame != null)
-            Destroy(currentMinigame.gameObject);
+        if (interactable.interactiveShader != null)
+            interactable.interactiveShader.SetActive(false);
     }
-
-    private void HandleClosed()
-    {
-        audioController.PlayReset();
-        cameraController.ReturnToPreviousZoomState();
-        ClueManager.Instance.isLockpicking = false;
-        if (currentMinigame != null)
-            Destroy(currentMinigame.gameObject);
-
-        currentMinigame = null;
-    }
-
-    //FIX
-
-
-
 }

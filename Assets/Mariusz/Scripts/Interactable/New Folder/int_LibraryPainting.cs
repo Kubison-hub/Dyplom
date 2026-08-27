@@ -31,7 +31,7 @@ public class int_LibraryPainting : MonoBehaviour
         cameraController?.SetZoomPreset("Narrow", cameraTransitionSpeed);
 
         if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText("Za tym obrazem na pewno znajduje sie skrytka. W koncu po co komu obraz, ktory tylko ladnie wyglada?", "");
+            PlayerTopText.Instance.ShowTopText("Za tym obrazem na pewno znajduje siê jakaœ skrytka...", "");
 
         if (player != null)
             player.currentInteractable = null;

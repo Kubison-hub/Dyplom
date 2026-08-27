@@ -27,6 +27,7 @@ public class NotebookManager : MonoBehaviour
 
     private PlayerInput notebookLockedInput;
     private bool notebookDisabledInput;
+    private bool openedAsQuickRead;
 
     public bool IsNotebookOpen => notebookPanel != null && notebookPanel.activeSelf;
 
@@ -72,6 +73,7 @@ public class NotebookManager : MonoBehaviour
         if (notebookPanel != null)
             notebookPanel.SetActive(false);
 
+        openedAsQuickRead = false;
         RestoreActivePlayerInput();
     }
 
@@ -133,6 +135,12 @@ public class NotebookManager : MonoBehaviour
 
     public void BackToCategories()
     {
+        if (openedAsQuickRead)
+        {
+            CloseNotebook();
+            return;
+        }
+
         categoryPanel.SetActive(true);
         noteListPanel.SetActive(false);
         noteDisplayArea.SetActive(false);
@@ -140,10 +148,15 @@ public class NotebookManager : MonoBehaviour
 
     public void BackToNoteList()
     {
+        if (openedAsQuickRead)
+        {
+            CloseNotebook();
+            return;
+        }
+
         noteListPanel.SetActive(true);
         noteDisplayArea.SetActive(false);
     }
-
     private void CreateNoteButton(NoteData note)
     {
         GameObject newBtn = Instantiate(noteButtonPrefab, noteListContent);
@@ -163,6 +176,26 @@ public class NotebookManager : MonoBehaviour
         {
             paperImage.sprite = note.customPaperGraphic;
         }
+    }
+
+    public void ShowNoteImmediately(NoteData note)
+    {
+        if (note == null || notebookPanel == null)
+            return;
+
+        AddNote(note);
+        openedAsQuickRead = true;
+
+        if (!IsNotebookOpen)
+        {
+            notebookPanel.SetActive(true);
+            LockActivePlayerInput();
+        }
+
+        if (categoryPanel != null)
+            categoryPanel.SetActive(false);
+
+        OpenNote(note);
     }
 
     public void AddNote(NoteData note)
