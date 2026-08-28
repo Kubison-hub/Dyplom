@@ -40,6 +40,12 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     [SerializeField] private string tutorialPopupTitle = "BADANIE CIALA";
     [SerializeField, TextArea] private string tutorialPopupText;
     [SerializeField] private VideoClip tutorialPopupVideoClip;
+    [Header("Notebook Tutorial Panel")]
+    [Tooltip("Shows the standard tutorial panel after every required examination clue has been collected.")]
+    [SerializeField] private bool showNotebookTutorialPanel = true;
+    [SerializeField] private string notebookTutorialId = "EdithExamNotebook";
+    [SerializeField, TextArea] private string notebookTutorialText =
+        "W trakcie rozgrywki przydatne informacje zapisywane są w notatniku.\nWciśnij \"Tab\", aby go otworzyć.";
     [Header("Initial Examination Dialogue")]
     [SerializeField] private Lvl3DialogueLine[] initialExaminationDialogue =
     {
@@ -435,7 +441,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         if (lines == allCpCollectedDialogue)
         {
             completionDialoguePending = false;
-            EndExamination(true);
+            FinishCompletedExamination();
         }
     }
 
@@ -448,6 +454,17 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         }
 
         completionDialoguePending = false;
+        FinishCompletedExamination();
+    }
+
+    private void FinishCompletedExamination()
+    {
+        if (showNotebookTutorialPanel && TutorialManager.Instance != null &&
+            !string.IsNullOrWhiteSpace(notebookTutorialId))
+        {
+            TutorialManager.Instance.PokazTutorial(notebookTutorialText, notebookTutorialId);
+        }
+
         EndExamination(true);
     }
 
