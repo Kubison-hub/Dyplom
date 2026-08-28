@@ -21,7 +21,7 @@ public class TutorialManager : MonoBehaviour
     [Header("Ustawienia")]
     public bool isTutorialActive = false;
 
-    // Zbiór ID tutoriali, które ju¿ by³y (HashSet jest szybki, ale nie zapisuje siê w JSON)
+    // ZbiÃ³r ID tutoriali, ktÃ³re juÅ¼ byÅ‚y (HashSet jest szybki, ale nie zapisuje siÄ™ w JSON)
     private HashSet<string> pokazaneTutoriale = new HashSet<string>();
 
     public bool BlocksWorldInput => isTutorialActive || blockWorldInputUntilMouseRelease;
@@ -45,7 +45,7 @@ public class TutorialManager : MonoBehaviour
 
     private void Update()
     {
-        // Logika zamykania tutoriala klikniêciem
+        // Logika zamykania tutoriala klikniÄ™ciem
         if (isTutorialActive)
         {
             if (Input.GetMouseButtonDown(0))
@@ -57,11 +57,13 @@ public class TutorialManager : MonoBehaviour
 
     public void PokazTutorial(string tresc, string unikalneID)
     {
-        // Jeœli ID jest w zbiorze, to znaczy, ¿e ju¿ to widzieliœmy -> wychodzimy
+        // JeÅ›li ID jest w zbiorze, to znaczy, Å¼e juÅ¼ to widzieliÅ›my -> wychodzimy
         if (pokazaneTutoriale.Contains(unikalneID)) return;
 
         // Dodajemy do zbioru "widzianych"
         pokazaneTutoriale.Add(unikalneID);
+
+        PlayerTopText.Instance?.ClearAllTopText();
 
         if (tutorialText != null) tutorialText.text = tresc;
         if (tutorialPanel != null) tutorialPanel.SetActive(true);
@@ -108,20 +110,20 @@ public class TutorialManager : MonoBehaviour
         
         yield return new WaitForSeconds(0.1f);
         //TutorialTimeline.Instance.ShowGameplayTutorialPopup(0);
-        PokazTutorial("Witaj w demie gry \"Sherlock Holmes: Duchy Przesz³oœci\".\n\nWciœnij Lewy Przycisk Myszy, aby siê poruszyæ.\nWciœnij Lewy Shift, aby wejœæ w tryb skupienia.", "MoveTutorial");
+        PokazTutorial("Witaj w demie gry \"Sherlock Holmes: Duchy PrzeszÅ‚oÅ›ci\".\n\nWciÅ›nij Lewy Przycisk Myszy, aby siÄ™ poruszyÄ‡.\nWciÅ›nij Lewy Shift, aby wejÅ›Ä‡ w tryb skupienia.", "MoveTutorial");
     }
 
 
 
-    // --- FUNKCJE DLA SYSTEMU ZAPISU (NOWOŒÆ) ---
+    // --- FUNKCJE DLA SYSTEMU ZAPISU (NOWOÅšÄ†) ---
 
-    // 1. Daj mi listê tego co widzia³em (dla SaveLoadManagera)
+    // 1. Daj mi listÄ™ tego co widziaÅ‚em (dla SaveLoadManagera)
     public List<string> GetShownTutorials()
     {
         return new List<string>(pokazaneTutoriale);
     }
 
-    // 2. Przywróæ listê tego co widzia³em (od SaveLoadManagera)
+    // 2. PrzywrÃ³Ä‡ listÄ™ tego co widziaÅ‚em (od SaveLoadManagera)
     public void RestoreShownTutorials(List<string> loadedList)
     {
         if (loadedList != null)

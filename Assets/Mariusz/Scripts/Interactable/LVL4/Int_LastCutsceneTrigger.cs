@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Collider))]
 public class Int_LastCutsceneTrigger : MonoBehaviour
@@ -21,6 +22,8 @@ public class Int_LastCutsceneTrigger : MonoBehaviour
     [Header("Completion")]
     [Tooltip("Leave false for the final scene: player input remains locked after both actors arrive.")]
     [SerializeField] private bool restoreInputOnComplete;
+    [Tooltip("Optional scene loaded after Sherlock and Watson reach their Last Points. The scene must be added to Build Settings.")]
+    [SerializeField] private string nextSceneName;
 
     private bool sequenceStarted;
 
@@ -76,6 +79,12 @@ public class Int_LastCutsceneTrigger : MonoBehaviour
             yield return null;
 
         Debug.Log("KONIEC");
+
+        if (!string.IsNullOrWhiteSpace(nextSceneName))
+        {
+            SceneManager.LoadScene(nextSceneName);
+            yield break;
+        }
 
         if (restoreInputOnComplete)
         {

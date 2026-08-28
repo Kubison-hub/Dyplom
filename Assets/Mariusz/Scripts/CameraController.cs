@@ -24,6 +24,7 @@ public class CameraController : MonoBehaviour
     private float targetRotationInput;
     private float currentRotationInput;
     private float rotationInputVelocity;
+    private float defaultRotationSpeed;
     private float lastManualCameraInputTime;
     private bool autoRotationSuppressedByManualInput;
     private bool dialogAutoRotateActive;
@@ -76,6 +77,7 @@ public class CameraController : MonoBehaviour
     {
         cineCamera = GetComponent<CinemachineCamera>();
         orbitalFollow = cineCamera.GetComponentInChildren<CinemachineOrbitalFollow>();
+        defaultRotationSpeed = rotationSpeed;
 
         if (orbitalFollow == null)
         {
@@ -147,6 +149,11 @@ public class CameraController : MonoBehaviour
             StopScriptedHorizontalOrbit();
             RegisterManualCameraInput();
         }
+    }
+
+    public void SetMouseSensitivityMultiplier(float multiplier)
+    {
+        rotationSpeed = defaultRotationSpeed * Mathf.Max(0.01f, multiplier);
     }
 
     private void SmoothRotate()

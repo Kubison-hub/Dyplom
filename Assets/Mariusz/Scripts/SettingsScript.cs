@@ -11,6 +11,7 @@ public class SettingsScript : MonoBehaviour
     [SerializeField] private Slider soundSlider;
     [SerializeField] private Slider brightnessSlider;
     [SerializeField] private Slider contrastSlider;
+    [SerializeField] private Slider mouseSensitivitySlider;
 
     [Header("Scene References")]
     [SerializeField] private GameMusicManager musicManager;
@@ -19,6 +20,8 @@ public class SettingsScript : MonoBehaviour
     [Header("Image Adjustment Ranges")]
     [SerializeField, Min(0f)] private float postExposureRange = 5f;
     [SerializeField, Range(0f, 100f)] private float contrastRange = 100f;
+    [SerializeField, Min(0.01f)] private float minimumMouseSensitivity = 0.25f;
+    [SerializeField, Min(0.01f)] private float maximumMouseSensitivity = 2f;
 
     private readonly Dictionary<AudioSource, float> defaultSoundVolumes = new Dictionary<AudioSource, float>();
     private AudioSource musicSource;
@@ -82,6 +85,7 @@ public class SettingsScript : MonoBehaviour
         ConfigureSlider(soundSlider, 0f, 1f, 1f);
         ConfigureSlider(brightnessSlider, 0f, 1f, 0.5f);
         ConfigureSlider(contrastSlider, 0f, 1f, 0.5f);
+        ConfigureSlider(mouseSensitivitySlider, minimumMouseSensitivity, maximumMouseSensitivity, 1f);
 
         ApplyBrightness(brightnessSlider != null ? brightnessSlider.value : 0.5f);
         ApplyContrast(contrastSlider != null ? contrastSlider.value : 0.5f);
@@ -103,6 +107,7 @@ public class SettingsScript : MonoBehaviour
         soundSlider?.onValueChanged.AddListener(SetSoundVolume);
         brightnessSlider?.onValueChanged.AddListener(SetBrightness);
         contrastSlider?.onValueChanged.AddListener(SetContrast);
+        mouseSensitivitySlider?.onValueChanged.AddListener(SetMouseSensitivity);
     }
 
     private void UnregisterSliderListeners()
@@ -111,6 +116,7 @@ public class SettingsScript : MonoBehaviour
         soundSlider?.onValueChanged.RemoveListener(SetSoundVolume);
         brightnessSlider?.onValueChanged.RemoveListener(SetBrightness);
         contrastSlider?.onValueChanged.RemoveListener(SetContrast);
+        mouseSensitivitySlider?.onValueChanged.RemoveListener(SetMouseSensitivity);
     }
 
     public void SetMusicVolume(float volume)
@@ -139,6 +145,16 @@ public class SettingsScript : MonoBehaviour
     public void SetContrast(float sliderValue)
     {
         ApplyContrast(sliderValue);
+    }
+
+    public void SetMouseSensitivity(float multiplier)
+    {
+        foreach (CameraController cameraController in FindObjectsByType<CameraController>(
+                     FindObjectsInactive.Include,
+                     FindObjectsSortMode.None))
+        {
+            cameraController?.SetMouseSensitivityMultiplier(multiplier);
+        }
     }
 
     private void ApplyBrightness(float sliderValue)

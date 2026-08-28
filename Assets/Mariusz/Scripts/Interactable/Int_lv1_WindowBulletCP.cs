@@ -5,6 +5,9 @@ public class Int_lv1_WindowBulletCP : Lvl3InteractionDialogueBase
 {
     [SerializeField] private Int_lv1_WindowBullet windowExamination;
     [SerializeField] private AudioSource foundAudio;
+    [Header("Clue")]
+    [SerializeField] private int clueIndex;
+    [SerializeField] private Transform clueCardPosition;
     [Header("Bullet Found Dialogue")]
     [SerializeField] private Lvl3DialogueLine[] bulletFoundDialogue =
     {
@@ -19,7 +22,7 @@ public class Int_lv1_WindowBulletCP : Lvl3InteractionDialogueBase
     private Interactable interactable;
     private Collider interactionCollider;
     private Renderer[] objectRenderers;
-    private bool performed;
+    private bool bulletFound;
 
     protected override Lvl3DialogueLine[] DefaultDialogueLines => bulletFoundDialogue;
 
@@ -32,13 +35,14 @@ public class Int_lv1_WindowBulletCP : Lvl3InteractionDialogueBase
 
     public void PerformInteraction(PlayerController player)
     {
-        if (performed)
+        if (bulletFound)
             return;
 
-        performed = true;
+        bulletFound = true;
         foundAudio?.Play();
         windowExamination?.RegisterWindowClue();
         PlayDialogue(player, bulletFoundDialogue);
+        interactable?.AddClue(clueIndex, clueCardPosition);
 
         if (interactable != null)
         {

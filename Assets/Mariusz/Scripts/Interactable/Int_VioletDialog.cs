@@ -23,6 +23,8 @@ public class Int_VioletDialog : MonoBehaviour
     [SerializeField] private bool facePlayerBeforeDialogue = true;
     [SerializeField, Min(1f)] private float facePlayerTurnSpeed = 360f;
     [SerializeField, Min(0.1f)] private float facePlayerTolerance = 1f;
+    [SerializeField] private bool restoreRotationAfterDialogue = true;
+    [SerializeField, Min(1f)] private float restoreRotationTurnSpeed = 240f;
 
     [Header("Library Awareness")]
     [Tooltip("Assign the Violet GameObject that actually carries WatsonEscortNPC and NavMeshAgent.")]
@@ -116,17 +118,42 @@ public class Int_VioletDialog : MonoBehaviour
     private IEnumerator BeginDialogue(PlayerController player)
     {
         dialogueStarting = true;
+        Transform dialogueTransform = smartNPC != null ? smartNPC.transform : null;
+        Quaternion rotationBeforeDialogue = dialogueTransform != null
+            ? dialogueTransform.rotation
+            : Quaternion.identity;
 
-        if (facePlayerBeforeDialogue && smartNPC != null)
+        if (facePlayerBeforeDialogue && dialogueTransform != null)
         {
             yield return NpcDialogueFacingUtility.FacePlayer(
-                smartNPC.transform,
+                dialogueTransform,
                 player != null ? player.transform : null,
                 facePlayerTurnSpeed,
                 facePlayerTolerance);
         }
 
         smartNPC?.SprawdzIZacznijRozmowe();
+
+        // ConversationManager is activated by SmartNPC. Wait one frame so the
+        // conversation can enter its active state before waiting for its end.
+        yield return null;
+        while (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
+            yield return null;
+
+        if (restoreRotationAfterDialogue && dialogueTransform != null)
+        {
+            while (Quaternion.Angle(dialogueTransform.rotation, rotationBeforeDialogue) > facePlayerTolerance)
+            {
+                dialogueTransform.rotation = Quaternion.RotateTowards(
+                    dialogueTransform.rotation,
+                    rotationBeforeDialogue,
+                    restoreRotationTurnSpeed * Time.deltaTime);
+                yield return null;
+            }
+
+            dialogueTransform.rotation = rotationBeforeDialogue;
+        }
+
         dialogueStarting = false;
     }
 

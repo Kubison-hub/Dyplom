@@ -25,13 +25,22 @@ public class lvl2_Int_HatchExit : MonoBehaviour
     [Tooltip("Activated immediately before teleporting the player into the hidden room.")]
     [SerializeField] private GameObject[] blackboardsToActivateBeforeTeleport;
 
+    [Header("Hidden Passage Blackboard Restore")]
+    [Tooltip("The Level 1 hidden-passage blackboard that must be visible after the first successful hatch exit.")]
+    [SerializeField] private GameObject hiddenPassageBlackboard;
+    [Tooltip("Optional replacement material applied to the hidden-passage blackboard on the first successful hatch exit.")]
+    [SerializeField] private Material hiddenPassageBlackboardMaterial;
+
     [SerializeField] private int requiredLetters = 3;
     private int lettersCollected = 0;
+    private bool hiddenPassageBlackboardRestored;
 
     public void AddLetter()
     {
         lettersCollected++;
-        
+
+        if (HasAllLetters())
+            CluesLog.Instance?.CompleteConnectionsObjective();
     }
 
     public bool HasAllLetters()
@@ -82,12 +91,14 @@ public class lvl2_Int_HatchExit : MonoBehaviour
             return;
         }
         Debug.Log("Wszystkie listy zebrane. OPUSZCZAM LEVEL.");
+        CluesLog.Instance?.RemoveConnectionsObjective();
 
         if (levelOneRoot != null)
             levelOneRoot.SetActive(true);
 
         SetObjectsActiveBeforeTeleport(activateBeforeTeleport);
         SetBlackboardsActiveBeforeTeleport();
+        RestoreHiddenPassageBlackboard();
         TeleportToHiddenRoom(player);
         
     }
@@ -116,6 +127,43 @@ public class lvl2_Int_HatchExit : MonoBehaviour
     private void SetBlackboardsActiveBeforeTeleport()
     {
         SetObjectsActiveBeforeTeleport(blackboardsToActivateBeforeTeleport);
+    }
+
+    private void RestoreHiddenPassageBlackboard()
+    {
+        if (hiddenPassageBlackboardRestored || hiddenPassageBlackboard == null)
+            return;
+
+        hiddenPassageBlackboardRestored = true;
+        hiddenPassageBlackboard.SetActive(true);
+
+        foreach (Renderer renderer in hiddenPassageBlackboard.GetComponentsInChildren<Renderer>(true))
+        {
+            if (renderer == null)
+                continue;
+
+            if (hiddenPassageBlackboardMaterial != null)
+                renderer.material = hiddenPassageBlackboardMaterial;
+
+            foreach (Material material in renderer.materials)
+            {
+                if (material == null)
+                    continue;
+
+                RestoreMaterialAlpha(material, "_BaseColor");
+                RestoreMaterialAlpha(material, "_Color");
+            }
+        }
+    }
+
+    private static void RestoreMaterialAlpha(Material material, string propertyName)
+    {
+        if (!material.HasProperty(propertyName))
+            return;
+
+        Color color = material.GetColor(propertyName);
+        color.a = 1f;
+        material.SetColor(propertyName, color);
     }
 
     private static void SetObjectsActiveBeforeTeleport(GameObject[] objectsToActivate)

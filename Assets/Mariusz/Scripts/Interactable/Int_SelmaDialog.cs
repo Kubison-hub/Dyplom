@@ -20,6 +20,10 @@ public class Int_SelmaDialog : MonoBehaviour
 
     private bool dialogueStarting;
 
+    public WatsonEscortNPC LinkedEscortNpc => smartNPC != null
+        ? smartNPC.GetComponent<WatsonEscortNPC>()
+        : null;
+
     private void Start()
     {
         interactable = GetComponent<Interactable>();
@@ -41,9 +45,6 @@ public class Int_SelmaDialog : MonoBehaviour
     {
         if (!dialogueStarting && ConversationManager.Instance != null && !ConversationManager.Instance.IsConversationActive)
         {
-            interactable.isInteractableActive = false;
-            interactable.AddClue(0, cardPosition);
-            interactable.AddClue(1, cardPosition);
             player.currentInteractable = null;
             StartCoroutine(BeginDialogue(player));
 
@@ -74,8 +75,42 @@ public class Int_SelmaDialog : MonoBehaviour
                 facePlayerTolerance);
         }
 
-        smartNPC?.SprawdzIZacznijRozmowe();
+        if (smartNPC == null)
+        {
+            Debug.LogWarning($"{name}: SmartNPC is not assigned.", this);
+            dialogueStarting = false;
+            yield break;
+        }
+
+        smartNPC.SprawdzIZacznijRozmowe();
+
+        if (ConversationManager.Instance != null && !ConversationManager.Instance.IsConversationActive)
+            StartConversationWithoutTrigger(player);
+
         dialogueStarting = false;
+    }
+
+    private void StartConversationWithoutTrigger(PlayerController player)
+    {
+        if (player == null)
+            return;
+
+        NPCConversation conversation = player.playerCharacter == PlayerCharacter.Watson
+            ? smartNPC.rozmowaDlaPostaciB
+            : smartNPC.rozmowaDlaPostaciA;
+
+        if (conversation == null)
+        {
+            Debug.LogWarning($"{name}: The selected player has no assigned NPC conversation.", this);
+            return;
+        }
+
+        string playerId = player.playerCharacter == PlayerCharacter.Watson ? "PlayerB" : "PlayerA";
+        QuestManager.Instance?.OdnotujRozmowe(playerId, smartNPC.npcID);
+        ConversationManager.Instance.StartConversation(conversation);
+
+        if (smartNPC.noteIDToUnlock >= 0)
+            JournalManager.Instance?.UnlockNote(smartNPC.noteIDToUnlock);
     }
 
     public void ChangeCamera()

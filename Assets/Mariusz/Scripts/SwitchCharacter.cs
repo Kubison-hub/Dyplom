@@ -78,6 +78,10 @@ public class SwitchCharacter : MonoBehaviour
         if (NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen)
             return;
 
+        if (DialogueEditor.ConversationManager.Instance != null &&
+            DialogueEditor.ConversationManager.Instance.IsConversationActive)
+            return;
+
         if (Keyboard.current != null && Keyboard.current[characterSwitchKey].wasPressedThisFrame)
         {
             int nextIndex = (activePlayerIndex + 1) % players.Length;

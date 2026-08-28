@@ -45,6 +45,15 @@ public class DetectiveIdeaManager : MonoBehaviour
     [Header("Vision Eye")]
     [Min(0f)] public float solvedVisionHoldDuration = 5f;
 
+    [Header("Puzzle Audio")]
+    [Tooltip("Optional. If empty, an AudioSource on this GameObject is used.")]
+    [SerializeField] private AudioSource puzzleAudioSource;
+    [SerializeField] private AudioClip grabIdeaPointClip;
+    [SerializeField] private AudioClip releaseIdeaPointClip;
+    [SerializeField] private AudioClip correctConnectionClip;
+    [SerializeField] private AudioClip wrongConnectionClip;
+    [SerializeField] private AudioClip puzzleCompleteClip;
+
     [Header("Player Camera Look At")]
     [SerializeField] private bool useSequenceLookAt = true;
     [SerializeField, Range(0f, 1f)] private float sequenceLookAtLineInfluence = 0.85f;
@@ -92,6 +101,9 @@ public class DetectiveIdeaManager : MonoBehaviour
         lineLayerName = "WorldText";
         previewLineColor = new Color(0.62f, 0.82f, 0.64f, 0.95f);
         acceptedLineColor = new Color(0.42f, 0.68f, 0.48f, 1f);
+
+        if (puzzleAudioSource == null)
+            puzzleAudioSource = GetComponent<AudioSource>();
 
         if (Instance == null)
         {
@@ -216,7 +228,7 @@ public class DetectiveIdeaManager : MonoBehaviour
         {
             if (dragSource != null)
             {
-                CancelDrag();
+                CancelDrag(playReleaseSound: true);
                 return true;
             }
 
@@ -387,6 +399,8 @@ public class DetectiveIdeaManager : MonoBehaviour
 
     private void BeginDrag(DetectiveIdeaPoint point)
     {
+        PlayPuzzleSound(grabIdeaPointClip);
+
         dragSource = point;
         dragSource.MarkDiscovered();
         dragSource.SetVisible(true);
@@ -403,6 +417,8 @@ public class DetectiveIdeaManager : MonoBehaviour
 
     private void FinishConnection(DetectiveIdeaPoint target)
     {
+        PlayPuzzleSound(releaseIdeaPointClip);
+
         if (target != null)
         {
             target.MarkDiscovered();
@@ -423,6 +439,8 @@ public class DetectiveIdeaManager : MonoBehaviour
 
         if (advancesSequence)
         {
+            PlayPuzzleSound(correctConnectionClip);
+
             previewLine.startColor = acceptedLineColor;
             previewLine.endColor = acceptedLineColor;
             previewLine.SetPosition(0, dragSource.AnchorPosition);
@@ -448,6 +466,7 @@ public class DetectiveIdeaManager : MonoBehaviour
         }
 
         // Every non-sequential connection remains visible as a dark clue trail.
+        PlayPuzzleSound(wrongConnectionClip);
         KeepRejectedLine(target);
         ClearActiveSequenceLines();
         sequenceProgressIndex = 0;
@@ -488,8 +507,11 @@ public class DetectiveIdeaManager : MonoBehaviour
         CreatePreviewLineDescription(dragSource);
     }
 
-    private void CancelDrag()
+    private void CancelDrag(bool playReleaseSound = false)
     {
+        if (playReleaseSound && dragSource != null)
+            PlayPuzzleSound(releaseIdeaPointClip);
+
         if (dragSource != null && dragSource != hoveredPoint)
             dragSource.SetHovered(false);
 
@@ -884,6 +906,7 @@ public class DetectiveIdeaManager : MonoBehaviour
     {
         puzzleCompleted = true;
         Debug.Log("SUCCES");
+        PlayPuzzleSound(puzzleCompleteClip);
 
         if (EagleVisionSystem.Instance != null)
             EagleVisionSystem.Instance.HoldVisionFor(solvedVisionHoldDuration);
@@ -931,6 +954,12 @@ public class DetectiveIdeaManager : MonoBehaviour
         hoveredPoint = null;
         dragSource = null;
         previewLine = null;
+    }
+
+    private void PlayPuzzleSound(AudioClip clip)
+    {
+        if (clip != null && puzzleAudioSource != null)
+            puzzleAudioSource.PlayOneShot(clip);
     }
 
     private void DestroySessionLines()

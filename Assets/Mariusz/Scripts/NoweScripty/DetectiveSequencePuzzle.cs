@@ -31,10 +31,19 @@ public class DetectiveSequencePuzzle : MonoBehaviour
     [Header("Solved")]
     public string solvedTitle = "Oczywiscie.";
     [TextArea] public string solvedDescription = "Teraz rozumiem przebieg wydarzen.";
+
+    [Header("Reparent Before Solved Actions")]
+    [Tooltip("Optional. This object is moved under New Parent before Activate On Solved and On Solved are invoked.")]
+    [SerializeField] private Transform objectToReparentBeforeSolvedActions;
+    [SerializeField] private Transform newParentBeforeSolvedActions;
+    [SerializeField] private bool keepWorldPositionWhenReparenting = true;
+
     public GameObject[] activateOnSolved;
     public GameObject[] deactivateOnSolved;
     public Interactable clueSource;
     public int clueIndex = -1;
+    [Tooltip("Enable only on the ground-floor crime-scene puzzle.")]
+    [SerializeField] private bool completeCrimeSceneObjectiveOnSolved;
     public UnityEvent onSolved;
 
     public bool IsSolved { get; private set; }
@@ -254,6 +263,8 @@ public class DetectiveSequencePuzzle : MonoBehaviour
 
         IsSolved = true;
 
+        ReparentBeforeSolvedActions();
+
         foreach (GameObject target in activateOnSolved)
         {
             if (target != null)
@@ -269,8 +280,24 @@ public class DetectiveSequencePuzzle : MonoBehaviour
         if (clueSource != null && clueIndex >= 0)
             clueSource.AddClue(clueIndex);
 
+        if (completeCrimeSceneObjectiveOnSolved)
+            CluesLog.Instance?.CompleteCrimeSceneInvestigation();
+
         ShowTopText(solvedTitle, solvedDescription);
         onSolved?.Invoke();
+    }
+
+    private void ReparentBeforeSolvedActions()
+    {
+        if (objectToReparentBeforeSolvedActions == null || newParentBeforeSolvedActions == null)
+            return;
+
+        if (objectToReparentBeforeSolvedActions.parent != newParentBeforeSolvedActions)
+        {
+            objectToReparentBeforeSolvedActions.SetParent(
+                newParentBeforeSolvedActions,
+                keepWorldPositionWhenReparenting);
+        }
     }
 
     private void ShowTopText(string title, string description)

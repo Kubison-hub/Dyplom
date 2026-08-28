@@ -67,6 +67,9 @@ public class WatsonCompanionController : MonoBehaviour
     private Interactable lastVisitedTarget;
     private bool hasIsThinkingParameter;
 
+    public bool IsResolvingInteractionApproach =>
+        isWaitingForReactionRotation || isWaitingForFocusApproach || isMovingToFocusPosition;
+
     private enum IdleRoutineState
     {
         None,

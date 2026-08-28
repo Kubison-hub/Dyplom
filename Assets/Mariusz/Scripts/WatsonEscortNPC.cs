@@ -32,6 +32,8 @@ public class WatsonEscortNPC : MonoBehaviour
     [SerializeField] private Lvl3DialogueLine[] sherlockActiveFarewellDialogueLines;
 
     [Header("Dialogue")]
+    [Tooltip("Optional legacy Selma dialogue interaction on a separate collider. Leave empty for NPCs such as Violet that keep dialogue on the same object.")]
+    [SerializeField] private Int_SelmaDialog linkedSelmaDialogue;
     [SerializeField] private Lvl3DialogueLine[] approachDialogueLines;
     [SerializeField] private Lvl3DialogueLine[] destinationDialogueLines;
     [SerializeField] private Lvl3DialogueLine[] farewellDialogueLines;
@@ -68,6 +70,7 @@ public class WatsonEscortNPC : MonoBehaviour
     public bool UseGlobalInfluencePointsWhenListEmpty => useGlobalInfluencePointsWhenListEmpty;
     public float SherlockActiveFarewellDelay => sherlockActiveFarewellDelay;
     public float EscortRangeOverride => escortRangeOverride;
+    public Int_SelmaDialog LinkedSelmaDialogue => linkedSelmaDialogue;
 
     private void Awake()
     {

@@ -24,6 +24,11 @@ public class Int_lv3_Clock : Lvl3ClockworkInteraction
     [SerializeField] private AudioClip firstInteractionAudio;
     [SerializeField] private DetectiveIdeaPoint brickClockIdeaPoint;
 
+    [Header("First Interaction Camera")]
+    [Tooltip("Optional. If empty, uses the currently active character camera.")]
+    [SerializeField] private CameraController cameraController;
+    [SerializeField, Min(0.01f)] private float narrowTransitionSmoothSpeed = 0.5f;
+
     [Header("Feedback")]
     [SerializeField] private AudioSource tickAudioSource;
     [SerializeField] private AudioSource correctTimeAudioSource;
@@ -69,6 +74,7 @@ public class Int_lv3_Clock : Lvl3ClockworkInteraction
         if (!hasBeenExamined)
         {
             hasBeenExamined = true;
+            GetCameraController()?.SetZoomPreset("Narrow", narrowTransitionSmoothSpeed);
             ShowTopText(firstInteractionText);
 
             if (sherlockVoiceSource != null && firstInteractionAudio != null)
@@ -152,5 +158,21 @@ public class Int_lv3_Clock : Lvl3ClockworkInteraction
     private void UpdateCorrectHourDebugState()
     {
         isCorrectHourDebug = currentHour == correctHour;
+    }
+
+    private CameraController GetCameraController()
+    {
+        if (cameraController != null)
+            return cameraController;
+
+        if (SwitchCharacter.Instance == null || SwitchCharacter.Instance.playersCamera == null)
+            return null;
+
+        int activePlayerIndex = SwitchCharacter.Instance.activePlayerIndex;
+        if (activePlayerIndex < 0 || activePlayerIndex >= SwitchCharacter.Instance.playersCamera.Length)
+            return null;
+
+        return SwitchCharacter.Instance.playersCamera[activePlayerIndex]
+            .GetComponent<CameraController>();
     }
 }

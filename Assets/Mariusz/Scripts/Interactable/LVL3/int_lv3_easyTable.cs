@@ -50,6 +50,12 @@ public class int_lv3_easyTable : MonoBehaviour
     [SerializeField] private string openTriggerName = "Open";
     [SerializeField] private string openedBoolName = "Opened";
 
+    [Header("Reparent Before Door Opens")]
+    [Tooltip("Optional object moved under New Parent immediately before the door opens.")]
+    [SerializeField] private Transform objectToReparentBeforeDoorOpens;
+    [SerializeField] private Transform newParentBeforeDoorOpens;
+    [SerializeField] private bool keepWorldPositionWhenReparenting = true;
+
     [Header("Narration")]
     [SerializeField, TextArea] private string missingFiguresText = "Czegoś brakuje.";
 
@@ -236,6 +242,7 @@ public class int_lv3_easyTable : MonoBehaviour
             yield return new WaitForSeconds(figureAnimationDuration);
 
         RevealCompletedRoom();
+        ReparentObjectBeforeDoorOpens();
         OpenSecretDoor();
         AddCompletedPuzzleNotebookNote();
         StartCoroutine(RotateCharactersAfterDoorOpens());
@@ -265,6 +272,16 @@ public class int_lv3_easyTable : MonoBehaviour
 
         prePuzzleNoteAdded = true;
         interactable.AddNote(prePuzzleNoteIndex);
+    }
+
+    private void ReparentObjectBeforeDoorOpens()
+    {
+        if (objectToReparentBeforeDoorOpens == null || newParentBeforeDoorOpens == null)
+            return;
+
+        objectToReparentBeforeDoorOpens.SetParent(
+            newParentBeforeDoorOpens,
+            keepWorldPositionWhenReparenting);
     }
 
     private void AddCompletedPuzzleNotebookNote()

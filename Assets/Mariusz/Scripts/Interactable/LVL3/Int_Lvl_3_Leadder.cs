@@ -24,6 +24,8 @@ public class Int_Lvl_3_Leadder : Lvl3InteractionDialogueBase
     [SerializeField] private Int_SetupLastPoints setupLastPoints;
     [Tooltip("Objects activated after Sherlock, Watson and Ethel reach the upper floor.")]
     [SerializeField] private GameObject[] activateAfterTeleport;
+    [Tooltip("Objects disabled when Sherlock, Watson and Ethel leave the basement.")]
+    [SerializeField] private GameObject[] deactivateAfterTeleport;
     [Tooltip("Activated after the group teleports upstairs. Use Int_lv4_EthelRun on this GameObject.")]
     [SerializeField] private GameObject ethelRunAfterTeleport;
 
@@ -67,6 +69,7 @@ public class Int_Lvl_3_Leadder : Lvl3InteractionDialogueBase
 
         interactingPlayer.CancelInteractionForTeleport();
         SetObjectsActive(activateAfterTeleport);
+        SetObjectsInactive(deactivateAfterTeleport);
 
         if (basementExposureController == null)
             basementExposureController = FindFirstObjectByType<BasementExposureController>();
@@ -84,6 +87,7 @@ public class Int_Lvl_3_Leadder : Lvl3InteractionDialogueBase
 
         setupLastPoints?.PerformInteraction(interactingPlayer);
         ethelRunAfterTeleport?.SetActive(true);
+        CluesLog.Instance?.ReplaceFindEthelWithSessionConfrontation();
 
         teleportQueued = false;
     }
@@ -97,6 +101,18 @@ public class Int_Lvl_3_Leadder : Lvl3InteractionDialogueBase
         {
             if (target != null)
                 target.SetActive(true);
+        }
+    }
+
+    private static void SetObjectsInactive(GameObject[] objectsToDeactivate)
+    {
+        if (objectsToDeactivate == null)
+            return;
+
+        foreach (GameObject target in objectsToDeactivate)
+        {
+            if (target != null)
+                target.SetActive(false);
         }
     }
 

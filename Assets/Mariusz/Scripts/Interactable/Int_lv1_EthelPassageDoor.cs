@@ -48,6 +48,7 @@ public class Int_lv1_EthelPassageDoor : Lvl3InteractionDialogueBase
         {
             hasBeenUsed = true;
             ActivateStairsGoal();
+            CluesLog.Instance?.AddFindEthelObjective();
             PlayDialogue(player, firstPassageDialogueLines);
             nextInteraction.SetActive(true);
             return;

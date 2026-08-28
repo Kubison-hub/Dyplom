@@ -148,7 +148,12 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
         {
             elapsed += Time.deltaTime;
             float progress = Mathf.SmoothStep(0f, 1f, elapsed / mannequinRotationDuration);
-            target.localRotation = Quaternion.SlerpUnclamped(startRotation, endRotation, progress);
+            // A 360-degree target has the same quaternion as the start rotation,
+            // so Slerp would show no movement. Build the local Y turn directly.
+            target.localRotation = startRotation * Quaternion.Euler(
+                0f,
+                mannequinLocalYRotation * progress,
+                0f);
             yield return null;
         }
 

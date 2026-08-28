@@ -17,6 +17,7 @@ public class TutorialPopupWindow : MonoBehaviour
 
     public void Configure(string title, string content, VideoClip videoClip)
     {
+        PlayerTopText.Instance?.ClearAllTopText();
         openedAtUnscaledTime = Time.unscaledTime;
 
         if (titleText != null)

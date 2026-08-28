@@ -1,4 +1,5 @@
 using System.Collections;
+using DialogueEditor;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -21,8 +22,10 @@ public class Int_lv3_Ethel : MonoBehaviour
     [SerializeField] private string isRunningParameter = "IsRunning";
 
     [Header("Ethel Dialogue")]
+    [Tooltip("Optional Dialogue Editor conversation started before Ethel begins moving.")]
+    [SerializeField] private SmartNPC ethelSmartNPC;
     [TextArea]
-    [SerializeField] private string firstInteractionText = "Chodźcie za mną.";
+    [SerializeField] private string firstInteractionText = "ChodĹşcie za mnÄ….";
     [SerializeField] private AudioSource ethelVoiceSource;
     [SerializeField] private AudioClip firstInteractionAudio;
     [SerializeField, Min(0.1f)] private float dialogueDuration = 2.5f;
@@ -30,7 +33,7 @@ public class Int_lv3_Ethel : MonoBehaviour
     [Header("After Opening The Door")]
     [SerializeField, Min(0f)] private float doorOpenWaitDuration = 1.5f;
     [TextArea]
-    [SerializeField] private string afterDoorText = "T�dy!";
+    [SerializeField] private string afterDoorText = "Tędy!";
     [SerializeField] private AudioClip afterDoorAudio;
 
     [Header("Secret Door")]
@@ -78,13 +81,60 @@ public class Int_lv3_Ethel : MonoBehaviour
             return;
 
         sequenceStarted = true;
+        CluesLog.Instance?.CompleteFindEthelObjective();
         if (interactable != null)
             interactable.isInteractableActive = false;
 
         if (player != null)
             player.currentInteractable = null;
 
-        StartCoroutine(RunEthelSequence());
+        StartCoroutine(StartConversationThenRunSequence(player));
+    }
+
+    private IEnumerator StartConversationThenRunSequence(PlayerController player)
+    {
+        // The normal Interactable companion reaction must finish first. A Dialogue
+        // Editor conversation locks both NavMesh agents and would otherwise cancel it.
+        yield return null;
+        while (interactable != null && interactable.IsCompanionReactionApproachInProgress)
+            yield return null;
+
+        StartEthelConversation(player);
+
+        // SmartNPC changes ConversationManager state on the following frame.
+        yield return null;
+        while (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
+            yield return null;
+
+        yield return RunEthelSequence();
+    }
+
+    private void StartEthelConversation(PlayerController player)
+    {
+        if (ethelSmartNPC == null)
+            return;
+
+        ethelSmartNPC.SprawdzIZacznijRozmowe();
+
+        if (player == null || ConversationManager.Instance == null || ConversationManager.Instance.IsConversationActive)
+            return;
+
+        NPCConversation conversation = player.playerCharacter == PlayerCharacter.Watson
+            ? ethelSmartNPC.rozmowaDlaPostaciB
+            : ethelSmartNPC.rozmowaDlaPostaciA;
+
+        if (conversation == null)
+        {
+            Debug.LogWarning($"{name}: Ethel has no conversation assigned for the active player.", this);
+            return;
+        }
+
+        string playerId = player.playerCharacter == PlayerCharacter.Watson ? "PlayerB" : "PlayerA";
+        QuestManager.Instance?.OdnotujRozmowe(playerId, ethelSmartNPC.npcID);
+        ConversationManager.Instance.StartConversation(conversation);
+
+        if (ethelSmartNPC.noteIDToUnlock >= 0)
+            JournalManager.Instance?.UnlockNote(ethelSmartNPC.noteIDToUnlock);
     }
 
     private IEnumerator RunEthelSequence()

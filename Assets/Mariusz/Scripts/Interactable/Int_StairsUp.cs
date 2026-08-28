@@ -233,6 +233,8 @@ public class Int_StairsUp : MonoBehaviour
         if (SwitchCharacter.Instance != null)
             SwitchCharacter.Instance.canSwitch = false;
 
+        CluesLog.Instance?.RemoveCrimeSceneObjective();
+
         level_2.SetActive(true);
         yield return null;
 

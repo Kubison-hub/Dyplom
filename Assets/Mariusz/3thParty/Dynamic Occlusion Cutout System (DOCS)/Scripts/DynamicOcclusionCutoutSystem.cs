@@ -35,6 +35,7 @@ namespace PxP.DOCS
 
         [Header("Debug Settings")]
         [SerializeField] bool enableGizmos = true;
+
         
         Vector3 direction;
         Vector3 currentSpherePosition;
@@ -48,6 +49,7 @@ namespace PxP.DOCS
         {
             foreach (var mat in m_materials)
             {
+                if (mat == null) continue;
                 mat.SetVector("_Target_Position", Vector3.zero);
                 mat.SetFloat("_Radius", 0.0f);
             }
@@ -63,7 +65,6 @@ namespace PxP.DOCS
 
         void Start()
         {
-
             if (m_target == null || m_camera == null || m_materials == null || m_materials.Length == 0) return;
 
             currentSpherePosition = m_target.position;
@@ -74,22 +75,23 @@ namespace PxP.DOCS
         {
             if (m_target == null || m_camera == null || m_materials == null || m_materials.Length == 0)
             {
-                
                 this.enabled = false;
                 return;
             }
 
             Vector3 targetPosition = m_target.position + (Vector3.up * targetHeightCorrection);
             direction = m_camera.transform.position - targetPosition;
+            float cameraDistance = direction.magnitude;
+            Vector3 cameraDirection = cameraDistance > Mathf.Epsilon ? direction / cameraDistance : Vector3.zero;
 
-            if (Physics.SphereCast(targetPosition, radius, direction, out RaycastHit hitInfo))
+            if (cameraDistance > Mathf.Epsilon && Physics.SphereCast(targetPosition, radius, cameraDirection, out RaycastHit hitInfo, cameraDistance))
             {
                 if (!isHitting)
                 {
                     isHitting = true;
                     currentLerpTime = 0.0f;
-                    
                 }
+
                 this.targetPosition = hitInfo.point;
                 targetMaskRadius = maskRadius;
             }
@@ -99,8 +101,8 @@ namespace PxP.DOCS
                 {
                     isHitting = false;
                     currentLerpTime = 0.0f;
-                    
                 }
+
                 this.targetPosition = targetPosition;
                 targetMaskRadius = 0.0f;
             }
@@ -111,11 +113,10 @@ namespace PxP.DOCS
 
             foreach (var mat in m_materials)
             {
+                if (mat == null) continue;
                 mat.SetVector("_Target_Position", currentSpherePosition);
                 mat.SetFloat("_Radius", currentMaskRadius);
             }
-
-            
         }
 
         private void OnDrawGizmosSelected()
@@ -135,7 +136,7 @@ namespace PxP.DOCS
             Gizmos.DrawLine(origin + Vector3.right * radius, end + Vector3.right * radius);
             Gizmos.DrawLine(origin + Vector3.left * radius, end + Vector3.left * radius);
 
-            if (Physics.SphereCast(origin, radius, dir, out RaycastHit hit, 50.0f))
+            if (Physics.SphereCast(origin, radius, dir, out RaycastHit hit, Vector3.Distance(origin, end)))
             {
                 Gizmos.color = Color.red;
                 Gizmos.DrawWireSphere(hit.point, radius);

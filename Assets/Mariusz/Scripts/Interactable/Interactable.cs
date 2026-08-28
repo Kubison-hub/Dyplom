@@ -93,6 +93,19 @@ public class Interactable : MonoBehaviour
     private bool interactionShaderHovered;
     private bool interactionShaderForcedVisible;
     private Coroutine sherlockInteractionFocusCoroutine;
+    private bool sherlockReactionApproachInProgress;
+
+    public bool IsCompanionReactionApproachInProgress
+    {
+        get
+        {
+            if (sherlockReactionApproachInProgress)
+                return true;
+
+            return WatsonCompanionController.Instance != null &&
+                   WatsonCompanionController.Instance.IsResolvingInteractionApproach;
+        }
+    }
 
     public bool isFootPrintInteraction = false;
     public bool isNearPlayer;
@@ -226,12 +239,30 @@ public class Interactable : MonoBehaviour
         Int_WatsonSwitchTutorial watsonSwitchTutorial = GetComponent<Int_WatsonSwitchTutorial>();
         watsonSwitchTutorial?.NotifyInteractionSelected(player);
 
+        Int_SelmaDialog selmaDialogue = GetComponent<Int_SelmaDialog>();
+        bool clickedSelmaDialogueMarker = selmaDialogue != null;
+
         WatsonEscortNPC escortNpc = GetComponent<WatsonEscortNPC>();
+        if (escortNpc == null && selmaDialogue != null)
+            escortNpc = selmaDialogue.LinkedEscortNpc;
+
         if (escortNpc != null && escortNpc.CanBeEscortedBy(player))
         {
             WatsonEscortController escortController = player.GetComponent<WatsonEscortController>();
             if (escortController != null && escortController.TryStartEscort(escortNpc, player))
                 return;
+        }
+
+        // Selma uses a legacy setup with separate dialogue and escort colliders.
+        // A normal click on either collider is redirected to the dialogue marker,
+        // so the active character still walks to its Interaction Point first.
+        if (!clickedSelmaDialogueMarker && escortNpc != null)
+            selmaDialogue = escortNpc.LinkedSelmaDialogue;
+
+        if (!clickedSelmaDialogueMarker && selmaDialogue != null && selmaDialogue.interactable != null)
+        {
+            selmaDialogue.interactable.TryToInteract(player);
+            return;
         }
 
 
@@ -1679,14 +1710,13 @@ public class Interactable : MonoBehaviour
         if (player == null)
             return false;
 
+        // The mannequin is an ordinary inspection interaction for both characters.
+        if (GetComponent<Int_lv3_Manequine>() != null)
+            return true;
+
         WatsonEscortNPC escortNpc = GetComponent<WatsonEscortNPC>();
         if (escortNpc != null)
-        {
-            bool isWatson = player.playerCharacter == PlayerCharacter.Watson ||
-                            player.CompareTag("PlayerB") ||
-                            (SwitchCharacter.Instance != null && SwitchCharacter.Instance.activePlayerIndex == 1);
-            return !isWatson || escortNpc.CanBeEscortedBy(player);
-        }
+            return true;
 
         lvl3_int_Lamp lvl3Lamp = GetComponent<lvl3_int_Lamp>();
         if (lvl3Lamp != null)
@@ -1792,8 +1822,12 @@ public class Interactable : MonoBehaviour
             return;
 
         if (sherlockInteractionFocusCoroutine != null)
+        {
             StopCoroutine(sherlockInteractionFocusCoroutine);
+            sherlockReactionApproachInProgress = false;
+        }
 
+        sherlockReactionApproachInProgress = true;
         sherlockInteractionFocusCoroutine = StartCoroutine(FocusSherlockOnInteraction(player));
     }
 
@@ -1801,7 +1835,10 @@ public class Interactable : MonoBehaviour
     {
         PlayerController sherlock = GetSherlockPlayerController();
         if (sherlock == null || sherlock.navMeshAgent == null)
+        {
+            sherlockReactionApproachInProgress = false;
             yield break;
+        }
 
         NavMeshAgent sherlockAgent = sherlock.navMeshAgent;
         float originalSpeed = sherlockAgent.speed;
@@ -1875,6 +1912,7 @@ public class Interactable : MonoBehaviour
 
         sherlockAgent.speed = originalSpeed;
         sherlockAgent.angularSpeed = originalAngularSpeed;
+        sherlockReactionApproachInProgress = false;
 
         float focusUntil = Time.time + sherlockInteractionFocusDuration;
         while (Time.time < focusUntil)
@@ -1947,41 +1985,10 @@ public class Interactable : MonoBehaviour
 
     public void AddClue(int listNumber, Transform cardPosition = null)
     {
-        if (clues == null || clues.Length == 0)
-        {
-            Debug.LogWarning($"{name}: AddClue called, but no clues are assigned.");
-            return;
-        }
-
-        if (listNumber < 0 || listNumber >= clues.Length)
-        {
-            Debug.LogError($"{name}: clue index {listNumber} is outside assigned clues range 0-{clues.Length - 1}.");
-            return;
-        }
-
-        if (clues[listNumber] == null)
-        {
-            Debug.LogError($"{name}: clue at index {listNumber} is null.");
-            return;
-        }
-
-        if (ClueManager.Instance == null)
-        {
-            Debug.LogError($"{name}: ClueManager.Instance is null.");
-            return;
-        }
-
-        if (cardPosition == null)
-            cardPosition = this.transform;
-
-        ClueManager.Instance.AddClue(clues[listNumber], cardPosition.position);
+        Debug.Log($"AddClueWyłączone: {name} (index {listNumber}).", this);
 
         if (questionVFX != null)
-        {
             questionVFX.Stop();
-            //Destroy(ClueVisualFx, 5f);
-        }
-
     }
 
     public void AddNote(int noteIndex)

@@ -1,69 +1,117 @@
-﻿using System.Text;
+using System.Text;
 using TMPro;
 using UnityEngine;
 
+/// <summary>
+/// Lightweight objective log for the current story flow. It deliberately does
+/// not depend on ClueManager, conclusions, or quest ScriptableObjects.
+/// </summary>
 public class CluesLog : MonoBehaviour
 {
     public static CluesLog Instance;
-    public TextMeshProUGUI questLogText;
 
-    private void Awake() => Instance = this;
+    [SerializeField] private TextMeshProUGUI questLogText;
+
+    [Header("Text")]
+    [SerializeField] private string title = "Kto, jak, dlaczego?";
+    [SerializeField] private string examineCrimeSceneText = "Zbadaj miejsce zbrodni";
+    [SerializeField] private string connectionsText = "Dowiedz się więcej o Powiązaniach Lady Edith";
+    [SerializeField] private string findEthelText = "Odszukaj małą Ethel";
+    [SerializeField] private string confrontSessionText = "Skonfrontuj się z uczestnikami sesji";
+
+    private bool crimeSceneCompleted;
+    private bool crimeSceneVisible = true;
+    private bool connectionsCompleted;
+    private bool connectionsVisible = true;
+    private bool findEthelVisible;
+    private bool findEthelCompleted;
+    private bool confrontSessionVisible;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Start()
     {
         UpdateLog();
     }
 
+    public void CompleteCrimeSceneInvestigation()
+    {
+        crimeSceneCompleted = true;
+        UpdateLog();
+    }
+
+    public void RemoveCrimeSceneObjective()
+    {
+        crimeSceneVisible = false;
+        UpdateLog();
+    }
+
+    public void AddFindEthelObjective()
+    {
+        findEthelVisible = true;
+        UpdateLog();
+    }
+
+    public void CompleteConnectionsObjective()
+    {
+        connectionsCompleted = true;
+        UpdateLog();
+    }
+
+    public void RemoveConnectionsObjective()
+    {
+        connectionsVisible = false;
+        UpdateLog();
+    }
+
+    public void CompleteFindEthelObjective()
+    {
+        findEthelVisible = true;
+        findEthelCompleted = true;
+        UpdateLog();
+    }
+
+    public void ReplaceFindEthelWithSessionConfrontation()
+    {
+        findEthelVisible = false;
+        confrontSessionVisible = true;
+        UpdateLog();
+    }
+
     public void UpdateLog()
     {
-        if (questLogText == null) return;
-
-        var manager = ClueManager.Instance;
-        if (manager == null || manager.activeQuests == null)
-        {
-            questLogText.text = "";
+        if (questLogText == null)
             return;
-        }
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
+        builder.AppendLine($"<size=120%><u>{title}</u></size>");
 
-        foreach (var quest in manager.activeQuests)
-        {
-            if (quest == null) continue;
+        if (crimeSceneVisible)
+            AppendObjective(builder, examineCrimeSceneText, true, crimeSceneCompleted);
 
-            sb.AppendLine($"<size=120%><u>{quest.displayName}</u></size>");
+        if (connectionsVisible)
+            AppendObjective(builder, connectionsText, true, connectionsCompleted);
 
-            foreach (var reqQC in quest.requiredQuestConclusions)
-            {
-                if (reqQC == null) continue;
+        if (findEthelVisible)
+            AppendObjective(builder, findEthelText, true, findEthelCompleted);
 
-                bool isQCFinished = manager.collectedQuestConclusions.Contains(reqQC);
+        if (confrontSessionVisible)
+            AppendObjective(builder, confrontSessionText, false, false);
 
-                string qcStatus = isQCFinished ? "<s>" : "";
-                string qcEndStatus = isQCFinished ? "</s>" : "";
+        questLogText.text = builder.ToString();
+    }
 
-                sb.AppendLine($" • {qcStatus}{reqQC.questDescription}{qcEndStatus}");
+    private static void AppendObjective(StringBuilder builder, string text, bool canComplete, bool completed)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return;
 
-                if (isQCFinished)
-                {
-                    sb.AppendLine($"    <size=90%>{reqQC.shortDescription}</size>");
-                }
-                else
-                {
-                    if (reqQC.requiredConclusions == null) continue;
-
-                    foreach (var conclusion in reqQC.requiredConclusions)
-                    {
-                        if (conclusion != null && manager.collectedConclusions.Contains(conclusion))
-                        {
-                            sb.AppendLine($"    <size=90%>└ {conclusion.displayName}</size>");
-                        }
-                    }
-                }
-            }
-            sb.AppendLine();
-        }
-
-        questLogText.text = sb.ToString();
+        if (canComplete && completed)
+            builder.AppendLine($" • \u2713 <s>{text}</s>");
+        else
+            builder.AppendLine($" • {text}");
     }
 }

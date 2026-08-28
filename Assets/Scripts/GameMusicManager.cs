@@ -4,18 +4,21 @@ using UnityEngine;
 public class GameMusicManager : MonoBehaviour
 {
     [Header("Playlista")]
-    [Tooltip("Przeci¹gnij tutaj swoje 3 utwory (lub wiêcej)")]
+    [Tooltip("PrzeciÄ…gnij tutaj swoje 3 utwory (lub wiÄ™cej)")]
     public AudioClip[] utwory;
 
     private AudioSource audioSource;
     private int aktualnyIndeks = 0;
+    private bool trackWasPlaying;
+    private float lastPlaybackTime;
+    private const float TrackEndTolerance = 0.1f;
 
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
 
-        // Wa¿ne: Wy³¹czamy domyœlne zapêtlanie pojedynczego utworu,
-        // bo chcemy zapêtlaæ ca³¹ playlistê, a nie jeden plik.
+        // WaÅ¼ne: WyÅ‚Ä…czamy domyÅ›lne zapÄ™tlanie pojedynczego utworu,
+        // bo chcemy zapÄ™tlaÄ‡ caÅ‚Ä… playlistÄ™, a nie jeden plik.
         audioSource.loop = false;
 
         GrajKolejnyUtwor();
@@ -23,11 +26,29 @@ public class GameMusicManager : MonoBehaviour
 
     void Update()
     {
-        // Sprawdzamy, czy muzyka przesta³a graæ
-        if (!audioSource.isPlaying && utwory.Length > 0)
+        if (audioSource == null || utwory == null || utwory.Length == 0)
+            return;
+
+        // AudioSource reports isPlaying as false while AudioListener is paused.
+        // That must not be interpreted as the end of the current playlist track.
+        if (AudioListener.pause)
+            return;
+
+        if (audioSource.isPlaying)
         {
-            GrajKolejnyUtwor();
+            trackWasPlaying = true;
+            lastPlaybackTime = audioSource.time;
+            return;
         }
+
+        if (!trackWasPlaying || audioSource.loop || audioSource.clip == null)
+            return;
+
+        bool trackFinished = lastPlaybackTime >= audioSource.clip.length - TrackEndTolerance;
+        if (!trackFinished)
+            return;
+
+        GrajKolejnyUtwor();
     }
 
     private void GrajKolejnyUtwor()
@@ -39,18 +60,20 @@ public class GameMusicManager : MonoBehaviour
         // Ustawiamy klip w AudioSource na ten z obecnego indeksu
         audioSource.clip = utwory[aktualnyIndeks];
         audioSource.Play();
+        trackWasPlaying = false;
+        lastPlaybackTime = 0f;
 
         // Przesuwamy indeks do przodu
         aktualnyIndeks++;
 
-        // Jeœli wyszliœmy poza listê utworów, wracamy na pocz¹tek (indeks 0)
+        // JeÅ›li wyszliÅ›my poza listÄ™ utworÃ³w, wracamy na poczÄ…tek (indeks 0)
         if (aktualnyIndeks >= utwory.Length)
         {
             aktualnyIndeks = 0;
         }
     }
 
-    // Odtwarza wybrany utwór. Gdy loop jest wylaczone, playlista wznawia sie po jego zakonczeniu.
+    // Odtwarza wybrany utwÃ³r. Gdy loop jest wylaczone, playlista wznawia sie po jego zakonczeniu.
     public void ChangeMusic(AudioClip newTrack, bool loop = false)
     {
         if (newTrack == null)
@@ -63,13 +86,17 @@ public class GameMusicManager : MonoBehaviour
         audioSource.clip = newTrack;
         audioSource.loop = loop;
         audioSource.Play();
+        trackWasPlaying = false;
+        lastPlaybackTime = 0f;
     }
-    // Tê funkcjê wykorzystamy w przysz³oœci do zmiany muzyki na konkretn¹ (system warunkowy)
+    // TÄ™ funkcjÄ™ wykorzystamy w przyszÅ‚oÅ›ci do zmiany muzyki na konkretnÄ… (system warunkowy)
     public void ZmienUtworWymuszenie(AudioClip nowyUtwor)
     {
         audioSource.Stop();
         audioSource.clip = nowyUtwor;
         audioSource.Play();
-        audioSource.loop = true; // Wtedy pewnie bêdziemy chcieli go zapêtliæ
+        audioSource.loop = true; // Wtedy pewnie bÄ™dziemy chcieli go zapÄ™tliÄ‡
+        trackWasPlaying = false;
+        lastPlaybackTime = 0f;
     }
 }
