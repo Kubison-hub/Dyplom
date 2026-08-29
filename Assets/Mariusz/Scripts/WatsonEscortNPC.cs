@@ -16,6 +16,13 @@ public class WatsonEscortNPC : MonoBehaviour
     [Tooltip("Visible model or rig that should rotate toward Watson. Leave empty to rotate this NPC root.")]
     [SerializeField] private Transform rotationTarget;
 
+    [Header("Upper Body Layer")]
+    [Tooltip("Layer with the UpperBody Avatar Mask. It is active while this NPC is idle.")]
+    [SerializeField] private bool controlUpperBodyLayer = true;
+    [SerializeField, Min(0)] private int upperBodyLayerIndex = 1;
+    [SerializeField, Range(0f, 1f)] private float upperBodyIdleWeight = 1f;
+    [SerializeField, Min(0.01f)] private float upperBodyLayerWeightLerpSpeed = 4f;
+
     [Header("Escort Range")]
     [Tooltip("Maximum distance Watson may escort this NPC. Set to 0 to use Max Escort Range from Watson Escort Controller.")]
     [SerializeField, Min(0f)] private float escortRangeOverride;
@@ -59,6 +66,7 @@ public class WatsonEscortNPC : MonoBehaviour
     private Coroutine dialogueCoroutine;
     private Coroutine returnToRootCoroutine;
     private float defaultSpeed;
+    private bool isWalkingAnimationActive;
 
     public NavMeshAgent Agent => navMeshAgent;
     public bool IsReadyForEscort { get; private set; }
@@ -99,8 +107,10 @@ public class WatsonEscortNPC : MonoBehaviour
             interactable?.SetInteractionShaderForcedVisible(visionShaderVisible);
         }
 
-        if (animator != null && HasAnimatorBool("IsWalking"))
-            animator.SetBool("IsWalking", navMeshAgent != null && navMeshAgent.velocity.sqrMagnitude > 0.01f);
+        if (animator == null)
+            return;
+
+        UpdateUpperBodyLayerWeight(isWalkingAnimationActive);
     }
 
     private void OnDisable()
@@ -138,6 +148,7 @@ public class WatsonEscortNPC : MonoBehaviour
         navMeshAgent.updateRotation = true;
         navMeshAgent.isStopped = false;
         navMeshAgent.SetDestination(hit.position);
+        SetWalkingAnimation(true);
         return true;
     }
 
@@ -154,6 +165,7 @@ public class WatsonEscortNPC : MonoBehaviour
         {
             navMeshAgent.isStopped = true;
             navMeshAgent.ResetPath();
+            SetWalkingAnimation(false);
         }
     }
 
@@ -299,6 +311,7 @@ public class WatsonEscortNPC : MonoBehaviour
         navMeshAgent.updateRotation = true;
         navMeshAgent.isStopped = false;
         navMeshAgent.SetDestination(rootDestination);
+        SetWalkingAnimation(true);
 
         while (!HasReachedDestination())
             yield return null;
@@ -386,5 +399,30 @@ public class WatsonEscortNPC : MonoBehaviour
         }
 
         return false;
+    }
+
+    private void SetWalkingAnimation(bool isWalking)
+    {
+        isWalkingAnimationActive = isWalking;
+
+        if (animator != null && HasAnimatorBool("IsWalking"))
+            animator.SetBool("IsWalking", isWalking);
+    }
+
+    private void UpdateUpperBodyLayerWeight(bool isWalking)
+    {
+        if (!controlUpperBodyLayer || animator.runtimeAnimatorController == null ||
+            upperBodyLayerIndex < 0 || upperBodyLayerIndex >= animator.layerCount)
+        {
+            return;
+        }
+
+        float targetWeight = isWalking ? 0f : upperBodyIdleWeight;
+        float nextWeight = Mathf.MoveTowards(
+            animator.GetLayerWeight(upperBodyLayerIndex),
+            targetWeight,
+            upperBodyLayerWeightLerpSpeed * Time.deltaTime);
+
+        animator.SetLayerWeight(upperBodyLayerIndex, nextWeight);
     }
 }
