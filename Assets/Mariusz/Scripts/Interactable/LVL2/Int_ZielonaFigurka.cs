@@ -1,34 +1,63 @@
 using UnityEngine;
 
-public class Int_ZielonaFigurka : MonoBehaviour
+public class Int_ZielonaFigurka : Lvl3InteractionDialogueBase
 {
 
     public ItemType itemType;
-    public bool performed = false;
+    private bool collected;
     [SerializeField] private Sprite inventoryIcon;
-   
+
+    [Header("Pickup Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] pickupDialogue =
+    {
+        new Lvl3DialogueLine { speaker = Lvl3DialogueSpeaker.Sherlock, text = "Ciekawe. Zielona figurka.", duration = 2f }
+    };
+    [SerializeField] private Lvl3DialogueLine[] noSpaceDialogue =
+    {
+        new Lvl3DialogueLine { speaker = Lvl3DialogueSpeaker.Sherlock, text = "Nie mam miejsca w ekwipunku.", duration = 2f }
+    };
+
+    private bool destroyAfterDialogue;
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => pickupDialogue;
 
     public void PerformInteraction(PlayerController player)
     {
-        // 1. Dodaj do ekwipunku
-        if (InventoryManager.Instance != null && !performed)
-        {
-            if (!InventoryManager.Instance.TryAddItem(itemType, inventoryIcon))
-            {
-                PlayerTopText.Instance?.ShowTopText("Nie mam miejsca w ekwipunku.");
-                return;
-            }
+        if (collected)
+            return;
 
-            performed = true;
-            PlayerTopText.Instance.ShowTopText("Ciekawe. Zielona Figurka");
-            
-        }
-        else
+        if (InventoryManager.Instance == null || !InventoryManager.Instance.TryAddItem(itemType, inventoryIcon))
         {
-            //Debug.LogError("B£¥D: Brak InventoryManager na scenie!");
+            PlayDialogue(player, noSpaceDialogue);
+            return;
         }
 
-        // 2. Usuñ obiekt ze sceny
-        Destroy(gameObject);
+        collected = true;
+        HideCollectedFigure();
+        destroyAfterDialogue = true;
+        PlayDialogue(player, pickupDialogue);
+    }
+
+    protected override void OnDialogueSequenceCompleted(Lvl3DialogueLine[] lines)
+    {
+        if (destroyAfterDialogue && lines == pickupDialogue)
+            Destroy(gameObject);
+    }
+
+    private void HideCollectedFigure()
+    {
+        Interactable interactable = GetComponent<Interactable>();
+        if (interactable != null)
+        {
+            interactable.isInteractableActive = false;
+            interactable.allowQuestionFXWhenInactive = false;
+            interactable.SetQuestionFXEagleVisionState(false);
+            interactable.interactiveShader = null;
+        }
+
+        foreach (Renderer renderer in GetComponentsInChildren<Renderer>(true))
+            renderer.enabled = false;
+
+        foreach (Collider collider in GetComponentsInChildren<Collider>(true))
+            collider.enabled = false;
     }
 }

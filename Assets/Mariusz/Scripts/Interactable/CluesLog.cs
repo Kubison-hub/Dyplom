@@ -110,7 +110,7 @@ public class CluesLog : MonoBehaviour
             return;
 
         if (canComplete && completed)
-            builder.AppendLine($" • \u2713 <s>{text}</s>");
+            builder.AppendLine($" • <s>{text}</s>");
         else
             builder.AppendLine($" • {text}");
     }

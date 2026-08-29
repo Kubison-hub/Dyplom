@@ -4,7 +4,7 @@ using UnityEngine.AI;
 using UnityEngine.Serialization;
 
 [RequireComponent(typeof(Interactable))]
-public class int_lv3_easyTable : MonoBehaviour
+public class int_lv3_easyTable : Lvl3InteractionDialogueBase
 {
     [Header("Table Figure Points")]
     [SerializeField] private Transform greenFigurePoint;
@@ -56,8 +56,26 @@ public class int_lv3_easyTable : MonoBehaviour
     [SerializeField] private Transform newParentBeforeDoorOpens;
     [SerializeField] private bool keepWorldPositionWhenReparenting = true;
 
-    [Header("Narration")]
-    [SerializeField, TextArea] private string missingFiguresText = "Czegoś brakuje.";
+    [Header("Table Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] missingFiguresDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Czegoś brakuje.",
+            duration = 2f
+        }
+    };
+    [SerializeField] private Lvl3DialogueLine[] figurePlacedDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Jedna z figurek znalazła swoje miejsce.",
+            duration = 2f
+        }
+    };
+    [SerializeField] private Lvl3DialogueLine[] completionDialogue;
 
     [Header("Notebook Notes")]
     [SerializeField] private int prePuzzleNoteIndex = 0;
@@ -78,6 +96,8 @@ public class int_lv3_easyTable : MonoBehaviour
     private MaterialPropertyBlock backgroundPropertyBlock;
     private bool prePuzzleNoteAdded;
     public bool Opened { get; private set; }
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => missingFiguresDialogue;
 
     private struct BackgroundMaterialTarget
     {
@@ -126,20 +146,37 @@ public class int_lv3_easyTable : MonoBehaviour
                 ref blueFigurePlaced);
         }
 
-        if (!placedAnyFigure && !HasAnyUnplacedFigureInInventory())
+        if (placedAnyFigure)
         {
-            if (PlayerTopText.Instance != null)
-                PlayerTopText.Instance.ShowTopText(missingFiguresText, "");
+            if (AllFiguresPlaced())
+            {
+                completed = true;
+                StartCoroutine(PlayPlacementDialogueThenComplete(player));
+            }
+            else
+            {
+                PlayDialogue(player, figurePlacedDialogue);
+            }
         }
-
-        if (AllFiguresPlaced() && !completed)
+        else if (!HasAnyUnplacedFigureInInventory())
         {
-            completed = true;
-            StartCoroutine(CompleteInteractionSequence());
+            PlayDialogue(player, missingFiguresDialogue);
         }
 
         if (player != null)
             player.currentInteractable = null;
+    }
+
+    private IEnumerator PlayPlacementDialogueThenComplete(PlayerController player)
+    {
+        if (figurePlacedDialogue != null && figurePlacedDialogue.Length > 0)
+        {
+            PlayDialogue(player, figurePlacedDialogue);
+            while (IsDialoguePlaying)
+                yield return null;
+        }
+
+        yield return CompleteInteractionSequence();
     }
 
     private bool TryPlaceFigure(
@@ -244,6 +281,7 @@ public class int_lv3_easyTable : MonoBehaviour
         RevealCompletedRoom();
         ReparentObjectBeforeDoorOpens();
         OpenSecretDoor();
+        PlayDialogue(null, completionDialogue);
         AddCompletedPuzzleNotebookNote();
         StartCoroutine(RotateCharactersAfterDoorOpens());
         cameraController?.SetZoomState(CameraZoomState.Medium);

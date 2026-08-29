@@ -57,9 +57,7 @@ public class int_Globus_Button : MonoBehaviour, IVioletRoomInteractionGate
 
         globe?.DeactivateGlobeInteraction();
 
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText("Aha, przycisk skrywa tajemnice.", "");
-
+        
         if (interactable != null)
         {
             interactable.interactiveShader = null;

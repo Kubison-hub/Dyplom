@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class int_LibraryPainting : MonoBehaviour
+public class int_LibraryPainting : Lvl3InteractionDialogueBase
 {
 
     private Interactable interactable;
@@ -14,6 +14,20 @@ public class int_LibraryPainting : MonoBehaviour
     public float pushDuration = 1f;
     public float targetX = -16.8f;
     private Coroutine moveCoroutine;
+    private bool paintingPushed;
+
+    [Header("Inspection Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] inspectionDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Za tym obrazem na pewno znajduje siÄ™ jakaÅ› skrytka...",
+            duration = 3f
+        }
+    };
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => inspectionDialogue;
 
 
     private void Start()
@@ -30,8 +44,8 @@ public class int_LibraryPainting : MonoBehaviour
     {
         cameraController?.SetZoomPreset("Narrow", cameraTransitionSpeed);
 
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText("Za tym obrazem na pewno znajduje siê jakaœ skrytka...", "");
+        if (!paintingPushed)
+            PlayDialogue(player, inspectionDialogue);
 
         if (player != null)
             player.currentInteractable = null;
@@ -40,6 +54,7 @@ public class int_LibraryPainting : MonoBehaviour
 
     public void PushPainting()
     {
+        paintingPushed = true;
         MovePaintingToX(targetX);
     }
 

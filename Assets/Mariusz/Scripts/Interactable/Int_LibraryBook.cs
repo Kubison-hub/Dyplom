@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Interactable))]
-public class Int_LibraryBook : MonoBehaviour, IVioletRoomInteractionGate
+public class Int_LibraryBook : Lvl3InteractionDialogueBase, IVioletRoomInteractionGate
 {
     private Interactable interactable;
     public bool performed;
@@ -10,6 +10,17 @@ public class Int_LibraryBook : MonoBehaviour, IVioletRoomInteractionGate
     [SerializeField] private AudioSource useAudio;
     [SerializeField, Min(0f)] private float audioCooldown = 0.45f;
     private float nextAudioTime;
+
+    [Header("Book Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] bookDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "137, otwarta książka na 137 stronie.",
+            duration = 3f
+        }
+    };
 
     [Header("Violet Gate")]
     [SerializeField] private Int_VioletDialog violetDialog;
@@ -38,6 +49,8 @@ public class Int_LibraryBook : MonoBehaviour, IVioletRoomInteractionGate
     private bool isWalkingToWaitPoint;
     private bool firstVioletGateTriggered;
 
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => bookDialogue;
+
     private void Start()
     {
         interactable = GetComponent<Interactable>();
@@ -56,8 +69,7 @@ public class Int_LibraryBook : MonoBehaviour, IVioletRoomInteractionGate
             nextAudioTime = Time.time + audioCooldown;
         }
 
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText("137, otwarta książka na 137 stronie.", "");
+        PlayDialogue(player, bookDialogue);
 
         if (player != null)
             player.currentInteractable = null;

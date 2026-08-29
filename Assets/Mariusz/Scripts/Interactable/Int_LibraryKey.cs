@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Interactable))]
-public class Int_LibraryKey : MonoBehaviour
+public class Int_LibraryKey : Lvl3InteractionDialogueBase
 {
     private Interactable interactable;
 
@@ -9,7 +9,20 @@ public class Int_LibraryKey : MonoBehaviour
     [SerializeField] private Renderer keyRenderer;
     [SerializeField] private AudioSource pickupAudio;
 
+    [Header("Key Pickup Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] keyPickupDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "I jest kluczyk, jakie to proste...",
+            duration = 3f
+        }
+    };
+
     public bool performed;
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => keyPickupDialogue;
 
     private void Start()
     {
@@ -34,8 +47,7 @@ public class Int_LibraryKey : MonoBehaviour
 
         MagnifierGlassController.ForceCloseLoupeUntilKeyReleased();
 
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText("I jest kluczyk, jakie to proste...", "");
+        PlayDialogue(player, keyPickupDialogue);
 
         interactable.isInteractableActive = false;
         interactable.interactiveShader = null;

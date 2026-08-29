@@ -3,7 +3,7 @@ using System.Collections;
 using Unity.Cinemachine;
 using UnityEngine;
 
-public class Int_SelmaDialog : MonoBehaviour
+public class Int_SelmaDialog : Lvl3InteractionDialogueBase
 {
     public SmartNPC smartNPC;
     public Interactable interactable;
@@ -18,7 +18,13 @@ public class Int_SelmaDialog : MonoBehaviour
     [SerializeField, Min(1f)] private float facePlayerTurnSpeed = 360f;
     [SerializeField, Min(0.1f)] private float facePlayerTolerance = 1f;
 
+    [Header("Intro Dialogue")]
+    [Tooltip("Played after Selma faces the player and before the SmartNPC conversation begins.")]
+    [SerializeField] private Lvl3DialogueLine[] introDialogue;
+
     private bool dialogueStarting;
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => introDialogue;
 
     public WatsonEscortNPC LinkedEscortNpc => smartNPC != null
         ? smartNPC.GetComponent<WatsonEscortNPC>()
@@ -73,6 +79,13 @@ public class Int_SelmaDialog : MonoBehaviour
                 player != null ? player.transform : null,
                 facePlayerTurnSpeed,
                 facePlayerTolerance);
+        }
+
+        if (introDialogue != null && introDialogue.Length > 0)
+        {
+            PlayDialogue(player, introDialogue);
+            while (IsDialoguePlaying)
+                yield return null;
         }
 
         if (smartNPC == null)

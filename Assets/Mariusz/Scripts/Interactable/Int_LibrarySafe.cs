@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Interactable))]
-public class Int_LibrarySafe : MonoBehaviour
+public class Int_LibrarySafe : Lvl3InteractionDialogueBase
 {
     private Interactable interactable;
     private Collider interactionCollider;
@@ -15,6 +15,26 @@ public class Int_LibrarySafe : MonoBehaviour
     [SerializeField] private string code = "1A4";
     [SerializeField, Min(0.1f)] private float minigameExitRange = 3f;
     [SerializeField] private Vector3 minigameExitOffset;
+
+    [Header("Safe Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] missingKeyDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Ten sejf wymaga właściwego klucza.",
+            duration = 3f
+        }
+    };
+    [SerializeField] private Lvl3DialogueLine[] keyAcceptedDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Klucz pasuje. Teraz został tylko szyfr.",
+            duration = 3f
+        }
+    };
 
     [Header("Opened Safe")]
     [SerializeField] private Animator safeAnimator;
@@ -30,6 +50,8 @@ public class Int_LibrarySafe : MonoBehaviour
     private PlayerController interactingPlayer;
     private bool hasKey;
     private bool isOpen;
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => keyAcceptedDialogue;
 
     private void Update()
     {
@@ -64,8 +86,7 @@ public class Int_LibrarySafe : MonoBehaviour
 
         if (!hasKey)
         {
-            if (PlayerTopText.Instance != null)
-                PlayerTopText.Instance.ShowTopText("Ten sejf wymaga właściwego klucza.", "");
+            PlayDialogue(player, missingKeyDialogue);
             return;
         }
 
@@ -78,8 +99,7 @@ public class Int_LibrarySafe : MonoBehaviour
         if (cameraController != null)
             cameraController.SetZoomState(CameraZoomState.Narrow);
 
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText("Klucz pasuje. Teraz zostal tylko szyfr.", "");
+        PlayDialogue(player, keyAcceptedDialogue);
 
         if (ClueManager.Instance != null)
             ClueManager.Instance.isLockpicking = true;

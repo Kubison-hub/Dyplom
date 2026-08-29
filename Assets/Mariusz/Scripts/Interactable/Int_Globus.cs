@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class Int_Globus : MonoBehaviour, IVioletRoomInteractionGate
+public class Int_Globus : Lvl3InteractionDialogueBase, IVioletRoomInteractionGate
 {
     private Interactable interactable;
 
@@ -17,6 +17,17 @@ public class Int_Globus : MonoBehaviour, IVioletRoomInteractionGate
         new Keyframe(1f, 1f, 0f, 0f));
     [SerializeField] private int_Globus_Button globeButton;
     [SerializeField] private AudioSource spinAudio;
+
+    [Header("Mechanism Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] mechanismDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "W tym globusie jest jakiś mechanizm.",
+            duration = 2f
+        }
+    };
 
     [Header("Violet Gate")]
     [SerializeField] private Int_VioletDialog violetDialog;
@@ -48,6 +59,8 @@ public class Int_Globus : MonoBehaviour, IVioletRoomInteractionGate
     private bool isSpinning;
     private bool isWalkingToWaitPoint;
     private bool firstVioletGateTriggered;
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => mechanismDialogue;
 
     private void Start()
     {
@@ -81,7 +94,7 @@ public class Int_Globus : MonoBehaviour, IVioletRoomInteractionGate
             if (interactable != null)
                 interactable.isInteractableActive = true;
 
-            StartCoroutine(ShowMechanismText());
+            PlayDialogue(player, mechanismDialogue);
             return;
         }
 
@@ -198,17 +211,6 @@ public class Int_Globus : MonoBehaviour, IVioletRoomInteractionGate
 
         PlayerController watson = SwitchCharacter.Instance.players[1].GetComponent<PlayerController>();
         watson?.MoveToPoint(intPointWatson.position);
-    }
-
-    private IEnumerator ShowMechanismText()
-    {
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText("W tym globusie jest jakis mechanizm.", "");
-
-        yield return new WaitForSeconds(2f);
-
-        if (interactable != null)
-            interactable.isInteractableActive = true;
     }
 
     private IEnumerator SpinGlobe()

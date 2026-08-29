@@ -2,16 +2,24 @@ using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Interactable))]
-public class Int_lv1_LibraryBooks : MonoBehaviour, IVioletRoomInteractionGate
+public class Int_lv1_LibraryBooks : Lvl3InteractionDialogueBase, IVioletRoomInteractionGate
 {
     [Header("Camera")]
     [SerializeField] private CameraController cameraController;
     [SerializeField] private float horizontalAxis = 116.8f;
     [SerializeField] private float orbitSpeed = 5f;
 
-    [Header("Narration")]
-    [SerializeField] private float topTextDelay = 0.5f;
-    [SerializeField, TextArea] private string topText = "Jak szuka\u0107, to tylko tutaj...";
+    [Header("Bookshelf Dialogue")]
+    [SerializeField, Min(0f)] private float dialogueDelay = 0.5f;
+    [SerializeField] private Lvl3DialogueLine[] bookshelfDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Jak szukać, to tylko tutaj...",
+            duration = 3f
+        }
+    };
 
     [Header("Violet Gate")]
     [SerializeField] private Int_VioletDialog violetDialog;
@@ -43,6 +51,8 @@ public class Int_lv1_LibraryBooks : MonoBehaviour, IVioletRoomInteractionGate
     private bool isWalkingToWaitPoint;
     private bool firstVioletGateTriggered;
 
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => bookshelfDialogue;
+
     private void Start()
     {
         interactable = GetComponent<Interactable>();
@@ -61,7 +71,7 @@ public class Int_lv1_LibraryBooks : MonoBehaviour, IVioletRoomInteractionGate
 
         cameraController?.SetZoomState(CameraZoomState.Medium);
         cameraController?.OrbitHorizontalAxisTo(horizontalAxis, orbitSpeed);
-        StartCoroutine(ShowTopTextAfterDelay());
+        StartCoroutine(PlayBookshelfDialogueAfterDelay(player));
 
         if (interactable != null)
         {
@@ -189,11 +199,11 @@ public class Int_lv1_LibraryBooks : MonoBehaviour, IVioletRoomInteractionGate
         watson?.MoveToPoint(intPointWatson.position);
     }
 
-    private IEnumerator ShowTopTextAfterDelay()
+    private IEnumerator PlayBookshelfDialogueAfterDelay(PlayerController player)
     {
-        yield return new WaitForSeconds(topTextDelay);
+        if (dialogueDelay > 0f)
+            yield return new WaitForSeconds(dialogueDelay);
 
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText(topText, "");
+        PlayDialogue(player, bookshelfDialogue);
     }
 }

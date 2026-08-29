@@ -32,7 +32,7 @@ public abstract class Lvl3InteractionDialogueBase : MonoBehaviour
     [SerializeField] private AudioSource selmaVoiceSource;
     [SerializeField] private AudioSource violetVoiceSource;
 
-    private bool performed;
+    private bool hasPlayedInteractionDialogue;
     private Coroutine dialogueCoroutine;
     private static Lvl3InteractionDialogueBase activeDialogueOwner;
     private string activeSherlockText;
@@ -48,6 +48,8 @@ public abstract class Lvl3InteractionDialogueBase : MonoBehaviour
             ? dialogueLines
             : DefaultDialogueLines;
 
+    protected bool IsDialoguePlaying => dialogueCoroutine != null;
+
     protected void SetupInteractable(InteractionType interactionType)
     {
         lvl3_LayerUtility.SetOutlinedObjectsLayer(gameObject);
@@ -61,10 +63,10 @@ public abstract class Lvl3InteractionDialogueBase : MonoBehaviour
 
     protected void PlayInteractionDialogue(PlayerController player)
     {
-        if (performed && !repeatable)
+        if (hasPlayedInteractionDialogue && !repeatable)
             return;
 
-        performed = true;
+        hasPlayedInteractionDialogue = true;
 
         PlayDialogue(player, ConfiguredDialogueLines);
     }
