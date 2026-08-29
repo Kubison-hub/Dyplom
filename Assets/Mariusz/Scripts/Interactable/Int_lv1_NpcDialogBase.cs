@@ -11,16 +11,17 @@ public abstract class Int_lv1_NpcDialogBase : Lvl3InteractionDialogueBase
     [SerializeField, Min(1f)] private float facePlayerTurnSpeed = 360f;
     [SerializeField, Min(0.1f)] private float facePlayerTolerance = 1f;
 
-    [Header("Intro Dialogue")]
+    [Header("Intro Audio")]
     [Tooltip("Played after the NPC faces the player and before the SmartNPC conversation begins.")]
-    [SerializeField] private Lvl3DialogueLine[] introDialogue;
+    [SerializeField] private AudioSource introAudioSource;
+    [SerializeField] private AudioClip introAudioClip;
 
     private Interactable interactable;
     private bool dialogueStarting;
     private Coroutine dialogueEndWatcher;
 
     protected abstract InteractionType RequiredInteractionType { get; }
-    protected override Lvl3DialogueLine[] DefaultDialogueLines => introDialogue;
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => null;
     protected virtual bool ShouldFacePlayerBeforeDialogue => facePlayerBeforeDialogue;
     protected virtual void OnNpcDialogueStarted() { }
     protected virtual void OnNpcDialogueFinished() { }
@@ -68,12 +69,8 @@ public abstract class Int_lv1_NpcDialogBase : Lvl3InteractionDialogueBase
                 facePlayerTurnSpeed,
                 facePlayerTolerance);
 
-        if (introDialogue != null && introDialogue.Length > 0)
-        {
-            PlayDialogue(player, introDialogue);
-            while (IsDialoguePlaying)
-                yield return null;
-        }
+        if (introAudioSource != null && introAudioClip != null)
+            introAudioSource.PlayOneShot(introAudioClip);
 
         smartNPC.SprawdzIZacznijRozmowe();
 

@@ -1,9 +1,17 @@
-using System.Collections;
-using TMPro;
 using UnityEngine;
 
-public class lvl2_Int_Book : MonoBehaviour
+public class lvl2_Int_Book : Lvl3InteractionDialogueBase
 {
+    private static readonly Lvl3DialogueLine[] DefaultLines =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Znalazłem mały kluczyk.",
+            duration = 2f
+        }
+    };
+
     private Interactable interactable;
     public GameObject spline1;
     public GameObject spline2;
@@ -14,10 +22,9 @@ public class lvl2_Int_Book : MonoBehaviour
     [SerializeField] private Renderer intRenderer;
     [SerializeField] private AudioSource audioFX;
 
-    [Header("Top Text")]
-    [SerializeField, TextArea] private string topText = "Znalazłem mały kluczyk.";
-
     public bool keyFounded = false;
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => DefaultLines;
 
     private void Start()
     {
@@ -40,8 +47,7 @@ public class lvl2_Int_Book : MonoBehaviour
         if (audioFX != null)
             audioFX.Play();
 
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText(topText, string.Empty);
+        PlayInteractionDialogue(player);
 
         if (spline1 != null)
             spline1.SetActive(false);
@@ -52,7 +58,8 @@ public class lvl2_Int_Book : MonoBehaviour
         keyFounded = true;
 
         interactable.isInteractableActive = false;
-        player.currentInteractable = null;
+        if (player != null)
+            player.currentInteractable = null;
 
         ////intCollider.enabled = false;
         //this.gameObject.SetActive(false);

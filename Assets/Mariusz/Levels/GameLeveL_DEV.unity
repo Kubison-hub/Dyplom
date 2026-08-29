@@ -4070,7 +4070,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -4552,6 +4552,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
+      propertyPath: ideaDescription
+      value: "Napastnik obiera wygodn\u0105 pozycj\u0119 w mroku."
+      objectReference: {fileID: 0}
+    - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.size
       value: 5
       objectReference: {fileID: 0}
@@ -4677,23 +4681,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[0].firstDescription
-      value: "\u201ETa \u015Bciana nie jest konstrukcj\u0105, lecz odpowiedzi\u0105.
-        Pytanie zadawa\u0142 mechanizm sto\u0142u.\u201D"
+      value: "Mechanizm \u015Bciany sterowany jest z zewn\u0105tz."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[1].firstDescription
-      value: "\u201EZ tego miejsca wida\u0107 \u015Bwiat\u0142o kominka i niemal
-        ca\u0142y salon. Kto\u015B urz\u0105dzi\u0142 sobie lo\u017C\u0119 bez biletu.\u201D"
+      value: "Ukryty obserwator mia\u0142 \u015Bwiat\u0142o, sam pozostaj\u0105c
+        w cieniu."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[2].firstDescription
-      value: "\u201ETo miejsce patrzy prosto w oczy Lady Edith. Mur rzadko bywa \u015Bwiadkiem;
-        ten najwyra\u017Aniej dosta\u0142 rol\u0119 g\u0142\xF3wn\u0105.\u201D"
+      value: To miejsce patrzy prosto w oczy Lady Edith.
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[3].firstDescription
-      value: "\u201E\u015Aciana i uszkodzone okno wyznaczaj\u0105 prost\u0105 przez
-        ca\u0142e pomieszczenie. Geometria bywa bardziej rozmowna od lokaja.\u201D"
+      value: "Kula zostaje w oknie, w\u0119druj\u0105c przez ca\u0142e pomieszczenie."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[4].firstDescription
@@ -4712,7 +4713,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[0].repeatDescription
-      value: "\u201EMebel wydawa\u0142 polecenie, mur ust\u0119powa\u0142.\u201D"
+      value: "Mechanizm \u015Bciany sterowany jest z zewn\u0105tz."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[1].canConnectReverse
@@ -4725,8 +4726,8 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[1].repeatDescription
-      value: "\u201EUkryty obserwator mia\u0142 \u015Bwiat\u0142o, lecz sam pozostawa\u0142
-        w cieniu.\u201D"
+      value: "Ukryty obserwator mia\u0142 \u015Bwiat\u0142o, sam pozostaj\u0105c
+        w cieniu."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[2].canConnectReverse
@@ -4739,8 +4740,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[2].repeatDescription
-      value: "\u201ELady Edith znajdowa\u0142a si\u0119 dok\u0142adnie na osi tego
-        podejrzanego miejsca.\u201D"
+      value: To miejsce patrzy prosto w oczy Lady Edith.
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[3].canConnectReverse
@@ -4753,8 +4753,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[3].repeatDescription
-      value: "\u201EOba punkty uk\u0142adaj\u0105 si\u0119 w niepokoj\u0105co prost\u0105
-        lini\u0119.\u201D"
+      value: "Kula zostaje w oknie, w\u0119druj\u0105c przez ca\u0142e pomieszczenie."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[4].canConnectReverse
@@ -5174,8 +5173,8 @@ MonoBehaviour:
     text: 
     voiceClip: {fileID: 0}
     duration: 0
-  sherlockVoiceSource: {fileID: 0}
-  watsonVoiceSource: {fileID: 0}
+  sherlockVoiceSource: {fileID: 1120607583}
+  watsonVoiceSource: {fileID: 8390739253207350096}
   selmaVoiceSource: {fileID: 0}
   violetVoiceSource: {fileID: 0}
   hatch: {fileID: 1067507039}
@@ -5184,7 +5183,7 @@ MonoBehaviour:
   noReturnDialogue:
   - speaker: 0
     text: "Nie ma po co teraz tam wraca\u0107."
-    voiceClip: {fileID: 0}
+    voiceClip: {fileID: 8300000, guid: b2e91ccf9d6b8ab498060210e322b642, type: 3}
     duration: 2
 --- !u!65 &47288596
 BoxCollider:
@@ -8822,7 +8821,7 @@ MonoBehaviour:
     text: 
     voiceClip: {fileID: 0}
     duration: 2
-  sherlockVoiceSource: {fileID: 0}
+  sherlockVoiceSource: {fileID: 1120607583}
   watsonVoiceSource: {fileID: 0}
   selmaVoiceSource: {fileID: 0}
   violetVoiceSource: {fileID: 0}
@@ -8831,9 +8830,13 @@ MonoBehaviour:
   worldVisual: {fileID: 988912253}
   pickupDialogue:
   - speaker: 0
-    text: "Hmm. Wytapetowany, drewniany klocek. C\xF3\u017C to mo\u017Ce by\u0107?"
-    voiceClip: {fileID: 0}
-    duration: 2
+    text: 
+    voiceClip: {fileID: 8300000, guid: d0f715a27dfd65c46956f1a720673843, type: 3}
+    duration: 0.5
+  - speaker: 0
+    text: "Ma\u0142e, wytapetowane drewienko."
+    voiceClip: {fileID: 8300000, guid: 0e3c1969efd9a914eb3e13e34396a3fb, type: 3}
+    duration: 3.28
   setHiddenDoorHasKeyOnPickup: 0
   hiddenDoorToUnlock: {fileID: 0}
 --- !u!114 &68737538
@@ -11734,6 +11737,7 @@ GameObject:
   - component: {fileID: 90534610}
   - component: {fileID: 90534609}
   - component: {fileID: 90534608}
+  - component: {fileID: 90534611}
   m_Layer: 7
   m_Name: Arthur_NPC
   m_TagString: Untagged
@@ -11795,10 +11799,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77459a9e0093901408977f915888ef5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 0}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   smartNPC: {fileID: 90534607}
   facePlayerBeforeDialogue: 1
   facePlayerTurnSpeed: 360
   facePlayerTolerance: 1
+  introAudioSource: {fileID: 90534611}
+  introAudioClip: {fileID: 8300000, guid: adbac172937465f40bf9871b077d87f8, type: 3}
   dialogueRig: {fileID: 1398833300}
   rigBlendDuration: 0.25
 --- !u!114 &90534606
@@ -11969,6 +11981,103 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!82 &90534611
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 90534602}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &91444241
 GameObject:
   m_ObjectHideFlags: 0
@@ -12127,7 +12236,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &92035399
 Transform:
   m_ObjectHideFlags: 0
@@ -12766,8 +12875,8 @@ MonoBehaviour:
     speaker: 0
     text: "Lady Selma pilnuje schod\xF3w, aie nie mam jeszcze powodu, aby i\u015B\u0107
       na g\xF3r\u0119."
-    voiceClip: {fileID: 0}
-    duration: 3
+    voiceClip: {fileID: 8300000, guid: ed46cab63f434a64b871b77528c44875, type: 3}
+    duration: 5.6
   selmaPositionTarget: {fileID: 1259649556}
   selmaEyePoint: {fileID: 1608811654}
   stairsRoomVolume: {fileID: 1293028515}
@@ -12793,12 +12902,12 @@ MonoBehaviour:
   firstDiscoveryResolutionDialogueLines:
   - speaker: 0
     text: "Przysze\u0142em tylko policzy\u0107 schody..."
-    voiceClip: {fileID: 0}
-    duration: 2.5
+    voiceClip: {fileID: 8300000, guid: 95f91a58e6c596844b2d5a1b7c349136, type: 3}
+    duration: 2
   afterDiscoveryCameraDialogueLines:
   - speaker: 0
     text: "Musimy spr\xF3bowa\u0107 jeszcze raz..."
-    voiceClip: {fileID: 0}
+    voiceClip: {fileID: 8300000, guid: d64630f11f02c744395c2367b3de2503, type: 3}
     duration: 2
   repetitiveDiscoveryDialogueLines:
   - speaker: 2
@@ -15625,7 +15734,7 @@ VFXRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 117699640}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -17538,7 +17647,7 @@ VFXRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 128986803}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -19666,7 +19775,7 @@ MonoBehaviour:
   introDialogue:
   - speaker: 3
     text: 
-    voiceClip: {fileID: 8300000, guid: 20a222a55abf2264ea3ef87d4c1dc16e, type: 3}
+    voiceClip: {fileID: 8300000, guid: 8111e374b4362e34db699160e54bc54d, type: 3}
     duration: 0.1
   violetPositionTarget: {fileID: 2813010962879505694}
   eyePoint: {fileID: 404879945}
@@ -19973,7 +20082,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 39381475}
-  - {fileID: 1782081228}
   m_Father: {fileID: 494211656}
   m_LocalEulerAnglesHint: {x: 0, y: 120, z: 0}
 --- !u!65 &147797618
@@ -20009,10 +20117,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cf2e6de4b58ffc45b08f79baf7f54b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 0}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   performed: 0
   EthelRoomBlocks: 0
-  playBlocksText: "Te klocki musz\u0105 do czego\u015B s\u0142u\u017Cy\u0107."
-  ethelRoomBlocksText: "Klocki Ethel tworz\u0105 znajomy wz\xF3r."
 --- !u!114 &147797620
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21330,7 +21442,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -24303,6 +24415,7 @@ MonoBehaviour:
   ethelSmartNPC: {fileID: 186060047}
   firstInteractionText: "Poka\u017C\u0119 wam, jak dosta\u0107 si\u0119 na g\xF3r\u0119..."
   ethelVoiceSource: {fileID: 711856480}
+  conversationIntroAudio: {fileID: 8300000, guid: 6a6c92654da6646439bcbf16d86d021f, type: 3}
   firstInteractionAudio: {fileID: 8300000, guid: 7b53683424bebc049946625f240719ae, type: 3}
   dialogueDuration: 2.5
   doorOpenWaitDuration: 1.5
@@ -24763,7 +24876,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -31089,9 +31202,9 @@ MonoBehaviour:
   dialogueLines:
   - speaker: 0
     text: "Czego\u015B brakuje..."
-    voiceClip: {fileID: 0}
+    voiceClip: {fileID: 8300000, guid: 90fa38296428fdb4ea0121af5b92e1f6, type: 3}
     duration: 2
-  sherlockVoiceSource: {fileID: 0}
+  sherlockVoiceSource: {fileID: 1120607583}
   watsonVoiceSource: {fileID: 0}
   selmaVoiceSource: {fileID: 0}
   violetVoiceSource: {fileID: 0}
@@ -31112,8 +31225,8 @@ MonoBehaviour:
   noBlockDialogue:
   - speaker: 0
     text: "W tej \u015Bcianie stowrzono ma\u0142\u0105 wn\u0119k\u0119."
-    voiceClip: {fileID: 0}
-    duration: 2
+    voiceClip: {fileID: 8300000, guid: e417b52731b2af14a894e2bf7297cf62, type: 3}
+    duration: 3.5
   insertDialogue:
   - speaker: 0
     text: 
@@ -31121,9 +31234,9 @@ MonoBehaviour:
     duration: 0.5
   wrongBlockDialogue:
   - speaker: 0
-    text: "Wygl\u0105d na to, \u017Ce klocek nie pasuje do mechanizmu."
-    voiceClip: {fileID: 0}
-    duration: 0
+    text: "Wygl\u0105da na to, \u017Ce to nie pasuje do mechanizmu."
+    voiceClip: {fileID: 8300000, guid: 4171a1efe12520c4eaa787157b864092, type: 3}
+    duration: 3.5
   returnDialogue:
   - speaker: 0
     text: "Musz\u0119 znale\u017A\u0107 inny klucz."
@@ -34592,11 +34705,18 @@ MonoBehaviour:
     to: {fileID: 1531085681}
   wrongTitle: Nie.
   wrongDescription: To nie uklada sie w logiczny ciag.
-  solvedTitle: Oczywiscie.
-  solvedDescription: "Wszystko wskazuje na tajne przej\u015Bcie w \u015Bcianie, sterowane
-    mechaniznem sto\u0142u."
-  objectToReparentBeforeSolvedActions: {fileID: 658297176}
-  newParentBeforeSolvedActions: {fileID: 2137841381}
+  solvedDialogue:
+  - speaker: 0
+    text: "Wszystko wskazuje na tajne przej\u015Bcie w \u015Bcianie, sterowane mechaniznem
+      sto\u0142u..."
+    voiceClip: {fileID: 8300000, guid: ffecb2d90ee32be4c9c64f4d7ebb7f94, type: 3}
+    duration: 5.6
+  sherlockVoiceSource: {fileID: 1120607583}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
+  objectToReparentBeforeSolvedActions: {fileID: 0}
+  newParentBeforeSolvedActions: {fileID: 0}
   keepWorldPositionWhenReparenting: 1
   activateOnSolved:
   - {fileID: 1396569204}
@@ -35442,6 +35562,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
+      propertyPath: ideaDescription
+      value: "Ruchomy st\xF3\u0142"
+      objectReference: {fileID: 0}
+    - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.size
       value: 5
       objectReference: {fileID: 0}
@@ -35567,30 +35691,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[0].firstDescription
-      value: "\u201E\u015Alady mechanizmu prowadz\u0105 od sto\u0142u ku \u015Bcianie.
-        Mebel najwyra\u017Aniej ma wi\u0119ksze ambicje ni\u017C podawanie herbaty.\u201D"
+      value: "Mechanizm otwiera tajne przej\u015Bcie zanim pada strza\u0142."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[1].firstDescription
-      value: "\u201ESt\xF3\u0142 i kominek nale\u017C\u0105 do tego samego pokoju,
-        lecz na razie \u0142\u0105czy je g\u0142\xF3wnie dobry gust w\u0142a\u015Bciciela.\u201D"
+      value: "Blask kominka o\u015Bwietli\u0142 zebranych przy stole."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[2].firstDescription
-      value: "\u201ELady Edith mog\u0142a uruchomi\u0107 st\xF3\u0142 albo widzie\u0107,
-        jak zrobi\u0142 to kto\u015B inny. Bez kolejnego tropu s\u0105 to tylko maniery
-        i przypuszczenia.\u201D"
+      value: "Lady Edith wstaje od sto\u0142u przed samym wystrza\u0142em."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[3].firstDescription
-      value: "\u201ERuchomy st\xF3\u0142 nie wyja\u015Bnia uszkodzenia okna. Chyba
-        \u017Ce meble zacz\u0119\u0142y strzela\u0107, a to by\u0142by osobny problem.\u201D"
+      value: "Lady Edith wstaje od sto\u0142u stoj\u0105c na przeciwko okna"
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[4].firstDescription
-      value: "\u201ERuchomy st\xF3\u0142 mo\u017Cna by\u0142o obs\u0142u\u017Cy\u0107
-        przy \u015Bwietle kominka, cho\u0107 g\u0142\xF3wne lampy nie dzia\u0142a\u0142y.
-        Kto\u015B zna\u0142 ten salon na pami\u0119\u0107.\u201D"
+      value: "St\xF3\u0142 porusza si\u0119 w p\xF3\u0142 mroku, lampy s\u0105 zgaszone."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[0].canConnectReverse
@@ -35603,8 +35720,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[0].repeatDescription
-      value: "\u201ESt\xF3\u0142 uruchamia\u0142 co\u015B, czego \u015Bciana wola\u0142aby
-        nie pokazywa\u0107.\u201D"
+      value: "Mechanizm otwiera tajne przej\u015Bcie zanim pada strza\u0142."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[1].canConnectReverse
@@ -35617,7 +35733,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[1].repeatDescription
-      value: "\u201EEleganckie s\u0105siedztwo, lecz jeszcze nie dedukcja.\u201D"
+      value: "Blask kominka o\u015Bwietli\u0142 zebranych przy stole."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[2].canConnectReverse
@@ -35630,8 +35746,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[2].repeatDescription
-      value: "\u201EBlisko\u015B\u0107 nie jest jeszcze przyczyn\u0105, cho\u0107
-        cz\u0119sto udaje dow\xF3d.\u201D"
+      value: "Lady Edith wstaje od sto\u0142u przed samym wystrza\u0142em."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[3].canConnectReverse
@@ -35644,7 +35759,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[3].repeatDescription
-      value: "\u201EMechanizm otwiera przej\u015Bcia, nie dziurawi szyb.\u201D"
+      value: "Lady Edith wstaje od sto\u0142u stoj\u0105c na przeciwko okna"
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[4].canConnectReverse
@@ -35657,8 +35772,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[4].repeatDescription
-      value: "\u201EP\xF3\u0142mrok wystarcza\u0142 osobie, kt\xF3ra wiedzia\u0142a,
-        czego szuka.\u201D"
+      value: "St\xF3\u0142 porusza si\u0119 w p\xF3\u0142 mroku, lampy s\u0105 zgaszone."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[0].requiredConnections.Array.size
@@ -37412,7 +37526,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -41010,7 +41124,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -45997,7 +46111,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &357151029
 Transform:
   m_ObjectHideFlags: 0
@@ -46802,7 +46916,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalScale.x
@@ -49642,119 +49756,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 8f427c31ca36a8642b261ea1b87c935b, type: 3}
   m_PrefabInstance: {fileID: 406374694}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &388207449
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 147797617}
-    m_Modifications:
-    - target: {fileID: 1712450910648746373, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1712450910648746373, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1712450910648746373, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1712450910648746373, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1712450910648746373, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1712450910648746373, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1712450910648746373, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1712450910648746373, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1712450910648746373, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1712450910648746373, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2088133573207932995, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_PropertySheet.m_Vector2f.m_Array.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2088133573207932995, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_PropertySheet.m_Int.m_Array.Array.data[0].m_Value
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 2088133573207932995, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_PropertySheet.m_Vector2f.m_Array.Array.data[0].m_Name
-      value: Size
-      objectReference: {fileID: 0}
-    - target: {fileID: 2088133573207932995, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_PropertySheet.m_Vector2f.m_Array.Array.data[1].m_Name
-      value: LiveTime
-      objectReference: {fileID: 0}
-    - target: {fileID: 2088133573207932995, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_PropertySheet.m_Vector2f.m_Array.Array.data[0].m_Value.x
-      value: 0.01
-      objectReference: {fileID: 0}
-    - target: {fileID: 2088133573207932995, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_PropertySheet.m_Vector2f.m_Array.Array.data[0].m_Value.y
-      value: 0.05
-      objectReference: {fileID: 0}
-    - target: {fileID: 2088133573207932995, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_PropertySheet.m_Vector2f.m_Array.Array.data[1].m_Value.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2088133573207932995, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_PropertySheet.m_Vector2f.m_Array.Array.data[1].m_Value.y
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 2088133573207932995, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_PropertySheet.m_Vector3f.m_Array.Array.data[2].m_Value.x
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2088133573207932995, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_PropertySheet.m_Vector3f.m_Array.Array.data[2].m_Value.y
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2088133573207932995, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_PropertySheet.m_Vector3f.m_Array.Array.data[2].m_Value.z
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2088133573207932995, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_PropertySheet.m_Vector2f.m_Array.Array.data[0].m_Overridden
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2088133573207932995, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_PropertySheet.m_Vector2f.m_Array.Array.data[1].m_Overridden
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7755962655327079785, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8184648043481443658, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-      propertyPath: m_Name
-      value: interactionFx
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
 --- !u!4 &388389449 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3180451742331075813, guid: 3332642b86f870647bc1915dd84802a4, type: 3}
@@ -50525,7 +50526,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   repeatable: 1
   dialogueLines: []
-  sherlockVoiceSource: {fileID: 0}
+  sherlockVoiceSource: {fileID: 1120607583}
   watsonVoiceSource: {fileID: 0}
   selmaVoiceSource: {fileID: 0}
   violetVoiceSource: {fileID: 0}
@@ -50542,8 +50543,8 @@ MonoBehaviour:
     duration: 0.754
   - speaker: 0
     text: "Ten list wiele wyja\u015Bnia!"
-    voiceClip: {fileID: 0}
-    duration: 2
+    voiceClip: {fileID: 8300000, guid: fd3ad3e959ca947469a93380e1b8fa02, type: 3}
+    duration: 2.24
   openNotebookNoteAfterPickup: 1
   notebookNoteIndex: 0
 --- !u!114 &390832881
@@ -53788,30 +53789,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   repeatable: 1
   dialogueLines: []
-  sherlockVoiceSource: {fileID: 0}
+  sherlockVoiceSource: {fileID: 1120607583}
   watsonVoiceSource: {fileID: 0}
   selmaVoiceSource: {fileID: 0}
   violetVoiceSource: {fileID: 0}
   missingLettersDialogue:
   - speaker: 0
     text: "Nie ma sensu na razie wraca\u0107 na d\xF3\u0142"
-    voiceClip: {fileID: 0}
-    duration: 3
+    voiceClip: {fileID: 8300000, guid: 865324bf948d5c140903930556d922d2, type: 3}
+    duration: 2.2
   hiddenDoorNotFoundDialogue:
   - speaker: 0
     text: "Musz\u0119 jeszcze odnale\u017A\u0107 ma\u0142\u0105 Ethel."
-    voiceClip: {fileID: 0}
-    duration: 3
+    voiceClip: {fileID: 8300000, guid: c164dee246e155d43a6cfc345288bcab, type: 3}
+    duration: 2.8
   hiddenDoorFoundDialogue:
   - speaker: 0
     text: "Powinienem sprawdzi\u0107, dok\u0105d prowadzi tajne przej\u015Bcie z
       pokoju Ethel"
-    voiceClip: {fileID: 0}
-    duration: 3
+    voiceClip: {fileID: 8300000, guid: fa1538928b92d044e890954c3112a4bb, type: 3}
+    duration: 4
   allLettersDialogue:
   - speaker: 0
     text: "Chyba mam wszystko, czego tutaj potrzebuj\u0119"
-    voiceClip: {fileID: 0}
+    voiceClip: {fileID: 8300000, guid: 3fe64294b7fc00845a2ab048404b6e2d, type: 3}
     duration: 3
   ethelNotFoundDialogue:
   - speaker: 0
@@ -60506,7 +60507,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -60783,10 +60784,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cf2e6de4b58ffc45b08f79baf7f54b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 0}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   performed: 0
   EthelRoomBlocks: 0
-  playBlocksText: "Te klocki musz\u0105 do czego\u015B s\u0142u\u017Cy\u0107."
-  ethelRoomBlocksText: "Klocki Ethel tworz\u0105 znajomy wz\xF3r."
 --- !u!114 &448646811
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -70336,7 +70341,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &537468280
 Transform:
   m_ObjectHideFlags: 0
@@ -72209,21 +72214,21 @@ MonoBehaviour:
   firstDialogueLines:
   - speaker: 0
     text: "Sp\xF3jrz, Watsonie, jaki skomplikowany mechanizm."
-    voiceClip: {fileID: 0}
+    voiceClip: {fileID: 8300000, guid: e27d7581df197f94699645bbc9c4f85a, type: 3}
     duration: 3
   - speaker: 1
     text: "Rzeczywi\u015Bcie, intryguj\u0105ce."
-    voiceClip: {fileID: 0}
+    voiceClip: {fileID: 8300000, guid: 9c55c66e6df7daa4ca595fa20d1e21b6, type: 3}
     duration: 2.5
   - speaker: 0
     text: "Wygl\u0105da na to, \u017Ce to dzi\u0119ki niemu duchy przesz\u0142o\u015Bci
       nawiedzaj\u0105 ten dom."
-    voiceClip: {fileID: 0}
-    duration: 4
+    voiceClip: {fileID: 8300000, guid: 9312112f92025af4ab90e2873762573b, type: 3}
+    duration: 5
   repeatDialogueLines:
   - speaker: 0
     text: "Na razie lepiej niczego tu nie rusza\u0107."
-    voiceClip: {fileID: 0}
+    voiceClip: {fileID: 8300000, guid: a895a1456d0b39e42b5487d9d7cda784, type: 3}
     duration: 3
 --- !u!1 &556763280
 GameObject:
@@ -74425,7 +74430,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &570975921
 Transform:
   m_ObjectHideFlags: 0
@@ -74991,7 +74996,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7755962655327079785, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8184648043481443658, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Name
@@ -85949,7 +85954,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7755962655327079785, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8184648043481443658, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Name
@@ -87813,7 +87818,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -91330,7 +91335,7 @@ VFXRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 704715061}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -91632,7 +91637,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -92554,6 +92559,7 @@ MonoBehaviour:
   ethelSmartNPC: {fileID: 711856475}
   firstInteractionText: "Chod\u017Acie za mn\u0105."
   ethelVoiceSource: {fileID: 711856480}
+  conversationIntroAudio: {fileID: 8300000, guid: 35b65c5fae4fc434b9af63d75503bcbc, type: 3}
   firstInteractionAudio: {fileID: 8300000, guid: d2dc6365f0dd8524d96011ee9b39b4f0, type: 3}
   dialogueDuration: 2.5
   doorOpenWaitDuration: 1.5
@@ -94683,7 +94689,7 @@ Transform:
   m_GameObject: {fileID: 729018339}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -23.050003, y: 0.2473228, z: -4.045533}
+  m_LocalPosition: {x: -23.050003, y: 0.2473228, z: -6.3986053}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -94702,7 +94708,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mode: 1
-  size: {x: 189, y: 9.517536, z: 33.13465}
+  size: {x: 189, y: 9.517536, z: 37.840805}
   overrideRendererFilters: 0
   minRendererVolumeSize: 0.1
   objectLayerMask:
@@ -95759,7 +95765,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -98700,7 +98706,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7755962655327079785, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8184648043481443658, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Name
@@ -103324,17 +103330,17 @@ MonoBehaviour:
     duration: 2
   - speaker: 1
     text: Sherlock!
-    voiceClip: {fileID: 0}
-    duration: 2
+    voiceClip: {fileID: 8300000, guid: 24c4baf235423c44a9654f2272e79d11, type: 3}
+    duration: 3
   - speaker: 0
     text: "Zaraz Ci wszystko wyja\u015Bni\u0119 drogi Watsonie. Pom\xF3\u017C mi
       najpierw podnie\u015B\u0107 t\u0119 ci\u0119\u017Ck\u0105 klap\u0119."
-    voiceClip: {fileID: 0}
+    voiceClip: {fileID: 8300000, guid: ca2e53408b680a04581d99b3aa0dbf2d, type: 3}
     duration: 6
   - speaker: 1
     text: "Jak sobie \u017Cyczysz Sherlock."
-    voiceClip: {fileID: 0}
-    duration: 2
+    voiceClip: {fileID: 8300000, guid: c452a21d3801bc14283554c45667e7c3, type: 3}
+    duration: 2.25
   loupeHoldDuration: 1.3
   loupeDetectionColliders:
   - {fileID: 794009760}
@@ -107459,7 +107465,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -107791,7 +107797,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ba297371985ec5409a2a3aeb378b020, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  topText: "<size=150%>1</size>A4 - to warto zapami\u0119ta\u0107"
+  repeatable: 1
+  dialogueLines:
+  - speaker: 0
+    text: "<size=120%>1</size>A4 - to warto zapami\u0119ta\u0107"
+    voiceClip: {fileID: 8300000, guid: b87bf96837751484dba3f02f949b069a, type: 3}
+    duration: 4
+  sherlockVoiceSource: {fileID: 1120607583}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
 --- !u!114 &827842380
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -112823,7 +112838,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &864320114
 Transform:
   m_ObjectHideFlags: 0
@@ -120759,10 +120774,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cf2e6de4b58ffc45b08f79baf7f54b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 0}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   performed: 0
   EthelRoomBlocks: 1
-  playBlocksText: "Te klocki musz\u0105 co\u015B oznacza\u0107..."
-  ethelRoomBlocksText: "Klocki Ethel tworz\u0105 znajomy wz\xF3r."
 --- !u!114 &916360359
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -123407,6 +123426,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
+      propertyPath: ideaDescription
+      value: "Po zgaszeniu lamp ogie\u0144 sam o\u015Bwietla\u0142 salon."
+      objectReference: {fileID: 0}
+    - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.size
       value: 5
       objectReference: {fileID: 0}
@@ -123425,11 +123448,11 @@ PrefabInstance:
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[3].target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1531085681}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[4].target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1771679201}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[0].canConnect
       value: 0
@@ -123532,29 +123555,24 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[0].firstDescription
-      value: "\u201EBlask kominka wystarcza\u0142, by obs\u0142u\u017Cy\u0107 st\xF3\u0142
-        nawet przy zgaszonych lampach. Dyskrecja, nie ciemno\u015B\u0107 absolutna.\u201D"
+      value: "Blask kominka o\u015Bwietli\u0142 zebranych przy stole."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[1].firstDescription
-      value: "\u201E\u015Awiat\u0142o kominka pada\u0142o ku \u015Bcianie, pozostawiaj\u0105c
-        osob\u0119 ukryt\u0105 przy niej niemal niewidoczn\u0105.\u201D"
+      value: "\u015Awiat\u0142o kominka nie dociera\u0142o do tego miejsca."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[2].firstDescription
-      value: "\u201E\u015Awiat\u0142o kominka by\u0142o jedynym \u015Bwiat\u0142em
-        w pomieszczeniu. Lady Edith pozostawa\u0142a widoczna, napastnik niekoniecznie.\u201D"
+      value: "\u015Awiat\u0142o kominka dobrze o\u015Bwietla\u0142o Lady Edith"
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[3].firstDescription
-      value: "\u201EOgie\u0144 m\xF3g\u0142 odbi\u0107 si\u0119 w szybie, ale nie
-        wybi\u0142 w niej tej dziury. Kominki maj\u0105 temperament, nie bro\u0144
-        paln\u0105.\u201D"
+      value: "Ogie\u0144 z kominka pozostawa\u0142 jedynym \u017Ar\xF3d\u0142em \u015Bwiat\u0142a."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[4].firstDescription
-      value: "\u201E\u015Awiat\u0142o kominka by\u0142o jedynym \u015Bwiat\u0142em
-        w pomieszczeniu. Skromny awans dla paleniska, znakomita os\u0142ona dla mordercy.\u201D"
+      value: "Po zgaszeniu \u015Bwiat\u0142a ogie\u0144 z kominka pozostawa\u0142
+        jedynym \u017Ar\xF3d\u0142em \u015Bwiat\u0142a."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[0].canConnectReverse
@@ -123567,8 +123585,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[0].repeatDescription
-      value: "\u201EOgie\u0144 dawa\u0142 do\u015B\u0107 \u015Bwiat\u0142a, by znale\u017A\u0107
-        mechanizm.\u201D"
+      value: "Blask kominka o\u015Bwietli\u0142 zebranych przy stole."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[1].canConnectReverse
@@ -123581,7 +123598,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[1].repeatDescription
-      value: "\u201ECel by\u0142 o\u015Bwietlony lepiej ni\u017C strzelec.\u201D"
+      value: "\u015Awiat\u0142o kominka nie dociera\u0142o do tego miejsca."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[2].canConnectReverse
@@ -123594,8 +123611,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[2].repeatDescription
-      value: "\u201EW ciemnym salonie ogie\u0144 wskazywa\u0142 cel a\u017C nazbyt
-        uprzejmie.\u201D"
+      value: "\u015Awiat\u0142o kominka dobrze o\u015Bwietla\u0142o Lady Edith"
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[3].canConnectReverse
@@ -123608,7 +123624,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[3].repeatDescription
-      value: "\u201E\u015Awiat\u0142o t\u0142umaczy widoczno\u015B\u0107, nie trajektori\u0119.\u201D"
+      value: "Ogie\u0144 z kominka pozostawa\u0142 jedynym \u017Ar\xF3d\u0142em \u015Bwiat\u0142a."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[4].canConnectReverse
@@ -123621,7 +123637,8 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[4].repeatDescription
-      value: "\u201EPo zgaszeniu lamp ogie\u0144 sam o\u015Bwietla\u0142 salon.\u201D"
+      value: "Po zgaszeniu \u015Bwiat\u0142a ogie\u0144 z kominka pozostawa\u0142
+        jedynym \u017Ar\xF3d\u0142em \u015Bwiat\u0142a."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[0].requiredConnections.Array.size
@@ -126938,7 +126955,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -137739,7 +137756,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -140532,23 +140549,23 @@ MonoBehaviour:
   watsonOpenHatchDelay: 1
   sherlockFirstDialogue:
   - speaker: 0
-    text: "Klapa jest zbyt ci\u0119\u017Cka, potrzebuj\u0119 Watsoan"
-    voiceClip: {fileID: 0}
-    duration: 3
+    text: "Klapa jest zbyt ci\u0119\u017Cka, potrzebuj\u0119 Watsona."
+    voiceClip: {fileID: 8300000, guid: 16bb7a9f022af9c41aae1dbc9c3fc440, type: 3}
+    duration: 5.53
   sherlockRepeatDialogue:
   - speaker: 0
     text: "Potrzebuj\u0119 Watsona"
-    voiceClip: {fileID: 0}
-    duration: 3
+    voiceClip: {fileID: 8300000, guid: 735de71e9e83bd4419c08965a6994694, type: 3}
+    duration: 1.5
   watsonInRoomDialogue:
   - speaker: 0
     text: "To drzwi do ostatniego rozdzia\u0142u tej zagadki..."
-    voiceClip: {fileID: 0}
-    duration: 5
+    voiceClip: {fileID: 8300000, guid: 8e6aeb107b1ec5549b48cc69bbfffa97, type: 3}
+    duration: 4
   - speaker: 1
     text: "Nie mog\u0119 si\u0119 doczeka\u0107, Sherlock."
-    voiceClip: {fileID: 0}
-    duration: 3
+    voiceClip: {fileID: 8300000, guid: 305e0561ca629d64cbb63b577ecad44a, type: 3}
+    duration: 2.25
   watsonOpenDialogue:
   - speaker: 0
     text: 
@@ -140556,11 +140573,11 @@ MonoBehaviour:
     duration: 2
   - speaker: 1
     text: "Droga wolna Holmes, ciemno\u015B\u0107 wzywa, przyjacielu."
-    voiceClip: {fileID: 0}
-    duration: 3
+    voiceClip: {fileID: 8300000, guid: 3b1063daf97273342aa4e817fe10d488, type: 3}
+    duration: 4.2
   - speaker: 0
     text: "I duchy przesz\u0142o\u015Bci..."
-    voiceClip: {fileID: 0}
+    voiceClip: {fileID: 8300000, guid: 46d68c07effa38a40b5572476b45026a, type: 3}
     duration: 2
   isWatsonInRoom: 0
   watsonReactionTurnSpeed: 180
@@ -143198,7 +143215,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7755962655327079785, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8184648043481443658, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Name
@@ -146775,7 +146792,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: ideaDescription
-      value: 
+      value: "Lady Edith upada \u015Bmiertelnie postrzelona w serce."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.size
@@ -146903,23 +146920,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[0].firstDescription
-      value: "\"Przed upadkiem czy\u0142em, jak mechanizm obraca okr\u0105g\u0142ym
-        sto\u0142em\""
+      value: "Najpierw jednak obr\xF3ci\u0142 si\u0119 st\xF3\u0142."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[1].firstDescription
-      value: "\u201ELady Edith upad\u0142a na wprost tej \u015Bciany. Co zobaczy\u0142a
-        w ostatniej chwili: mur czy cz\u0142owieka, kt\xF3ry z niego wyszed\u0142?\u201D"
+      value: "Mrok skrywa\u0142 tajemnic\u0119 tego miejsca."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[2].firstDescription
-      value: "\u201EKiedy Lady Edith upada\u0142a, kominek wci\u0105\u017C dawa\u0142
-        \u015Bwiat\u0142o. Wystarczaj\u0105co du\u017Co, by napastnik nie chybi\u0142.\u201D"
+      value: "Kominek dawa\u0142 \u015Bwiat\u0142o. Wystarczaj\u0105co du\u017Co,
+        by napastnik nie chybi\u0142."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[3].firstDescription
-      value: "\u201ELady Edith upada, a kula po przej\u015Bciu przez salon przeszywa
-        okno. Do\u015B\u0107 prostolinijny podpis zab\xF3jcy.\u201D"
+      value: "Lady Edith upada, a kula po przej\u015Bciu przez salon przeszywa okno."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[4].firstDescription
@@ -146938,8 +146952,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[0].repeatDescription
-      value: "\u201EMog\u0142a widzie\u0107 st\xF3\u0142, lecz to nie on odda\u0142
-        strza\u0142.\u201D"
+      value: "Najpierw jednak obr\xF3ci\u0142 si\u0119 st\xF3\u0142."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[1].canConnectReverse
@@ -146952,7 +146965,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[1].repeatDescription
-      value: "\u201EJej pozycja wskazuje dok\u0142adnie podejrzany fragment muru.\u201D"
+      value: "Mrok skrywa\u0142 tajemnic\u0119 tego miejsca."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[2].canConnectReverse
@@ -146965,8 +146978,8 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[2].repeatDescription
-      value: "\u201EOgie\u0144 uczyni\u0142 j\u0105 widoczn\u0105 w najgorszym mo\u017Cliwym
-        momencie.\u201D"
+      value: "Kominek dawa\u0142 \u015Bwiat\u0142o. Wystarczaj\u0105co du\u017Co,
+        by napastnik nie chybi\u0142."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[3].canConnectReverse
@@ -146979,8 +146992,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[3].repeatDescription
-      value: "\u201EPozycja cia\u0142a i \u015Blad w szybie nale\u017C\u0105 do tej
-        samej trajektorii.\u201D"
+      value: "Lady Edith upada, a kula po przej\u015Bciu przez salon przeszywa okno."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[4].canConnectReverse
@@ -146993,8 +147005,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[4].repeatDescription
-      value: "\u201ECiemno\u015B\u0107 nie by\u0142a t\u0142em. By\u0142a cz\u0119\u015Bci\u0105
-        planu.\u201D"
+      value: "Ciemno\u015B\u0107 by\u0142a cz\u0119\u015Bci\u0105 planu."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.data[0].requiredConnections.Array.size
@@ -151935,7 +151946,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7755962655327079785, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8184648043481443658, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Name
@@ -152888,6 +152899,7 @@ GameObject:
   - component: {fileID: 1153322810}
   - component: {fileID: 1153322809}
   - component: {fileID: 1153322808}
+  - component: {fileID: 1153322811}
   m_Layer: 7
   m_Name: Henry_NPC
   m_TagString: Untagged
@@ -152944,10 +152956,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb8be619c338b934f9a4400e27bf84de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 0}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   smartNPC: {fileID: 0}
   facePlayerBeforeDialogue: 0
   facePlayerTurnSpeed: 360
   facePlayerTolerance: 1
+  introAudioSource: {fileID: 1153322811}
+  introAudioClip: {fileID: 8300000, guid: 52f4869bb65eb1540be3b3f54c0c612e, type: 3}
   dialogueRig: {fileID: 2022926698}
   rigBlendDuration: 0.25
 --- !u!114 &1153322806
@@ -153120,6 +153140,103 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!82 &1153322811
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1153322802}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1001 &1153725264
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -155719,7 +155836,7 @@ PrefabInstance:
       objectReference: {fileID: 1739836781}
     - target: {fileID: 5655668155017918476, guid: 429e45ec9d8084b499b7237d881f5975, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8878272491677890385, guid: 429e45ec9d8084b499b7237d881f5975, type: 3}
       propertyPath: m_LocalPosition.x
@@ -161093,8 +161210,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   repeatable: 1
   dialogueLines: []
-  sherlockVoiceSource: {fileID: 0}
-  watsonVoiceSource: {fileID: 0}
+  sherlockVoiceSource: {fileID: 1120607583}
+  watsonVoiceSource: {fileID: 8390739253207350096}
   selmaVoiceSource: {fileID: 0}
   violetVoiceSource: {fileID: 0}
   greenFigurePoint: {fileID: 1155280310}
@@ -162039,7 +162156,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalScale.x
@@ -162186,7 +162303,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ba297371985ec5409a2a3aeb378b020, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  topText: "1A4 - to warto zapami\u0119ta\u0107"
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 0}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
 --- !u!114 &1204771856
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -170320,7 +170442,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalScale.x
@@ -171083,6 +171205,7 @@ GameObject:
   - component: {fileID: 1273503953}
   - component: {fileID: 1273503958}
   - component: {fileID: 1273503957}
+  - component: {fileID: 1273503959}
   m_Layer: 7
   m_Name: Georg_NPC
   m_TagString: Untagged
@@ -171120,10 +171243,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dea5e1914fc74e34d88e88bded12904c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 0}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   smartNPC: {fileID: 1273503956}
   facePlayerBeforeDialogue: 1
   facePlayerTurnSpeed: 200
   facePlayerTolerance: 1
+  introAudioSource: {fileID: 1273503959}
+  introAudioClip: {fileID: 8300000, guid: 9aacc269bd5dd644ba828a37110f250b, type: 3}
 --- !u!136 &1273503954
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -171259,6 +171390,103 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!82 &1273503959
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1273503951}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1273820661
 GameObject:
   m_ObjectHideFlags: 0
@@ -171599,6 +171827,7 @@ MonoBehaviour:
   watsonPlayerIndex: 1
   questionMarkToHide: {fileID: 1797786413}
   deactivateOnTutorialComplete: {fileID: 1277166580}
+  cameraController: {fileID: 0}
   watsonTurnSpeed: 200
   openingDialogueLines:
   - speaker: 0
@@ -171611,13 +171840,13 @@ MonoBehaviour:
     voiceClip: {fileID: 8300000, guid: f3a2001e30ceb7c4ab232679754fd517, type: 3}
     duration: 4.2
   - speaker: 0
-    text: "Przedewszystkim... Wyprowad\u017A j\u0105 na chwil\u0119 z biblioteki..."
+    text: "Przede wszystkim... Wyprowad\u017A j\u0105 na chwil\u0119 z biblioteki..."
     voiceClip: {fileID: 8300000, guid: 3760a9ab87289a2408d97e89d03f9897, type: 3}
     duration: 4.25
   tutorialPanelId: WatsonSwitchTutorial
   tutorialText: "W grze mo\u017Cesz sterowa\u0107 tak\u017Ce Watsonem,\\naby zdobywa\u0107
-    wi\u0119cej informacji lub wp\u0142ywa\u0107 na otoczenie.\\nWci\u015Bnij \"SPACJ\u0118\",
-    aby prze\u0142\u0105cza\u0107 si\u0119 pomi\u0119dzy postaciami."
+    wi\u0119cej informacji przes\u0142uchuj\u0105c \u015Bwiadk\xF3w.\\nWci\u015Bnij
+    \"SPACJ\u0118\", aby prze\u0142\u0105cza\u0107 si\u0119 pomi\u0119dzy postaciami."
   afterPopupDialogueLines:
   - speaker: 0
     text: Powodzenia.
@@ -187555,7 +187784,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -188517,13 +188746,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc95114181b4dcb419ba3ac3eb31229e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines:
+  - speaker: 0
+    text: 
+    voiceClip: {fileID: 8300000, guid: 6b7d17db72c5082468280f8a76e8001d, type: 3}
+    duration: 1
+  - speaker: 0
+    text: "Znalaz\u0142em ma\u0142y kluczyk."
+    voiceClip: {fileID: 8300000, guid: 2d725e749acb44245a3865a0e3f3a806, type: 3}
+    duration: 2
+  sherlockVoiceSource: {fileID: 1120607583}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   spline1: {fileID: 1541170625}
   spline2: {fileID: 389390785}
   performed: 0
   switcher: {fileID: 0}
   intRenderer: {fileID: 703657783}
   audioFX: {fileID: 1427473848}
-  topText: "Znalaz\u0142em ma\u0142y kluczyk."
   keyFounded: 0
 --- !u!82 &1427473848
 AudioSource:
@@ -192768,7 +193010,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   repeatable: 1
   dialogueLines: []
-  sherlockVoiceSource: {fileID: 0}
+  sherlockVoiceSource: {fileID: 1120607583}
   watsonVoiceSource: {fileID: 0}
   selmaVoiceSource: {fileID: 0}
   violetVoiceSource: {fileID: 0}
@@ -192785,8 +193027,8 @@ MonoBehaviour:
     duration: 0.754
   - speaker: 0
     text: "Ten list mo\u017Ce wyja\u015Bni\u0107 wi\u0119cej, ni\u017C si\u0119 wydaje"
-    voiceClip: {fileID: 0}
-    duration: 3
+    voiceClip: {fileID: 8300000, guid: bb6868c2ecc3f3641842dad3dd7ef494, type: 3}
+    duration: 3.52
   openNotebookNoteAfterPickup: 1
   notebookNoteIndex: 0
 --- !u!114 &1455712662
@@ -196655,6 +196897,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a91adfed96d180f4c9349e9480168fb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 0}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   smartNPC: {fileID: 1259649560}
   interactable: {fileID: 1473337939}
   performed: 0
@@ -196663,6 +196911,11 @@ MonoBehaviour:
   facePlayerBeforeDialogue: 1
   facePlayerTurnSpeed: 360
   facePlayerTolerance: 1
+  introDialogue:
+  - speaker: 2
+    text: 
+    voiceClip: {fileID: 8300000, guid: 3c9fa43ecdbef184b855cf1eb0db4afa, type: 3}
+    duration: 0.1
 --- !u!1 &1473377545
 GameObject:
   m_ObjectHideFlags: 0
@@ -197089,7 +197342,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7755962655327079785, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8184648043481443658, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Name
@@ -197151,11 +197404,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9a9d92f379852e42902fcc81aa769dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines:
+  - speaker: 0
+    text: "Ma\u0142ej tu nie ma, musz\u0119 szuka\u0107 dalej."
+    voiceClip: {fileID: 8300000, guid: d3febc35e356d5d43bf79f7b687a076d, type: 3}
+    duration: 3
+  sherlockVoiceSource: {fileID: 1120607583}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   performed: 0
   spline1: {fileID: 2022770720}
   spline2: {fileID: 1144148746}
   mirror: {fileID: 1518787725}
-  roomDiscoveryText: "Ma\u0142ej tu nie ma, musz\u0119 szuka\u0107 dalej."
 --- !u!114 &1479041043
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -203972,7 +204234,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalScale.x
@@ -204791,7 +205053,7 @@ MonoBehaviour:
     text: 
     voiceClip: {fileID: 0}
     duration: 0.1
-  sherlockVoiceSource: {fileID: 0}
+  sherlockVoiceSource: {fileID: 1120607583}
   watsonVoiceSource: {fileID: 0}
   selmaVoiceSource: {fileID: 0}
   violetVoiceSource: {fileID: 0}
@@ -204807,9 +205069,13 @@ MonoBehaviour:
   book: {fileID: 1427473847}
   missingKeyDialogue:
   - speaker: 0
-    text: "Potrzebuj\u0119 specjalnego kluczyka."
-    voiceClip: {fileID: 0}
-    duration: 3
+    text: 
+    voiceClip: {fileID: 8300000, guid: 16033d0c44530da47a653b4ff29f2a64, type: 3}
+    duration: 0.25
+  - speaker: 0
+    text: "Potrzebuj\u0119 specjalnego kluczyka"
+    voiceClip: {fileID: 8300000, guid: 53c7bca83dc18a943808a7cc3e3a0514, type: 3}
+    duration: 0.25
   performed: 0
   isOpen: 0
 --- !u!114 &1518787726
@@ -208633,8 +208899,15 @@ MonoBehaviour:
     to: {fileID: 757335159}
   wrongTitle: Nie.
   wrongDescription: To nie uklada sie w logiczny ciag.
-  solvedTitle: Oczywiscie.
-  solvedDescription: "To zegar wyznacza drog\u0119..."
+  solvedDialogue:
+  - speaker: 0
+    text: "Teraz rozumiem przebieg wydarze\u0144."
+    voiceClip: {fileID: 0}
+    duration: 2
+  sherlockVoiceSource: {fileID: 0}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   objectToReparentBeforeSolvedActions: {fileID: 0}
   newParentBeforeSolvedActions: {fileID: 0}
   keepWorldPositionWhenReparenting: 1
@@ -209775,7 +210048,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7755962655327079785, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8184648043481443658, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Name
@@ -220418,8 +220691,6 @@ MonoBehaviour:
     text: "Lepiej by\u0142oby pomyszkowa\u0107 tu w samotno\u015Bci."
     voiceClip: {fileID: 8300000, guid: 23a34616a3be4f64fad93d47706efe47, type: 3}
     duration: 3.1
-  sherlockVoiceSource: {fileID: 1120607583}
-  watsonVoiceSource: {fileID: 8390739253207350096}
   debugIsVioletInRoom: 0
   debugIsLibraryObserved: 0
   debugVioletGateRedirected: 0
@@ -220716,7 +220987,7 @@ MonoBehaviour:
     text: Drewniany, wytapetowany klocek.
     voiceClip: {fileID: 0}
     duration: 2
-  sherlockVoiceSource: {fileID: 0}
+  sherlockVoiceSource: {fileID: 1120607583}
   watsonVoiceSource: {fileID: 0}
   selmaVoiceSource: {fileID: 0}
   violetVoiceSource: {fileID: 0}
@@ -220725,9 +220996,13 @@ MonoBehaviour:
   worldVisual: {fileID: 766970972}
   pickupDialogue:
   - speaker: 0
-    text: Drewniany, wytapetowany klocek.
-    voiceClip: {fileID: 0}
-    duration: 2
+    text: "Ma\u0142e, wytapetowane drewienko. Ciekawe do czego s\u0142u\u017Cy..."
+    voiceClip: {fileID: 8300000, guid: d0f715a27dfd65c46956f1a720673843, type: 3}
+    duration: 0.5
+  - speaker: 0
+    text: "Ma\u0142e, wytapetowane drewienko. Ciekawe do czego s\u0142u\u017Cy..."
+    voiceClip: {fileID: 8300000, guid: 984455c91d26fb8489466ea29df8f2f5, type: 3}
+    duration: 5.5
   setHiddenDoorHasKeyOnPickup: 1
   hiddenDoorToUnlock: {fileID: 794009762}
 --- !u!114 &1646503496
@@ -226690,7 +226965,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   repeatable: 1
   dialogueLines: []
-  sherlockVoiceSource: {fileID: 0}
+  sherlockVoiceSource: {fileID: 1120607583}
   watsonVoiceSource: {fileID: 0}
   selmaVoiceSource: {fileID: 0}
   violetVoiceSource: {fileID: 0}
@@ -226706,9 +226981,9 @@ MonoBehaviour:
     voiceClip: {fileID: 8300000, guid: a6c082dff56ed8a41a419e2f7d905c5b, type: 3}
     duration: 0.754
   - speaker: 0
-    text: ".No prosz\u0119... List od samej Kr\xF3lowej Wiktorii."
-    voiceClip: {fileID: 0}
-    duration: 3
+    text: "No prosz\u0119... List od samej Kr\xF3lowej Wiktorii."
+    voiceClip: {fileID: 8300000, guid: ddc09292433b04344a16979734410bb5, type: 3}
+    duration: 5
   openNotebookNoteAfterPickup: 1
   notebookNoteIndex: 0
 --- !u!114 &1683827480
@@ -228952,7 +229227,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -230163,7 +230438,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -235695,7 +235970,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   repeatable: 1
   dialogueLines: []
-  sherlockVoiceSource: {fileID: 0}
+  sherlockVoiceSource: {fileID: 1120607583}
   watsonVoiceSource: {fileID: 0}
   selmaVoiceSource: {fileID: 0}
   violetVoiceSource: {fileID: 0}
@@ -235716,9 +235991,9 @@ MonoBehaviour:
   doorclosedAudio: {fileID: 1742633073}
   firstInteractionDialogue:
   - speaker: 0
-    text: "Zamkni\u0119te. Powininem sobie z tym poradzi\u0107..."
-    voiceClip: {fileID: 0}
-    duration: 3
+    text: "Zamkni\u0119te. Powinienem sobie z tym poradzi\u0107..."
+    voiceClip: {fileID: 8300000, guid: 3cdeafc458938924199965ff14038722, type: 3}
+    duration: 4
   showLockpickTutorialPopup: 1
   lockpickTutorialTitle: "Otwieranie Zamk\xF3w"
   lockpickTutorialText: "Sherlock potrafi otwiera\u0107 zamki, mo\u017Ce to wymaga\u0107
@@ -239851,12 +240126,11 @@ MonoBehaviour:
     canConnect: 1
     canConnectReverse: 1
     firstTitle: Sherlock Holmes
-    firstDescription: "\u201EWy\u0142\u0105czone \u015Bwiat\u0142o pozostawi\u0142o
-      kominek jedynym \u017Ar\xF3d\u0142em blasku. Kto\u015B zadba\u0142 o mrok,
-      lecz nie o ca\u0142kowit\u0105 ciemno\u015B\u0107.\u201D"
+    firstDescription: "Wy\u0142\u0105czone lampy pozostawi\u0142o kominek jedynym
+      \u017Ar\xF3d\u0142em \u015Bwiat\u0142a."
     repeatTitle: Sherlock Holmes
-    repeatDescription: "\u201ELampy zgas\u0142y, kominek pozosta\u0142. Bardzo wygodny
-      przypadek.\u201D"
+    repeatDescription: "Wy\u0142\u0105czone lampy pozostawi\u0142o kominek jedynym
+      \u017Ar\xF3d\u0142em \u015Bwiat\u0142a."
     dependencyMode: 0
     requiredConnections: []
     lockedTitle: Jeszcze nie.
@@ -239866,12 +240140,9 @@ MonoBehaviour:
     canConnect: 0
     canConnectReverse: 1
     firstTitle: Sherlock Holmes
-    firstDescription: "\u201EPo zgaszeniu lamp ruchomy st\xF3\u0142 znika\u0142 w
-      p\xF3\u0142mroku. Mechanizm mo\u017Cna by\u0142o uruchomi\u0107 bez zwracania
-      uwagi go\u015Bci.\u201D"
+    firstDescription: "Po zgaszeniu lamp ruchomy st\xF3\u0142 znika\u0142 w p\xF3\u0142mroku. "
     repeatTitle: Sherlock Holmes
-    repeatDescription: "\u201EMrok sprzyja\u0142 mechanizmowi bardziej ni\u017C dobrym
-      manierom.\u201D"
+    repeatDescription: "Po zgaszeniu lamp ruchomy st\xF3\u0142 znika\u0142 w p\xF3\u0142mroku. "
     dependencyMode: 0
     requiredConnections: []
     lockedTitle: Jeszcze nie.
@@ -239881,11 +240152,11 @@ MonoBehaviour:
     canConnect: 0
     canConnectReverse: 1
     firstTitle: Sherlock Holmes
-    firstDescription: "\u201EZgaszone lampy pogr\u0105\u017Cy\u0142y t\u0119 \u015Bcian\u0119
-      w cieniu. Idealne miejsce, by przej\u015Bcie otworzy\u0142o si\u0119 bez zaproszenia.\u201D"
+    firstDescription: "Zgaszone lampy pogr\u0105\u017Cy\u0142y t\u0119 \u015Bcian\u0119
+      w cieniu."
     repeatTitle: Sherlock Holmes
-    repeatDescription: "\u201EUkryte drzwi i ciemno\u015B\u0107 to znajomo\u015B\u0107
-      niemal zawodowa.\u201D"
+    repeatDescription: "Zgaszone lampy pogr\u0105\u017Cy\u0142y t\u0119 \u015Bcian\u0119
+      w cieniu."
     dependencyMode: 0
     requiredConnections: []
     lockedTitle: Jeszcze nie.
@@ -239895,26 +240166,23 @@ MonoBehaviour:
     canConnect: 0
     canConnectReverse: 1
     firstTitle: Sherlock Holmes
-    firstDescription: "\u201EKiedy Lady Edith upada\u0142a, \u015Bwiat\u0142o w\u0142a\u015Bnie
-      przesta\u0142o dzia\u0142a\u0107. Przypadek ma czasem wyczucie dramaturgii,
-      lecz rzadko a\u017C tak dobre.\u201D"
+    firstDescription: "Zgaszone lampy mog\u0142y ukry\u0107 Lady Edith w mroku."
     repeatTitle: Sherlock Holmes
-    repeatDescription: "\u201ECiemno\u015B\u0107 pojawi\u0142a si\u0119 dok\u0142adnie
-      wtedy, gdy by\u0142a potrzebna zab\xF3jcy.\u201D"
+    repeatDescription: "Zgaszone lampy mog\u0142y ukry\u0107 Lady Edith w mroku."
     dependencyMode: 0
     requiredConnections: []
     lockedTitle: Jeszcze nie.
     lockedDescription: "Brakuje mi jeszcze jednego faktu. Dedukcja, podobnie jak
       herbata, \u0179le znosi po\u015Bpiech."
-  - target: {fileID: 0}
+  - target: {fileID: 1531085681}
     canConnect: 0
     canConnectReverse: 1
     firstTitle: Sherlock Holmes
-    firstDescription: "\u201EBrak \u015Bwiat\u0142a nie uszkodzi\u0142 okna, ale
-      utrudni\u0142 \u015Bwiadkom dostrze\u017Cenie kierunku strza\u0142u. Szyba
-      zapami\u0119ta\u0142a go za nich.\u201D"
+    firstDescription: "Brak \u015Bwiat\u0142a z zewn\u0105trz pozostawia pomieszczenie
+      w ciemno\u015Bciach."
     repeatTitle: Sherlock Holmes
-    repeatDescription: "\u201ELudzie nie widzieli, okno zachowa\u0142o dow\xF3d.\u201D"
+    repeatDescription: "Brak \u015Bwiat\u0142a z zewn\u0105trz pozostawia pomieszczenie
+      w ciemno\u015Bciach."
     dependencyMode: 0
     requiredConnections: []
     lockedTitle: Jeszcze nie.
@@ -241360,11 +241628,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5ab395a9763e11840bf11d831dbe46d5, type: 3}
---- !u!4 &1782081228 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1712450910648746373, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
-  m_PrefabInstance: {fileID: 388207449}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1783037976 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: ae2dc5e2b72bbb648b727cf8fb6edd18, type: 3}
@@ -258546,13 +258809,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1909134665}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.22774845, z: -0, w: 0.97372}
-  m_LocalPosition: {x: -14.41404, y: 0.05000019, z: -6.0358143}
+  m_LocalRotation: {x: 0, y: -0.1686615, z: 0, w: 0.9856741}
+  m_LocalPosition: {x: -9.703034, y: 0.05000019, z: -4.2944613}
   m_LocalScale: {x: 1.025, y: 1.0249997, z: 1.0250001}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1393435898}
-  m_LocalEulerAnglesHint: {x: 0, y: 26.329, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -19.42, z: 0}
 --- !u!1001 &1910417846
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -259433,10 +259696,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cf2e6de4b58ffc45b08f79baf7f54b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 0}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   performed: 0
   EthelRoomBlocks: 0
-  playBlocksText: "Te klocki musz\u0105 do czego\u015B s\u0142u\u017Cy\u0107."
-  ethelRoomBlocksText: "Klocki Ethel tworz\u0105 znajomy wz\xF3r."
 --- !u!114 &1918489196
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -263368,7 +263635,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1938904070
 Transform:
   m_ObjectHideFlags: 0
@@ -266873,7 +267140,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalScale.x
@@ -269709,7 +269976,7 @@ VFXRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1988386600}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -272013,7 +272280,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -275958,7 +276225,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalScale.x
@@ -276549,7 +276816,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -279049,7 +279316,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -289115,8 +289382,8 @@ MonoBehaviour:
     duration: 0.754
   - speaker: 0
     text: "Interesuj\u0105ce..."
-    voiceClip: {fileID: 0}
-    duration: 3
+    voiceClip: {fileID: 8300000, guid: 057b5029adbe2874f9ff33c1b6f0b5f1, type: 3}
+    duration: 1.6
   openNotebookNoteAfterPickup: 1
   notebookNoteIndex: 0
 --- !u!114 &2126772527
@@ -290747,8 +291014,6 @@ MonoBehaviour:
     text: "Lepiej by\u0142oby pomyszkowa\u0107 tu w samotno\u015Bci."
     voiceClip: {fileID: 8300000, guid: 23a34616a3be4f64fad93d47706efe47, type: 3}
     duration: 3.05
-  sherlockVoiceSource: {fileID: 1120607583}
-  watsonVoiceSource: {fileID: 8390739253207350096}
   debugIsVioletInRoom: 0
   debugIsLibraryObserved: 0
   debugVioletGateRedirected: 0
@@ -291907,7 +292172,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6299277826146454589, guid: 25709e54ee905314ab872009de7193ac, type: 3}
       propertyPath: pickupDialogue.Array.data[0].duration
-      value: 0.1
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 6299277826146454589, guid: 25709e54ee905314ab872009de7193ac, type: 3}
       propertyPath: pickupDialogue.Array.data[1].duration
@@ -293560,7 +293825,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 549815734688101165, guid: 284735e55effa414c98d73f52f98d2fd, type: 3}
       propertyPath: pickupDialogue.Array.data[0].duration
-      value: 0.1
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 549815734688101165, guid: 284735e55effa414c98d73f52f98d2fd, type: 3}
       propertyPath: pickupDialogue.Array.data[1].duration
@@ -298115,7 +298380,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2087062722645180932, guid: 2ac53fa4b7e319044adc2ef529a847b8, type: 3}
       propertyPath: pickupDialogue.Array.data[0].duration
-      value: 0.1
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 2087062722645180932, guid: 2ac53fa4b7e319044adc2ef529a847b8, type: 3}
       propertyPath: pickupDialogue.Array.data[1].duration
@@ -304627,8 +304892,6 @@ MonoBehaviour:
     text: "Lepiej by\u0142oby pomyszkowa\u0107 tu w samotno\u015Bci."
     voiceClip: {fileID: 8300000, guid: 23a34616a3be4f64fad93d47706efe47, type: 3}
     duration: 3.05
-  sherlockVoiceSource: {fileID: 1120607583}
-  watsonVoiceSource: {fileID: 8390739253207350096}
   debugIsVioletInRoom: 0
   debugIsLibraryObserved: 0
   debugVioletGateRedirected: 0
@@ -308216,7 +308479,7 @@ PrefabInstance:
       objectReference: {fileID: 1739836781}
     - target: {fileID: 5655668155017918476, guid: 429e45ec9d8084b499b7237d881f5975, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8878272491677890385, guid: 429e45ec9d8084b499b7237d881f5975, type: 3}
       propertyPath: m_LocalPosition.x
@@ -311701,7 +311964,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8190028797482325683, guid: 1f3ed62dd76f7484fbb55b9bd2cef2c7, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9208824974936529881, guid: 1f3ed62dd76f7484fbb55b9bd2cef2c7, type: 3}
       propertyPath: m_LocalPosition.x

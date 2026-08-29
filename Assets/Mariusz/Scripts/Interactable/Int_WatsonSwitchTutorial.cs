@@ -17,6 +17,9 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
     [SerializeField] private GameObject questionMarkToHide;
     [SerializeField] private GameObject deactivateOnTutorialComplete;
 
+    [Header("Camera")]
+    [SerializeField] private CameraController cameraController;
+
     [Header("Immediate Watson Reaction")]
     [SerializeField, Min(1f)] private float watsonTurnSpeed = 360f;
 
@@ -82,6 +85,9 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
 
         if (deactivateOnTutorialComplete == null)
             deactivateOnTutorialComplete = gameObject;
+
+        if (cameraController == null)
+            cameraController = FindFirstObjectByType<CameraController>();
     }
 
     public void PerformInteraction(PlayerController player)
@@ -143,6 +149,7 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
     {
         tutorialInProgress = true;
         ClearCurrentInteraction(player);
+        cameraController?.SetZoomState(CameraZoomState.Narrow);
 
         SwitchCharacter switchCharacter = SwitchCharacter.Instance;
         if (switchCharacter != null)

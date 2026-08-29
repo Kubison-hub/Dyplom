@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -28,9 +29,22 @@ public class DetectiveSequencePuzzle : MonoBehaviour
     public string wrongTitle = "Nie.";
     [TextArea] public string wrongDescription = "To nie uklada sie w logiczny ciag.";
 
-    [Header("Solved")]
-    public string solvedTitle = "Oczywiscie.";
-    [TextArea] public string solvedDescription = "Teraz rozumiem przebieg wydarzen.";
+    [Header("Solved Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] solvedDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Teraz rozumiem przebieg wydarzeń.",
+            duration = 2f
+        }
+    };
+
+    [Header("Solved Dialogue Audio Overrides")]
+    [SerializeField] private AudioSource sherlockVoiceSource;
+    [SerializeField] private AudioSource watsonVoiceSource;
+    [SerializeField] private AudioSource selmaVoiceSource;
+    [SerializeField] private AudioSource violetVoiceSource;
 
     [Header("Reparent Before Solved Actions")]
     [Tooltip("Optional. This object is moved under New Parent before Activate On Solved and On Solved are invoked.")]
@@ -283,7 +297,9 @@ public class DetectiveSequencePuzzle : MonoBehaviour
         if (completeCrimeSceneObjectiveOnSolved)
             CluesLog.Instance?.CompleteCrimeSceneInvestigation();
 
-        ShowTopText(solvedTitle, solvedDescription);
+        if (solvedDialogue != null && solvedDialogue.Length > 0)
+            StartCoroutine(PlaySolvedDialogue());
+
         onSolved?.Invoke();
     }
 
@@ -300,12 +316,72 @@ public class DetectiveSequencePuzzle : MonoBehaviour
         }
     }
 
+    private IEnumerator PlaySolvedDialogue()
+    {
+        foreach (Lvl3DialogueLine line in solvedDialogue)
+        {
+            string sherlockText = line.speaker == Lvl3DialogueSpeaker.Sherlock ? line.text : string.Empty;
+            string watsonText = line.speaker == Lvl3DialogueSpeaker.Watson ? line.text : string.Empty;
+            string selmaText = line.speaker == Lvl3DialogueSpeaker.Selma ? line.text : string.Empty;
+            string violetText = line.speaker == Lvl3DialogueSpeaker.Violet ? line.text : string.Empty;
+
+            if (PlayerTopText.Instance != null)
+            {
+                PlayerTopText.Instance.ShowTopTextPersistent(sherlockText, watsonText);
+                PlayerTopText.Instance.ShowSelmaTopTextPersistent(selmaText);
+                PlayerTopText.Instance.ShowVioletTopTextPersistent(violetText);
+            }
+
+            PlaySolvedVoice(line);
+
+            float duration = line.duration > 0f
+                ? line.duration
+                : PlayerTopText.Instance != null ? PlayerTopText.Instance.textTime : 3f;
+
+            yield return new WaitForSeconds(duration);
+
+            PlayerTopText.Instance?.ClearTopTextIfMatches(sherlockText, watsonText);
+            PlayerTopText.Instance?.ClearSelmaTopTextIfMatches(selmaText);
+            PlayerTopText.Instance?.ClearVioletTopTextIfMatches(violetText);
+        }
+    }
+
+    private void PlaySolvedVoice(Lvl3DialogueLine line)
+    {
+        if (line.voiceClip == null)
+            return;
+
+        DialogueAudioRegistry registry = DialogueAudioRegistry.Instance;
+        AudioSource source = line.speaker switch
+        {
+            Lvl3DialogueSpeaker.Sherlock => sherlockVoiceSource != null
+                ? sherlockVoiceSource
+                : registry != null ? registry.SherlockVoiceSource : null,
+            Lvl3DialogueSpeaker.Watson => watsonVoiceSource != null
+                ? watsonVoiceSource
+                : registry != null ? registry.WatsonVoiceSource : null,
+            Lvl3DialogueSpeaker.Selma => selmaVoiceSource != null
+                ? selmaVoiceSource
+                : registry != null ? registry.SelmaVoiceSource : null,
+            Lvl3DialogueSpeaker.Violet => violetVoiceSource != null
+                ? violetVoiceSource
+                : registry != null ? registry.VioletVoiceSource : null,
+            _ => null
+        };
+
+        if (source == null)
+            return;
+
+        source.Stop();
+        source.PlayOneShot(line.voiceClip);
+    }
+
     private void ShowTopText(string title, string description)
     {
-        if (PlayerTopText.Instance != null)
-        {
-            string sherlockText = string.IsNullOrWhiteSpace(description) ? title : description;
-            PlayerTopText.Instance.ShowTopText(sherlockText, "");
-        }
+        if (PlayerTopText.Instance == null)
+            return;
+
+        string sherlockText = string.IsNullOrWhiteSpace(description) ? title : description;
+        PlayerTopText.Instance.ShowTopText(sherlockText, "");
     }
 }

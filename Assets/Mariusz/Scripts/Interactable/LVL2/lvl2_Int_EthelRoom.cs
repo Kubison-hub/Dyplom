@@ -2,8 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class lvl2_Int_EthelRoom : MonoBehaviour
+public class lvl2_Int_EthelRoom : Lvl3InteractionDialogueBase
 {
+    private static readonly Lvl3DialogueLine[] DefaultLines =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Nie znalazłem Ethel w jej pokoju.",
+            duration = 2.5f
+        }
+    };
+
     private Interactable interactable;
     private Transform cardPosition;
 
@@ -16,8 +26,7 @@ public class lvl2_Int_EthelRoom : MonoBehaviour
 
     public lvl2_Int_Mirror mirror;
 
-    [Header("Top Text")]
-    [SerializeField, TextArea] private string roomDiscoveryText = "Nie znalazłem Ethel w jej pokoju.";
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => DefaultLines;
 
     private void Start()
     {
@@ -34,8 +43,7 @@ public class lvl2_Int_EthelRoom : MonoBehaviour
         performed = true;
         StartCoroutine(AddClue());
 
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText(roomDiscoveryText, string.Empty);
+        PlayInteractionDialogue(null);
 
         //EagleVisionScanner.Instance.footprintsSplines.Add(spline);
 
@@ -76,7 +84,9 @@ public class lvl2_Int_EthelRoom : MonoBehaviour
             interactable.isInteractableActive = false;
         }
         yield return new WaitForSeconds(3);
-        
+
+        while (IsDialoguePlaying)
+            yield return null;
 
         this.gameObject.SetActive(false);
 

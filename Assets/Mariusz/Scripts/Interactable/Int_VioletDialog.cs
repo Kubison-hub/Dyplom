@@ -3,7 +3,7 @@ using System.Collections;
 using Unity.Cinemachine;
 using UnityEngine;
 
-public class Int_VioletDialog : MonoBehaviour
+public class Int_VioletDialog : Lvl3InteractionDialogueBase
 {
     public SmartNPC smartNPC;
     public Interactable interactable;
@@ -26,6 +26,10 @@ public class Int_VioletDialog : MonoBehaviour
     [SerializeField] private bool restoreRotationAfterDialogue = true;
     [SerializeField, Min(1f)] private float restoreRotationTurnSpeed = 240f;
 
+    [Header("Intro Dialogue")]
+    [Tooltip("Played after Violet faces the player and before the SmartNPC conversation begins.")]
+    [SerializeField] private Lvl3DialogueLine[] introDialogue;
+
     [Header("Library Awareness")]
     [Tooltip("Assign the Violet GameObject that actually carries WatsonEscortNPC and NavMeshAgent.")]
     [SerializeField] private Transform violetPositionTarget;
@@ -43,6 +47,9 @@ public class Int_VioletDialog : MonoBehaviour
     private Vector3 destination;
     private bool isLibraryObserved;
     private bool dialogueStarting;
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => introDialogue;
+
     private void Start()
     {
 
@@ -130,6 +137,13 @@ public class Int_VioletDialog : MonoBehaviour
                 player != null ? player.transform : null,
                 facePlayerTurnSpeed,
                 facePlayerTolerance);
+        }
+
+        if (introDialogue != null && introDialogue.Length > 0)
+        {
+            PlayDialogue(player, introDialogue);
+            while (IsDialoguePlaying)
+                yield return null;
         }
 
         smartNPC?.SprawdzIZacznijRozmowe();

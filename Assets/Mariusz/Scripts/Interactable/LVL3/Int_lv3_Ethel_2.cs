@@ -28,6 +28,8 @@ public class Int_lv3_Ethel_2 : MonoBehaviour
     [TextArea]
     [SerializeField] private string firstInteractionText = "Chodźcie za mną.";
     [SerializeField] private AudioSource ethelVoiceSource;
+    [Tooltip("Played when Ethel's SmartNPC conversation begins.")]
+    [SerializeField] private AudioClip conversationIntroAudio;
     [SerializeField] private AudioClip firstInteractionAudio;
     [SerializeField, Min(0.1f)] private float dialogueDuration = 2.5f;
 
@@ -118,6 +120,9 @@ public class Int_lv3_Ethel_2 : MonoBehaviour
 
     private void StartEthelConversation(PlayerController player)
     {
+        if (ethelVoiceSource != null && conversationIntroAudio != null)
+            ethelVoiceSource.PlayOneShot(conversationIntroAudio);
+
         if (ethelSmartNPC == null)
             return;
 

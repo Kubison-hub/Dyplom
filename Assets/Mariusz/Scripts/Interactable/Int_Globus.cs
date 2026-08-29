@@ -45,8 +45,6 @@ public class Int_Globus : Lvl3InteractionDialogueBase, IVioletRoomInteractionGat
             duration = 3f
         }
     };
-    [SerializeField] private AudioSource sherlockVoiceSource;
-    [SerializeField] private AudioSource watsonVoiceSource;
 
     [Header("Debug")]
     [SerializeField] private bool debugIsVioletInRoom;
@@ -165,27 +163,9 @@ public class Int_Globus : Lvl3InteractionDialogueBase, IVioletRoomInteractionGat
 
     private IEnumerator PlayVioletGateDialogue()
     {
-        if (violetPresentDialogue != null)
-        {
-            foreach (Lvl3DialogueLine line in violetPresentDialogue)
-            {
-                string sherlockText = line.speaker == Lvl3DialogueSpeaker.Sherlock ? line.text : string.Empty;
-                string watsonText = line.speaker == Lvl3DialogueSpeaker.Watson ? line.text : string.Empty;
-                PlayerTopText.Instance?.ShowTopTextPersistent(sherlockText, watsonText);
-
-                AudioSource voiceSource = line.speaker == Lvl3DialogueSpeaker.Sherlock
-                    ? sherlockVoiceSource
-                    : watsonVoiceSource;
-                if (voiceSource != null && line.voiceClip != null)
-                {
-                    voiceSource.Stop();
-                    voiceSource.PlayOneShot(line.voiceClip);
-                }
-
-                yield return new WaitForSeconds(line.duration > 0f ? line.duration : 3f);
-                PlayerTopText.Instance?.ClearTopTextIfMatches(sherlockText, watsonText);
-            }
-        }
+        PlayDialogue(null, violetPresentDialogue);
+        while (IsDialoguePlaying)
+            yield return null;
 
         ActivateFirstVioletGateObject();
         MoveWatsonToGatePoint();

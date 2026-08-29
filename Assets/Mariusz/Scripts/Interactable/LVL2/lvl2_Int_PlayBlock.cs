@@ -1,15 +1,34 @@
 using UnityEngine;
 
-public class lvl2_Int_PlayBlock : MonoBehaviour
+public class lvl2_Int_PlayBlock : Lvl3InteractionDialogueBase
 {
+    private static readonly Lvl3DialogueLine[] DefaultPlayBlocksDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Te klocki muszą do czegoś służyć.",
+            duration = 2f
+        }
+    };
+
+    private static readonly Lvl3DialogueLine[] DefaultEthelRoomBlocksDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Klocki Ethel tworzą znajomy wzór.",
+            duration = 2f
+        }
+    };
+
     private Interactable interactable;
 
     public bool performed = false;
     public bool EthelRoomBlocks;
 
-    [Header("Top Text")]
-    [SerializeField, TextArea] private string playBlocksText = "Te klocki muszą do czegoś służyć.";
-    [SerializeField, TextArea] private string ethelRoomBlocksText = "Klocki Ethel tworzą znajomy wzór.";
+    protected override Lvl3DialogueLine[] DefaultDialogueLines =>
+        EthelRoomBlocks ? DefaultEthelRoomBlocksDialogue : DefaultPlayBlocksDialogue;
 
     private void Start()
     {
@@ -23,29 +42,23 @@ public class lvl2_Int_PlayBlock : MonoBehaviour
         if (EthelRoomBlocks)
         {
             interactable.AddClue(0);
-            ShowTopText(ethelRoomBlocksText);
+            PlayInteractionDialogue(player);
             Debug.Log("Ethel Room PlayBlocks interacted");
         }
         else
         {
             interactable.AddClue(1);
-            ShowTopText(playBlocksText);
+            PlayInteractionDialogue(player);
             Debug.Log("PlayBlock interacted");
         }
         
 
         interactable.isInteractableActive = false;
-        player.currentInteractable = null;
+        if (player != null)
+            player.currentInteractable = null;
 
         ////intCollider.enabled = false;
         //this.gameObject.SetActive(false);
     }
-
-    private void ShowTopText(string text)
-    {
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText(text, string.Empty);
-    }
-//FIX
 
 }

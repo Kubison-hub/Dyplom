@@ -1,24 +1,27 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Interactable))]
-public class Int_lv1_SecretLetter : MonoBehaviour
+public class Int_lv1_SecretLetter : Lvl3InteractionDialogueBase
 {
-    [SerializeField, TextArea] private string topText = "1A4 - to warto zapamiętać";
+    private static readonly Lvl3DialogueLine[] DefaultLines =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "1A4 - to warto zapamiętać",
+            duration = 2f
+        }
+    };
 
-    private Interactable interactable;
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => DefaultLines;
 
     private void Start()
     {
-        interactable = GetComponent<Interactable>();
-        interactable.SetInteractionType(InteractionType.Int_lv1_SecretLetter);
+        SetupInteractable(InteractionType.Int_lv1_SecretLetter);
     }
 
     public void PerformInteraction(PlayerController player)
     {
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText(topText, "");
-
-        if (player != null)
-            player.currentInteractable = null;
+        PlayInteractionDialogue(player);
     }
 }

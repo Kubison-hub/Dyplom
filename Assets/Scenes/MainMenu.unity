@@ -273,22 +273,37 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1460160271564723240, guid: bfd884273cd9d8948ac82cc111a9c06f, type: 3}
       propertyPath: m_text
-      value: "Maja Bartnicka - Producent,  Projektant Poziom\xF3w, Artysta 2D, Narracja,
-        Projektant Quest\xF3w\nMariusz Kleszczewski - Projektant poziom\xF3w, Projektant
-        otoczenia\nJakub Suchorab - Programista, Projektant rozgrywki, Tester, Projektant
-        muzyki\nDominik Zwoli\u0144ski - Artryta 3D, Artysta UI"
+      value: "<b>Maja Bartnicka</b>\r\nProducent \xB7 Projektant poziom\xF3w \xB7
+        Artysta 2D \xB7 Narracja \xB7 Projektant quest\xF3w\r\n\r\n<b>Mariusz Kleszczewski</b>\r\nProjektant
+        poziom\xF3w \xB7 Programista zagadek \u015Brodowiskowych \xB7 Projektant
+        postaci 3D \n\xB7 Animacje \xB7 vfx \xB7 Tester \xB7 Ud\u017Awi\u0119kowienie\r\n\r\n<b>Jakub
+        Suchorab</b>\r\nProgramista \xB7 Projektant rozgrywki \xB7 Tester \xB7 Projektant
+        muzyki\r\n\r\n<b>Dominik Zwoli\u0144ski</b>\r\nArtysta 3D \xB7 Artysta UI
+        \xB7 Tester"
       objectReference: {fileID: 0}
     - target: {fileID: 1460160271564723240, guid: bfd884273cd9d8948ac82cc111a9c06f, type: 3}
       propertyPath: m_fontSize
-      value: 7
+      value: 4.76
+      objectReference: {fileID: 0}
+    - target: {fileID: 1460160271564723240, guid: bfd884273cd9d8948ac82cc111a9c06f, type: 3}
+      propertyPath: m_margin.w
+      value: -19.311724
+      objectReference: {fileID: 0}
+    - target: {fileID: 1460160271564723240, guid: bfd884273cd9d8948ac82cc111a9c06f, type: 3}
+      propertyPath: m_margin.y
+      value: -20.88305
       objectReference: {fileID: 0}
     - target: {fileID: 1460160271564723240, guid: bfd884273cd9d8948ac82cc111a9c06f, type: 3}
       propertyPath: m_fontStyle
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1460160271564723240, guid: bfd884273cd9d8948ac82cc111a9c06f, type: 3}
+      propertyPath: m_lineSpacing
+      value: 1.58
+      objectReference: {fileID: 0}
+    - target: {fileID: 1460160271564723240, guid: bfd884273cd9d8948ac82cc111a9c06f, type: 3}
       propertyPath: m_fontSizeBase
-      value: 7
+      value: 4.76
       objectReference: {fileID: 0}
     - target: {fileID: 1657522086830500609, guid: bfd884273cd9d8948ac82cc111a9c06f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -401,6 +416,14 @@ PrefabInstance:
     - target: {fileID: 2205318907180157793, guid: bfd884273cd9d8948ac82cc111a9c06f, type: 3}
       propertyPath: m_ReferenceResolution.y
       value: 1080
+      objectReference: {fileID: 0}
+    - target: {fileID: 3169642172100877347, guid: bfd884273cd9d8948ac82cc111a9c06f, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 50.2861
+      objectReference: {fileID: 0}
+    - target: {fileID: 3169642172100877347, guid: bfd884273cd9d8948ac82cc111a9c06f, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -50.54306
       objectReference: {fileID: 0}
     - target: {fileID: 5602007785656581179, guid: bfd884273cd9d8948ac82cc111a9c06f, type: 3}
       propertyPath: m_Type
