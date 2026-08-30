@@ -4568,7 +4568,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -13375,7 +13375,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &92035399
 Transform:
   m_ObjectHideFlags: 0
@@ -13488,6 +13488,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c420fa2e511cf0458aec877a0226dd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 0}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   allowSherlock: 1
   allowWatson: 1
   heldLamp1: {fileID: 1830353986}
@@ -17018,7 +17024,7 @@ VFXRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 117699640}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -18994,7 +19000,7 @@ VFXRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 128986803}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -21608,11 +21614,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   repeatable: 1
-  dialogueLines: []
+  dialogueLines:
+  - speaker: 0
+    text: 
+    voiceClip: {fileID: 0}
+    duration: 0
   sherlockVoiceSource: {fileID: 0}
   watsonVoiceSource: {fileID: 0}
   selmaVoiceSource: {fileID: 0}
   violetVoiceSource: {fileID: 0}
+  playBlocksDialogue:
+  - speaker: 0
+    text: "A tutaj klocek z liter\u0105 \"D\""
+    voiceClip: {fileID: 8300000, guid: 1d25e744ef84543419cb382340ebd8a6, type: 3}
+    duration: 2.88
+  ethelRoomBlocksDialogue:
+  - speaker: 0
+    text: "Klocki Ethel tworz\u0105 znajomy wz\xF3r."
+    voiceClip: {fileID: 0}
+    duration: 2
   performed: 0
   EthelRoomBlocks: 0
 --- !u!114 &147797620
@@ -23040,7 +23060,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -26530,7 +26550,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -26575,6 +26595,10 @@ PrefabInstance:
     - target: {fileID: 7040294792784999926, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_PropertySheet.m_Vector2f.m_Array.Array.size
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7040294792784999926, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_PropertySheet.m_Int.m_Array.Array.data[0].m_Value
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 7040294792784999926, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_PropertySheet.m_Vector2f.m_Array.Array.data[0].m_Name
@@ -39330,7 +39354,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -39572,14 +39596,14 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 2b84a8a76ef18f4438acc2b37e617d4e, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9c5ce036051eb5a46bc2d4ae7168e115, type: 2}
+      objectReference: {fileID: 2100000, guid: c85ec99b3043b9041b0a40532a16f0e8, type: 2}
     - target: {fileID: 919132149155446097, guid: 2b84a8a76ef18f4438acc2b37e617d4e, type: 3}
       propertyPath: m_Name
       value: lv3_R4bb
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 2b84a8a76ef18f4438acc2b37e617d4e, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -40319,14 +40343,9 @@ MonoBehaviour:
   repeatable: 1
   dialogueLines:
   - speaker: 0
-    text: "Za t\u0105 \u015Bcian\u0105 co\u015B si\u0119 kryje Watsonie, Jaka\u015B
-      tajemnica...\r\n"
-    voiceClip: {fileID: 8300000, guid: 7f2f34b637d879846a851e16827282f9, type: 3}
-    duration: 6
-  - speaker: 1
-    text: "Interesuj\u0105ce"
-    voiceClip: {fileID: 8300000, guid: 774e4bc925c693740a0c58eadc038a2c, type: 3}
-    duration: 1
+    text: "Nie widz\u0119 \u017Badnych Mechanizm\xF3w..."
+    voiceClip: {fileID: 8300000, guid: 9320084785e15b948b5ae3658f1830d1, type: 3}
+    duration: 2.155
   sherlockVoiceSource: {fileID: 1120607583}
   watsonVoiceSource: {fileID: 8390739253207350096}
   selmaVoiceSource: {fileID: 0}
@@ -42975,7 +42994,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -48849,7 +48868,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalScale.x
@@ -62563,7 +62582,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -62846,6 +62865,16 @@ MonoBehaviour:
   watsonVoiceSource: {fileID: 0}
   selmaVoiceSource: {fileID: 0}
   violetVoiceSource: {fileID: 0}
+  playBlocksDialogue:
+  - speaker: 0
+    text: "W doniczce klocek z literk\u0105 \"B\""
+    voiceClip: {fileID: 8300000, guid: bb1e69ed022021941bebd776891a9c06, type: 3}
+    duration: 3.12
+  ethelRoomBlocksDialogue:
+  - speaker: 0
+    text: 
+    voiceClip: {fileID: 0}
+    duration: 2
   performed: 0
   EthelRoomBlocks: 0
 --- !u!114 &448646811
@@ -72429,7 +72458,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &537468280
 Transform:
   m_ObjectHideFlags: 0
@@ -73866,6 +73895,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c420fa2e511cf0458aec877a0226dd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 0}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   allowSherlock: 1
   allowWatson: 1
   heldLamp1: {fileID: 1830353986}
@@ -76574,7 +76609,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &570975921
 Transform:
   m_ObjectHideFlags: 0
@@ -77139,7 +77174,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7755962655327079785, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8184648043481443658, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Name
@@ -82260,6 +82295,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 588091e9af5960e42bd9b924f0786a3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 1120607583}
+  watsonVoiceSource: {fileID: 8390739253207350096}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   allowSherlock: 1
   allowWatson: 0
   hasKeyDebug: 0
@@ -88619,7 +88660,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7755962655327079785, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8184648043481443658, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Name
@@ -90483,7 +90524,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -94058,7 +94099,7 @@ VFXRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 704715061}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -96076,7 +96117,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7890d8bd114ed6f479532ee1c4f7f886, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -5.8383284
+      value: -5.7883253
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7890d8bd114ed6f479532ee1c4f7f886, type: 3}
       propertyPath: m_LocalRotation.w
@@ -96109,14 +96150,14 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 7890d8bd114ed6f479532ee1c4f7f886, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9c5ce036051eb5a46bc2d4ae7168e115, type: 2}
+      objectReference: {fileID: 2100000, guid: c85ec99b3043b9041b0a40532a16f0e8, type: 2}
     - target: {fileID: 919132149155446097, guid: 7890d8bd114ed6f479532ee1c4f7f886, type: 3}
       propertyPath: m_Name
       value: lv3_R6bb
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 7890d8bd114ed6f479532ee1c4f7f886, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -97495,7 +97536,7 @@ Transform:
   m_GameObject: {fileID: 729018339}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -23.050003, y: 0.2473228, z: -8.752985}
+  m_LocalPosition: {x: -23.050003, y: 0.2473228, z: -4.045533}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -97514,7 +97555,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mode: 1
-  size: {x: 189, y: 9.517536, z: 42.54956}
+  size: {x: 189, y: 9.517536, z: 33.13465}
   overrideRendererFilters: 0
   minRendererVolumeSize: 0.1
   objectLayerMask:
@@ -101529,7 +101570,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7755962655327079785, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8184648043481443658, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Name
@@ -105668,6 +105709,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c420fa2e511cf0458aec877a0226dd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 0}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   allowSherlock: 1
   allowWatson: 1
   heldLamp1: {fileID: 1830353986}
@@ -108564,7 +108611,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &812632118
 Transform:
   m_ObjectHideFlags: 0
@@ -110591,7 +110638,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -123450,6 +123497,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1bf133d8ec3bbff4fa1a84136a88f712, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 1120607583}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   allowSherlock: 1
   allowWatson: 1
   hourHand: {fileID: 4074834616702411041}
@@ -124238,12 +124291,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   repeatable: 1
   dialogueLines: []
-  sherlockVoiceSource: {fileID: 0}
+  sherlockVoiceSource: {fileID: 1120607583}
   watsonVoiceSource: {fileID: 0}
   selmaVoiceSource: {fileID: 0}
   violetVoiceSource: {fileID: 0}
+  playBlocksDialogue:
+  - speaker: 0
+    text: 
+    voiceClip: {fileID: 0}
+    duration: 0.1
+  ethelRoomBlocksDialogue:
+  - speaker: 0
+    text: "Hmm, Czy te klocki mog\u0105 co\u015B oznacza\u0107?"
+    voiceClip: {fileID: 8300000, guid: b44b71bb823027a4d89050ce98dfb9aa, type: 3}
+    duration: 3.36
   performed: 0
-  EthelRoomBlocks: 1
+  EthelRoomBlocks: 0
 --- !u!114 &916360359
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -130547,7 +130610,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -146780,6 +146843,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 464acc9de705e914d9ebca1b73a27f13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 0}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   allowSherlock: 1
   allowWatson: 1
   doorAnimator: {fileID: 1083977541}
@@ -147005,7 +147074,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7755962655327079785, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8184648043481443658, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Name
@@ -153305,7 +153374,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.5
+  m_Volume: 0.2
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -154723,6 +154792,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 464acc9de705e914d9ebca1b73a27f13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 0}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   allowSherlock: 1
   allowWatson: 1
   doorAnimator: {fileID: 1135834027}
@@ -156248,7 +156323,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7755962655327079785, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8184648043481443658, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Name
@@ -158177,10 +158252,9 @@ MonoBehaviour:
   repeatable: 1
   dialogueLines:
   - speaker: 0
-    text: "Tutaj, Watsonie. Ta \u015Bciana widocznie zamocowana jest na ruchomym
-      mechani\u017Amie.\r\n"
-    voiceClip: {fileID: 8300000, guid: 8095e8f8cd29db442971ec9529325f8d, type: 3}
-    duration: 6
+    text: "Ta \u015Bciana nie jest wmurowana do reszty."
+    voiceClip: {fileID: 8300000, guid: ca23601df2d091c42bc4e58de3a0fa75, type: 3}
+    duration: 3.044
   - speaker: 1
     text: Ach, tak.
     voiceClip: {fileID: 8300000, guid: 99dfdca140f10524397d3aa47836115f, type: 3}
@@ -160144,7 +160218,7 @@ PrefabInstance:
       objectReference: {fileID: 1739836781}
     - target: {fileID: 5655668155017918476, guid: 429e45ec9d8084b499b7237d881f5975, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8878272491677890385, guid: 429e45ec9d8084b499b7237d881f5975, type: 3}
       propertyPath: m_LocalPosition.x
@@ -166573,7 +166647,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalScale.x
@@ -167137,6 +167211,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c420fa2e511cf0458aec877a0226dd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 0}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   allowSherlock: 1
   allowWatson: 1
   heldLamp1: {fileID: 1830353986}
@@ -174919,7 +174999,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalScale.x
@@ -193150,7 +193230,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -193308,7 +193388,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 5b69bef7bd4778441bfdf4013e35b910, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9c5ce036051eb5a46bc2d4ae7168e115, type: 2}
+      objectReference: {fileID: 2100000, guid: c85ec99b3043b9041b0a40532a16f0e8, type: 2}
     - target: {fileID: 919132149155446097, guid: 5b69bef7bd4778441bfdf4013e35b910, type: 3}
       propertyPath: m_Name
       value: lv3_R1bb
@@ -198828,6 +198908,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5b4256c4c371fa4d8c4ce6d5a161c90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 0}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   allowSherlock: 1
   allowWatson: 1
   heldLamps:
@@ -200774,14 +200860,14 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 0ca8c9320a408344c811fbc2500dc04b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9c5ce036051eb5a46bc2d4ae7168e115, type: 2}
+      objectReference: {fileID: 2100000, guid: c85ec99b3043b9041b0a40532a16f0e8, type: 2}
     - target: {fileID: 919132149155446097, guid: 0ca8c9320a408344c811fbc2500dc04b, type: 3}
       propertyPath: m_Name
       value: lv3_R2bb
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0ca8c9320a408344c811fbc2500dc04b, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -202429,7 +202515,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7755962655327079785, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8184648043481443658, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Name
@@ -209565,7 +209651,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalScale.x
@@ -215614,7 +215700,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7755962655327079785, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8184648043481443658, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Name
@@ -219154,14 +219240,14 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 1a56de864be01424bb67283d9bc1ef7e, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9c5ce036051eb5a46bc2d4ae7168e115, type: 2}
+      objectReference: {fileID: 2100000, guid: c85ec99b3043b9041b0a40532a16f0e8, type: 2}
     - target: {fileID: 919132149155446097, guid: 1a56de864be01424bb67283d9bc1ef7e, type: 3}
       propertyPath: m_Name
       value: lv3_R5bb
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 1a56de864be01424bb67283d9bc1ef7e, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -235136,7 +235222,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -236368,7 +236454,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -264892,6 +264978,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 103dcf47c69bcf046be31763927d78f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 0}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   allowSherlock: 1
   allowWatson: 1
   puzzleController: {fileID: 1739836781}
@@ -264901,6 +264993,15 @@ MonoBehaviour:
   openAudioSource: {fileID: 1900278831}
   collidersToDisable: []
   gameObjectsToDisableOnOpen: []
+  openingDialogue:
+  - speaker: 0
+    text: "Uda\u0142o si\u0119."
+    voiceClip: {fileID: 0}
+    duration: 2
+  - speaker: 1
+    text: "Przej\u015Bcie stoi otworem."
+    voiceClip: {fileID: 0}
+    duration: 2
   blackBoardToDisableOnOpen: {fileID: 163389197}
   blackBoardFadeMaterial: {fileID: 2100000, guid: 9c5ce036051eb5a46bc2d4ae7168e115, type: 2}
   blackBoardFadeDelay: 0.35
@@ -265505,14 +265606,14 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 58ddba13bd2db4548a4860877bcbb92d, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9c5ce036051eb5a46bc2d4ae7168e115, type: 2}
+      objectReference: {fileID: 2100000, guid: c85ec99b3043b9041b0a40532a16f0e8, type: 2}
     - target: {fileID: 919132149155446097, guid: 58ddba13bd2db4548a4860877bcbb92d, type: 3}
       propertyPath: m_Name
       value: lv3_R3bb
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 58ddba13bd2db4548a4860877bcbb92d, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -266970,6 +267071,16 @@ MonoBehaviour:
   watsonVoiceSource: {fileID: 0}
   selmaVoiceSource: {fileID: 0}
   violetVoiceSource: {fileID: 0}
+  playBlocksDialogue:
+  - speaker: 0
+    text: "Ma\u0142y klocek z literk\u0105 \"A\""
+    voiceClip: {fileID: 8300000, guid: 0a4d4d931bd25e94cabb59277809d77f, type: 3}
+    duration: 2.64
+  ethelRoomBlocksDialogue:
+  - speaker: 0
+    text: 
+    voiceClip: {fileID: 0}
+    duration: 2
   performed: 0
   EthelRoomBlocks: 0
 --- !u!114 &1918489196
@@ -274813,7 +274924,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalScale.x
@@ -277973,7 +278084,7 @@ VFXRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1988386600}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -280334,7 +280445,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -281250,6 +281361,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 103dcf47c69bcf046be31763927d78f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 0}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   allowSherlock: 1
   allowWatson: 1
   puzzleController: {fileID: 1739836781}
@@ -281260,6 +281377,19 @@ MonoBehaviour:
   collidersToDisable: []
   gameObjectsToDisableOnOpen:
   - {fileID: 1160299551}
+  openingDialogue:
+  - speaker: 0
+    text: "Zadzia\u0142a\u0142o!"
+    voiceClip: {fileID: 8300000, guid: 33d2b009cf336574e83301a731be1ee1, type: 3}
+    duration: 2.08
+  - speaker: 1
+    text: Sherlock! Znakomicie!
+    voiceClip: {fileID: 8300000, guid: 8c3ac7d8342997d4abdebb4d193707bc, type: 3}
+    duration: 2.023
+  - speaker: 0
+    text: "He he he, Otwieraj si\u0119, sezamie!"
+    voiceClip: {fileID: 8300000, guid: 16f210cc782e7ee42b08ae00bc3f4efc, type: 3}
+    duration: 3.174
   blackBoardToDisableOnOpen: {fileID: 163389197}
   blackBoardFadeMaterial: {fileID: 2100000, guid: 9c5ce036051eb5a46bc2d4ae7168e115, type: 2}
   blackBoardFadeDelay: 0.35
@@ -284396,7 +284526,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalScale.x
@@ -284987,7 +285117,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -311888,6 +312018,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 464acc9de705e914d9ebca1b73a27f13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 0}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   allowSherlock: 1
   allowWatson: 1
   doorAnimator: {fileID: 4999745888438541823}
@@ -315191,6 +315327,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5b4256c4c371fa4d8c4ce6d5a161c90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 0}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   allowSherlock: 1
   allowWatson: 1
   heldLamps:
@@ -316858,7 +317000,7 @@ PrefabInstance:
       objectReference: {fileID: 1739836781}
     - target: {fileID: 5655668155017918476, guid: 429e45ec9d8084b499b7237d881f5975, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8878272491677890385, guid: 429e45ec9d8084b499b7237d881f5975, type: 3}
       propertyPath: m_LocalPosition.x
@@ -319196,6 +319338,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d3ff0a8b5779de47807a6de6bf2f848, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repeatable: 1
+  dialogueLines: []
+  sherlockVoiceSource: {fileID: 0}
+  watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
   allowSherlock: 1
   allowWatson: 0
   keyhole: {fileID: 615319737}
@@ -320344,7 +320492,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8190028797482325683, guid: 1f3ed62dd76f7484fbb55b9bd2cef2c7, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9208824974936529881, guid: 1f3ed62dd76f7484fbb55b9bd2cef2c7, type: 3}
       propertyPath: m_LocalPosition.x

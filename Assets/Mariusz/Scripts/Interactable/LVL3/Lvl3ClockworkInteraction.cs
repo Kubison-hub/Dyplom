@@ -1,12 +1,14 @@
 using UnityEngine;
 
-public abstract class Lvl3ClockworkInteraction : MonoBehaviour
+public abstract class Lvl3ClockworkInteraction : Lvl3InteractionDialogueBase
 {
     [Header("Playable Characters")]
     [SerializeField] private bool allowSherlock = true;
     [SerializeField] private bool allowWatson = true;
 
     protected Interactable Interactable { get; private set; }
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => System.Array.Empty<Lvl3DialogueLine>();
 
     protected virtual void Awake()
     {

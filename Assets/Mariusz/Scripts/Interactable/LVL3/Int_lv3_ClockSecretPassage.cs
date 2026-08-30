@@ -13,6 +13,23 @@ public class Int_lv3_ClockSecretPassage : Lvl3ClockworkInteraction
     [Tooltip("Objects to disable once the real passage opens, for example the temporary vision-passage GameObject.")]
     [SerializeField] private GameObject[] gameObjectsToDisableOnOpen;
 
+    [Header("Opening Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] openingDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Udało się.",
+            duration = 2f
+        },
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Watson,
+            text = "Przejście stoi otworem.",
+            duration = 2f
+        }
+    };
+
     [Header("Blackboard Reveal")]
     [Tooltip("Temporary blackboard hiding the room behind this passage.")]
     [SerializeField] private GameObject blackBoardToDisableOnOpen;
@@ -24,6 +41,7 @@ public class Int_lv3_ClockSecretPassage : Lvl3ClockworkInteraction
     private bool opened;
 
     public bool IsOpened => opened;
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => openingDialogue;
 
     protected override void Awake()
     {
@@ -69,7 +87,7 @@ public class Int_lv3_ClockSecretPassage : Lvl3ClockworkInteraction
         DisableObjectsOnOpen();
 
         puzzleController.CompletePuzzle();
-        ShowTopText("Udało się.", "Przejście stoi otworem.");
+        PlayInteractionDialogue(player);
     }
 
     public void OpenFromPuzzle(PlayerController player)
@@ -98,11 +116,7 @@ public class Int_lv3_ClockSecretPassage : Lvl3ClockworkInteraction
             Interactable.isInteractableActive = false;
 
         DisableObjectsOnOpen();
-
-        if (player != null)
-            ShowTopTextForPlayer(player, "Udało się. Przejście stoi otworem.");
-        else
-            ShowTopText("Udało się.", "Przejście stoi otworem.");
+        PlayInteractionDialogue(player);
     }
 
     private void DisableObjectsOnOpen()

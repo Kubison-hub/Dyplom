@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class lvl2_Int_PlayBlock : Lvl3InteractionDialogueBase
 {
-    private static readonly Lvl3DialogueLine[] DefaultPlayBlocksDialogue =
+    [Header("Play Block Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] playBlocksDialogue =
     {
         new Lvl3DialogueLine
         {
@@ -12,7 +13,7 @@ public class lvl2_Int_PlayBlock : Lvl3InteractionDialogueBase
         }
     };
 
-    private static readonly Lvl3DialogueLine[] DefaultEthelRoomBlocksDialogue =
+    [SerializeField] private Lvl3DialogueLine[] ethelRoomBlocksDialogue =
     {
         new Lvl3DialogueLine
         {
@@ -28,7 +29,7 @@ public class lvl2_Int_PlayBlock : Lvl3InteractionDialogueBase
     public bool EthelRoomBlocks;
 
     protected override Lvl3DialogueLine[] DefaultDialogueLines =>
-        EthelRoomBlocks ? DefaultEthelRoomBlocksDialogue : DefaultPlayBlocksDialogue;
+        EthelRoomBlocks ? ethelRoomBlocksDialogue : playBlocksDialogue;
 
     private void Start()
     {
