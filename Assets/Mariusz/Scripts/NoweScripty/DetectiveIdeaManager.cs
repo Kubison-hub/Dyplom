@@ -48,6 +48,8 @@ public class DetectiveIdeaManager : MonoBehaviour
     [Header("Puzzle Audio")]
     [Tooltip("Optional. If empty, an AudioSource on this GameObject is used.")]
     [SerializeField] private AudioSource puzzleAudioSource;
+    [Tooltip("Optional separate source for the IdeaPoint discovery sound. A matching source is created automatically when left empty.")]
+    [SerializeField] private AudioSource ideaPointDiscoveryAudioSource;
     [SerializeField] private AudioClip ideaPointDiscoveryClip;
     [SerializeField] private AudioClip grabIdeaPointClip;
     [SerializeField] private AudioClip releaseIdeaPointClip;
@@ -96,6 +98,7 @@ public class DetectiveIdeaManager : MonoBehaviour
     private bool consumeNextEmptyVisionClick;
     private Vector3 headRigTargetVelocity;
     private bool resetHeadRigTargetOnNextDrag = true;
+    private AudioSource runtimeIdeaPointDiscoveryAudioSource;
 
     private void Awake()
     {
@@ -175,7 +178,7 @@ public class DetectiveIdeaManager : MonoBehaviour
             consumeNextEmptyVisionClick = false;
             ClearHover();
             CancelDrag();
-            HideVisiblePoints();
+            HideVisiblePoints(preserveActiveDiscoveryReveals: true);
             SetAcceptedLinesVisible(false);
             SetRejectedLinesVisible(false);
             return;
@@ -185,7 +188,7 @@ public class DetectiveIdeaManager : MonoBehaviour
         {
             wasDetectiveVisionActive = true;
             detectiveVisionActivatedAt = Time.unscaledTime;
-            HideVisiblePoints();
+            HideVisiblePoints(preserveActiveDiscoveryReveals: true);
             SetAcceptedLinesVisible(false);
             SetRejectedLinesVisible(false);
         }
@@ -195,7 +198,7 @@ public class DetectiveIdeaManager : MonoBehaviour
             ClearHover();
             SetAcceptedLinesVisible(false);
             SetRejectedLinesVisible(false);
-            HideVisiblePoints();
+            HideVisiblePoints(preserveActiveDiscoveryReveals: true);
             return;
         }
 
@@ -381,7 +384,7 @@ public class DetectiveIdeaManager : MonoBehaviour
         point.MarkDiscovered();
         RememberVisiblePoint(point);
 
-        bool shouldBeVisible = point.IsDiscoveryLayerRevealActive ||
+        bool shouldBeVisible = point.IsDiscoveryRevealActive ||
                                (IsDetectiveVisionActive() &&
                                 IsWorldTextRevealReady() &&
                                 showDiscoveredPointsWhileActive);
@@ -821,7 +824,9 @@ public class DetectiveIdeaManager : MonoBehaviour
             visiblePoints.Add(point);
     }
 
-    private void HideVisiblePoints(bool includeAllDiscoveredPoints = false)
+    private void HideVisiblePoints(
+        bool includeAllDiscoveredPoints = false,
+        bool preserveActiveDiscoveryReveals = false)
     {
         if (includeAllDiscoveredPoints)
             RestoreDiscoveredPointsToVisibleCache();
@@ -834,6 +839,9 @@ public class DetectiveIdeaManager : MonoBehaviour
                 visiblePoints.RemoveAt(i);
                 continue;
             }
+
+            if (preserveActiveDiscoveryReveals && point.IsDiscoveryRevealActive)
+                continue;
 
             point.SetVisible(false);
         }
@@ -966,13 +974,39 @@ public class DetectiveIdeaManager : MonoBehaviour
 
     public void PlayIdeaPointDiscoverySound()
     {
-        if (ideaPointDiscoveryClip == null || puzzleAudioSource == null)
+        if (ideaPointDiscoveryClip == null)
             return;
 
-        float originalPitch = puzzleAudioSource.pitch;
-        puzzleAudioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
-        puzzleAudioSource.PlayOneShot(ideaPointDiscoveryClip);
-        puzzleAudioSource.pitch = originalPitch;
+        AudioSource source = GetIdeaPointDiscoveryAudioSource();
+        if (source == null)
+            return;
+
+        source.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
+        source.PlayOneShot(ideaPointDiscoveryClip);
+    }
+
+    private AudioSource GetIdeaPointDiscoveryAudioSource()
+    {
+        if (ideaPointDiscoveryAudioSource != null)
+            return ideaPointDiscoveryAudioSource;
+
+        if (runtimeIdeaPointDiscoveryAudioSource != null)
+            return runtimeIdeaPointDiscoveryAudioSource;
+
+        runtimeIdeaPointDiscoveryAudioSource = gameObject.AddComponent<AudioSource>();
+        runtimeIdeaPointDiscoveryAudioSource.playOnAwake = false;
+        runtimeIdeaPointDiscoveryAudioSource.loop = false;
+        runtimeIdeaPointDiscoveryAudioSource.spatialBlend = 0f;
+
+        if (puzzleAudioSource != null)
+        {
+            runtimeIdeaPointDiscoveryAudioSource.outputAudioMixerGroup = puzzleAudioSource.outputAudioMixerGroup;
+            runtimeIdeaPointDiscoveryAudioSource.volume = puzzleAudioSource.volume;
+            runtimeIdeaPointDiscoveryAudioSource.mute = puzzleAudioSource.mute;
+            runtimeIdeaPointDiscoveryAudioSource.ignoreListenerPause = puzzleAudioSource.ignoreListenerPause;
+        }
+
+        return runtimeIdeaPointDiscoveryAudioSource;
     }
 
     private void DestroySessionLines()

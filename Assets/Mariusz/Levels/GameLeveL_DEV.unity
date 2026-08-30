@@ -25295,8 +25295,8 @@ Transform:
   m_GameObject: {fileID: 179522840}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.00000018965113, y: 0, z: -0.7272731}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0.00000025569037, y: 0, z: -0.77272785}
+  m_LocalScale: {x: 1, y: 0.93, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1510180971}
@@ -25340,7 +25340,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.1, y: 0.79, z: 1.79}
+  m_Size: {x: 0.38, y: 0.79, z: 1.8}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &179543428 stripped
 Transform:
@@ -36345,8 +36345,9 @@ MonoBehaviour:
   showDiscoveredPointsWhileActive: 1
   worldTextRevealDelay: 0
   magnifierDiscoveryDuration: 1.5
-  solvedVisionHoldDuration: 2
+  solvedVisionHoldDuration: 6
   puzzleAudioSource: {fileID: 261670395}
+  ideaPointDiscoveryAudioSource: {fileID: 0}
   ideaPointDiscoveryClip: {fileID: 8300000, guid: 20031242027249a4ca9bbd297112286f, type: 3}
   grabIdeaPointClip: {fileID: 0}
   releaseIdeaPointClip: {fileID: 0}
@@ -94363,7 +94364,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -116144,7 +116145,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &864320114
 Transform:
   m_ObjectHideFlags: 0
@@ -165633,6 +165634,8 @@ MonoBehaviour:
   secretDoorAnimator: {fileID: 2137841386}
   openTriggerName: Open
   openedBoolName: Opened
+  wallDoorAudioSource: {fileID: 2137841392}
+  wallDoorOpenAudio: {fileID: 8300000, guid: b17b1311ebc3a4b44a6c3ff52421b53f, type: 3}
   objectToReparentBeforeDoorOpens: {fileID: 658297176}
   newParentBeforeDoorOpens: {fileID: 2137841381}
   keepWorldPositionWhenReparenting: 1
@@ -165645,12 +165648,12 @@ MonoBehaviour:
   - speaker: 0
     text: 
     voiceClip: {fileID: 8300000, guid: 582c8c6e990d9ed4bbc646558f58156a, type: 3}
-    duration: 0.1
+    duration: 0.41
   completionDialogue:
   - speaker: 1
     text: 
-    voiceClip: {fileID: 8300000, guid: 76338e72705d5fe4cb13ab39cf5eba6a, type: 3}
-    duration: 0.1
+    voiceClip: {fileID: 8300000, guid: 9410f50b39e8df041a69c378b179396c, type: 3}
+    duration: 0.5
   - speaker: 1
     text: "Sherlock! Uda\u0142o si\u0119!"
     voiceClip: {fileID: 8300000, guid: 33d2b009cf336574e83301a731be1ee1, type: 3}
@@ -207696,6 +207699,7 @@ MonoBehaviour:
   notebookTutorialId: EdithExamNotebook
   notebookTutorialText: "W trakcie rozgrywki przydatne informacje zapisywane s\u0105
     w notatniku.\nWci\u015Bnij \"Tab\", aby go otworzy\u0107."
+  notebookTutorialDelayAfterIdeaReveal: 2
   initialExaminationDialogue:
   - speaker: 0
     text: "Przyjrzyjmy si\u0119 jej uwa\u017Cnie, Watsonie."
@@ -211714,9 +211718,7 @@ MonoBehaviour:
   ideaDescription: "Kula wyznacza trajektor\u0119 strza\u0142u."
   ideaDescriptionDelay: 0.2
   discoveryMode: 2
-  revealedDefaultLayerDuration: 4
-  revealedLayerName: Default
-  hiddenLayerName: Hidden
+  revealedRendererDuration: 4
   connections:
   - target: {fileID: 1117572484}
     canConnect: 0
@@ -246795,9 +246797,7 @@ MonoBehaviour:
   ideaDescription: "Wszystko zacz\u0119\u0142o si\u0119 od zgaszonego \u015Bwiat\u0142a..."
   ideaDescriptionDelay: 0.2
   discoveryMode: 2
-  revealedDefaultLayerDuration: 4
-  revealedLayerName: Default
-  hiddenLayerName: Hidden
+  revealedRendererDuration: 4
   connections:
   - target: {fileID: 1899288024}
     canConnect: 1
@@ -298998,6 +298998,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 750037391586525417, guid: a272cf83217e6c144a765e2b1ca1563b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2137841389}
+    - targetCorrespondingSourceObject: {fileID: 750037391586525417, guid: a272cf83217e6c144a765e2b1ca1563b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2137841392}
   m_SourcePrefab: {fileID: 100100000, guid: a272cf83217e6c144a765e2b1ca1563b, type: 3}
 --- !u!4 &2137841381 stripped
 Transform:
@@ -299047,6 +299050,103 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: -0.5, y: 1.4940001, z: 0.117000006}
   m_TimeToStationary: 0.5
+--- !u!82 &2137841392
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 941609693}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1001 &2138077784
 PrefabInstance:
   m_ObjectHideFlags: 0

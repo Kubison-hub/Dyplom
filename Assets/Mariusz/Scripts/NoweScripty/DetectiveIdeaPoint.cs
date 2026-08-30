@@ -60,9 +60,7 @@ public class DetectiveIdeaPoint : MonoBehaviour
     [Header("Discovery")]
     [Tooltip("Magnifier: discover with F. External: reveal only from another script. MagnifierOrExternal: either source.")]
     public DiscoveryMode discoveryMode = DiscoveryMode.Magnifier;
-    [SerializeField, Min(0f)] private float revealedDefaultLayerDuration = 4f;
-    [SerializeField] private string revealedLayerName = "Default";
-    [SerializeField] private string hiddenLayerName = "Hidden";
+    [SerializeField, Min(0f)] private float revealedRendererDuration = 4f;
 
     [Header("Connections from this point")]
     public List<IdeaConnection> connections = new List<IdeaConnection>();
@@ -90,7 +88,7 @@ public class DetectiveIdeaPoint : MonoBehaviour
 
 
     public bool IsDiscovered { get; private set; }
-    public bool IsDiscoveryLayerRevealActive => discoveryLayerCoroutine != null;
+    public bool IsDiscoveryRevealActive => discoveryLayerCoroutine != null;
     public event Action<DetectiveIdeaPoint> OnDiscovered;
     public bool CanDiscoverWithMagnifier =>
         discoveryMode == DiscoveryMode.Magnifier || discoveryMode == DiscoveryMode.MagnifierOrExternal;
@@ -165,40 +163,25 @@ public class DetectiveIdeaPoint : MonoBehaviour
         SetDiscoveryPreview(1f);
         FadeOutQuestionFX();
         DetectiveIdeaManager.Instance?.PlayIdeaPointDiscoverySound();
-        StartDiscoveryLayerReveal();
+        StartDiscoveryRendererReveal();
         OnDiscovered?.Invoke(this);
     }
 
-    private void StartDiscoveryLayerReveal()
+    private void StartDiscoveryRendererReveal()
     {
         if (discoveryLayerCoroutine != null)
             StopCoroutine(discoveryLayerCoroutine);
 
-        int revealedLayer = LayerMask.NameToLayer(revealedLayerName);
-        if (revealedLayer < 0)
-        {
-            Debug.LogWarning($"{name}: Layer '{revealedLayerName}' does not exist.", this);
-            return;
-        }
-
-        SetLayerRecursively(transform, revealedLayer);
-        discoveryLayerCoroutine = StartCoroutine(RevealDefaultLayerThenHide());
+        SetVisible(true);
+        discoveryLayerCoroutine = StartCoroutine(ShowRendererThenHide());
     }
 
-    private IEnumerator RevealDefaultLayerThenHide()
+    private IEnumerator ShowRendererThenHide()
     {
-        if (revealedDefaultLayerDuration > 0f)
-            yield return new WaitForSeconds(revealedDefaultLayerDuration);
+        if (revealedRendererDuration > 0f)
+            yield return new WaitForSeconds(revealedRendererDuration);
 
-        int hiddenLayer = LayerMask.NameToLayer(hiddenLayerName);
-        if (hiddenLayer < 0)
-        {
-            Debug.LogWarning($"{name}: Layer '{hiddenLayerName}' does not exist.", this);
-            discoveryLayerCoroutine = null;
-            yield break;
-        }
-
-        SetLayerRecursively(transform, hiddenLayer);
+        SetVisible(false);
         discoveryLayerCoroutine = null;
     }
 

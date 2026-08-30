@@ -46,6 +46,8 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     [SerializeField] private string notebookTutorialId = "EdithExamNotebook";
     [SerializeField, TextArea] private string notebookTutorialText =
         "W trakcie rozgrywki przydatne informacje zapisywane są w notatniku.\nWciśnij \"Tab\", aby go otworzyć.";
+    [Tooltip("Delay between revealing Edith's IdeaPoint and showing the notebook tutorial panel.")]
+    [SerializeField, Min(0f)] private float notebookTutorialDelayAfterIdeaReveal = 2f;
     [Header("Initial Examination Dialogue")]
     [SerializeField] private Lvl3DialogueLine[] initialExaminationDialogue =
     {
@@ -96,6 +98,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     private bool initialDialogueCompleted;
     private bool completionDialoguePending;
     private bool allCpCollectedClueAdded;
+    private Coroutine completionTutorialCoroutine;
 
     public bool IsExaminationCompleted => examinationCompleted || edithIdeaRevealed;
     public bool IsExaminationActive => interactionPerforming && !examinationCompleted && !edithIdeaRevealed;
@@ -459,12 +462,33 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
 
     private void FinishCompletedExamination()
     {
+        if (completionTutorialCoroutine != null)
+            return;
+
+        // Keep this interaction alive until the IdeaPoint has been shown before the tutorial covers it.
+        completionDialoguePending = true;
+        completionTutorialCoroutine = StartCoroutine(FinishExaminationAfterIdeaReveal());
+    }
+
+    private IEnumerator FinishExaminationAfterIdeaReveal()
+    {
+        if (edithIdeaPoint != null)
+        {
+            while (!edithIdeaPoint.IsDiscovered)
+                yield return null;
+        }
+
+        if (notebookTutorialDelayAfterIdeaReveal > 0f)
+            yield return new WaitForSecondsRealtime(notebookTutorialDelayAfterIdeaReveal);
+
         if (showNotebookTutorialPanel && TutorialManager.Instance != null &&
             !string.IsNullOrWhiteSpace(notebookTutorialId))
         {
             TutorialManager.Instance.PokazTutorial(notebookTutorialText, notebookTutorialId);
         }
 
+        completionDialoguePending = false;
+        completionTutorialCoroutine = null;
         EndExamination(true);
     }
 

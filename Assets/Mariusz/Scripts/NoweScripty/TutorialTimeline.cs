@@ -436,6 +436,7 @@ public class TutorialTimeline : MonoBehaviour
 
     private IEnumerator MovePlayerToIdeaLineTutorialPosition(PlayerController player)
     {
+        CancelConflictingWatsonCompletionMovements();
         StartWatsonMoveToIdeaLineTutorialPosition();
         KeepEagleVisionForced();
         SetCameraZoom(CameraZoomState.Wide);
@@ -484,6 +485,16 @@ public class TutorialTimeline : MonoBehaviour
 
         LogIdeaLineTutorial("Idea line popup requested. Waiting until it is closed.");
         moveToIdeaLineTutorialCoroutine = null;
+    }
+
+    private static void CancelConflictingWatsonCompletionMovements()
+    {
+        foreach (Int_lv1_HidenWallMask hiddenWallMask in FindObjectsByType<Int_lv1_HidenWallMask>(
+                     FindObjectsInactive.Exclude,
+                     FindObjectsSortMode.None))
+        {
+            hiddenWallMask.CancelWatsonCompletionMovement();
+        }
     }
 
     private void StartWatsonMoveToIdeaLineTutorialPosition()

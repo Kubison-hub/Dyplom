@@ -49,6 +49,8 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
     [SerializeField] private Animator secretDoorAnimator;
     [SerializeField] private string openTriggerName = "Open";
     [SerializeField] private string openedBoolName = "Opened";
+    [SerializeField] private AudioSource wallDoorAudioSource;
+    [SerializeField] private AudioClip wallDoorOpenAudio;
 
     [Header("Reparent Before Door Opens")]
     [Tooltip("Optional object moved under New Parent immediately before the door opens.")]
@@ -567,6 +569,9 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
 
         if (secretDoorObject != null && !secretDoorObject.activeSelf)
             secretDoorObject.SetActive(true);
+
+        if (wallDoorAudioSource != null && wallDoorOpenAudio != null)
+            wallDoorAudioSource.PlayOneShot(wallDoorOpenAudio);
 
         if (secretDoorAnimator == null && secretDoorObject != null)
             secretDoorAnimator = secretDoorObject.GetComponentInChildren<Animator>(true);

@@ -439,6 +439,28 @@ public class Int_lv1_HidenWallMask : Lvl3InteractionDialogueBase
         watsonCompletionCoroutine = null;
     }
 
+    public void CancelWatsonCompletionMovement()
+    {
+        if (watsonCompletionCoroutine != null)
+        {
+            StopCoroutine(watsonCompletionCoroutine);
+            watsonCompletionCoroutine = null;
+        }
+
+        PlayerController watson = FindWatson();
+        if (watson == null)
+            return;
+
+        if (watson.navMeshAgent != null)
+        {
+            watson.navMeshAgent.ResetPath();
+            watson.navMeshAgent.isStopped = false;
+        }
+
+        watson.GetComponent<WatsonCompanionController>()?.ClearInteractionFocus();
+        SetWatsonThinking(watson, false);
+    }
+
     private void SetWatsonThinking(PlayerController watson, bool isThinking)
     {
         if (watson == null || string.IsNullOrWhiteSpace(watsonThinkingParameter))
