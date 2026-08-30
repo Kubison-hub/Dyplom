@@ -14067,7 +14067,7 @@ GameObject:
   - component: {fileID: 95926126}
   - component: {fileID: 95926125}
   m_Layer: 7
-  m_Name: Int_StairsUp (off) BLOKADA
+  m_Name: Int_StairsUp BLOKADA
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -21330,11 +21330,7 @@ MonoBehaviour:
   destinationDialogueLines:
   - speaker: 1
     text: Panienka pozwoli...
-    voiceClip: {fileID: 0}
-    duration: 2
-  - speaker: 1
-    text: Panno Violet...
-    voiceClip: {fileID: 8300000, guid: f98b93b1ecbf4344ab1a538235e2dc08, type: 3}
+    voiceClip: {fileID: 8300000, guid: 8d109449076746a4da1d5671b18fc97e, type: 3}
     duration: 2
   farewellDialogueLines:
   - speaker: 1
@@ -85108,7 +85104,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   influenceMode: 0
   range: 3.47
-  strength: 5
+  strength: 7
   falloff: 1
   isActive: 1
 --- !u!1 &640834490
@@ -115153,7 +115149,7 @@ GameObject:
   - component: {fileID: 860898602}
   - component: {fileID: 860898601}
   m_Layer: 7
-  m_Name: lvl2_Int_HatchExit (off) BLOKADA
+  m_Name: lvl2_Int_HatchExit BLOKADA
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -173483,29 +173479,33 @@ MonoBehaviour:
     text: Pan wybaczy, doktorze.
     voiceClip: {fileID: 0}
     duration: 2
-  linkedSelmaDialogue: {fileID: 0}
+  linkedSelmaDialogue: {fileID: 1473337945}
   approachDialogueLines:
   - speaker: 1
-    text: Droga Pani...
-    voiceClip: {fileID: 0}
-    duration: 2
-  - speaker: 1
     text: "Lady Selmo, czy mog\u0119 zaj\u0105\u0107 na kr\xF3tk\u0105 chwil\u0119?"
-    voiceClip: {fileID: 0}
-    duration: 2
+    voiceClip: {fileID: 8300000, guid: 9442f5230e8d44245a5db2df9044a5f5, type: 3}
+    duration: 3.84
   - speaker: 1
     text: "Pani Selmo, czy mog\u0119 Pani\u0105 prosi\u0107 na storn\u0119?"
-    voiceClip: {fileID: 0}
-    duration: 2
+    voiceClip: {fileID: 8300000, guid: 362b3e012bc1f1e4b82cb074eb71b01e, type: 3}
+    duration: 3.84
+  - speaker: 1
+    text: Madame
+    voiceClip: {fileID: 8300000, guid: 9ef39a58b313d594fbb68522a505e3f2, type: 3}
+    duration: 1
   destinationDialogueLines:
-  - speaker: 1
-    text: Lady Salma
-    voiceClip: {fileID: 0}
-    duration: 2
-  - speaker: 1
-    text: "Prosz\u0119..."
-    voiceClip: {fileID: 0}
-    duration: 2
+  - speaker: 0
+    text: Droga Pani...
+    voiceClip: {fileID: 8300000, guid: ff89055fc3cad824b870430664e99567, type: 3}
+    duration: 1.36
+  - speaker: 0
+    text: Madame...
+    voiceClip: {fileID: 8300000, guid: 08b951fbab340534bb716d2a2f2b3d4a, type: 3}
+    duration: 0
+  - speaker: 0
+    text: Madame...
+    voiceClip: {fileID: 8300000, guid: 08b951fbab340534bb716d2a2f2b3d4a, type: 3}
+    duration: 0.9
   farewellDialogueLines:
   - speaker: 1
     text: Pani Wybaczy...
