@@ -12,6 +12,7 @@ public class int_Globus_Button : MonoBehaviour, IVioletRoomInteractionGate
     [SerializeField] private Animator globusAnimator;
     [SerializeField] private int_LibraryPainting painting;
     [SerializeField] private Int_Globus globe;
+    [SerializeField] private GameObject[] activateOnPerformed;
 
     [Header("Violet Gate")]
     [SerializeField] private Int_VioletDialog violetDialog;
@@ -56,6 +57,15 @@ public class int_Globus_Button : MonoBehaviour, IVioletRoomInteractionGate
             painting.PushPainting();
 
         globe?.DeactivateGlobeInteraction();
+
+        if (activateOnPerformed != null)
+        {
+            foreach (GameObject target in activateOnPerformed)
+            {
+                if (target != null)
+                    target.SetActive(true);
+            }
+        }
 
         
         if (interactable != null)

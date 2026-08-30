@@ -4,7 +4,7 @@ using UnityEngine.AI;
 using UnityEngine.Serialization;
 
 [RequireComponent(typeof(Interactable))]
-public class lvl3_int_ChestLockpick : MonoBehaviour, IInteractionApproachGate
+public class lvl3_int_ChestLockpick : Lvl3InteractionDialogueBase, IInteractionApproachGate
 {
     private Interactable interactable;
 
@@ -18,8 +18,13 @@ public class lvl3_int_ChestLockpick : MonoBehaviour, IInteractionApproachGate
     [SerializeField, TextArea] private string watsonOldChestText = "Stara skrzynia. Ciekawe, co skrywa w środku.";
     [SerializeField] private AudioSource watsonVoiceAudioSource;
     [SerializeField] private AudioClip watsonOldChestAudio;
-    [SerializeField, TextArea] private string watsonLockedText = "Zamknięta.";
-    [SerializeField] private AudioClip watsonLockedAudio;
+
+    [Header("Watson Locked Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] watsonLockedDialogue;
+    [FormerlySerializedAs("watsonLockedText")]
+    [SerializeField, HideInInspector, TextArea] private string legacyWatsonLockedText = "Zamknięta.";
+    [FormerlySerializedAs("watsonLockedAudio")]
+    [SerializeField, HideInInspector] private AudioClip legacyWatsonLockedAudio;
 
     [Header("Interaction Access")]
     [Tooltip("Optional override. If empty, the Interactable Point is checked.")]
@@ -27,9 +32,13 @@ public class lvl3_int_ChestLockpick : MonoBehaviour, IInteractionApproachGate
     [SerializeField, Min(0.05f)] private float accessCheckRadius = 0.5f;
     [Tooltip("Extra layers treated as physical blockers. WatsonCarryable and active NavMeshObstacle objects are detected automatically.")]
     [SerializeField] private LayerMask extraBlockingLayers;
-    [SerializeField, TextArea] private string noAccessText = "Nie ma dojścia.";
-    [Tooltip("Played through Sherlock Voice Audio Source when No Access Text is shown.")]
-    [SerializeField] private AudioClip noAccessAudio;
+
+    [Header("No Access Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] noAccessDialogue;
+    [FormerlySerializedAs("noAccessText")]
+    [SerializeField, HideInInspector, TextArea] private string legacyNoAccessText = "Nie ma dojścia.";
+    [FormerlySerializedAs("noAccessAudio")]
+    [SerializeField, HideInInspector] private AudioClip legacyNoAccessAudio;
 
     [Header("Chest")]
     [SerializeField] private Transform lid;
@@ -52,6 +61,8 @@ public class lvl3_int_ChestLockpick : MonoBehaviour, IInteractionApproachGate
     private Coroutine openCoroutine;
     private bool isOpen = false;
 
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => noAccessDialogue;
+
     private void Reset()
     {
         SetupInteractable();
@@ -59,11 +70,15 @@ public class lvl3_int_ChestLockpick : MonoBehaviour, IInteractionApproachGate
 
     private void OnValidate()
     {
+        EnsureNoAccessDialogue();
+        EnsureWatsonLockedDialogue();
         SetupInteractable();
     }
 
     private void Start()
     {
+        EnsureNoAccessDialogue();
+        EnsureWatsonLockedDialogue();
         SetupInteractable();
 
         if (lampInside != null && hideLampOnStart)
@@ -91,7 +106,7 @@ public class lvl3_int_ChestLockpick : MonoBehaviour, IInteractionApproachGate
 
         if (IsWatson(player))
         {
-            ShowCharacterDialogue(player, watsonLockedText, null, watsonLockedAudio);
+            PlayDialogue(player, watsonLockedDialogue);
             player.currentInteractable = null;
             return;
         }
@@ -186,17 +201,7 @@ public class lvl3_int_ChestLockpick : MonoBehaviour, IInteractionApproachGate
         if (IsWatson(player))
             return;
 
-        if (sherlockVoiceAudioSource != null && noAccessAudio != null)
-            sherlockVoiceAudioSource.PlayOneShot(noAccessAudio);
-
-        Interactable chestInteractable = GetComponent<Interactable>();
-        if (player != null && chestInteractable != null)
-        {
-            player.RotateTowardsInteractableAndShowTopText(chestInteractable, noAccessText);
-            return;
-        }
-
-        PlayerTopText.Instance?.ShowTopText(noAccessText, string.Empty);
+        PlayDialogue(player, noAccessDialogue);
     }
 
     private void ShowCharacterDialogue(
@@ -222,6 +227,23 @@ public class lvl3_int_ChestLockpick : MonoBehaviour, IInteractionApproachGate
     {
         return player != null &&
                (player.playerCharacter == PlayerCharacter.Watson || player.CompareTag("PlayerB"));
+    }
+
+    private void EnsureWatsonLockedDialogue()
+    {
+        if (watsonLockedDialogue != null && watsonLockedDialogue.Length > 0)
+            return;
+
+        watsonLockedDialogue = new[]
+        {
+            new Lvl3DialogueLine
+            {
+                speaker = Lvl3DialogueSpeaker.Watson,
+                text = legacyWatsonLockedText,
+                voiceClip = legacyWatsonLockedAudio,
+                duration = 2f
+            }
+        };
     }
 
     private Transform GetAccessCheckPoint()
@@ -316,6 +338,9 @@ public class lvl3_int_ChestLockpick : MonoBehaviour, IInteractionApproachGate
             chestCollider.enabled = false;
         }
 
+        if (lampInside != null)
+            lampInside.SetActive(true);
+
         if (openAudio != null)
         {
             openAudio.Play();
@@ -343,12 +368,24 @@ public class lvl3_int_ChestLockpick : MonoBehaviour, IInteractionApproachGate
             Debug.LogWarning($"{name}: Chest lid is missing.");
         }
 
-        if (lampInside != null)
-        {
-            lampInside.SetActive(true);
-        }
-
         openCoroutine = null;
+    }
+
+    private void EnsureNoAccessDialogue()
+    {
+        if (noAccessDialogue != null && noAccessDialogue.Length > 0)
+            return;
+
+        noAccessDialogue = new[]
+        {
+            new Lvl3DialogueLine
+            {
+                speaker = Lvl3DialogueSpeaker.Sherlock,
+                text = legacyNoAccessText,
+                voiceClip = legacyNoAccessAudio,
+                duration = 3f
+            }
+        };
     }
 
     private void SetupInteractable()

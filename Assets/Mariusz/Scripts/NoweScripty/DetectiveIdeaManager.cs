@@ -48,6 +48,7 @@ public class DetectiveIdeaManager : MonoBehaviour
     [Header("Puzzle Audio")]
     [Tooltip("Optional. If empty, an AudioSource on this GameObject is used.")]
     [SerializeField] private AudioSource puzzleAudioSource;
+    [SerializeField] private AudioClip ideaPointDiscoveryClip;
     [SerializeField] private AudioClip grabIdeaPointClip;
     [SerializeField] private AudioClip releaseIdeaPointClip;
     [SerializeField] private AudioClip correctConnectionClip;
@@ -380,9 +381,10 @@ public class DetectiveIdeaManager : MonoBehaviour
         point.MarkDiscovered();
         RememberVisiblePoint(point);
 
-        bool shouldBeVisible = IsDetectiveVisionActive() &&
-                               IsWorldTextRevealReady() &&
-                               showDiscoveredPointsWhileActive;
+        bool shouldBeVisible = point.IsDiscoveryLayerRevealActive ||
+                               (IsDetectiveVisionActive() &&
+                                IsWorldTextRevealReady() &&
+                                showDiscoveredPointsWhileActive);
         point.SetVisible(shouldBeVisible);
     }
 
@@ -960,6 +962,17 @@ public class DetectiveIdeaManager : MonoBehaviour
     {
         if (clip != null && puzzleAudioSource != null)
             puzzleAudioSource.PlayOneShot(clip);
+    }
+
+    public void PlayIdeaPointDiscoverySound()
+    {
+        if (ideaPointDiscoveryClip == null || puzzleAudioSource == null)
+            return;
+
+        float originalPitch = puzzleAudioSource.pitch;
+        puzzleAudioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
+        puzzleAudioSource.PlayOneShot(ideaPointDiscoveryClip);
+        puzzleAudioSource.pitch = originalPitch;
     }
 
     private void DestroySessionLines()

@@ -16,6 +16,14 @@ public static class PlayerControllerTeleportExtensions
             return;
 
         player.StopAllCoroutines();
+        // These are public fields, so the private-field cleanup below cannot see
+        // them. Leaving either one assigned makes PlayerController restart its
+        // old RotateAndPerform loop after the teleport rotation lock ends.
+        player.currentInteractable = null;
+        player.currentInteractionPoint = null;
+        player.targetPosition = player.transform.position;
+        player.ClearAutoInteractionApproachPoint();
+        player.SetWaitingForInteractionReaction(false);
         ClearPendingInteractionState(player);
 
         NavMeshAgent agent = player.GetComponent<NavMeshAgent>();

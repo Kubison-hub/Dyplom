@@ -1710,8 +1710,9 @@ public class Interactable : MonoBehaviour
         if (player == null)
             return false;
 
-        // The mannequin is an ordinary inspection interaction for both characters.
-        if (GetComponent<Int_lv3_Manequine>() != null)
+        // These Level 3 inspection interactions are available to both characters.
+        if (GetComponent<Int_lv3_Manequine>() != null ||
+            GetComponent<Int_lv3_ControlUnit>() != null)
             return true;
 
         WatsonEscortNPC escortNpc = GetComponent<WatsonEscortNPC>();
@@ -1791,9 +1792,6 @@ public class Interactable : MonoBehaviour
             return;
         }
 
-        Int_lv3_Manequine mannequin = GetComponent<Int_lv3_Manequine>();
-        bool isRepeatMannequinInspection = mannequin != null && !mannequin.IsFirstInspection;
-
         if (IsSherlockPlayer(player))
         {
             WatsonCompanionController watson = WatsonCompanionController.Instance;
@@ -1803,7 +1801,7 @@ public class Interactable : MonoBehaviour
             if (rotateWatsonToInteraction)
                 watson.FocusInteraction(
                     transform,
-                    isRepeatMannequinInspection ? 0f : watsonApproachDistance,
+                    watsonApproachDistance,
                     watsonApproachSpeedMultiplier,
                     watsonApproachRotationSpeedMultiplier,
                     watsonApproachMode,
@@ -1852,10 +1850,7 @@ public class Interactable : MonoBehaviour
         if (sherlockSpeedReactionDelay > 0f)
             yield return new WaitForSeconds(sherlockSpeedReactionDelay);
 
-        float effectiveSherlockApproachDistance =
-            GetComponent<Int_lv3_Manequine>() is Int_lv3_Manequine mannequin && !mannequin.IsFirstInspection
-                ? 0f
-                : sherlockApproachDistance;
+        float effectiveSherlockApproachDistance = sherlockApproachDistance;
 
         bool useSpecificSherlockPoint = sherlockApproachMode == CompanionApproachMode.SpecificTransform &&
                                        sherlockSpecificApproachPoint != null;

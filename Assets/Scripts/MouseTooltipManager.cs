@@ -17,6 +17,8 @@ public class MouseTooltipManager : MonoBehaviour
     [Header("Settings")]
     public Vector2 offset = new Vector2(15f, -15f); // Przesuniêcie wzglêdem kursora
     public LayerMask detectionLayer = ~0; // Jakie warstwy ma wykrywaæ
+    [Tooltip("Layers that block tooltip raycasts. Default: Walls.")]
+    public LayerMask blockingLayers = 1 << 12;
 
     private Camera mainCam;
     private Interactable activeInteractionShaderOwner;
@@ -55,8 +57,16 @@ public class MouseTooltipManager : MonoBehaviour
         // Wypuszczamy promieñ z kamery w stronê kursora
         Ray ray = mainCam.ScreenPointToRay(Input.mousePosition);
 
-        if (Physics.Raycast(ray, out RaycastHit hit, 100f, detectionLayer))
+        // The closest collider decides whether the tooltip is visible.
+        int tooltipRaycastMask = detectionLayer.value | blockingLayers.value;
+        if (Physics.Raycast(ray, out RaycastHit hit, 100f, tooltipRaycastMask))
         {
+            if (IsBlockedByWall(hit.collider))
+            {
+                HideTooltip();
+                ToggleIntShader(false);
+                return;
+            }
             // Sprawdzamy czy trafiony obiekt ma nasz¹ "metkê" z opisem
             Interactable desc = hit.collider.GetComponent<Interactable>();
             interactable = desc;
@@ -129,6 +139,12 @@ public class MouseTooltipManager : MonoBehaviour
     private void HideTooltip()
     {
         if (tooltipPanel != null) tooltipPanel.SetActive(false);
+    }
+
+    private bool IsBlockedByWall(Collider hitCollider)
+    {
+        return hitCollider != null &&
+               (blockingLayers.value & (1 << hitCollider.gameObject.layer)) != 0;
     }
 
     private void ToggleIntShader(bool v)

@@ -39,6 +39,8 @@ public class Int_LibrarySafe : Lvl3InteractionDialogueBase
     [Header("Opened Safe")]
     [SerializeField] private Animator safeAnimator;
     [SerializeField] private string openTrigger = "Open";
+    [SerializeField] private AudioSource safeOpenAudioSource;
+    [SerializeField] private AudioClip safeOpenAudioClip;
     [SerializeField] private GameObject contents;
     [SerializeField] private int_LibraryPainting libraryPainting;
 
@@ -121,6 +123,9 @@ public class Int_LibrarySafe : Lvl3InteractionDialogueBase
 
         if (safeAnimator != null && !string.IsNullOrWhiteSpace(openTrigger))
             safeAnimator.SetTrigger(openTrigger);
+
+        if (safeOpenAudioSource != null && safeOpenAudioClip != null)
+            safeOpenAudioSource.PlayOneShot(safeOpenAudioClip);
 
         if (contents != null)
             contents.SetActive(true);

@@ -134,6 +134,7 @@ public class Int_lv4_Hatch : Lvl3InteractionDialogueBase
     private IEnumerator OpenHatch(PlayerController watson)
     {
         opened = true;
+        ActivateNextInteractions();
         PlayDialogue(watson, watsonOpenDialogue);
 
         Animator activeWatsonAnimator = watsonAnimator != null
@@ -171,18 +172,21 @@ public class Int_lv4_Hatch : Lvl3InteractionDialogueBase
             hatchLid.localRotation = Quaternion.Euler(targetEuler);
         }
 
-        foreach (GameObject nextObject in nextInteractionGameObjects)
-        {
-            if (nextObject != null)
-                nextObject.SetActive(true);
-        }
-
         if (interactable != null)
         {
             interactable.isInteractableActive = false;
             Collider hatchCollider = interactable.GetComponent<Collider>();
             if (hatchCollider != null)
                 hatchCollider.enabled = false;
+        }
+    }
+
+    private void ActivateNextInteractions()
+    {
+        foreach (GameObject nextObject in nextInteractionGameObjects)
+        {
+            if (nextObject != null)
+                nextObject.SetActive(true);
         }
     }
 }

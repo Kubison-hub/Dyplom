@@ -121,7 +121,8 @@ public class WatsonEscortNPC : MonoBehaviour
 
     public bool CanBeEscortedBy(PlayerController player)
     {
-        return player != null &&
+        return isActiveAndEnabled &&
+               player != null &&
                player.playerCharacter == PlayerCharacter.Watson &&
                MagnifierGlassController.IsWatsonGripActive;
     }

@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.InputSystem;
 using UnityEngine.Video;
 
@@ -19,9 +20,15 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
 
     [Header("Camera")]
     [SerializeField] private CameraController cameraController;
+    [SerializeField, Min(0.01f)] private float cameraPresetTransitionSpeed = 0.35f;
 
     [Header("Immediate Watson Reaction")]
     [SerializeField, Min(1f)] private float watsonTurnSpeed = 360f;
+    [SerializeField, Range(0f, 1f)] private float watsonTurnStartProgress = 0.5f;
+
+    [Header("Sherlock Approach")]
+    [SerializeField, Min(0.1f)] private float sherlockApproachDistance = 1.5f;
+    [SerializeField, Min(0.1f)] private float sherlockApproachNavMeshSampleRadius = 1.2f;
 
     [Header("Opening Dialogue")]
     [SerializeField] private Lvl3DialogueLine[] openingDialogueLines =
@@ -77,6 +84,8 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
 
     private Interactable interactable;
     private Coroutine watsonTurnCoroutine;
+    private Coroutine delayedWatsonTurnCoroutine;
+    private bool watsonTurnPending;
 
     private void Awake()
     {
@@ -121,10 +130,7 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
         if (watson == null)
             return;
 
-        if (watsonTurnCoroutine != null)
-            StopCoroutine(watsonTurnCoroutine);
-
-        watsonTurnCoroutine = StartCoroutine(RotateWatsonToward(player.transform, watson));
+        watsonTurnPending = true;
     }
 
     public bool RequiresWatsonReactionBeforeApproach(PlayerController player)
@@ -133,23 +139,54 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
                !tutorialInProgress &&
                player != null &&
                player.playerCharacter == PlayerCharacter.Sherlock &&
-               watsonTurnCoroutine != null;
+               watsonTurnPending;
     }
 
     public void MovePlayerAfterWatsonReaction(PlayerController player)
     {
-        if (player != null)
+        if (player == null)
+            return;
+
+        PlayerController watson = FindWatson();
+        float initialDistanceToWatson = GetHorizontalDistance(player, watson);
+        float finalDistanceToWatson = sherlockApproachDistance;
+
+        if (TryGetSherlockApproachPoint(player, out Vector3 approachPoint))
         {
-            player.SetWaitingForInteractionReaction(true);
-            StartCoroutine(WaitForWatsonReactionThenApproach(player));
+            player.currentInteractionPoint = null;
+            player.SetAutoInteractionApproachPoint(approachPoint);
+            finalDistanceToWatson = GetHorizontalDistance(approachPoint, watson.transform.position);
+        }
+
+        player.SetWaitingForInteractionReaction(false);
+        player.MoveToInteractable();
+
+        if (watsonTurnPending && watson != null)
+        {
+            watsonTurnPending = false;
+
+            if (delayedWatsonTurnCoroutine != null)
+                StopCoroutine(delayedWatsonTurnCoroutine);
+
+            float turnDistance = Mathf.Lerp(
+                initialDistanceToWatson,
+                finalDistanceToWatson,
+                watsonTurnStartProgress);
+            delayedWatsonTurnCoroutine = StartCoroutine(
+                RotateWatsonWhenSherlockReachesDistance(player, watson, turnDistance));
         }
     }
 
     private IEnumerator RunTutorial(PlayerController player)
     {
         tutorialInProgress = true;
+        watsonTurnPending = false;
         ClearCurrentInteraction(player);
-        cameraController?.SetZoomState(CameraZoomState.Narrow);
+
+        yield return FinishWatsonFacingPlayer(player);
+
+        if (cameraController != null)
+            cameraController.SetZoomIndex((int)CameraZoomState.Narrow, cameraPresetTransitionSpeed);
 
         SwitchCharacter switchCharacter = SwitchCharacter.Instance;
         if (switchCharacter != null)
@@ -275,17 +312,97 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
         watsonTurnCoroutine = null;
     }
 
-    private IEnumerator WaitForWatsonReactionThenApproach(PlayerController player)
+    private bool TryGetSherlockApproachPoint(PlayerController sherlock, out Vector3 approachPoint)
     {
+        approachPoint = default;
+
+        PlayerController watson = FindWatson();
+        if (sherlock == null || watson == null || sherlock.navMeshAgent == null)
+            return false;
+
+        Vector3 directionFromWatson = sherlock.transform.position - watson.transform.position;
+        directionFromWatson.y = 0f;
+        if (directionFromWatson.sqrMagnitude <= 0.001f)
+            directionFromWatson = -watson.transform.forward;
+
+        Vector3 desiredPoint = watson.transform.position +
+                               directionFromWatson.normalized * sherlockApproachDistance;
+
+        if (!NavMesh.SamplePosition(
+                desiredPoint,
+                out NavMeshHit navMeshHit,
+                sherlockApproachNavMeshSampleRadius,
+                NavMesh.AllAreas))
+        {
+            return false;
+        }
+
+        if (!NavMeshWallGuard.TryGetClearPath(
+                sherlock.navMeshAgent,
+                navMeshHit.position,
+                out NavMeshPath path))
+        {
+            return false;
+        }
+
+        approachPoint = navMeshHit.position;
+        return true;
+    }
+
+    private IEnumerator FinishWatsonFacingPlayer(PlayerController sherlock)
+    {
+        while (delayedWatsonTurnCoroutine != null)
+            yield return null;
+
         while (watsonTurnCoroutine != null)
             yield return null;
 
-        player?.SetWaitingForInteractionReaction(false);
-
-        if (player == null || player.currentInteractable != interactable)
+        PlayerController watson = FindWatson();
+        if (sherlock == null || watson == null)
             yield break;
 
-        player.MoveToInteractable();
+        watsonTurnCoroutine = StartCoroutine(RotateWatsonToward(sherlock.transform, watson));
+        while (watsonTurnCoroutine != null)
+            yield return null;
+    }
+
+    private IEnumerator RotateWatsonWhenSherlockReachesDistance(
+        PlayerController sherlock,
+        PlayerController watson,
+        float turnDistance)
+    {
+        while (sherlock != null && watson != null &&
+               GetHorizontalDistance(sherlock, watson) > turnDistance)
+        {
+            if (sherlock.currentInteractable != interactable)
+                break;
+
+            yield return null;
+        }
+
+        if (sherlock != null && watson != null &&
+            sherlock.currentInteractable == interactable)
+        {
+            watsonTurnCoroutine = StartCoroutine(RotateWatsonToward(sherlock.transform, watson));
+            while (watsonTurnCoroutine != null)
+                yield return null;
+        }
+
+        delayedWatsonTurnCoroutine = null;
+    }
+
+    private static float GetHorizontalDistance(PlayerController first, PlayerController second)
+    {
+        return first != null && second != null
+            ? GetHorizontalDistance(first.transform.position, second.transform.position)
+            : 0f;
+    }
+
+    private static float GetHorizontalDistance(Vector3 first, Vector3 second)
+    {
+        first.y = 0f;
+        second.y = 0f;
+        return Vector3.Distance(first, second);
     }
 
     private static PlayerController FindWatson()
