@@ -49,6 +49,8 @@ public abstract class Lvl3InteractionDialogueBase : MonoBehaviour
             : DefaultDialogueLines;
 
     protected bool IsDialoguePlaying => dialogueCoroutine != null;
+    public static bool IsAnyDialoguePlaying =>
+        activeDialogueOwner != null && activeDialogueOwner.dialogueCoroutine != null;
 
     protected void SetupInteractable(InteractionType interactionType)
     {

@@ -339,6 +339,10 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
         if (watsonAgent == null || watsonDestination == null)
             return;
 
+        // The interaction focus keeps Watson looking at the table and disables
+        // agent rotation. The completion walk must be controlled by NavMesh only.
+        WatsonCompanionController.Instance?.ClearInteractionFocus();
+
         if (!watsonAgent.isOnNavMesh)
         {
             Debug.LogWarning($"{name}: Watson must be placed on the NavMesh before the easy table is solved.", this);

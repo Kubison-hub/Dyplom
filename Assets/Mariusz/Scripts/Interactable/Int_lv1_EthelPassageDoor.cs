@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(Interactable))]
 public class Int_lv1_EthelPassageDoor : Lvl3InteractionDialogueBase
@@ -29,7 +30,13 @@ public class Int_lv1_EthelPassageDoor : Lvl3InteractionDialogueBase
 
     private bool hasBeenUsed;
 
-    [SerializeField] private GameObject nextInteraction;
+    [Header("Next Interactions")]
+    [Tooltip("Whole GameObjects enabled after the first use of this passage door.")]
+    [FormerlySerializedAs("nextInteraction")]
+    [SerializeField] private GameObject[] nextInteractions;
+
+    [Tooltip("Escort components enabled after the first use. Their GameObjects may remain active.")]
+    [SerializeField] private WatsonEscortNPC[] nextWatsonEscortComponents;
 
 
     protected override Lvl3DialogueLine[] DefaultDialogueLines => firstPassageDialogueLines;
@@ -50,7 +57,7 @@ public class Int_lv1_EthelPassageDoor : Lvl3InteractionDialogueBase
             ActivateStairsGoal();
             CluesLog.Instance?.AddFindEthelObjective();
             PlayDialogue(player, firstPassageDialogueLines);
-            nextInteraction.SetActive(true);
+            ActivateNextInteractions();
             return;
         }
 
@@ -66,5 +73,20 @@ public class Int_lv1_EthelPassageDoor : Lvl3InteractionDialogueBase
         }
 
         stairsUp.isSherlockWantToGoUpstairs = true;
+    }
+
+    private void ActivateNextInteractions()
+    {
+        foreach (GameObject nextInteraction in nextInteractions)
+        {
+            if (nextInteraction != null)
+                nextInteraction.SetActive(true);
+        }
+
+        foreach (WatsonEscortNPC escortComponent in nextWatsonEscortComponents)
+        {
+            if (escortComponent != null)
+                escortComponent.enabled = true;
+        }
     }
 }

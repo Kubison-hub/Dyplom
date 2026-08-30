@@ -56,6 +56,13 @@ public class Int_lv3_Ethel : MonoBehaviour
     [Tooltip("Whole GameObject with Int_lv3_Ethel_2. It is enabled after Ethel reaches Second Target.")]
     [SerializeField] private GameObject ethel2InteractionGameObject;
 
+    [Header("Inactive Player Movement")]
+    [Tooltip("Sherlock moves here when Watson started Ethel's conversation.")]
+    [SerializeField] private Transform inactiveSherlockTarget;
+    [Tooltip("Watson moves here when Sherlock started Ethel's conversation.")]
+    [SerializeField] private Transform inactiveWatsonTarget;
+    [SerializeField, Min(0f)] private float inactivePlayerMoveDelay = 2f;
+
     private Interactable interactable;
     private bool sequenceStarted;
 
@@ -108,7 +115,8 @@ public class Int_lv3_Ethel : MonoBehaviour
         while (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
             yield return null;
 
-        yield return RunEthelSequence();
+        StartCoroutine(RunEthelSequence());
+        StartCoroutine(MoveInactivePlayerAfterDelay(player));
     }
 
     private void StartEthelConversation(PlayerController player)
@@ -165,6 +173,46 @@ public class Int_lv3_Ethel : MonoBehaviour
 
         if (ethel2InteractionGameObject != null)
             ethel2InteractionGameObject.SetActive(true);
+    }
+
+    private IEnumerator MoveInactivePlayerAfterDelay(PlayerController activePlayer)
+    {
+        if (inactivePlayerMoveDelay > 0f)
+            yield return new WaitForSeconds(inactivePlayerMoveDelay);
+
+        PlayerController inactivePlayer = GetInactivePlayer(activePlayer);
+        if (inactivePlayer == null)
+            yield break;
+
+        Transform target = inactivePlayer.playerCharacter == PlayerCharacter.Watson
+            ? inactiveWatsonTarget
+            : inactiveSherlockTarget;
+        if (target == null || inactivePlayer.navMeshAgent == null || !inactivePlayer.navMeshAgent.isOnNavMesh)
+            yield break;
+
+        if (!NavMeshWallGuard.TryGetClearPath(inactivePlayer.navMeshAgent, target.position, out NavMeshPath path))
+        {
+            Debug.LogWarning($"{name}: inactive {inactivePlayer.playerCharacter} cannot reach '{target.name}'.", this);
+            yield break;
+        }
+
+        inactivePlayer.currentInteractable = null;
+        inactivePlayer.currentInteractionPoint = null;
+        inactivePlayer.ClearAutoInteractionApproachPoint();
+        inactivePlayer.navMeshAgent.isStopped = false;
+        inactivePlayer.navMeshAgent.updateRotation = true;
+        inactivePlayer.navMeshAgent.SetPath(path);
+    }
+
+    private static PlayerController GetInactivePlayer(PlayerController activePlayer)
+    {
+        foreach (PlayerController candidate in FindObjectsByType<PlayerController>(FindObjectsSortMode.None))
+        {
+            if (candidate != null && candidate != activePlayer)
+                return candidate;
+        }
+
+        return null;
     }
 
     private IEnumerator MoveEthelTo(Transform target, bool run)

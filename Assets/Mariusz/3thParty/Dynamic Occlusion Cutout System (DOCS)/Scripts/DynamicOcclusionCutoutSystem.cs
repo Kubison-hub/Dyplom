@@ -1,5 +1,9 @@
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace PxP.DOCS
 {
     public class DynamicOcclusionCutoutSystem : MonoBehaviour
@@ -32,6 +36,8 @@ namespace PxP.DOCS
         [Header("Raycast Behaviour")]
         [Min(0.01f)]
         [SerializeField] float radius = 0.5f;
+        [Tooltip("Only colliders on these layers can trigger the occlusion mask. Default is Walls.")]
+        [SerializeField] LayerMask occlusionLayers = 1 << 12;
 
         [Header("Debug Settings")]
         [SerializeField] bool enableGizmos = true;
@@ -84,7 +90,14 @@ namespace PxP.DOCS
             float cameraDistance = direction.magnitude;
             Vector3 cameraDirection = cameraDistance > Mathf.Epsilon ? direction / cameraDistance : Vector3.zero;
 
-            if (cameraDistance > Mathf.Epsilon && Physics.SphereCast(targetPosition, radius, cameraDirection, out RaycastHit hitInfo, cameraDistance))
+            if (cameraDistance > Mathf.Epsilon && Physics.SphereCast(
+                    targetPosition,
+                    radius,
+                    cameraDirection,
+                    out RaycastHit hitInfo,
+                    cameraDistance,
+                    occlusionLayers,
+                    QueryTriggerInteraction.Ignore))
             {
                 if (!isHitting)
                 {
@@ -124,22 +137,24 @@ namespace PxP.DOCS
             if (m_target == null || m_camera == null || m_materials == null || !enableGizmos) return;
 
             Vector3 origin = m_target.position + (Vector3.up * targetHeightCorrection);
-            Vector3 dir = direction.normalized;
+            Vector3 dir = (m_camera.transform.position - origin).normalized;
             Vector3 end = m_camera.transform.position;
+            float distance = Vector3.Distance(origin, end);
 
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(origin, radius);
-            Gizmos.DrawWireSphere(end, radius);
+            Gizmos.DrawLine(origin, end);
 
-            Gizmos.DrawLine(origin + Vector3.up * radius, end + Vector3.up * radius);
-            Gizmos.DrawLine(origin + Vector3.down * radius, end + Vector3.down * radius);
-            Gizmos.DrawLine(origin + Vector3.right * radius, end + Vector3.right * radius);
-            Gizmos.DrawLine(origin + Vector3.left * radius, end + Vector3.left * radius);
-
-            if (Physics.SphereCast(origin, radius, dir, out RaycastHit hit, Vector3.Distance(origin, end)))
+            if (Physics.SphereCast(origin, radius, dir, out RaycastHit hit, distance, occlusionLayers, QueryTriggerInteraction.Ignore))
             {
                 Gizmos.color = Color.red;
                 Gizmos.DrawWireSphere(hit.point, radius);
+                Gizmos.DrawLine(origin, hit.point);
+
+#if UNITY_EDITOR
+                string layerName = LayerMask.LayerToName(hit.collider.gameObject.layer);
+                Handles.Label(hit.point, $"DOCS hit: {hit.collider.name} [{layerName}]");
+#endif
             }
         }
     }

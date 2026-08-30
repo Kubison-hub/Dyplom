@@ -9,11 +9,14 @@ public class Int_lv4_EthelEntrance : Lvl3InteractionDialogueBase
     [Header("Sherlock Start Position")]
     [SerializeField] private Transform sherlockEthelStartPoz;
     [SerializeField, Min(0.05f)] private float navMeshSampleRadius = 1f;
+    [SerializeField, Min(0.05f)] private float rotationLockDuration = 0.5f;
 
     [Header("Dialogue")]
     [SerializeField] private Lvl3DialogueLine[] noReturnDialogue;
 
     protected override Lvl3DialogueLine[] DefaultDialogueLines => noReturnDialogue;
+
+    private bool isTeleporting;
 
     public void PerformInteraction(PlayerController player)
     {
@@ -23,7 +26,8 @@ public class Int_lv4_EthelEntrance : Lvl3InteractionDialogueBase
         bool isWatsonInRoom = hatch != null && hatch.IsWatsonInRoom;
         if (player.playerCharacter == PlayerCharacter.Sherlock && !isWatsonInRoom)
         {
-            TeleportSherlock(player);
+            if (!isTeleporting)
+                StartCoroutine(TeleportSherlockAfterInteraction(player));
             return;
         }
 
@@ -48,9 +52,13 @@ public class Int_lv4_EthelEntrance : Lvl3InteractionDialogueBase
         NavMeshAgent agent = sherlock.GetComponent<NavMeshAgent>();
         if (agent != null && agent.isOnNavMesh)
         {
+            agent.isStopped = true;
+            agent.updateRotation = false;
+            agent.velocity = Vector3.zero;
             agent.ResetPath();
             agent.Warp(targetPosition);
             agent.ResetPath();
+            agent.nextPosition = targetPosition;
         }
         else
         {
@@ -58,5 +66,22 @@ public class Int_lv4_EthelEntrance : Lvl3InteractionDialogueBase
         }
 
         sherlock.transform.rotation = sherlockEthelStartPoz.rotation;
+    }
+
+    private System.Collections.IEnumerator TeleportSherlockAfterInteraction(PlayerController sherlock)
+    {
+        isTeleporting = true;
+
+        // Allow PlayerController to finish the current interaction coroutine before
+        // clearing its old interaction point and moving it to the hidden room.
+        yield return new WaitForEndOfFrame();
+
+        sherlock.CancelInteractionForTeleport();
+        TeleportSherlock(sherlock);
+        sherlock.ResumeAfterTeleport();
+        if (sherlockEthelStartPoz != null)
+            sherlock.LockRotationAfterTeleport(sherlockEthelStartPoz.rotation, rotationLockDuration);
+
+        isTeleporting = false;
     }
 }

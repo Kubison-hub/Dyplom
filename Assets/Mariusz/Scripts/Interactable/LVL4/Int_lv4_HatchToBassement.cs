@@ -12,6 +12,7 @@ public class Int_lv4_HatchToBassement : MonoBehaviour
     [SerializeField] private Transform watsonBasementStartPoz;
     [SerializeField, Min(0.05f)] private float navMeshSampleRadius = 1f;
     [SerializeField] private float transitionDelay = 0.1f;
+    [SerializeField, Min(0.05f)] private float rotationLockDuration = 0.5f;
     [SerializeField] private Interactable interactable;
 
     [Header("Basement Exposure")]
@@ -37,11 +38,19 @@ public class Int_lv4_HatchToBassement : MonoBehaviour
             return;
 
         isTransitioning = true;
-        StartCoroutine(MoveCharactersToBasement());
+        StartCoroutine(MoveCharactersToBasement(player));
     }
 
-    private IEnumerator MoveCharactersToBasement()
+    private IEnumerator MoveCharactersToBasement(PlayerController interactingPlayer)
     {
+        // PlayerController finishes the interaction on this frame. Clear its old
+        // target on the following frame before the character changes location.
+        yield return new WaitForEndOfFrame();
+
+        PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        foreach (PlayerController candidate in players)
+            candidate?.CancelInteractionForTeleport();
+
         if (levelThreeRoot != null)
             levelThreeRoot.SetActive(true);
 
@@ -50,6 +59,16 @@ public class Int_lv4_HatchToBassement : MonoBehaviour
 
         TeleportPlayer(PlayerCharacter.Sherlock, sherlockBasementStartPoz);
         TeleportPlayer(PlayerCharacter.Watson, watsonBasementStartPoz);
+
+        foreach (PlayerController candidate in players)
+            candidate?.ResumeAfterTeleport();
+
+        Transform activeMarker = interactingPlayer != null &&
+                                 interactingPlayer.playerCharacter == PlayerCharacter.Watson
+            ? watsonBasementStartPoz
+            : sherlockBasementStartPoz;
+        if (interactingPlayer != null && activeMarker != null)
+            interactingPlayer.LockRotationAfterTeleport(activeMarker.rotation, rotationLockDuration);
 
         if (basementExposureController == null)
             basementExposureController = FindFirstObjectByType<BasementExposureController>();
@@ -85,8 +104,12 @@ public class Int_lv4_HatchToBassement : MonoBehaviour
             NavMeshAgent agent = candidate.GetComponent<NavMeshAgent>();
             if (agent != null && agent.isOnNavMesh)
             {
+                agent.isStopped = true;
+                agent.updateRotation = false;
+                agent.velocity = Vector3.zero;
                 agent.Warp(targetPosition);
                 agent.ResetPath();
+                agent.nextPosition = targetPosition;
             }
             else
             {

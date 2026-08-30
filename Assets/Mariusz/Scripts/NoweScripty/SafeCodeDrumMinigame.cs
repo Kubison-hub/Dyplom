@@ -88,7 +88,10 @@ public class SafeCodeDrumMinigame : MonoBehaviour
             }
 
             if (IsPointerOver(checkButtonRect, screenPosition))
+            {
+                audioController?.PlayTestComplete();
                 ValidateCode();
+            }
         }
 
         if (Mouse.current.leftButton.wasReleasedThisFrame)

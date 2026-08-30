@@ -60,6 +60,9 @@ public class DetectiveIdeaPoint : MonoBehaviour
     [Header("Discovery")]
     [Tooltip("Magnifier: discover with F. External: reveal only from another script. MagnifierOrExternal: either source.")]
     public DiscoveryMode discoveryMode = DiscoveryMode.Magnifier;
+    [SerializeField, Min(0f)] private float revealedDefaultLayerDuration = 4f;
+    [SerializeField] private string revealedLayerName = "Default";
+    [SerializeField] private string hiddenLayerName = "Hidden";
 
     [Header("Connections from this point")]
     public List<IdeaConnection> connections = new List<IdeaConnection>();
@@ -87,6 +90,7 @@ public class DetectiveIdeaPoint : MonoBehaviour
 
 
     public bool IsDiscovered { get; private set; }
+    public bool IsDiscoveryLayerRevealActive => discoveryLayerCoroutine != null;
     public event Action<DetectiveIdeaPoint> OnDiscovered;
     public bool CanDiscoverWithMagnifier =>
         discoveryMode == DiscoveryMode.Magnifier || discoveryMode == DiscoveryMode.MagnifierOrExternal;
@@ -98,6 +102,8 @@ public class DetectiveIdeaPoint : MonoBehaviour
     private Material visualInstance;
     private Coroutine questionFXDisableCoroutine;
     private Coroutine ideaTextCoroutine;
+    private Coroutine discoveryLayerCoroutine;
+    private Coroutine externalRevealCoroutine;
 
     private void Awake()
     {
@@ -158,7 +164,42 @@ public class DetectiveIdeaPoint : MonoBehaviour
         IsDiscovered = true;
         SetDiscoveryPreview(1f);
         FadeOutQuestionFX();
+        DetectiveIdeaManager.Instance?.PlayIdeaPointDiscoverySound();
+        StartDiscoveryLayerReveal();
         OnDiscovered?.Invoke(this);
+    }
+
+    private void StartDiscoveryLayerReveal()
+    {
+        if (discoveryLayerCoroutine != null)
+            StopCoroutine(discoveryLayerCoroutine);
+
+        int revealedLayer = LayerMask.NameToLayer(revealedLayerName);
+        if (revealedLayer < 0)
+        {
+            Debug.LogWarning($"{name}: Layer '{revealedLayerName}' does not exist.", this);
+            return;
+        }
+
+        SetLayerRecursively(transform, revealedLayer);
+        discoveryLayerCoroutine = StartCoroutine(RevealDefaultLayerThenHide());
+    }
+
+    private IEnumerator RevealDefaultLayerThenHide()
+    {
+        if (revealedDefaultLayerDuration > 0f)
+            yield return new WaitForSeconds(revealedDefaultLayerDuration);
+
+        int hiddenLayer = LayerMask.NameToLayer(hiddenLayerName);
+        if (hiddenLayer < 0)
+        {
+            Debug.LogWarning($"{name}: Layer '{hiddenLayerName}' does not exist.", this);
+            discoveryLayerCoroutine = null;
+            yield break;
+        }
+
+        SetLayerRecursively(transform, hiddenLayer);
+        discoveryLayerCoroutine = null;
     }
 
     private void FadeOutQuestionFX()
@@ -240,8 +281,22 @@ public class DetectiveIdeaPoint : MonoBehaviour
             return false;
         }
 
-        DetectiveIdeaManager.Instance.DiscoverPoint(this);
+        if (externalRevealCoroutine == null)
+            externalRevealCoroutine = StartCoroutine(RevealAfterInteractionDialogue());
+
         return true;
+    }
+
+    private IEnumerator RevealAfterInteractionDialogue()
+    {
+        // Interactions often start their Dialogue Line immediately after requesting a reveal.
+        yield return null;
+
+        while (Lvl3InteractionDialogueBase.IsAnyDialoguePlaying)
+            yield return null;
+
+        DetectiveIdeaManager.Instance?.DiscoverPoint(this);
+        externalRevealCoroutine = null;
     }
 
     public void SetVisible(bool visible)
