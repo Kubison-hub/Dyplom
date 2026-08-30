@@ -102,11 +102,9 @@ public class Int_lv3_Ethel : MonoBehaviour
 
     private IEnumerator StartConversationThenRunSequence(PlayerController player)
     {
-        // The normal Interactable companion reaction must finish first. A Dialogue
-        // Editor conversation locks both NavMesh agents and would otherwise cancel it.
+        // Let the interaction finish its current frame, but do not wait for the
+        // companion's approach before Ethel begins her conversation.
         yield return null;
-        while (interactable != null && interactable.IsCompanionReactionApproachInProgress)
-            yield return null;
 
         StartEthelConversation(player);
 

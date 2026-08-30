@@ -18,6 +18,12 @@ public class Int_lv4_HatchToBassement : MonoBehaviour
     [Header("Basement Exposure")]
     [SerializeField] private BasementExposureController basementExposureController;
 
+    [Header("Basement Arrival Music")]
+    [SerializeField] private GameMusicManager gameMusicManager;
+    [SerializeField] private AudioClip basementArrivalMusic;
+    [Tooltip("When disabled, the playlist resumes after this track finishes.")]
+    [SerializeField] private bool loopBasementArrivalMusic;
+
     [Header("Level Transition")]
     [Tooltip("Root GameObject of Level 3, enabled before the characters are teleported into the basement.")]
     [SerializeField] private GameObject levelThreeRoot;
@@ -25,6 +31,7 @@ public class Int_lv4_HatchToBassement : MonoBehaviour
     [SerializeField] private GameObject levelTwoRoot;
 
     private bool isTransitioning;
+    private bool basementArrivalMusicPlayed;
 
     private void Awake()
     {
@@ -74,11 +81,27 @@ public class Int_lv4_HatchToBassement : MonoBehaviour
             basementExposureController = FindFirstObjectByType<BasementExposureController>();
 
         basementExposureController?.EnterBasement();
+        PlayBasementArrivalMusic();
 
         if (levelTwoRoot != null)
             levelTwoRoot.SetActive(false);
 
         isTransitioning = false;
+    }
+
+    private void PlayBasementArrivalMusic()
+    {
+        if (basementArrivalMusicPlayed || basementArrivalMusic == null)
+            return;
+
+        if (gameMusicManager == null)
+            gameMusicManager = FindFirstObjectByType<GameMusicManager>();
+
+        if (gameMusicManager == null)
+            return;
+
+        basementArrivalMusicPlayed = true;
+        gameMusicManager.ChangeMusic(basementArrivalMusic, loopBasementArrivalMusic);
     }
 
     private void TeleportPlayer(PlayerCharacter character, Transform destination)

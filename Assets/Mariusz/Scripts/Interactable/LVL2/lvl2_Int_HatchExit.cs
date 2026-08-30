@@ -25,6 +25,12 @@ public class lvl2_Int_HatchExit : MonoBehaviour
     [Tooltip("Activated immediately before teleporting the player into the hidden room.")]
     [SerializeField] private GameObject[] blackboardsToActivateBeforeTeleport;
 
+    [Header("Level 1 Return Music")]
+    [SerializeField] private GameMusicManager gameMusicManager;
+    [SerializeField] private AudioClip levelOneReturnMusic;
+    [Tooltip("When disabled, the playlist resumes after this track finishes.")]
+    [SerializeField] private bool loopLevelOneReturnMusic;
+
     [Header("Hidden Passage Blackboard Restore")]
     [Tooltip("The Level 1 hidden-passage blackboard that must be visible after the first successful hatch exit.")]
     [SerializeField] private GameObject hiddenPassageBlackboard;
@@ -34,6 +40,7 @@ public class lvl2_Int_HatchExit : MonoBehaviour
     [SerializeField] private int requiredLetters = 3;
     private int lettersCollected = 0;
     private bool hiddenPassageBlackboardRestored;
+    private bool levelOneReturnMusicPlayed;
 
     public void AddLetter()
     {
@@ -100,6 +107,7 @@ public class lvl2_Int_HatchExit : MonoBehaviour
         SetBlackboardsActiveBeforeTeleport();
         RestoreHiddenPassageBlackboard();
         TeleportToHiddenRoom(player);
+        PlayLevelOneReturnMusic();
         
     }
 
@@ -122,6 +130,21 @@ public class lvl2_Int_HatchExit : MonoBehaviour
 
         player.transform.rotation = hiddenRoomStartPosition.rotation;
         player.currentInteractable = null;
+    }
+
+    private void PlayLevelOneReturnMusic()
+    {
+        if (levelOneReturnMusicPlayed || levelOneReturnMusic == null)
+            return;
+
+        if (gameMusicManager == null)
+            gameMusicManager = FindFirstObjectByType<GameMusicManager>();
+
+        if (gameMusicManager == null)
+            return;
+
+        levelOneReturnMusicPlayed = true;
+        gameMusicManager.ChangeMusic(levelOneReturnMusic, loopLevelOneReturnMusic);
     }
 
     private void SetBlackboardsActiveBeforeTeleport()

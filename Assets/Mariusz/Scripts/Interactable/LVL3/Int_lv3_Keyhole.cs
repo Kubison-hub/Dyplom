@@ -29,8 +29,6 @@ public class Int_lv3_Keyhole : Lvl3ClockworkInteraction
     [SerializeField, Min(0.05f)] private float insertedKeyMoveDuration = 1.2f;
 
     [Header("Dialogue Audio")]
-    [SerializeField] private AudioSource sherlockVoiceSource;
-    [SerializeField] private AudioSource watsonVoiceSource;
     [TextArea] [SerializeField] private string firstExaminationText =
         "Hmm, to mi wygląda na wejście na specjalny klucz.";
     [SerializeField] private AudioClip firstExaminationAudio;
@@ -234,6 +232,7 @@ public class Int_lv3_Keyhole : Lvl3ClockworkInteraction
 
         bool isSherlock = player != null &&
                           (player.playerCharacter == PlayerCharacter.Sherlock || player.CompareTag("PlayerA"));
+        AudioSource sherlockVoiceSource = GetVoiceSource(Lvl3DialogueSpeaker.Sherlock);
         if (isSherlock && sherlockVoiceSource != null && clip != null)
             sherlockVoiceSource.PlayOneShot(clip);
     }
@@ -250,9 +249,7 @@ public class Int_lv3_Keyhole : Lvl3ClockworkInteraction
             string watsonText = isWatson ? line.text : string.Empty;
             PlayerTopText.Instance?.ShowTopTextPersistent(sherlockText, watsonText);
 
-            AudioSource source = line.speaker == Lvl3DialogueSpeaker.Watson
-                ? watsonVoiceSource
-                : sherlockVoiceSource;
+            AudioSource source = GetVoiceSource(line.speaker);
             if (source != null && line.voiceClip != null)
                 source.PlayOneShot(line.voiceClip);
 

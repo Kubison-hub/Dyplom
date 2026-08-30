@@ -62,6 +62,11 @@ public class Int_lv3_Ethel_2 : MonoBehaviour
     [Tooltip("Whole GameObjects disabled after Ethel completes this sequence.")]
     [SerializeField] private GameObject[] disableGameObjects;
 
+    [Header("Alternative Interaction")]
+    [Tooltip("Disables the linked alternative Ethel interaction as soon as this one starts.")]
+    [SerializeField] private bool disableAlternativeInteractionOnStart = true;
+    [SerializeField] private Int_lv3_Ethel_2 alternativeInteraction;
+
 
 
     private Interactable interactable;
@@ -94,19 +99,51 @@ public class Int_lv3_Ethel_2 : MonoBehaviour
         if (interactable != null)
             interactable.isInteractableActive = false;
 
+        DisableAlternativeInteraction();
+
         if (player != null)
             player.currentInteractable = null;
 
         StartCoroutine(StartConversationThenRunSequence(player));
     }
 
+    private void DisableAlternativeInteraction()
+    {
+        if (!disableAlternativeInteractionOnStart ||
+            alternativeInteraction == null ||
+            alternativeInteraction == this)
+        {
+            return;
+        }
+
+        alternativeInteraction.DisableAsAlternativeInteraction();
+    }
+
+    private void DisableAsAlternativeInteraction()
+    {
+        sequenceStarted = true;
+
+        if (interactable == null)
+            SetupInteractable();
+
+        if (interactable != null)
+        {
+            interactable.isInteractableActive = false;
+            interactable.allowQuestionFXWhenInactive = false;
+            interactable.SetQuestionFXEagleVisionState(false);
+
+            if (interactable.interactiveShader != null)
+                interactable.interactiveShader.SetActive(false);
+        }
+
+        enabled = false;
+    }
+
     private IEnumerator StartConversationThenRunSequence(PlayerController player)
     {
-        // The normal Interactable companion reaction must finish first. A Dialogue
-        // Editor conversation locks both NavMesh agents and would otherwise cancel it.
+        // Let the interaction finish its current frame, but do not wait for the
+        // companion's approach before Ethel begins her conversation.
         yield return null;
-        while (interactable != null && interactable.IsCompanionReactionApproachInProgress)
-            yield return null;
 
         StartEthelConversation(player);
 

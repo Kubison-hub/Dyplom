@@ -198,7 +198,7 @@ public abstract class Lvl3InteractionDialogueBase : MonoBehaviour
         source.PlayOneShot(line.voiceClip);
     }
 
-    private AudioSource GetVoiceSource(Lvl3DialogueSpeaker speaker)
+    protected AudioSource GetVoiceSource(Lvl3DialogueSpeaker speaker)
     {
         AudioSource localSource = speaker switch
         {

@@ -20,7 +20,6 @@ public class Int_lv3_Clock : Lvl3ClockworkInteraction
     [Header("First Interaction")]
     [TextArea]
     [SerializeField] private string firstInteractionText = "Stary zegar. Jego wskazówki wciąż działają.";
-    [SerializeField] private AudioSource sherlockVoiceSource;
     [SerializeField] private AudioClip firstInteractionAudio;
     [SerializeField] private DetectiveIdeaPoint brickClockIdeaPoint;
 
@@ -77,8 +76,9 @@ public class Int_lv3_Clock : Lvl3ClockworkInteraction
             GetCameraController()?.SetZoomPreset("Narrow", narrowTransitionSmoothSpeed);
             ShowTopText(firstInteractionText);
 
-            if (sherlockVoiceSource != null && firstInteractionAudio != null)
-                sherlockVoiceSource.PlayOneShot(firstInteractionAudio);
+            AudioSource voiceSource = GetVoiceSource(Lvl3DialogueSpeaker.Sherlock);
+            if (voiceSource != null && firstInteractionAudio != null)
+                voiceSource.PlayOneShot(firstInteractionAudio);
 
             brickClockIdeaPoint?.RevealFromExternalSource();
 

@@ -19,12 +19,10 @@ public class Int_lv3_Doll : Lvl3ClockworkInteraction
 
     [Header("Sherlock")]
     [SerializeField, TextArea] private string sherlockPickupText = "Mała lalka. Ethel musiała ją zgubić w pośpiechu.";
-    [SerializeField] private AudioSource sherlockVoiceSource;
     [SerializeField] private AudioClip sherlockPickupAudio;
 
     [Header("Watson")]
     [SerializeField, TextArea] private string watsonPickupText = "Lalka małej Ethel. Powinniśmy ją zachować.";
-    [SerializeField] private AudioSource watsonVoiceSource;
     [SerializeField] private AudioClip watsonPickupAudio;
 
     [Header("Inventory")]
@@ -80,12 +78,14 @@ public class Int_lv3_Doll : Lvl3ClockworkInteraction
         if (isWatson)
         {
             ShowTopTextForPlayer(player, watsonPickupText);
+            AudioSource watsonVoiceSource = GetVoiceSource(Lvl3DialogueSpeaker.Watson);
             if (watsonVoiceSource != null && watsonPickupAudio != null)
                 watsonVoiceSource.PlayOneShot(watsonPickupAudio);
             return;
         }
 
         ShowTopTextForPlayer(player, sherlockPickupText);
+        AudioSource sherlockVoiceSource = GetVoiceSource(Lvl3DialogueSpeaker.Sherlock);
         if (sherlockVoiceSource != null && sherlockPickupAudio != null)
             sherlockVoiceSource.PlayOneShot(sherlockPickupAudio);
     }
