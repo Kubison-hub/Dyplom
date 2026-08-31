@@ -288,7 +288,7 @@ AnimatorController:
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
-    m_DefaultBool: 0
+    m_DefaultBool: 1
     m_Controller: {fileID: 9100000}
   - m_Name: AnimEdithExam
     m_Type: 4
@@ -323,7 +323,7 @@ AnimatorController:
     m_Behaviours: []
     m_BlendingMode: 0
     m_SyncedLayerIndex: -1
-    m_DefaultWeight: 0
+    m_DefaultWeight: 1
     m_IKPass: 0
     m_SyncedLayerAffectsTiming: 0
     m_Controller: {fileID: 9100000}
@@ -444,13 +444,13 @@ AnimatorStateMachine:
   m_ChildStates:
   - serializedVersion: 1
     m_State: {fileID: 8382493094983864566}
-    m_Position: {x: 300, y: 510, z: 0}
+    m_Position: {x: 320, y: 600, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 5686849792117766398}
     m_Position: {x: 350, y: 250, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 4075454630008665225}
-    m_Position: {x: 490, y: 360, z: 0}
+    m_Position: {x: 580, y: 360, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 8993279743031603458}
     m_Position: {x: 80, y: 380, z: 0}
