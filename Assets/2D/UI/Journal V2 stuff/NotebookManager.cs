@@ -12,6 +12,7 @@ public class NotebookManager : MonoBehaviour
     public GameObject categoryPanel;
     public GameObject noteListPanel;
     public GameObject noteDisplayArea;
+    public GameObject taskDisplayArea; // NOWE: Zmienna dla TaskDisplayArea
 
     [Header("List Settings")]
     public Transform noteListContent;
@@ -41,6 +42,7 @@ public class NotebookManager : MonoBehaviour
             return;
         }
     }
+
     private void Start()
     {
         notebookPanel.SetActive(false);
@@ -64,7 +66,7 @@ public class NotebookManager : MonoBehaviour
 
         notebookPanel.SetActive(true);
         LockActivePlayerInput();
-        BackToCategories();
+        BackToCategories(); // Ta funkcja ustawi domyœlny widok po wciœniêciu TAB
     }
 
     // Funkcja do fizycznego przycisku zamykania Notatnika
@@ -117,6 +119,10 @@ public class NotebookManager : MonoBehaviour
         noteListPanel.SetActive(true);
         noteDisplayArea.SetActive(false);
 
+        // NOWE: Ukrywamy TaskDisplayArea po wejœciu w kategoriê
+        if (taskDisplayArea != null)
+            taskDisplayArea.SetActive(false);
+
         // Wyczyœæ star¹ listê
         foreach (Transform child in noteListContent)
         {
@@ -144,6 +150,10 @@ public class NotebookManager : MonoBehaviour
         categoryPanel.SetActive(true);
         noteListPanel.SetActive(false);
         noteDisplayArea.SetActive(false);
+
+        // NOWE: Wyœwietlamy TaskDisplayArea jako domyœlny widok wraz z kategoriami
+        if (taskDisplayArea != null)
+            taskDisplayArea.SetActive(true);
     }
 
     public void BackToNoteList()
@@ -156,7 +166,12 @@ public class NotebookManager : MonoBehaviour
 
         noteListPanel.SetActive(true);
         noteDisplayArea.SetActive(false);
+
+        // NOWE: Upewniamy siê, ¿e wracaj¹c do listy, TaskDisplayArea jest ukryty
+        if (taskDisplayArea != null)
+            taskDisplayArea.SetActive(false);
     }
+
     private void CreateNoteButton(NoteData note)
     {
         GameObject newBtn = Instantiate(noteButtonPrefab, noteListContent);
@@ -166,8 +181,14 @@ public class NotebookManager : MonoBehaviour
 
     private void OpenNote(NoteData note)
     {
-        noteListPanel.SetActive(false);
+        // ZMIANA: Usuniêto ukrywanie noteListPanel, aby lista notatek do wyboru pozosta³a widoczna na ekranie.
+        // noteListPanel.SetActive(false); <-- To powodowa³o znikanie listy
+
         noteDisplayArea.SetActive(true);
+
+        // Zabezpieczenie, aby TaskDisplayArea by³ wy³¹czony podczas czytania notatki
+        if (taskDisplayArea != null)
+            taskDisplayArea.SetActive(false);
 
         displayTitle.text = note.noteTitle;
         displayContent.text = note.content;
