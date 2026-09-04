@@ -1,18 +1,21 @@
 using UnityEngine;
 
+using Debug = UnityEngine.Debug;
+
 public class Int_ZielonaFigurka : Lvl3InteractionDialogueBase
 {
-
     public ItemType itemType;
     private bool collected;
     [SerializeField] private Sprite inventoryIcon;
 
     [Header("Pickup Dialogue")]
-    [SerializeField] private Lvl3DialogueLine[] pickupDialogue =
+    [SerializeField]
+    private Lvl3DialogueLine[] pickupDialogue =
     {
         new Lvl3DialogueLine { speaker = Lvl3DialogueSpeaker.Sherlock, text = "Ciekawe. Zielona figurka.", duration = 2f }
     };
-    [SerializeField] private Lvl3DialogueLine[] noSpaceDialogue =
+    [SerializeField]
+    private Lvl3DialogueLine[] noSpaceDialogue =
     {
         new Lvl3DialogueLine { speaker = Lvl3DialogueSpeaker.Sherlock, text = "Nie mam miejsca w ekwipunku.", duration = 2f }
     };
@@ -32,6 +35,14 @@ public class Int_ZielonaFigurka : Lvl3InteractionDialogueBase
         }
 
         collected = true;
+
+        // NOWE: rejestrujemy podniesienie, zeby po wczytaniu zapisu
+        // ten obiekt nie pojawil sie ponownie na scenie.
+        if (SaveLoadManager.Instance != null)
+            SaveLoadManager.Instance.MarkCollected(gameObject);
+        else
+            Debug.LogError("Int_ZielonaFigurka: brak SaveLoadManager.Instance - podniesienie NIE zostanie zapisane!");
+
         HideCollectedFigure();
         destroyAfterDialogue = true;
         PlayDialogue(player, pickupDialogue);

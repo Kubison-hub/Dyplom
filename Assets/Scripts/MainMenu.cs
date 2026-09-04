@@ -1,6 +1,8 @@
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Video;
+
 
 public class MainMenu : MonoBehaviour
 {
@@ -8,27 +10,16 @@ public class MainMenu : MonoBehaviour
     public GameObject cinematicPanel;
     public VideoPlayer videoPlayer;
 
-    [Header("Zarz¹dzanie Canvasami")]
-    public GameObject mainMenuCanvas; // G³ówne menu (przyciski Start, Opcje, itp.)
-    public GameObject controlCanvas;  // Canvas sterowania
-    public GameObject creditsCanvas;  // Canvas twórców
-    public GameObject settingsCanvas; // Canvas ustawieñ (widoczny na Twoim screenie)
-
     private bool isPlayingIntro = false;
 
     private void Start()
     {
-        // Wy³¹czamy panel intro na starcie
         if (cinematicPanel != null) cinematicPanel.SetActive(false);
 
-        // Ustawiamy event dla koñca wideo
         if (videoPlayer != null)
         {
             videoPlayer.loopPointReached += OnVideoFinished;
         }
-
-        // Upewniamy siê, ¿e po w³¹czeniu gry widaæ tylko G³ówne Menu
-        ShowCanvas(mainMenuCanvas);
     }
 
     private void Update()
@@ -41,18 +32,51 @@ public class MainMenu : MonoBehaviour
             }
         }
 
-        // --- TYMCZASOWE DO TESTÓW ---
+        // Resetowanie zapisu intro do testów
         if (Input.GetKeyDown(KeyCode.R))
         {
             PlayerPrefs.DeleteKey("IntroObejrzane");
-            UnityEngine.Debug.Log("Zresetowano intro! Teraz odtworzy siê ponownie.");
+            Debug.Log("Zresetowano intro!");
         }
     }
 
     public void PlayGame()
     {
-        // Po prostu zawsze ³adujemy scenê z komiksowym intrem
-        SceneManager.LoadScene("Intro");
+        // Upewniamy siê, ¿e gra NIE ³aduje zapisu przy nowej grze
+        PlayerPrefs.SetInt("LoadGameOnStart", 0);
+        PlayerPrefs.Save();
+
+        if (PlayerPrefs.GetInt("IntroObejrzane", 0) == 1)
+        {
+            LoadGameLevel();
+            return;
+        }
+
+        if (cinematicPanel != null && videoPlayer != null)
+        {
+            cinematicPanel.SetActive(true);
+            videoPlayer.Play();
+            isPlayingIntro = true;
+            Cursor.visible = false;
+
+            PlayerPrefs.SetInt("IntroObejrzane", 1);
+            PlayerPrefs.Save();
+        }
+        else
+        {
+            LoadGameLevel();
+        }
+    }
+
+    // NOWA FUNKCJA - podepnij j¹ pod przycisk "Wczytaj" w Menu
+    public void LoadGameFromMenu()
+    {
+        // Ustawiamy flagê, ¿eby SaveLoadManager wczyta³ dane po wejœciu na scenê
+        PlayerPrefs.SetInt("LoadGameOnStart", 1);
+        PlayerPrefs.Save();
+
+        // Od razu ³adujemy scenê z pominiêciem intro
+        LoadGameLevel();
     }
 
     void OnVideoFinished(VideoPlayer vp)
@@ -62,53 +86,28 @@ public class MainMenu : MonoBehaviour
 
     void LoadGameLevel()
     {
-        // Tutaj nadal ³adujemy now¹ scenê, bo to w³aœciwa gra
         Cursor.visible = true;
         isPlayingIntro = false;
-        SceneManager.LoadScene("gamelevel_dev");
+        SceneManager.LoadScene("GameLeveL_DEV");
     }
 
     public void QuitGame()
     {
-        UnityEngine.Debug.Log("Zamykam grê...");
-        UnityEngine.Application.Quit();
+        Application.Quit();
     }
-
-    // --- FUNKCJE PRZE£¥CZANIA CANVASÓW ---
 
     public void Sterowanie()
     {
-        ShowCanvas(controlCanvas);
+        SceneManager.LoadScene("Sterowanie");
     }
 
     public void Credits()
     {
-        ShowCanvas(creditsCanvas);
-    }
-
-    public void Settings()
-    {
-        ShowCanvas(settingsCanvas);
+        SceneManager.LoadScene("Credits");
     }
 
     public void Menu()
     {
-        ShowCanvas(mainMenuCanvas);
-    }
-
-    // --- METODA POMOCNICZA ---
-
-    // Ta funkcja wy³¹cza wszystkie Canvasy i w³¹cza tylko ten, który jej przeka¿emy
-    private void ShowCanvas(GameObject canvasToShow)
-    {
-        if (mainMenuCanvas != null) mainMenuCanvas.SetActive(false);
-        if (controlCanvas != null) controlCanvas.SetActive(false);
-        if (creditsCanvas != null) creditsCanvas.SetActive(false);
-        if (settingsCanvas != null) settingsCanvas.SetActive(false);
-
-        if (canvasToShow != null)
-        {
-            canvasToShow.SetActive(true);
-        }
+        SceneManager.LoadScene("MainMenu");
     }
 }

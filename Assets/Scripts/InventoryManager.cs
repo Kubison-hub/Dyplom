@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Debug = UnityEngine.Debug;
 
 public class InventoryManager : MonoBehaviour
 {
@@ -9,6 +10,16 @@ public class InventoryManager : MonoBehaviour
     private class InventorySlot
     {
         public bool occupied;
+        public ItemType itemType;
+        public Sprite icon;
+    }
+
+    // Mapowanie typu przedmiotu na ikone.
+    // Potrzebne, bo po wczytaniu zapisu obiekty przedmiotow juz nie istnieja,
+    // a to one wczesniej dostarczaly sprite'y.
+    [Serializable]
+    public class ItemIconEntry
+    {
         public ItemType itemType;
         public Sprite icon;
     }
@@ -32,6 +43,14 @@ public class InventoryManager : MonoBehaviour
     [Tooltip("Assign the Image component used by each of the three inventory slots.")]
     [SerializeField] private Image[] slotIconImages = new Image[3];
 
+    [Header("Ikony przedmiotow (dla zapisu/wczytania)")]
+    [Tooltip("Przypisz ikone dla kazdego typu przedmiotu. Bez tego wczytany przedmiot bedzie w eq, ale slot pozostanie pusty.")]
+    [SerializeField] private ItemIconEntry[] itemIcons;
+
+    [Header("Diagnostyka")]
+    [Tooltip("Wlacz, zeby wypisywac w konsoli szczegoly rysowania slotow.")]
+    [SerializeField] private bool logujDiagnostyke = true;
+
     public bool keyInInv = false;
 
     [Header("Wood Block Selection")]
@@ -49,9 +68,15 @@ public class InventoryManager : MonoBehaviour
     private void Awake()
     {
         if (Instance == null)
+        {
             Instance = this;
+            Debug.Log("InventoryManager: Instance ustawiony na obiekcie '" + gameObject.name + "'.");
+        }
         else
+        {
+            Debug.LogWarning("InventoryManager: duplikat na '" + gameObject.name + "' - niszcze obiekt.");
             Destroy(gameObject);
+        }
     }
 
     private readonly Dictionary<ItemType, Sprite> itemIconCache = new Dictionary<ItemType, Sprite>();
@@ -60,7 +85,25 @@ public class InventoryManager : MonoBehaviour
 
     private void Start()
     {
+        if (logujDiagnostyke)
+            Debug.Log("InventoryManager.Start(): przedmiotow na liscie = " + items.Count +
+                      ", slotIconImages = " + OpisSlotUi());
+
         SynchronizeSlotsWithItems();
+    }
+
+    private string OpisSlotUi()
+    {
+        if (slotIconImages == null)
+            return "NULL (tablica nieprzypisana!)";
+
+        int przypisane = 0;
+        foreach (Image img in slotIconImages)
+        {
+            if (img != null) przypisane++;
+        }
+
+        return slotIconImages.Length + " pol, przypisanych Image: " + przypisane;
     }
 
     private void Update()
@@ -131,6 +174,36 @@ public class InventoryManager : MonoBehaviour
         Debug.Log("Ekwipunek: dodano " + itemType + " do slotu " + (freeSlotIndex + 1) + ".");
         return true;
     }
+
+    // Pelne odtworzenie ekwipunku z zapisu.
+    // Czysci liste i sloty, wpisuje dane z pliku i przebudowuje UI od zera.
+    public void RestoreItems(List<ItemType> savedItems)
+    {
+        items.Clear();
+        EnsureSlotStorage();
+
+        for (int i = 0; i < slots.Length; i++)
+        {
+            slots[i].occupied = false;
+            slots[i].itemType = default;
+            slots[i].icon = null;
+        }
+
+        if (savedItems != null)
+        {
+            foreach (ItemType item in savedItems)
+            {
+                if (!items.Contains(item) && items.Count < maxSlots)
+                    items.Add(item);
+            }
+        }
+
+        hasSelectedWoodBlock = TryGetAnyWoodBlock(out selectedWoodBlock);
+        SynchronizeSlotsWithItems();
+
+        Debug.Log("InventoryManager: przywrocono " + items.Count + " przedmiotow. UI: " + OpisSlotUi());
+    }
+
     public bool TrySelectWoodBlock(ItemType itemType)
     {
         if (!IsWoodBlock(itemType) || !items.Contains(itemType))
@@ -254,8 +327,14 @@ public class InventoryManager : MonoBehaviour
     private void RefreshSlotIcons()
     {
         bool usesSlotUi = HasSlotUi();
+
         if (!usesSlotUi)
+        {
+            if (logujDiagnostyke)
+                Debug.LogError("InventoryManager.RefreshSlotIcons(): PRZERWANE - brak przypisanych Image w 'Slot Icon Images'. " +
+                               "Sloty nie beda rysowane! Stan: " + OpisSlotUi());
             return;
+        }
 
         for (int i = 0; i < slotIconImages.Length; i++)
         {
@@ -273,8 +352,21 @@ public class InventoryManager : MonoBehaviour
             slotIcon.enabled = true;
             slotIcon.sprite = hasItem && icon != null ? icon : emptySlotSprites[slotIcon];
             slotIcon.color = hasItem && icon != null ? Color.white : emptySlotColors[slotIcon];
-        }
 
+            if (logujDiagnostyke && hasItem)
+            {
+                Debug.Log("Slot " + (i + 1) + ": " + slots[i].itemType +
+                          " | ikona: " + (icon != null ? icon.name : "BRAK (null)") +
+                          " | Image aktywny w hierarchii: " + slotIcon.gameObject.activeInHierarchy +
+                          " | alpha: " + slotIcon.color.a);
+            }
+
+            if (hasItem && icon == null)
+            {
+                Debug.LogWarning("InventoryManager: brak ikony dla " + slots[i].itemType +
+                                 ". Uzupelnij tablice 'Item Icons' w Inspectorze.");
+            }
+        }
     }
 
     private void CacheEmptySlotVisual(Image slotIcon)
@@ -285,6 +377,7 @@ public class InventoryManager : MonoBehaviour
         if (!emptySlotColors.ContainsKey(slotIcon))
             emptySlotColors.Add(slotIcon, slotIcon.color);
     }
+
     private bool HasSlotUi()
     {
         if (slotIconImages == null)
@@ -298,6 +391,7 @@ public class InventoryManager : MonoBehaviour
 
         return false;
     }
+
     private void RefreshLegacyIcons()
     {
         SetLegacyIconActive(ItemType.Czerwona, items.Contains(ItemType.Czerwona));
@@ -309,6 +403,7 @@ public class InventoryManager : MonoBehaviour
         SetLegacyIconActive(ItemType.WoodBlockLevel2, items.Contains(ItemType.WoodBlockLevel2));
     }
 
+    // Kolejnosc szukania ikony: przekazany sprite -> cache sesji -> tablica itemIcons -> legacy.
     private Sprite ResolveItemIcon(ItemType itemType, Sprite preferredIcon)
     {
         if (preferredIcon != null)
@@ -317,8 +412,18 @@ public class InventoryManager : MonoBehaviour
         if (itemIconCache.TryGetValue(itemType, out Sprite cachedIcon) && cachedIcon != null)
             return cachedIcon;
 
+        if (itemIcons != null)
+        {
+            foreach (ItemIconEntry entry in itemIcons)
+            {
+                if (entry != null && entry.itemType == itemType && entry.icon != null)
+                    return entry.icon;
+            }
+        }
+
         return GetItemIcon(itemType);
     }
+
     private Sprite GetItemIcon(ItemType itemType)
     {
         GameObject iconObject = GetLegacyIconObject(itemType);

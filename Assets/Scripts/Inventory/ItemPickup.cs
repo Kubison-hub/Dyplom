@@ -1,31 +1,22 @@
 using UnityEngine;
 
+using Debug = UnityEngine.Debug;
+
 public class PickupItem : MonoBehaviour
 {
     [Header("Jaki to przedmiot?")]
     public ItemType itemType;
     [SerializeField] private Sprite inventoryIcon;
 
-    // --- FAZA 1: "ChodŸ do mnie" ---
-    // Tê metodê wywo³uje Interactable po klikniêciu. 
-    // Dzia³a tak samo jak w DoorTrigger - ustawia cel dla gracza.
+    // --- FAZA 1: "Chodz do mnie" ---
     public void Interact(PlayerController player)
     {
-        // Debug.Log("PickupItem: Gracz idzie po przedmiot.");
-
-        // 1. Ustaw cel ruchu gracza na pozycjê tego przedmiotu
         player.targetPosition = transform.position;
-
-        // 2. Przypisz Interactable (który jest na tym samym obiekcie) jako cel interakcji
-        // Dziêki temu, jak gracz dojdzie, PlayerController wywo³a PerformInteraction
         player.currentInteractable = GetComponent<Interactable>();
-
-        // 3. W³¹cz silnik ruchu
         player.isWalking = true;
     }
 
-    // --- FAZA 2: "Podnieœ mnie" ---
-    // Tê metodê wywo³uje Interactable, gdy gracz ju¿ dojdzie na miejsce (stoppingDistance)
+    // --- FAZA 2: "Podnies mnie" ---
     public void PerformInteraction()
     {
         if (InventoryManager.Instance == null)
@@ -40,7 +31,13 @@ public class PickupItem : MonoBehaviour
             return;
         }
 
-        PlayerTopText.Instance?.ShowTopText("To mo¿e siê przydaæ.");
+        // NOWE: rejestrujemy podniesienie dla systemu zapisu.
+        if (SaveLoadManager.Instance != null)
+            SaveLoadManager.Instance.MarkCollected(gameObject);
+        else
+            Debug.LogError("PickupItem: brak SaveLoadManager.Instance - podniesienie NIE zostanie zapisane!");
+
+        PlayerTopText.Instance?.ShowTopText("To moze sie przydac.");
         Destroy(gameObject);
     }
 }

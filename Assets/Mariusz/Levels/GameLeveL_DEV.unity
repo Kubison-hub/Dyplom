@@ -13016,8 +13016,8 @@ MonoBehaviour:
   sherlock_Gadal_Z_NPC2: 0
   watson_Gadal_Z_NPC2: 0
   rozmowaMiedzyGraczamiOdbyta: 0
-  sherlockController: {fileID: 0}
-  watsonController: {fileID: 0}
+  sherlockController: {fileID: 8413201612952764163}
+  watsonController: {fileID: 5697151130489053885}
   wykrzyknikNadSherlockiem: {fileID: 0}
   wykrzyknikNadWatsonem: {fileID: 0}
   hiddenItems:
@@ -14920,7 +14920,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -299.69922, y: 18.998657}
+  m_AnchoredPosition: {x: -299.69922, y: 18.998688}
   m_SizeDelta: {x: 496.5, y: 770.1}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &100555588
@@ -174139,7 +174139,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1276194477}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1630563689}
+        m_TargetAssemblyTypeName: SaveLoadManager, Assembly-CSharp
+        m_MethodName: SaveGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1276194477
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -221604,6 +221616,14 @@ MonoBehaviour:
   - {fileID: 2121600233}
   - {fileID: 1459094892}
   - {fileID: 473474515}
+  itemIcons:
+  - itemType: 1
+    icon: {fileID: 21300000, guid: 3cb1ffb09c7daca46b707d9d462ab9e3, type: 3}
+  - itemType: 2
+    icon: {fileID: 21300000, guid: 3cb1ffb09c7daca46b707d9d462ab9e3, type: 3}
+  - itemType: 0
+    icon: {fileID: 21300000, guid: 3cb1ffb09c7daca46b707d9d462ab9e3, type: 3}
+  logujDiagnostyke: 1
   keyInInv: 0
   selectedWoodBlock: 0
   hasSelectedWoodBlock: 0
@@ -290135,6 +290155,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1753501692}
     m_Modifications:
+    - target: {fileID: 778448392681245211, guid: 42b7f9d8a2214fc48b81c9b3cb126639, type: 3}
+      propertyPath: m_Name
+      value: Rozmowa_Watson_Z_Henrym_Po_Violet
+      objectReference: {fileID: 0}
     - target: {fileID: 2781867418976741582, guid: 42b7f9d8a2214fc48b81c9b3cb126639, type: 3}
       propertyPath: m_LocalPosition.x
       value: -50.61826
@@ -290174,10 +290198,6 @@ PrefabInstance:
     - target: {fileID: 2781867418976741582, guid: 42b7f9d8a2214fc48b81c9b3cb126639, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 778448392681245211, guid: 42b7f9d8a2214fc48b81c9b3cb126639, type: 3}
-      propertyPath: m_Name
-      value: Rozmowa_Watson_Z_Henrym_Po_Violet
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
