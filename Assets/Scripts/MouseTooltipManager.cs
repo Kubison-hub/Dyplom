@@ -36,6 +36,13 @@ public class MouseTooltipManager : MonoBehaviour
 
     void Update()
     {
+        if (IsWorldInputBlocked())
+        {
+            HideTooltip();
+            ToggleIntShader(false);
+            return;
+        }
+
         // 1. Sprawdzamy co jest pod myszk¹
         CheckObjectUnderMouse();
 
@@ -139,6 +146,13 @@ public class MouseTooltipManager : MonoBehaviour
     private void HideTooltip()
     {
         if (tooltipPanel != null) tooltipPanel.SetActive(false);
+    }
+
+    private static bool IsWorldInputBlocked()
+    {
+        return NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen ||
+               TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput ||
+               TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput;
     }
 
     private bool IsBlockedByWall(Collider hitCollider)

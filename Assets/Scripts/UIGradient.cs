@@ -10,7 +10,18 @@ public class UIGradientFade : BaseMeshEffect
     public Color leftColor = Color.black;
 
     [Tooltip("Kolor po prawej stronie")]
-    public Color rightColor = new Color(0f, 0f, 0f, 0f); // Czarny, ale z kana³em Alfa na 0 (przezroczysty)
+    public Color rightColor = new Color(0f, 0f, 0f, 0f);
+
+    [SerializeField, HideInInspector] private RectTransform gradientBounds;
+
+    public RectTransform GradientBounds => gradientBounds;
+
+    public void SetGradientBounds(RectTransform bounds)
+    {
+        gradientBounds = bounds;
+        if (graphic != null)
+            graphic.SetVerticesDirty();
+    }
 
     public override void ModifyMesh(VertexHelper vh)
     {
@@ -31,22 +42,99 @@ public class UIGradientFade : BaseMeshEffect
         }
 
         float width = rightX - leftX;
+        bool useSharedBounds = gradientBounds != null;
 
-        // Zabezpieczenie przed b³êdem dzielenia przez zero
-        if (width <= 0) return;
+        if (!useSharedBounds && width <= 0)
+            return;
 
-        // Druga pêtla: kolorujemy ka¿dy wierzcho³ek
         for (int i = 0; i < vh.currentVertCount; i++)
         {
             vh.PopulateUIVertex(ref vertex, i);
 
-            // Obliczamy pozycjê od 0 (lewo) do 1 (prawo)
-            float t = (vertex.position.x - leftX) / width;
+            float t;
+            if (useSharedBounds)
+            {
+                Vector3 boundsPosition = gradientBounds.InverseTransformPoint(transform.TransformPoint(vertex.position));
+                t = Mathf.InverseLerp(gradientBounds.rect.xMin, gradientBounds.rect.xMax, boundsPosition.x);
+            }
+            else
+            {
+                t = (vertex.position.x - leftX) / width;
+            }
 
-            // Nak³adamy kolor na podstawie pozycji
             vertex.color = Color.Lerp(leftColor, rightColor, t);
-
             vh.SetUIVertex(vertex, i);
+        }
+    }
+}
+/// <summary>
+/// Applies the same UIGradientFade effect to every TMP label below a quest-log
+/// content object. It also catches labels instantiated later by CluesLog.
+/// </summary>
+[AddComponentMenu("UI/Effects/Fade Gradient Group")]
+[ExecuteAlways]
+public class UIGradientFadeGroup : MonoBehaviour
+{
+    [Header("Quest Log Content")]
+    [Tooltip("Leave empty when this component is placed directly on QuestLogContent.")]
+    [SerializeField] private Transform questLogContent;
+
+    [Header("Gradient Colors")]
+    [SerializeField] private Color leftColor = Color.black;
+    [SerializeField] private Color rightColor = new Color(0f, 0f, 0f, 0f);
+    [Tooltip("Optional rect that defines where the shared gradient starts and ends.")]
+    [SerializeField] private RectTransform gradientBounds;
+
+    private void OnEnable()
+    {
+        ApplyGradientToRows();
+    }
+
+    private void OnValidate()
+    {
+        ApplyGradientToRows();
+    }
+
+    private void OnTransformChildrenChanged()
+    {
+        ApplyGradientToRows();
+    }
+
+    private void LateUpdate()
+    {
+        if (!Application.isPlaying)
+            return;
+
+        Transform content = questLogContent != null ? questLogContent : transform;
+        RectTransform bounds = gradientBounds != null ? gradientBounds : content as RectTransform;
+        TMPro.TextMeshProUGUI[] labels = content.GetComponentsInChildren<TMPro.TextMeshProUGUI>(true);
+        foreach (TMPro.TextMeshProUGUI label in labels)
+        {
+            UIGradientFade gradient = label.GetComponent<UIGradientFade>();
+            if (gradient == null || gradient.GradientBounds != bounds)
+            {
+                ApplyGradientToRows();
+                return;
+            }
+        }
+    }
+
+    public void ApplyGradientToRows()
+    {
+        Transform content = questLogContent != null ? questLogContent : transform;
+        RectTransform bounds = gradientBounds != null ? gradientBounds : content as RectTransform;
+        TMPro.TextMeshProUGUI[] labels = content.GetComponentsInChildren<TMPro.TextMeshProUGUI>(true);
+
+        foreach (TMPro.TextMeshProUGUI label in labels)
+        {
+            UIGradientFade gradient = label.GetComponent<UIGradientFade>();
+            if (gradient == null)
+                gradient = label.gameObject.AddComponent<UIGradientFade>();
+
+            gradient.leftColor = leftColor;
+            gradient.rightColor = rightColor;
+            gradient.SetGradientBounds(bounds);
+            label.SetVerticesDirty();
         }
     }
 }

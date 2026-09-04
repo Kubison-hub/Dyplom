@@ -28,16 +28,22 @@ public class Int_Edith_BulletHole : MonoBehaviour
 
     public void PerformInteraction(PlayerController player)
     {
-        if (performed || edith == null || !edith.IsExaminationActive)
+        if (performed || edith == null || !edith.IsExaminationActive || edith.IsBulletExamInProgress)
             return;
 
         if (player != null)
             player.currentInteractable = null;
 
-        performed = true;
+        edith.RegisterBulletExamClue(player, this);
+    }
 
+    public void CompleteSuccessfulExamination()
+    {
+        if (performed)
+            return;
+
+        performed = true;
         interactable?.AddClue(0);
-        edith?.RegisterExamClue(edithClueIndex, player);
         ideaPoint?.RevealFromExternalSource();
 
         if (interactable != null)

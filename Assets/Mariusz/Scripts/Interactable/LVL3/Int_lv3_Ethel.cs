@@ -90,7 +90,6 @@ public class Int_lv3_Ethel : MonoBehaviour
             return;
 
         sequenceStarted = true;
-        CluesLog.Instance?.CompleteFindEthelObjective();
         if (interactable != null)
             interactable.isInteractableActive = false;
 
@@ -106,15 +105,22 @@ public class Int_lv3_Ethel : MonoBehaviour
         // companion's approach before Ethel begins her conversation.
         yield return null;
 
+        PlayerController inactivePlayer = GetInactivePlayer(player);
+        inactivePlayer?.SetConversationMovementAllowed(true);
+
         StartEthelConversation(player);
+        CluesLog.Instance?.RemoveFindEthelObjective();
 
         // SmartNPC changes ConversationManager state on the following frame.
         yield return null;
         while (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
             yield return null;
 
-        StartCoroutine(RunEthelSequence());
+        CluesLog.Instance?.RegisterBasementEvidence("EthelFirstConversation");
+        CluesLog.Instance?.SetEthelFirstConversationDescription();
+        inactivePlayer?.SetConversationMovementAllowed(false);
         StartCoroutine(MoveInactivePlayerAfterDelay(player));
+        StartCoroutine(RunEthelSequence());
     }
 
     private void StartEthelConversation(PlayerController player)

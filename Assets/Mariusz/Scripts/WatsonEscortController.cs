@@ -95,6 +95,16 @@ public class WatsonEscortController : MonoBehaviour
     {
         UpdateSherlockEscortTimeout();
 
+        if (NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen ||
+            TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput ||
+            TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput)
+        {
+            if (isPlacingDestination)
+                CancelPlacementPreview();
+
+            return;
+        }
+
         bool watsonGripActive = MagnifierGlassController.IsWatsonGripActive;
         if (!watsonGripActive)
         {

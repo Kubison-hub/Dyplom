@@ -135,8 +135,11 @@ public class EagleVisionScanner : MonoBehaviour
         bool dialogueActive = DialogueEditor.ConversationManager.Instance != null &&
                               (DialogueEditor.ConversationManager.Instance.inConversation ||
                                DialogueEditor.ConversationManager.Instance.IsConversationActive);
+        bool notebookOpen = NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen;
+        bool tutorialBlocksInput = TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput ||
+                                   TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput;
 
-        if (dialogueActive)
+        if (dialogueActive || notebookOpen || tutorialBlocksInput)
         {
             if (!toolTipSuppressedByDialogue)
             {

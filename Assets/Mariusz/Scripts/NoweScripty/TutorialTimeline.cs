@@ -121,6 +121,14 @@ public class TutorialTimeline : MonoBehaviour
             tutorialObjectivePanel.gameObject.SetActive(false);
     }
 
+    private void OnDestroy()
+    {
+        GameplayTimePause.Resume(this);
+
+        if (Instance == this)
+            Instance = null;
+    }
+
     private void Update()
     {
         if (activeTutorialPopup != null && activePopupReturnsToPreviousStage)
@@ -326,7 +334,7 @@ public class TutorialTimeline : MonoBehaviour
         if (tutorialPopupAudioSource != null && tutorialPopupOpenAudio != null)
             tutorialPopupAudioSource.PlayOneShot(tutorialPopupOpenAudio);
 
-        Time.timeScale = 0f;
+        GameplayTimePause.Pause(this);
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
     }
@@ -361,7 +369,7 @@ public class TutorialTimeline : MonoBehaviour
 
         Destroy(activeTutorialPopup);
         activeTutorialPopup = null;
-        Time.timeScale = 1f;
+        GameplayTimePause.Resume(this);
 
         if (releasePopupInputCoroutine != null)
             StopCoroutine(releasePopupInputCoroutine);

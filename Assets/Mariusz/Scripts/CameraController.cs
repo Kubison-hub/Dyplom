@@ -70,6 +70,10 @@ public class CameraController : MonoBehaviour
     private bool hasTargetOverride;
     private Transform lookAtTargetBeforeOverride;
     private bool hasLookAtOverride;
+    private Transform smoothLookAtProxy;
+    private Transform smoothLookAtDestination;
+    private float smoothLookAtTransitionSpeed;
+    private bool restoringSmoothLookAtTarget;
     private int dialoguePreviousZoomIndex = -1;
     private float dialogueAutoRotationWeight;
 
@@ -95,6 +99,7 @@ public class CameraController : MonoBehaviour
     private void Update()
     {
         dialogueJustEndedThisFrame = false;
+        UpdateSmoothLookAtTarget();
         UpdateDialogueAutoRotation();
         StopAutomaticRotationOnPlayerClick();
         SmoothZoomToPreset(zoomPresets[targetZoomIndex]);
@@ -205,7 +210,6 @@ public class CameraController : MonoBehaviour
         }
 
         float automaticRotation = autoRotateCamera ? autoRotateSpeed : 0f;
-        automaticRotation += autoRotateSpeed * dialogueAutoRotationWeight;
         orbitalFollow.HorizontalAxis.Value += (manualRotation + automaticRotation) * Time.deltaTime;
     }
 
@@ -314,17 +318,8 @@ public class CameraController : MonoBehaviour
 
             dialogAutoRotateActive = true;
             autoRotationSuppressedByManualInput = false;
-
-            if (dialogAutoRotationSuppressedByManualInput)
-            {
-                dialogueAutoRotationWeight = 0f;
-                return;
-            }
-
-            dialogueAutoRotationWeight = Mathf.MoveTowards(
-                dialogueAutoRotationWeight,
-                1f,
-                Time.unscaledDeltaTime / dialogueRotationFadeInDuration);
+            // Dialogues may change the zoom preset, but keep the current horizontal framing.
+            dialogueAutoRotationWeight = 0f;
             return;
         }
 
@@ -342,10 +337,7 @@ public class CameraController : MonoBehaviour
             dialoguePreviousZoomIndex = -1;
         }
 
-        dialogueAutoRotationWeight = Mathf.MoveTowards(
-            dialogueAutoRotationWeight,
-            0f,
-            Time.unscaledDeltaTime / dialogueRotationFadeOutDuration);
+        dialogueAutoRotationWeight = 0f;
     }
 
     private void SmoothZoomToPreset(ZoomPreset preset)
@@ -449,6 +441,19 @@ public class CameraController : MonoBehaviour
         return false;
     }
 
+    public bool BeginDialogueZoomPreset(string presetName, float transitionSmoothSpeed)
+    {
+        if (!dialogAutoRotateActive)
+        {
+            dialoguePreviousZoomIndex = targetZoomIndex;
+            dialogAutoRotateActive = true;
+            autoRotateCamera = false;
+            dialogAutoRotationSuppressedByManualInput = false;
+        }
+
+        return SetZoomPreset(presetName, transitionSmoothSpeed);
+    }
+
     public void OverrideCameraTarget(Transform target)
     {
         if (cineCamera == null || target == null)
@@ -505,6 +510,27 @@ public class CameraController : MonoBehaviour
         cineCamera.LookAt = target;
     }
 
+    public void OverrideLookAtTargetSmooth(Transform target, float transitionSpeed)
+    {
+        if (cineCamera == null || target == null)
+            return;
+
+        if (!hasLookAtOverride)
+        {
+            lookAtTargetBeforeOverride = cineCamera.LookAt;
+            hasLookAtOverride = true;
+        }
+
+        EnsureSmoothLookAtProxy();
+        smoothLookAtProxy.position = cineCamera.LookAt != null
+            ? cineCamera.LookAt.position
+            : target.position;
+        smoothLookAtDestination = target;
+        smoothLookAtTransitionSpeed = Mathf.Max(0.01f, transitionSpeed);
+        restoringSmoothLookAtTarget = false;
+        cineCamera.LookAt = smoothLookAtProxy;
+    }
+
     public void RestoreLookAtTarget()
     {
         if (cineCamera == null || !hasLookAtOverride)
@@ -512,6 +538,65 @@ public class CameraController : MonoBehaviour
 
         cineCamera.LookAt = lookAtTargetBeforeOverride;
         hasLookAtOverride = false;
+        smoothLookAtDestination = null;
+        restoringSmoothLookAtTarget = false;
+    }
+
+    public void RestoreLookAtTargetSmooth(float transitionSpeed)
+    {
+        if (cineCamera == null || !hasLookAtOverride)
+            return;
+
+        if (lookAtTargetBeforeOverride == null)
+        {
+            RestoreLookAtTarget();
+            return;
+        }
+
+        EnsureSmoothLookAtProxy();
+        smoothLookAtProxy.position = cineCamera.LookAt != null
+            ? cineCamera.LookAt.position
+            : lookAtTargetBeforeOverride.position;
+        smoothLookAtDestination = lookAtTargetBeforeOverride;
+        smoothLookAtTransitionSpeed = Mathf.Max(0.01f, transitionSpeed);
+        restoringSmoothLookAtTarget = true;
+        cineCamera.LookAt = smoothLookAtProxy;
+    }
+
+    private void EnsureSmoothLookAtProxy()
+    {
+        if (smoothLookAtProxy != null)
+            return;
+
+        GameObject proxy = new GameObject($"{name}_SmoothLookAtTarget");
+        proxy.hideFlags = HideFlags.HideInHierarchy;
+        smoothLookAtProxy = proxy.transform;
+    }
+
+    private void UpdateSmoothLookAtTarget()
+    {
+        if (smoothLookAtProxy == null || smoothLookAtDestination == null || cineCamera == null ||
+            cineCamera.LookAt != smoothLookAtProxy)
+            return;
+
+        float blend = 1f - Mathf.Exp(-smoothLookAtTransitionSpeed * Time.deltaTime);
+        smoothLookAtProxy.position = Vector3.Lerp(
+            smoothLookAtProxy.position,
+            smoothLookAtDestination.position,
+            blend);
+
+        if ((smoothLookAtProxy.position - smoothLookAtDestination.position).sqrMagnitude > 0.0001f)
+            return;
+
+        smoothLookAtProxy.position = smoothLookAtDestination.position;
+        cineCamera.LookAt = smoothLookAtDestination;
+        smoothLookAtDestination = null;
+
+        if (restoringSmoothLookAtTarget)
+        {
+            hasLookAtOverride = false;
+            restoringSmoothLookAtTarget = false;
+        }
     }
 
     public void SetZoomIndex(int index, float transitionSmoothSpeed = -1f)

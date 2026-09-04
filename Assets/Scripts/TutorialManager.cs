@@ -43,6 +43,11 @@ public class TutorialManager : MonoBehaviour
         StartCoroutine(PokazStartowyTutorial());
     }
 
+    private void OnDestroy()
+    {
+        GameplayTimePause.Resume(this);
+    }
+
     private void Update()
     {
         // Logika zamykania tutoriala kliknięciem
@@ -70,7 +75,7 @@ public class TutorialManager : MonoBehaviour
         PlayTutorialSound(tutorialOpenClip);
 
         isTutorialActive = true;
-        Time.timeScale = 0f; // Pauza gry
+        GameplayTimePause.Pause(this);
 
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
@@ -83,7 +88,7 @@ public class TutorialManager : MonoBehaviour
         if (tutorialPanel != null) tutorialPanel.SetActive(false);
 
         isTutorialActive = false;
-        Time.timeScale = 1f; // Wznowienie gry
+        GameplayTimePause.Resume(this);
 
         blockWorldInputUntilMouseRelease = true;
         StartCoroutine(ReleaseWorldInputAfterMouseRelease());
@@ -130,5 +135,37 @@ public class TutorialManager : MonoBehaviour
         {
             pokazaneTutoriale = new HashSet<string>(loadedList);
         }
+    }
+}
+
+/// <summary>
+/// Coordinates UI-driven gameplay pauses so closing one panel cannot resume
+/// the world while another pause-owning panel remains open.
+/// </summary>
+public static class GameplayTimePause
+{
+    private static readonly HashSet<int> pauseOwners = new HashSet<int>();
+    private static float timeScaleBeforePause = 1f;
+
+    public static void Pause(Object owner)
+    {
+        if (owner == null)
+            return;
+
+        int ownerId = owner.GetInstanceID();
+        if (pauseOwners.Count == 0)
+            timeScaleBeforePause = Time.timeScale;
+
+        pauseOwners.Add(ownerId);
+        Time.timeScale = 0f;
+    }
+
+    public static void Resume(Object owner)
+    {
+        if (owner == null || !pauseOwners.Remove(owner.GetInstanceID()))
+            return;
+
+        if (pauseOwners.Count == 0)
+            Time.timeScale = timeScaleBeforePause;
     }
 }

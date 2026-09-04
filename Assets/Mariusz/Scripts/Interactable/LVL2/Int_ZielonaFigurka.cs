@@ -35,7 +35,6 @@ public class Int_ZielonaFigurka : Lvl3InteractionDialogueBase
         }
 
         collected = true;
-
         // NOWE: rejestrujemy podniesienie, zeby po wczytaniu zapisu
         // ten obiekt nie pojawil sie ponownie na scenie.
         if (SaveLoadManager.Instance != null)
@@ -43,6 +42,7 @@ public class Int_ZielonaFigurka : Lvl3InteractionDialogueBase
         else
             Debug.LogError("Int_ZielonaFigurka: brak SaveLoadManager.Instance - podniesienie NIE zostanie zapisane!");
 
+        CluesLog.Instance?.RegisterTableMechanismElement(ItemType.Zielona);
         HideCollectedFigure();
         destroyAfterDialogue = true;
         PlayDialogue(player, pickupDialogue);

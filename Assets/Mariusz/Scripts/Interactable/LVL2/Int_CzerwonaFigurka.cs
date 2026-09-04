@@ -34,6 +34,7 @@ public class Int_CzerwonaFigurka : Lvl3InteractionDialogueBase
         }
 
         collected = true;
+        CluesLog.Instance?.RegisterTableMechanismElement(ItemType.Czerwona);
         if (spline != null)
             spline.SetActive(false);
 

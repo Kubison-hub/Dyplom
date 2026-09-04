@@ -15,6 +15,7 @@ public class Int_lv3_SpecialBrick : Lvl3InteractionDialogueBase
     private Interactable interactable;
     private float loupeHoldStartedAt = -1f;
     private bool discovered;
+    private bool revealBasementExitAfterDialogue;
 
     protected override Lvl3DialogueLine[] DefaultDialogueLines => new[]
     {
@@ -75,6 +76,7 @@ public class Int_lv3_SpecialBrick : Lvl3InteractionDialogueBase
 
         discovered = true;
         loupeHoldStartedAt = -1f;
+        revealBasementExitAfterDialogue = true;
 
         foreach (GameObject target in activateOnDiscovered)
         {
@@ -95,6 +97,15 @@ public class Int_lv3_SpecialBrick : Lvl3InteractionDialogueBase
         }
 
         loupeCollider.enabled = false;
+    }
+
+    protected override void OnDialogueSequenceCompleted(Lvl3DialogueLine[] lines)
+    {
+        if (!revealBasementExitAfterDialogue)
+            return;
+
+        revealBasementExitAfterDialogue = false;
+        CluesLog.Instance?.AddFindBasementExitObjective();
     }
 
     private bool IsLoupeHitOnBrick(Collider hitCollider)

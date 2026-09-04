@@ -59,6 +59,15 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
     [SerializeField] private bool keepWorldPositionWhenReparenting = true;
 
     [Header("Table Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] firstInteractionDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Ten stół jest częścią mechanizmu. Brakuje kilku elementów.",
+            duration = 3f
+        }
+    };
     [SerializeField] private Lvl3DialogueLine[] missingFiguresDialogue =
     {
         new Lvl3DialogueLine
@@ -97,6 +106,7 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
         new System.Collections.Generic.List<BackgroundMaterialTarget>();
     private MaterialPropertyBlock backgroundPropertyBlock;
     private bool prePuzzleNoteAdded;
+    private bool firstInteractionPerformed;
     public bool Opened { get; private set; }
 
     protected override Lvl3DialogueLine[] DefaultDialogueLines => missingFiguresDialogue;
@@ -126,6 +136,18 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
 
         AddPrePuzzleNotebookNote();
 
+        if (!firstInteractionPerformed)
+        {
+            firstInteractionPerformed = true;
+            CluesLog.Instance?.StartTableMechanismObjective();
+            PlayDialogue(player, firstInteractionDialogue);
+
+            if (player != null)
+                player.currentInteractable = null;
+
+            return;
+        }
+
         bool placedAnyFigure = false;
         if (InventoryManager.Instance != null)
         {
@@ -153,6 +175,7 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
             if (AllFiguresPlaced())
             {
                 completed = true;
+                CluesLog.Instance?.CompleteTableMechanismObjective();
                 StartCoroutine(PlayPlacementDialogueThenComplete(player));
             }
             else
@@ -283,6 +306,7 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
         RevealCompletedRoom();
         ReparentObjectBeforeDoorOpens();
         OpenSecretDoor();
+        CluesLog.Instance?.CompleteSecretDoorOpeningPuzzle();
         PlayDialogue(null, completionDialogue);
         AddCompletedPuzzleNotebookNote();
         StartCoroutine(RotateCharactersAfterDoorOpens());

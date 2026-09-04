@@ -17,6 +17,12 @@ public class Int_lv3_ControlUnit : Lvl3InteractionDialogueBase
 
     public void PerformInteraction(PlayerController player)
     {
+        if (!hasBeenExamined)
+        {
+            CluesLog.Instance?.RegisterBasementEvidence("ControlUnit");
+            CluesLog.Instance?.SetControlUnitDescription();
+        }
+
         PlayDialogue(player, hasBeenExamined ? repeatDialogueLines : firstDialogueLines);
         hasBeenExamined = true;
     }

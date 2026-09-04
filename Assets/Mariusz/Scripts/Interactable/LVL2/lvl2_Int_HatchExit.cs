@@ -45,9 +45,8 @@ public class lvl2_Int_HatchExit : MonoBehaviour
     public void AddLetter()
     {
         lettersCollected++;
+        CluesLog.Instance?.RegisterUpperFloorEvidence();
 
-        if (HasAllLetters())
-            CluesLog.Instance?.CompleteConnectionsObjective();
     }
 
     public bool HasAllLetters()
@@ -98,7 +97,7 @@ public class lvl2_Int_HatchExit : MonoBehaviour
             return;
         }
         Debug.Log("Wszystkie listy zebrane. OPUSZCZAM LEVEL.");
-        CluesLog.Instance?.RemoveConnectionsObjective();
+        CluesLog.Instance?.RemoveUpperFloorEvidenceObjective();
 
         if (levelOneRoot != null)
             levelOneRoot.SetActive(true);

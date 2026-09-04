@@ -84,7 +84,14 @@ public abstract class Lvl3InteractionDialogueBase : MonoBehaviour
         dialogueCoroutine = StartCoroutine(PlayDialogueSequence(lines));
 
         if (player != null)
+        {
+            // A dialogue finishes the current world interaction. Leaving its
+            // approach point behind can send the next interaction to an old target.
             player.currentInteractable = null;
+            player.currentInteractionPoint = null;
+            player.ClearAutoInteractionApproachPoint();
+            player.SetWaitingForInteractionReaction(false);
+        }
     }
 
     protected void PlayCompletionDialogue()

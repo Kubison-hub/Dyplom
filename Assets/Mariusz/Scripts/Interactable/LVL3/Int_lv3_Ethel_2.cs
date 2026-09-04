@@ -62,6 +62,13 @@ public class Int_lv3_Ethel_2 : MonoBehaviour
     [Tooltip("Whole GameObjects disabled after Ethel completes this sequence.")]
     [SerializeField] private GameObject[] disableGameObjects;
 
+    [Header("Inactive Player Movement")]
+    [Tooltip("Sherlock moves here when Watson started Ethel's conversation.")]
+    [SerializeField] private Transform inactiveSherlockTarget;
+    [Tooltip("Watson moves here when Sherlock started Ethel's conversation.")]
+    [SerializeField] private Transform inactiveWatsonTarget;
+    [SerializeField, Min(0f)] private float inactivePlayerMoveDelay = 2f;
+
     [Header("Alternative Interaction")]
     [Tooltip("Disables the linked alternative Ethel interaction as soon as this one starts.")]
     [SerializeField] private bool disableAlternativeInteractionOnStart = true;
@@ -145,6 +152,9 @@ public class Int_lv3_Ethel_2 : MonoBehaviour
         // companion's approach before Ethel begins her conversation.
         yield return null;
 
+        PlayerController inactivePlayer = GetInactivePlayer(player);
+        inactivePlayer?.SetConversationMovementAllowed(true);
+
         StartEthelConversation(player);
 
         // SmartNPC changes ConversationManager state on the following frame.
@@ -152,6 +162,13 @@ public class Int_lv3_Ethel_2 : MonoBehaviour
         while (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
             yield return null;
 
+        CluesLog.Instance?.RegisterBasementEvidence("EthelSecondConversation");
+        CluesLog.Instance?.SetEthelSecondConversationDescription();
+        CluesLog.Instance?.RemoveConnectionsObjective();
+        CluesLog.Instance?.AddFollowEthelObjective();
+        inactivePlayer?.SetConversationMovementAllowed(false);
+        StartCoroutine(MoveInactivePlayerAfterDelay(player));
+        DisableGameObjectsOnComplete();
         yield return RunEthelSequence();
     }
 
@@ -215,11 +232,58 @@ public class Int_lv3_Ethel_2 : MonoBehaviour
             exit.canExit = true;
         }
 
+    }
+
+    private void DisableGameObjectsOnComplete()
+    {
+        if (disableGameObjects == null)
+            return;
+
         foreach (GameObject target in disableGameObjects)
         {
             if (target != null)
                 target.SetActive(false);
         }
+    }
+
+    private IEnumerator MoveInactivePlayerAfterDelay(PlayerController activePlayer)
+    {
+        if (inactivePlayerMoveDelay > 0f)
+            yield return new WaitForSeconds(inactivePlayerMoveDelay);
+
+        PlayerController inactivePlayer = GetInactivePlayer(activePlayer);
+        if (inactivePlayer == null)
+            yield break;
+
+        Transform target = inactivePlayer.playerCharacter == PlayerCharacter.Watson
+            ? inactiveWatsonTarget
+            : inactiveSherlockTarget;
+        if (target == null || inactivePlayer.navMeshAgent == null || !inactivePlayer.navMeshAgent.isOnNavMesh)
+            yield break;
+
+        if (!NavMeshWallGuard.TryGetClearPath(inactivePlayer.navMeshAgent, target.position, out NavMeshPath path))
+        {
+            Debug.LogWarning($"{name}: inactive {inactivePlayer.playerCharacter} cannot reach '{target.name}'.", this);
+            yield break;
+        }
+
+        inactivePlayer.currentInteractable = null;
+        inactivePlayer.currentInteractionPoint = null;
+        inactivePlayer.ClearAutoInteractionApproachPoint();
+        inactivePlayer.navMeshAgent.isStopped = false;
+        inactivePlayer.navMeshAgent.updateRotation = true;
+        inactivePlayer.navMeshAgent.SetPath(path);
+    }
+
+    private static PlayerController GetInactivePlayer(PlayerController activePlayer)
+    {
+        foreach (PlayerController candidate in FindObjectsByType<PlayerController>(FindObjectsSortMode.None))
+        {
+            if (candidate != null && candidate != activePlayer)
+                return candidate;
+        }
+
+        return null;
     }
 
     private IEnumerator MoveEthelTo(Transform target, bool run)

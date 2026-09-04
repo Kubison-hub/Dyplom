@@ -152,6 +152,18 @@ public class DetectiveIdeaManager : MonoBehaviour
 
     private void Update()
     {
+        if (NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen ||
+            TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput ||
+            TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput)
+        {
+            ClearHover();
+            CancelDrag();
+            HideVisiblePoints(preserveActiveDiscoveryReveals: true);
+            SetAcceptedLinesVisible(false);
+            SetRejectedLinesVisible(false);
+            return;
+        }
+
         if (!IsSherlockActive())
         {
             wasDetectiveVisionActive = false;
@@ -212,6 +224,11 @@ public class DetectiveIdeaManager : MonoBehaviour
 
     public bool TryHandlePointerPress()
     {
+        if (NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen ||
+            TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput ||
+            TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput)
+            return false;
+
         if (!IsSherlockActive())
             return false;
 

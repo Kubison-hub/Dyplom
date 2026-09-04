@@ -82,6 +82,9 @@ public class Int_lv4_HatchToBassement : MonoBehaviour
 
         basementExposureController?.EnterBasement();
         PlayBasementArrivalMusic();
+        CluesLog.Instance?.AddFindEthelBasementObjective();
+        CluesLog.Instance?.RemoveEthelPassageObjective();
+        CluesLog.Instance?.BeginBasementEvidenceObjective();
 
         if (levelTwoRoot != null)
             levelTwoRoot.SetActive(false);

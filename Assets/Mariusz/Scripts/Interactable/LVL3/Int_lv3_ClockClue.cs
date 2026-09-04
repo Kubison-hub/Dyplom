@@ -16,6 +16,7 @@ public class Int_lv3_ClockClue : Lvl3InteractionDialogueBase
 
     private float loupeHoldStartedAt = -1f;
     private bool discovered;
+    private bool revealBasementExitAfterDialogue;
 
     protected override Lvl3DialogueLine[] DefaultDialogueLines => new[]
     {
@@ -71,6 +72,7 @@ public class Int_lv3_ClockClue : Lvl3InteractionDialogueBase
         {
             discovered = true;
             oldClockIdeaPoint?.RevealFromExternalSource();
+            revealBasementExitAfterDialogue = true;
         }
 
         bool trapTriggered = mannequinTrap != null && mannequinTrap.IsTrapTriggered;
@@ -83,6 +85,15 @@ public class Int_lv3_ClockClue : Lvl3InteractionDialogueBase
 
         loupeHoldStartedAt = -1f;
         PlayDialogue(player, afterTrapDialogueLines);
+    }
+
+    protected override void OnDialogueSequenceCompleted(Lvl3DialogueLine[] lines)
+    {
+        if (!revealBasementExitAfterDialogue)
+            return;
+
+        revealBasementExitAfterDialogue = false;
+        CluesLog.Instance?.AddFindBasementExitObjective();
     }
 
     private bool IsLoupeHitOnClock(Collider hitCollider)
