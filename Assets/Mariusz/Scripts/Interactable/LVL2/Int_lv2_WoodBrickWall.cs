@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -36,6 +37,12 @@ public class Int_lv2_WoodBrickWall : Lvl3InteractionDialogueBase
 
     [Header("Notebook")]
     [SerializeField] private int openedDoorNoteIndex = 0;
+
+    [Header("Correct Door")]
+    [Tooltip("Optional object disabled after the correct door starts opening. The WoodBrickWall itself stays active.")]
+    [SerializeField] private GameObject gameObjectToDeactivateAfterCorrectDoor;
+    [Tooltip("Time allowed for the correct door's opening animation before the assigned object is disabled.")]
+    [SerializeField, Min(0f)] private float deactivateAfterCorrectDoorDelay = 1.1f;
 
     private WoodBlockWallVariant mountedVariant;
     private bool blockWasTested;
@@ -161,6 +168,8 @@ public class Int_lv2_WoodBrickWall : Lvl3InteractionDialogueBase
         {
             mountedButton.OpenWithInstalledWoodBlock(player);
             AddOpenedDoorNotebookNote();
+            CluesLog.Instance?.CompleteEthelHiddenDoorObjective();
+            StartCoroutine(DeactivateAfterCorrectDoorOpens());
             return;
         }
 
@@ -168,7 +177,18 @@ public class Int_lv2_WoodBrickWall : Lvl3InteractionDialogueBase
         {
             hiddenDoor.OpenWithInstalledWoodBlock(player);
             AddOpenedDoorNotebookNote();
+            CluesLog.Instance?.CompleteEthelHiddenDoorObjective();
+            StartCoroutine(DeactivateAfterCorrectDoorOpens());
         }
+    }
+
+    private IEnumerator DeactivateAfterCorrectDoorOpens()
+    {
+        if (deactivateAfterCorrectDoorDelay > 0f)
+            yield return new WaitForSeconds(deactivateAfterCorrectDoorDelay);
+
+        if (gameObjectToDeactivateAfterCorrectDoor != null)
+            gameObjectToDeactivateAfterCorrectDoor.SetActive(false);
     }
 
     private void AddOpenedDoorNotebookNote()

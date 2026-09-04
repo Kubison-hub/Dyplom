@@ -100,6 +100,17 @@ public class Int_SelmaDialog : Lvl3InteractionDialogueBase
         if (ConversationManager.Instance != null && !ConversationManager.Instance.IsConversationActive)
             StartConversationWithoutTrigger(player);
 
+        if (ConversationManager.Instance == null || !ConversationManager.Instance.IsConversationActive)
+        {
+            dialogueStarting = false;
+            yield break;
+        }
+
+        yield return null;
+        while (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
+            yield return null;
+
+        CluesLog.Instance?.RegisterSessionWitnessInterview(smartNPC);
         dialogueStarting = false;
     }
 

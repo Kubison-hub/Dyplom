@@ -281,6 +281,8 @@ public class BasementIdeaPointPuzzle : MonoBehaviour
     private void HandlePuzzleSolved()
     {
         forceVision = false;
+        CluesLog.Instance?.AddFindBasementHiddenDoorObjective();
+        CluesLog.Instance?.SetBasementIdeaPointPuzzleDescription();
 
         if (secretPassageVision != null)
             secretPassageVision.SetActive(true);

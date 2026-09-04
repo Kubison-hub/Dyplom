@@ -1,7 +1,8 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 using TMPro;
 
 public class NotebookManager : MonoBehaviour
@@ -14,8 +15,26 @@ public class NotebookManager : MonoBehaviour
     public GameObject noteDisplayArea;
     public GameObject taskDisplayArea; // NOWE: Zmienna dla TaskDisplayArea
 
+    [Header("Tasks")]
+    [SerializeField] private CluesLog cluesLog;
+    [SerializeField] private TextMeshProUGUI taskTitleText;
+    [SerializeField] private TextMeshProUGUI taskDescriptionText;
+    [FormerlySerializedAs("taskDisplayText")]
+    [SerializeField] private TextMeshProUGUI taskObjectivesText;
+
     [Header("List Settings")]
     public Transform noteListContent;
+
+    [Header("Category Buttons")]
+    [SerializeField] private Button observationsButton;
+    [SerializeField] private Button peopleButton;
+    [SerializeField] private Button objectsButton;
+
+    [Header("Audio")]
+    [SerializeField] private AudioSource notebookAudioSource;
+    [SerializeField] private AudioClip openNotebookClip;
+    [SerializeField] private AudioClip closeNotebookClip;
+    [SerializeField] private AudioClip buttonClickClip;
 
     [Header("Prefabs & UI Elements")]
     public GameObject noteButtonPrefab;
@@ -29,6 +48,7 @@ public class NotebookManager : MonoBehaviour
     private PlayerInput notebookLockedInput;
     private bool notebookDisabledInput;
     private bool openedAsQuickRead;
+    private bool notebookPausedTime;
 
     public bool IsNotebookOpen => notebookPanel != null && notebookPanel.activeSelf;
 
@@ -41,11 +61,25 @@ public class NotebookManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
+        if (notebookAudioSource == null)
+            notebookAudioSource = GetComponent<AudioSource>();
     }
 
     private void Start()
     {
         notebookPanel.SetActive(false);
+        ConnectTaskLog();
+        RefreshTaskDisplay();
+        RefreshCategoryButtons();
+    }
+
+    private void OnDestroy()
+    {
+        if (cluesLog != null)
+            cluesLog.OnLogUpdated -= UpdateTaskDisplay;
+
+        ResumeGameplayTime();
     }
 
     private void Update()
@@ -64,9 +98,13 @@ public class NotebookManager : MonoBehaviour
             return;
         }
 
+        PlayerTopText.Instance?.ClearAllTopText();
         notebookPanel.SetActive(true);
         LockActivePlayerInput();
-        BackToCategories(); // Ta funkcja ustawi domyœlny widok po wciœniêciu TAB
+        PauseGameplayTime();
+        RefreshCategoryButtons();
+        ShowDefaultNotebookView();
+        PlaySound(openNotebookClip);
     }
 
     // Funkcja do fizycznego przycisku zamykania Notatnika
@@ -77,6 +115,8 @@ public class NotebookManager : MonoBehaviour
 
         openedAsQuickRead = false;
         RestoreActivePlayerInput();
+        ResumeGameplayTime();
+        PlaySound(closeNotebookClip);
     }
 
     private void LockActivePlayerInput()
@@ -110,33 +150,50 @@ public class NotebookManager : MonoBehaviour
         notebookDisabledInput = false;
     }
 
-    // Wywo³ywane przez przyciski kategorii (0, 1, 2)
+    // WywoÅ‚ywane przez przyciski kategorii (0, 1, 2)
     public void ShowCategory(int categoryIndex)
     {
+        PlayButtonClickSound();
+
         NoteCategory selectedCategory = (NoteCategory)categoryIndex;
+
+        if (selectedCategory == NoteCategory.Zadania)
+        {
+            ShowTasks();
+            return;
+        }
 
         categoryPanel.SetActive(false);
         noteListPanel.SetActive(true);
         noteDisplayArea.SetActive(false);
 
-        // NOWE: Ukrywamy TaskDisplayArea po wejœciu w kategoriê
+        // NOWE: Ukrywamy TaskDisplayArea po wejÅ›ciu w kategoriÄ™
         if (taskDisplayArea != null)
             taskDisplayArea.SetActive(false);
 
-        // Wyczyœæ star¹ listê
+        // WyczyÅ›Ä‡ starÄ… listÄ™
         foreach (Transform child in noteListContent)
         {
             Destroy(child.gameObject);
         }
 
-        // Generuj now¹ listê dla wybranej kategorii
+        NoteData firstNote = null;
+
+        // Generuj nowÄ… listÄ™ dla wybranej kategorii.
         foreach (NoteData note in allNotes)
         {
             if (note.category == selectedCategory)
             {
                 CreateNoteButton(note);
+
+                if (firstNote == null)
+                    firstNote = note;
             }
         }
+
+        // A category opens directly on its first available note.
+        if (firstNote != null)
+            DisplayNote(firstNote);
     }
 
     public void BackToCategories()
@@ -147,13 +204,33 @@ public class NotebookManager : MonoBehaviour
             return;
         }
 
+        PlayButtonClickSound();
+        ShowDefaultNotebookView();
+    }
+
+    private void ShowDefaultNotebookView()
+    {
         categoryPanel.SetActive(true);
         noteListPanel.SetActive(false);
         noteDisplayArea.SetActive(false);
 
-        // NOWE: Wyœwietlamy TaskDisplayArea jako domyœlny widok wraz z kategoriami
+        // NOWE: WyÅ›wietlamy TaskDisplayArea jako domyÅ›lny widok wraz z kategoriami
         if (taskDisplayArea != null)
             taskDisplayArea.SetActive(true);
+
+        RefreshTaskDisplay();
+    }
+
+    public void ShowTasks()
+    {
+        categoryPanel.SetActive(true);
+        noteListPanel.SetActive(false);
+        noteDisplayArea.SetActive(false);
+
+        if (taskDisplayArea != null)
+            taskDisplayArea.SetActive(true);
+
+        RefreshTaskDisplay();
     }
 
     public void BackToNoteList()
@@ -164,10 +241,11 @@ public class NotebookManager : MonoBehaviour
             return;
         }
 
+        PlayButtonClickSound();
         noteListPanel.SetActive(true);
         noteDisplayArea.SetActive(false);
 
-        // NOWE: Upewniamy siê, ¿e wracaj¹c do listy, TaskDisplayArea jest ukryty
+        // NOWE: Upewniamy siÄ™, Å¼e wracajÄ…c do listy, TaskDisplayArea jest ukryty
         if (taskDisplayArea != null)
             taskDisplayArea.SetActive(false);
     }
@@ -181,12 +259,21 @@ public class NotebookManager : MonoBehaviour
 
     private void OpenNote(NoteData note)
     {
-        // ZMIANA: Usuniêto ukrywanie noteListPanel, aby lista notatek do wyboru pozosta³a widoczna na ekranie.
-        // noteListPanel.SetActive(false); <-- To powodowa³o znikanie listy
+        PlayButtonClickSound();
+        DisplayNote(note);
+    }
+
+    private void DisplayNote(NoteData note)
+    {
+        if (note == null)
+            return;
+
+        // ZMIANA: UsuniÄ™to ukrywanie noteListPanel, aby lista notatek do wyboru pozostaÅ‚a widoczna na ekranie.
+        // noteListPanel.SetActive(false); <-- To powodowaÅ‚o znikanie listy
 
         noteDisplayArea.SetActive(true);
 
-        // Zabezpieczenie, aby TaskDisplayArea by³ wy³¹czony podczas czytania notatki
+        // Zabezpieczenie, aby TaskDisplayArea byÅ‚ wyÅ‚Ä…czony podczas czytania notatki
         if (taskDisplayArea != null)
             taskDisplayArea.SetActive(false);
 
@@ -209,14 +296,17 @@ public class NotebookManager : MonoBehaviour
 
         if (!IsNotebookOpen)
         {
+            PlayerTopText.Instance?.ClearAllTopText();
             notebookPanel.SetActive(true);
             LockActivePlayerInput();
+            PauseGameplayTime();
+            PlaySound(openNotebookClip);
         }
 
         if (categoryPanel != null)
             categoryPanel.SetActive(false);
 
-        OpenNote(note);
+        DisplayNote(note);
     }
 
     public void AddNote(NoteData note)
@@ -227,7 +317,105 @@ public class NotebookManager : MonoBehaviour
         if (allNotes == null)
             allNotes = new List<NoteData>();
 
-        if (!allNotes.Contains(note))
-            allNotes.Add(note);
+        if (allNotes.Contains(note))
+            return;
+
+        allNotes.Add(note);
+        RefreshCategoryButtons();
+    }
+
+    private void RefreshCategoryButtons()
+    {
+        SetCategoryButtonState(observationsButton, NoteCategory.Obserwacje);
+        SetCategoryButtonState(peopleButton, NoteCategory.Osoby);
+        SetCategoryButtonState(objectsButton, NoteCategory.Obiekty);
+    }
+
+    private void SetCategoryButtonState(Button button, NoteCategory category)
+    {
+        if (button != null)
+            button.interactable = HasNoteInCategory(category);
+    }
+
+    private bool HasNoteInCategory(NoteCategory category)
+    {
+        if (allNotes == null)
+            return false;
+
+        foreach (NoteData note in allNotes)
+        {
+            if (note != null && note.category == category)
+                return true;
+        }
+
+        return false;
+    }
+
+    public void PlayButtonClickSound()
+    {
+        PlaySound(buttonClickClip);
+    }
+
+    private void PlaySound(AudioClip clip)
+    {
+        if (notebookAudioSource != null && clip != null)
+            notebookAudioSource.PlayOneShot(clip);
+    }
+
+    private void PauseGameplayTime()
+    {
+        if (notebookPausedTime)
+            return;
+
+        GameplayTimePause.Pause(this);
+        notebookPausedTime = true;
+    }
+
+    private void ResumeGameplayTime()
+    {
+        if (!notebookPausedTime)
+            return;
+
+        GameplayTimePause.Resume(this);
+        notebookPausedTime = false;
+    }
+
+    private void ConnectTaskLog()
+    {
+        if (cluesLog == null)
+            cluesLog = FindFirstObjectByType<CluesLog>();
+
+        if (cluesLog != null)
+            cluesLog.OnLogUpdated += UpdateTaskDisplay;
+    }
+
+    private void RefreshTaskDisplay()
+    {
+        if (cluesLog == null)
+            ConnectTaskLog();
+
+        if (cluesLog != null)
+            UpdateTaskDisplay(cluesLog.GetFormattedLog());
+    }
+
+    private void UpdateTaskDisplay(string _)
+    {
+        if (cluesLog == null)
+            return;
+
+        if (taskTitleText != null)
+            taskTitleText.text = cluesLog.Title;
+
+        if (taskDescriptionText != null)
+        {
+            bool hasDescription = !string.IsNullOrWhiteSpace(cluesLog.Description);
+            taskDescriptionText.gameObject.SetActive(hasDescription);
+
+            if (hasDescription)
+                taskDescriptionText.text = cluesLog.Description;
+        }
+
+        if (taskObjectivesText != null)
+            taskObjectivesText.text = cluesLog.GetObjectivesText();
     }
 }

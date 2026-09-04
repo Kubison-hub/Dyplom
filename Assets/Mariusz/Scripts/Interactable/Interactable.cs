@@ -222,6 +222,11 @@ public class Interactable : MonoBehaviour
         //if (!isInteractableActive || ConversationManager.Instance.inConversation 
         //    || TutorialManager.Instance.isTutorialActive) return;
 
+        if (NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen ||
+            TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput ||
+            TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput)
+            return;
+
         if (DialogueEditor.ConversationManager.Instance != null &&
             DialogueEditor.ConversationManager.Instance.IsConversationActive)
         {

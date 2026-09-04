@@ -48,6 +48,8 @@ public class Int_lv1_HidenWallMask : Lvl3InteractionDialogueBase
     };
     [SerializeField] private Transform cardPosition;
     [SerializeField] private DetectiveIdeaPoint ideaPoint;
+    [Tooltip("When enabled, solving this mask adds the Ethel hidden-door objective to the quest log.")]
+    [SerializeField] private bool ethelHiddenRoom;
     [SerializeField] private GameObject[] activateOnSolved;
     [SerializeField] private bool deactivateSegmentsOnSolved = true;
 
@@ -337,6 +339,9 @@ public class Int_lv1_HidenWallMask : Lvl3InteractionDialogueBase
 
         solved = true;
         PlayDialogue(null, completionDialogue);
+
+        if (ethelHiddenRoom)
+            CluesLog.Instance?.AddFindEthelHiddenDoorObjective();
 
         if (interactable.clues != null && interactable.clues.Length > 0)
             interactable.AddClue(0, cardPosition);

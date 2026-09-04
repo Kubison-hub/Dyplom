@@ -4,6 +4,7 @@ using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Video;
+using DialogueEditor;
 
 
 public class Int_EdithExamBody : Lvl3InteractionDialogueBase
@@ -18,10 +19,14 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     public GameObject watsonGO;
     public GameObject sherlockGO;
     private NavMeshAgent watsonNavMesh;
-    private Animator watsonAnimator;
+    [SerializeField] private Animator watsonAnimator;
+    [SerializeField] private string watsonExamAnimatorBool = "Exam";
     private Animator sherlockAnimator;
 
     public Transform watsonPosition;
+    [Header("Bullet CP Watson Position")]
+    [SerializeField] private Transform watsonExaminationPoint;
+    [SerializeField, Min(0.01f)] private float watsonExaminationArrivalTolerance = 0.1f;
     [SerializeField]private Collider intCollider;
 
     //public GameObject[] nextInteractions;
@@ -62,7 +67,52 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     [SerializeField] private Lvl3DialogueLine[] ringCpDialogue;
     [SerializeField] private Lvl3DialogueLine[] paperCpDialogue;
     [SerializeField] private Lvl3DialogueLine[] bulletCpDialogue;
+    [Tooltip("Played before every Bullet CP attempt after the player failed the examination conversation once.")]
+    [SerializeField] private Lvl3DialogueLine[] bulletCpRetryDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Spróbuję jeszcze raz.",
+            duration = 2f
+        }
+    };
+    [SerializeField] private Lvl3DialogueLine[] bulletCpExamDoneDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Kula trafiła prosto w serce i przeszła na wylot.",
+            duration = 3f
+        }
+    };
+    [Header("Bullet Idea Point Check")]
+    [Tooltip("Optional IdeaPoint checked after the successful Bullet CP examination.")]
+    [SerializeField] private DetectiveIdeaPoint bulletIdeaPointToCheck;
+    [SerializeField] private Lvl3DialogueLine[] bulletIdeaPointMissingDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "W takim razie, gdzie jest kula?",
+            duration = 3f
+        }
+    };
+    [SerializeField] private Lvl3DialogueLine[] bulletCpExamIncompleteDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Muszę dokładniej przyjrzeć się ciału.",
+            duration = 3f
+        }
+    };
     [SerializeField] private Lvl3DialogueLine[] allCpCollectedDialogue;
+    [Header("Bullet CP Conversation")]
+    [Tooltip("Conversation opened after Bullet CP Dialogue. The CP is counted only after this conversation ends.")]
+    [SerializeField] private SmartNPC bulletCpSmartNpc;
+    [SerializeField, Min(0.01f)] private float bulletCpDialogueZoomTransitionSpeed = 0.2f;
+    [SerializeField] private string bulletCpExamDoneParameterName = "BulletExamDone";
     [Header("All CP Collected Clue")]
     [Tooltip("Index from Interactable > Clues. Set to -1 to skip adding a final clue.")]
     [SerializeField] private int allCpCollectedClueIndex = -1;
@@ -99,9 +149,20 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     private bool completionDialoguePending;
     private bool allCpCollectedClueAdded;
     private Coroutine completionTutorialCoroutine;
+    private bool bulletCpAwaitingConversation;
+    private bool bulletCpConversationActive;
+    private bool bulletCpConversationStarting;
+    private bool bulletExamDone;
+    private bool bulletCpExamAttempted;
+    private bool bulletCpResultDialoguePlaying;
+    private PlayerController bulletCpPlayer;
+    private Coroutine bulletCpConversationCoroutine;
+    private Int_Edith_BulletHole pendingBulletCp;
 
     public bool IsExaminationCompleted => examinationCompleted || edithIdeaRevealed;
     public bool IsExaminationActive => interactionPerforming && !examinationCompleted && !edithIdeaRevealed;
+    public bool IsBulletExamInProgress => bulletCpAwaitingConversation || bulletCpConversationStarting ||
+                                           bulletCpConversationActive || bulletCpResultDialoguePlaying;
     protected override Lvl3DialogueLine[] DefaultDialogueLines => initialExaminationDialogue;
 
 
@@ -112,6 +173,12 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         if (cameraController == null)
             cameraController = FindFirstObjectByType<CameraController>();
 
+        if (watsonAnimator == null && watsonGO != null)
+            watsonAnimator = watsonGO.GetComponentInChildren<Animator>();
+
+        if (watsonNavMesh == null && watsonGO != null)
+            watsonNavMesh = watsonGO.GetComponent<NavMeshAgent>();
+
         SetExaminationClueObjectsActive(false);
         //watsonNavMesh = watsonGO.GetComponent<NavMeshAgent>();
         //watsonAnimator = watsonGO.GetComponent <Animator>();
@@ -120,6 +187,12 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         //splineDolly = interactionCamera.GetComponent<CinemachineSplineDolly>();
 
         
+    }
+
+    private void OnDestroy()
+    {
+        StopWaitingForBulletCpConversation();
+        ReleaseBulletCpWorldInput();
     }
 
     private void Update()
@@ -239,10 +312,60 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
             return;
 
         Lvl3DialogueLine[] clueDialogue = GetClueDialogue(clueIndex);
+
+        if (clueIndex == 2 && bulletCpSmartNpc != null)
+        {
+            bulletCpPlayer = player != null ? player : examiningPlayer;
+            bulletCpAwaitingConversation = true;
+
+            if (clueDialogue != null && clueDialogue.Length > 0)
+                PlayDialogue(player, clueDialogue);
+            else
+                StartBulletCpConversation();
+
+            return;
+        }
+
         if (clueDialogue != null && clueDialogue.Length > 0)
             PlayDialogue(player, clueDialogue);
 
+        CompleteExamClueRegistration(clueDialogue == null || clueDialogue.Length == 0);
+    }
+
+    public void RegisterBulletExamClue(PlayerController player, Int_Edith_BulletHole bulletCp)
+    {
+        if (!performed || examinationCompleted || edithIdeaRevealed || IsBulletExamInProgress)
+            return;
+
+        pendingBulletCp = bulletCp;
+        bulletExamDone = false;
+        bulletCpPlayer = player != null ? player : examiningPlayer;
+        bulletCpAwaitingConversation = true;
+        LockBulletCpWorldInput();
+
+        Lvl3DialogueLine[] attemptDialogue = GetBulletCpAttemptDialogue();
+        if (attemptDialogue != null && attemptDialogue.Length > 0)
+            PlayDialogue(player, attemptDialogue);
+        else
+            StartBulletCpConversation();
+    }
+
+    public void MarkBulletExamDone()
+    {
+        if (!bulletCpConversationActive)
+        {
+            Debug.LogWarning("Int_EdithExamBody: MarkBulletExamDone was called outside the Bullet CP conversation.", this);
+            return;
+        }
+
+        bulletExamDone = true;
+    }
+
+    private void CompleteExamClueRegistration(bool finalCpDialogueAlreadyFinished)
+    {
         collectedExamClueCount++;
+        CluesLog.Instance?.SetLadyEdithBodyProgress(collectedExamClueCount, requiredCluesToRevealIdea);
+
         if (collectedExamClueCount < requiredCluesToRevealIdea)
             return;
 
@@ -254,8 +377,211 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
 
         // Keep this component enabled while the final CP dialogue is playing.
         // Disabling it here would stop its dialogue coroutine and cut the audio off.
-        if (clueDialogue == null || clueDialogue.Length == 0)
+        if (finalCpDialogueAlreadyFinished)
             ContinueAfterFinalClueDialogue();
+    }
+
+    private void StartBulletCpConversation()
+    {
+        bulletCpAwaitingConversation = false;
+
+        ConversationManager conversationManager = ConversationManager.Instance;
+        NPCConversation conversation = GetBulletCpConversation();
+        if (conversationManager == null || conversation == null)
+        {
+            Debug.LogWarning(
+                "Int_EdithExamBody: Bullet CP SmartNPC needs a valid Dialogue Editor conversation. The CP will remain available.",
+                this);
+            BeginBulletCpResultDialogue(false);
+            return;
+        }
+
+        if (conversationManager.IsConversationActive)
+        {
+            StartCoroutine(WaitForConversationAndStartBulletCp(conversation));
+            return;
+        }
+
+        BeginBulletCpConversation(conversationManager, conversation);
+    }
+
+    private IEnumerator WaitForConversationAndStartBulletCp(NPCConversation conversation)
+    {
+        while (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
+            yield return null;
+
+        if (ConversationManager.Instance == null)
+        {
+            BeginBulletCpResultDialogue(false);
+            yield break;
+        }
+
+        BeginBulletCpConversation(ConversationManager.Instance, conversation);
+    }
+
+    private NPCConversation GetBulletCpConversation()
+    {
+        if (bulletCpSmartNpc == null)
+            return null;
+
+        bool isWatson = bulletCpPlayer != null &&
+                        (bulletCpPlayer.playerCharacter == PlayerCharacter.Watson || bulletCpPlayer.CompareTag("PlayerB"));
+
+        return isWatson
+            ? bulletCpSmartNpc.rozmowaDlaPostaciB
+            : bulletCpSmartNpc.rozmowaDlaPostaciA;
+    }
+
+    private void BeginBulletCpConversation(ConversationManager conversationManager, NPCConversation conversation)
+    {
+        if (bulletCpConversationStarting || bulletCpConversationActive)
+            return;
+
+        if (watsonExaminationPoint != null && watsonNavMesh != null &&
+            watsonNavMesh.isActiveAndEnabled && watsonNavMesh.isOnNavMesh)
+        {
+            bulletCpConversationStarting = true;
+            bulletCpConversationCoroutine = StartCoroutine(
+                MoveWatsonToExaminationPointAndBeginConversation(conversationManager, conversation));
+            return;
+        }
+
+        StartBulletCpConversationAfterWatsonArrives(conversationManager, conversation);
+    }
+
+    private IEnumerator MoveWatsonToExaminationPointAndBeginConversation(
+        ConversationManager conversationManager,
+        NPCConversation conversation)
+    {
+        watsonNavMesh.SetDestination(watsonExaminationPoint.position);
+
+        while (watsonNavMesh != null && watsonNavMesh.isActiveAndEnabled &&
+               watsonNavMesh.isOnNavMesh && watsonNavMesh.pathPending)
+        {
+            yield return null;
+        }
+
+        while (watsonNavMesh != null && watsonNavMesh.isActiveAndEnabled && watsonNavMesh.isOnNavMesh &&
+               watsonNavMesh.hasPath &&
+               watsonNavMesh.remainingDistance > watsonNavMesh.stoppingDistance + watsonExaminationArrivalTolerance)
+        {
+            yield return null;
+        }
+
+        bulletCpConversationCoroutine = null;
+        bulletCpConversationStarting = false;
+
+        if (conversationManager == null || ConversationManager.Instance == null ||
+            ConversationManager.Instance.IsConversationActive)
+        {
+            BeginBulletCpResultDialogue(false);
+            yield break;
+        }
+
+        StartBulletCpConversationAfterWatsonArrives(conversationManager, conversation);
+    }
+
+    private void StartBulletCpConversationAfterWatsonArrives(
+        ConversationManager conversationManager,
+        NPCConversation conversation)
+    {
+        bulletCpSmartNpc?.BeginDialogueCameraFocusWithZoom(
+            "WatsonExam",
+            bulletCpDialogueZoomTransitionSpeed);
+        SetWatsonExamAnimation(true);
+        bulletCpConversationActive = true;
+        ConversationManager.OnConversationEnded += HandleBulletCpConversationEnded;
+        conversationManager.StartConversation(conversation);
+    }
+
+    private void HandleBulletCpConversationEnded()
+    {
+        if (!bulletCpConversationActive)
+            return;
+
+        bool examDone = bulletExamDone || IsBulletExamDoneConversationParameterSet();
+        StopWaitingForBulletCpConversation();
+        BeginBulletCpResultDialogue(examDone);
+    }
+
+    private bool IsBulletExamDoneConversationParameterSet()
+    {
+        if (ConversationManager.Instance == null || string.IsNullOrWhiteSpace(bulletCpExamDoneParameterName))
+            return false;
+
+        return ConversationManager.Instance.GetBool(bulletCpExamDoneParameterName);
+    }
+
+    private void BeginBulletCpResultDialogue(bool examDone)
+    {
+        bulletCpResultDialoguePlaying = true;
+        Lvl3DialogueLine[] resultDialogue = examDone
+            ? bulletCpExamDoneDialogue
+            : bulletCpExamIncompleteDialogue;
+
+        if (resultDialogue != null && resultDialogue.Length > 0)
+        {
+            PlayDialogue(null, resultDialogue);
+            return;
+        }
+
+        FinishBulletCpResult(examDone);
+    }
+
+    private void FinishBulletCpResult(bool examDone)
+    {
+        bulletCpResultDialoguePlaying = false;
+
+        if (examDone)
+        {
+            pendingBulletCp?.CompleteSuccessfulExamination();
+            CompleteExamClueRegistration(true);
+        }
+        else
+        {
+            bulletCpExamAttempted = true;
+        }
+
+        pendingBulletCp = null;
+        bulletExamDone = false;
+        ReleaseBulletCpWorldInput();
+    }
+
+    private Lvl3DialogueLine[] GetBulletCpAttemptDialogue()
+    {
+        return bulletCpExamAttempted ? bulletCpRetryDialogue : bulletCpDialogue;
+    }
+
+    private void LockBulletCpWorldInput()
+    {
+        PlayerController.SetWorldInputLocked(true);
+    }
+
+    private void ReleaseBulletCpWorldInput()
+    {
+        PlayerController.SetWorldInputLocked(false);
+    }
+
+    private void StopWaitingForBulletCpConversation()
+    {
+        if (bulletCpConversationActive)
+            ConversationManager.OnConversationEnded -= HandleBulletCpConversationEnded;
+
+        if (bulletCpConversationCoroutine != null)
+            StopCoroutine(bulletCpConversationCoroutine);
+
+        bulletCpAwaitingConversation = false;
+        bulletCpConversationActive = false;
+        bulletCpConversationStarting = false;
+        bulletCpPlayer = null;
+        bulletCpConversationCoroutine = null;
+        SetWatsonExamAnimation(false);
+    }
+
+    private void SetWatsonExamAnimation(bool isExamining)
+    {
+        if (watsonAnimator != null && !string.IsNullOrWhiteSpace(watsonExamAnimatorBool))
+            watsonAnimator.SetBool(watsonExamAnimatorBool, isExamining);
     }
 
     private void AddAllCpCollectedClue()
@@ -429,6 +755,37 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
 
             if (interactionPerforming && isExaminationCameraActive)
                 ShowExaminationTutorialsIfReady();
+            return;
+        }
+
+        if (bulletCpAwaitingConversation && lines == GetBulletCpAttemptDialogue())
+        {
+            StartBulletCpConversation();
+            return;
+        }
+
+        if (bulletCpResultDialoguePlaying && lines == bulletCpExamDoneDialogue)
+        {
+            if (bulletIdeaPointToCheck != null && !bulletIdeaPointToCheck.IsDiscovered &&
+                bulletIdeaPointMissingDialogue != null && bulletIdeaPointMissingDialogue.Length > 0)
+            {
+                PlayDialogue(null, bulletIdeaPointMissingDialogue);
+                return;
+            }
+
+            FinishBulletCpResult(true);
+            return;
+        }
+
+        if (bulletCpResultDialoguePlaying && lines == bulletIdeaPointMissingDialogue)
+        {
+            FinishBulletCpResult(true);
+            return;
+        }
+
+        if (bulletCpResultDialoguePlaying && lines == bulletCpExamIncompleteDialogue)
+        {
+            FinishBulletCpResult(false);
             return;
         }
 

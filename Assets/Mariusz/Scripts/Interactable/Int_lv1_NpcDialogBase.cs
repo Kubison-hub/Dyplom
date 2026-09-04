@@ -77,6 +77,12 @@ public abstract class Int_lv1_NpcDialogBase : Lvl3InteractionDialogueBase
         if (!ConversationManager.Instance.IsConversationActive)
             StartConversationWithoutTrigger(player);
 
+        if (!ConversationManager.Instance.IsConversationActive)
+        {
+            dialogueStarting = false;
+            yield break;
+        }
+
         OnNpcDialogueStarted();
 
         if (dialogueEndWatcher != null)
@@ -95,6 +101,7 @@ public abstract class Int_lv1_NpcDialogBase : Lvl3InteractionDialogueBase
             yield return null;
 
         dialogueEndWatcher = null;
+        CluesLog.Instance?.RegisterSessionWitnessInterview(smartNPC);
         OnNpcDialogueFinished();
     }
 

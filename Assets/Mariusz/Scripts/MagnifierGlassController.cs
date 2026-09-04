@@ -221,6 +221,20 @@ public class MagnifierGlassController : MonoBehaviour
     {
         UpdateDebugLoupeToggle();
 
+        if (NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen ||
+            TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput ||
+            TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput)
+        {
+            UpdateSherlockLoupeAudio(false);
+            SetSherlockHandLoupeVisible(false);
+            ResetLoupeAimTargetSmoothing();
+            UpdateRightHandLoupeRig(false);
+            SetInspectionCamerasActive(false);
+            EagleVisionScanner.Instance?.SetTooltipParentForLoupe(false);
+            HideLoupe();
+            return;
+        }
+
         bool loupeHeld = IsLoupeHeld();
         bool isWatsonGrip = IsWatsonGripHeld();
         bool sherlockLoupeActive = loupeHeld && !isWatsonGrip;
@@ -283,7 +297,10 @@ public class MagnifierGlassController : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (!rotateSherlockTowardLoupeHit || !IsLoupeHeld() || !hasInspectionHit || IsWatsonActive())
+        if ((NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen) ||
+            (TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput) ||
+            (TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput) ||
+            !rotateSherlockTowardLoupeHit || !IsLoupeHeld() || !hasInspectionHit || IsWatsonActive())
         {
             sherlockLoupeRotationVelocity = 0f;
             return;

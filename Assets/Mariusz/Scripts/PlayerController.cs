@@ -18,6 +18,13 @@ using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
+    public static bool IsWorldInputLocked { get; private set; }
+
+    public static void SetWorldInputLocked(bool isLocked)
+    {
+        IsWorldInputLocked = isLocked;
+    }
+
 
     public bool isActivePlayer = false;
 
@@ -52,6 +59,7 @@ public class PlayerController : MonoBehaviour
     private bool canMove = true;
     private bool tutorialMovementLocked;
     private bool minigameMovementLocked;
+    private bool conversationMovementAllowed;
     private PlayerInput playerInput;
 
     public bool isWalking = false;
@@ -109,6 +117,20 @@ public class PlayerController : MonoBehaviour
 
     private void UpdateInteractionShaderHover()
     {
+        if (IsWorldInputLocked)
+        {
+            SetHoveredInteractable(null);
+            return;
+        }
+
+        if (NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen ||
+            TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput ||
+            TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput)
+        {
+            SetHoveredInteractable(null);
+            return;
+        }
+
         if (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
         {
             SetHoveredInteractable(null);
@@ -166,7 +188,8 @@ public class PlayerController : MonoBehaviour
         bool notebookAktywny = NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen;
 
         // Jeśli któraś z blokad jest aktywna...
-        if (dialogAktywny || dziennikAktywny || notebookAktywny || tutorialMovementLocked || minigameMovementLocked)
+        if ((dialogAktywny && !conversationMovementAllowed) ||
+            dziennikAktywny || notebookAktywny || tutorialMovementLocked || minigameMovementLocked)
         {
             // ...zablokuj NavMesh.
             LockMovement();
@@ -221,11 +244,24 @@ public class PlayerController : MonoBehaviour
         else
             playerInput.ActivateInput();
     }
+
+    public void SetConversationMovementAllowed(bool allowed)
+    {
+        conversationMovementAllowed = allowed;
+    }
     //---------------------------------------------
 
 
     public void OnLeftClick(InputAction.CallbackContext context)
     {
+        if (IsWorldInputLocked)
+            return;
+
+        if (NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen ||
+            TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput ||
+            TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput)
+            return;
+
         if (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
             return;
 
@@ -237,6 +273,14 @@ public class PlayerController : MonoBehaviour
 
     private void HandleLeftClick()
     {
+        if (IsWorldInputLocked)
+            return;
+
+        if (NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen ||
+            TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput ||
+            TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput)
+            return;
+
         if (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
             return;
 

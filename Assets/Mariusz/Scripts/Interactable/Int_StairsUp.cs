@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Serialization;
 
 public class Int_StairsUp : MonoBehaviour
 {
@@ -19,6 +20,8 @@ public class Int_StairsUp : MonoBehaviour
     public Transform level2StartingPoint;
     public GameObject level_1;
     public GameObject level_2;
+    [Header("Stairs Completion")]
+    [SerializeField] private Int_lv1_SherlockWatsonSelmaDialog sherlockWatsonSelmaDialogToDisable;
 
     [Header("Level 2 Arrival")]
     [SerializeField] private PlayerController watsonPlayer;
@@ -41,6 +44,9 @@ public class Int_StairsUp : MonoBehaviour
         text = "Nie mam jeszcze powodu, by iść na górę.",
         duration = 3f
     };
+    [Tooltip("Activated when Selma notices Sherlock at the stairs for the first time.")]
+    [FormerlySerializedAs("activateOnFirstUnavailableStairsAttempt")]
+    [SerializeField] private GameObject activateOnFirstStairsDiscovery;
 
     [Header("Selma Stairs Gate")]
     [Tooltip("Assign Selma's object with WatsonEscortNPC and NavMeshAgent.")]
@@ -234,6 +240,8 @@ public class Int_StairsUp : MonoBehaviour
             SwitchCharacter.Instance.canSwitch = false;
 
         CluesLog.Instance?.RemoveCrimeSceneObjective();
+        CluesLog.Instance?.CompleteFindWayUpstairsObjective();
+        CluesLog.Instance?.BeginUpperFloorEvidenceObjective();
 
         level_2.SetActive(true);
         yield return null;
@@ -247,6 +255,7 @@ public class Int_StairsUp : MonoBehaviour
         yield return null;
 
         level_1.SetActive(false);
+        sherlockWatsonSelmaDialogToDisable?.DisableAfterStairsUp();
         blackboardToEnableOnArrival?.SetActive(true);
 
         if (gameObjectsToEnableOnArrival != null)
@@ -423,6 +432,8 @@ public class Int_StairsUp : MonoBehaviour
 
     private IEnumerator PlayFirstDiscoverySequence()
     {
+        activateOnFirstStairsDiscovery?.SetActive(true);
+
         Transform selma = GetSelmaPositionTarget();
         if (selma != null && SherlockGO != null)
         {
@@ -435,6 +446,7 @@ public class Int_StairsUp : MonoBehaviour
         }
 
         yield return PlayDialogueLines(firstDiscoveryDialogueLines);
+        CluesLog.Instance?.AddFindEthelUpstairsObjective();
 
         Transform watson = SwitchCharacter.Instance != null ? SwitchCharacter.Instance.watsonTransform : null;
         if (watson != null && SherlockGO != null)

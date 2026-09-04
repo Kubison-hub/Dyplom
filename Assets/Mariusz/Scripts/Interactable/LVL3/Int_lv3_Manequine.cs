@@ -70,6 +70,8 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
     private void OnValidate() => Setup();
     private void Awake() => Setup();
 
+    private bool revealBasementExitAfterInspectionDialogue;
+
     public void PerformInteraction(PlayerController player)
     {
         if (hasBeenExamined)
@@ -80,6 +82,7 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
 
         hasBeenExamined = true;
         mannequinIdeaPoint?.RevealFromExternalSource();
+        revealBasementExitAfterInspectionDialogue = true;
         triggerTrapAfterInspectionDialogue = true;
         PlayInteractionDialogue(player);
     }
@@ -263,6 +266,12 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
 
     protected override void OnDialogueSequenceCompleted(Lvl3DialogueLine[] lines)
     {
+        if (revealBasementExitAfterInspectionDialogue)
+        {
+            revealBasementExitAfterInspectionDialogue = false;
+            CluesLog.Instance?.AddFindBasementExitObjective();
+        }
+
         if (triggerTrapAfterInspectionDialogue && !triggered)
         {
             triggerTrapAfterInspectionDialogue = false;

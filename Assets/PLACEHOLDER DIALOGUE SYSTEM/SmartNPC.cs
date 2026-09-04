@@ -18,6 +18,11 @@ public class SmartNPC : MonoBehaviour
     public NPCConversation rozmowaDlaPostaciA; // Sherlock
     public NPCConversation rozmowaDlaPostaciB; // Watson
 
+    [Header("Dialogue Camera")]
+    [Tooltip("Point the camera looks at during this NPC conversation. Falls back to the NPC root when empty.")]
+    [SerializeField] private Transform dialogueCameraTarget;
+    [SerializeField, Min(0.01f)] private float dialogueCameraTargetTransitionSpeed = 0.2f;
+
     private bool czyPostacA_W_Zasiegu = false;
     private bool czyPostacB_W_Zasiegu = false;
 
@@ -27,6 +32,13 @@ public class SmartNPC : MonoBehaviour
     public NavMeshAgent navMeshAgent;
     public Transform movePoint;
     private Coroutine movementCoroutine;
+    private CameraController dialogueCameraController;
+    private bool dialogueCameraFocusActive;
+
+    private void OnDestroy()
+    {
+        RestoreDialogueCameraFocus();
+    }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -92,6 +104,7 @@ public class SmartNPC : MonoBehaviour
                 QuestManager.Instance.OdnotujRozmowe("PlayerA", npcID);
             }
 
+            BeginDialogueCameraFocus();
             ConversationManager.Instance.StartConversation(rozmowaDlaPostaciA);
             dialogRozpoczety = true;
         }
@@ -105,6 +118,7 @@ public class SmartNPC : MonoBehaviour
                 QuestManager.Instance.OdnotujRozmowe("PlayerB", npcID);
             }
 
+            BeginDialogueCameraFocus();
             ConversationManager.Instance.StartConversation(rozmowaDlaPostaciB);
             dialogRozpoczety = true;
         }
@@ -130,6 +144,61 @@ public class SmartNPC : MonoBehaviour
         return true;
     }
 
+    public void BeginDialogueCameraFocus()
+    {
+        Transform target = dialogueCameraTarget != null ? dialogueCameraTarget : transform;
+        CameraController activeCameraController = GetActiveCameraController();
+        if (target == null || activeCameraController == null)
+            return;
+
+        if (dialogueCameraFocusActive && dialogueCameraController != activeCameraController)
+            RestoreDialogueCameraFocus();
+
+        dialogueCameraController = activeCameraController;
+        dialogueCameraController.OverrideLookAtTargetSmooth(target, dialogueCameraTargetTransitionSpeed);
+
+        if (!dialogueCameraFocusActive)
+        {
+            ConversationManager.OnConversationEnded += RestoreDialogueCameraFocus;
+            dialogueCameraFocusActive = true;
+        }
+    }
+
+    public void BeginDialogueCameraFocusWithZoom(string zoomPresetName, float zoomTransitionSpeed)
+    {
+        BeginDialogueCameraFocus();
+
+        if (!string.IsNullOrWhiteSpace(zoomPresetName))
+            dialogueCameraController?.BeginDialogueZoomPreset(zoomPresetName, zoomTransitionSpeed);
+    }
+    private void RestoreDialogueCameraFocus()
+    {
+        if (dialogueCameraFocusActive)
+            ConversationManager.OnConversationEnded -= RestoreDialogueCameraFocus;
+
+        dialogueCameraController?.RestoreLookAtTargetSmooth(dialogueCameraTargetTransitionSpeed);
+        dialogueCameraController = null;
+        dialogueCameraFocusActive = false;
+    }
+
+    private static CameraController GetActiveCameraController()
+    {
+        SwitchCharacter switchCharacter = SwitchCharacter.Instance;
+        if (switchCharacter != null && switchCharacter.playersCamera != null)
+        {
+            int activeIndex = switchCharacter.activePlayerIndex;
+            if (activeIndex >= 0 && activeIndex < switchCharacter.playersCamera.Length &&
+                switchCharacter.playersCamera[activeIndex] != null)
+            {
+                CameraController controller = switchCharacter.playersCamera[activeIndex]
+                    .GetComponent<CameraController>();
+                if (controller != null)
+                    return controller;
+            }
+        }
+
+        return FindFirstObjectByType<CameraController>();
+    }
     public void GoToPoint(Vector3 destination, Action onReachedDestination = null) 
     {
         if (movementCoroutine != null) StopCoroutine(movementCoroutine);

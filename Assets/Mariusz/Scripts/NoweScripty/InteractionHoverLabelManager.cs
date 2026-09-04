@@ -33,7 +33,7 @@ public class InteractionHoverLabelManager : MonoBehaviour
             return;
 
         InteractionHoverLabelManager manager = GetOrCreate();
-        if (isHovered && IsEagleVisionActive() && !IsConversationActive())
+        if (isHovered && IsEagleVisionActive() && !IsConversationActive() && !IsWorldInputBlocked())
             manager.Show(label);
         else
             manager.HideIfOwnedBy(label);
@@ -55,7 +55,7 @@ public class InteractionHoverLabelManager : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (IsConversationActive() || !IsEagleVisionActive() ||
+        if (IsConversationActive() || IsWorldInputBlocked() || !IsEagleVisionActive() ||
             hoveredLabel == null || !hoveredLabel.isActiveAndEnabled)
         {
             Hide();
@@ -209,5 +209,12 @@ public class InteractionHoverLabelManager : MonoBehaviour
     {
         return DialogueEditor.ConversationManager.Instance != null &&
                DialogueEditor.ConversationManager.Instance.IsConversationActive;
+    }
+
+    private static bool IsWorldInputBlocked()
+    {
+        return NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen ||
+               TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput ||
+               TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput;
     }
 }

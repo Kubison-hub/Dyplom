@@ -151,8 +151,13 @@ public class Int_VioletDialog : Lvl3InteractionDialogueBase
         // ConversationManager is activated by SmartNPC. Wait one frame so the
         // conversation can enter its active state before waiting for its end.
         yield return null;
+        bool conversationWasStarted = ConversationManager.Instance != null &&
+                                      ConversationManager.Instance.IsConversationActive;
         while (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
             yield return null;
+
+        if (conversationWasStarted)
+            CluesLog.Instance?.RegisterSessionWitnessInterview(smartNPC);
 
         if (restoreRotationAfterDialogue && dialogueTransform != null)
         {

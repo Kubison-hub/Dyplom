@@ -47,6 +47,13 @@ public class Int_lv1_SherlockWatsonSelmaDialog : Lvl3InteractionDialogueBase
         PlayDialogue(player, openingDialogueLines);
     }
 
+    public void DisableAfterStairsUp()
+    {
+        questionMarkToHide?.SetActive(false);
+        DisableInteractionVisuals();
+        gameObject.SetActive(false);
+    }
+
     public void NotifyInteractionSelected(PlayerController player)
     {
         if (player == null || player.playerCharacter != PlayerCharacter.Sherlock)

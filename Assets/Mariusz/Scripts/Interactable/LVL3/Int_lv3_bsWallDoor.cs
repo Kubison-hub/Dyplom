@@ -1,7 +1,14 @@
+using System.Collections;
 using UnityEngine;
 
 public class Int_lv3_bsWallDoor : Lvl3LoupeWallPuzzleBase
 {
+    [Header("Basement Exit Objective")]
+    [Tooltip("Enable on any wall that should introduce the objective to escape the basement room.")]
+    [SerializeField] private bool puzzleDoor;
+    [Tooltip("Waits for this wall's inspection text and audio before adding the basement exit objective.")]
+    [SerializeField, Min(0f)] private float puzzleDoorDialogueDuration = 4f;
+
     [Header("Light Requirement")]
     [Tooltip("At least one of these lamps must be active to inspect or trace this wall.")]
     [SerializeField] private GameObject[] heldLamps;
@@ -55,6 +62,8 @@ public class Int_lv3_bsWallDoor : Lvl3LoupeWallPuzzleBase
         }
     };
 
+    private bool basementExitObjectiveQueued;
+
     public new void PerformInteraction(PlayerController player)
     {
         if (!HasActiveLamp())
@@ -70,6 +79,11 @@ public class Int_lv3_bsWallDoor : Lvl3LoupeWallPuzzleBase
         }
 
         GetCameraController()?.SetZoomState(CameraZoomState.Narrow);
+        if (puzzleDoor && !basementExitObjectiveQueued)
+        {
+            basementExitObjectiveQueued = true;
+            StartCoroutine(AddBasementExitObjectiveAfterInspection());
+        }
 
         if (PlayerTopText.Instance != null)
             PlayerTopText.Instance.ShowTopText(sherlockInspectionText, string.Empty);
@@ -79,6 +93,18 @@ public class Int_lv3_bsWallDoor : Lvl3LoupeWallPuzzleBase
 
         if (player != null)
             player.currentInteractable = null;
+    }
+
+    private IEnumerator AddBasementExitObjectiveAfterInspection()
+    {
+        float waitDuration = sherlockInspectionVoiceClip != null
+            ? Mathf.Max(puzzleDoorDialogueDuration, sherlockInspectionVoiceClip.length)
+            : puzzleDoorDialogueDuration;
+
+        if (waitDuration > 0f)
+            yield return new WaitForSeconds(waitDuration);
+
+        CluesLog.Instance?.AddFindBasementExitObjective();
     }
 
     private bool HasActiveLamp()

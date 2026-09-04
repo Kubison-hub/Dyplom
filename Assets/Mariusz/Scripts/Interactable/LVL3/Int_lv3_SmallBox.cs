@@ -56,6 +56,7 @@ public class Int_lv3_SmallBox : Lvl3InteractionDialogueBase
         }
 
         interactionCount = 2;
+        CluesLog.Instance?.RegisterBasementEvidence("SmallBox");
         PlayDialogue(player, isWatson ? watsonSecondDialogueLines : secondDialogueLines);
 
         if (pickupAudioSource != null && pickupAudioClip != null)
