@@ -45,6 +45,8 @@ public class NotebookManager : MonoBehaviour
     [Header("Database")]
     public List<NoteData> allNotes;
 
+    private readonly HashSet<NoteData> unreadNotes = new HashSet<NoteData>();
+
     private PlayerInput notebookLockedInput;
     private bool notebookDisabledInput;
     private bool openedAsQuickRead;
@@ -253,12 +255,26 @@ public class NotebookManager : MonoBehaviour
     private void CreateNoteButton(NoteData note)
     {
         GameObject newBtn = Instantiate(noteButtonPrefab, noteListContent);
-        newBtn.GetComponentInChildren<TextMeshProUGUI>().text = note.noteTitle;
-        newBtn.GetComponent<Button>().onClick.AddListener(() => OpenNote(note));
+        TextMeshProUGUI titleText = FindNoteButtonTitle(newBtn);
+        if (titleText != null)
+            titleText.text = note.noteTitle;
+
+        Button noteButton = newBtn.GetComponent<Button>();
+        if (noteButton != null)
+        {
+            noteButton.onClick.AddListener(() =>
+            {
+                OpenNote(note);
+                SetNewEntryIndicatorVisible(newBtn, false);
+            });
+        }
+
+        SetNewEntryIndicatorVisible(newBtn, unreadNotes.Contains(note));
     }
 
     private void OpenNote(NoteData note)
     {
+        MarkNoteAsRead(note);
         PlayButtonClickSound();
         DisplayNote(note);
     }
@@ -320,7 +336,9 @@ public class NotebookManager : MonoBehaviour
         if (allNotes.Contains(note))
             return;
 
-        allNotes.Add(note);
+        allNotes.Insert(0, note);
+        unreadNotes.Add(note);
+        Debug.Log("DODANO NOTATKE: " + note.noteTitle, this);
         RefreshCategoryButtons();
     }
 
@@ -333,8 +351,11 @@ public class NotebookManager : MonoBehaviour
 
     private void SetCategoryButtonState(Button button, NoteCategory category)
     {
-        if (button != null)
-            button.interactable = HasNoteInCategory(category);
+        if (button == null)
+            return;
+
+        button.interactable = HasNoteInCategory(category);
+        SetNewEntryIndicatorVisible(button.gameObject, HasUnreadNoteInCategory(category));
     }
 
     private bool HasNoteInCategory(NoteCategory category)
@@ -349,6 +370,49 @@ public class NotebookManager : MonoBehaviour
         }
 
         return false;
+    }
+
+    private bool HasUnreadNoteInCategory(NoteCategory category)
+    {
+        foreach (NoteData note in unreadNotes)
+        {
+            if (note != null && note.category == category)
+                return true;
+        }
+
+        return false;
+    }
+
+    private void MarkNoteAsRead(NoteData note)
+    {
+        if (note != null && unreadNotes.Remove(note))
+            RefreshCategoryButtons();
+    }
+
+    private static TextMeshProUGUI FindNoteButtonTitle(GameObject noteButton)
+    {
+        if (noteButton == null)
+            return null;
+
+        foreach (TextMeshProUGUI text in noteButton.GetComponentsInChildren<TextMeshProUGUI>(true))
+        {
+            if (text != null && text.name.IndexOf("asterix", System.StringComparison.OrdinalIgnoreCase) < 0)
+                return text;
+        }
+
+        return null;
+    }
+
+    private static void SetNewEntryIndicatorVisible(GameObject root, bool visible)
+    {
+        if (root == null)
+            return;
+
+        foreach (Transform child in root.GetComponentsInChildren<Transform>(true))
+        {
+            if (child.name.IndexOf("asterix", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                child.gameObject.SetActive(visible);
+        }
     }
 
     public void PlayButtonClickSound()

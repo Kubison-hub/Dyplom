@@ -1549,6 +1549,9 @@ public class Interactable : MonoBehaviour
                 Debug.LogError("Int_lv3_HeavyBox is null");
         }
 
+        if (addDatabaseNotesAutomatically)
+            AddAllDatabaseNotes();
+
         
     }
 

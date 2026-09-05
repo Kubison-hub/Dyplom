@@ -346,6 +346,7 @@ public class Int_lv1_HidenWallMask : Lvl3InteractionDialogueBase
         if (interactable.clues != null && interactable.clues.Length > 0)
             interactable.AddClue(0, cardPosition);
 
+        interactable.AddAllDatabaseNotes();
         ideaPoint?.RevealFromExternalSource();
         completionCameraController?.SetZoomState(completionZoomState);
 

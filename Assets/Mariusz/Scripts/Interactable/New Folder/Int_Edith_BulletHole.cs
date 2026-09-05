@@ -9,6 +9,9 @@ public class Int_Edith_BulletHole : MonoBehaviour
     [SerializeField] private Int_EdithExamBody edith;
     [SerializeField] private DetectiveIdeaPoint ideaPoint;
     [SerializeField, Range(0, 2)] private int edithClueIndex = 2;
+    [Header("Notebook")]
+    [SerializeField] private bool addDatabaseNoteOnSuccessfulExamination = true;
+    [SerializeField, Min(0)] private int successfulExaminationNoteIndex = 0;
 
     private void Start()
     {
@@ -45,6 +48,9 @@ public class Int_Edith_BulletHole : MonoBehaviour
         performed = true;
         interactable?.AddClue(0);
         ideaPoint?.RevealFromExternalSource();
+
+        if (addDatabaseNoteOnSuccessfulExamination)
+            interactable?.AddNote(successfulExaminationNoteIndex);
 
         if (interactable != null)
         {
