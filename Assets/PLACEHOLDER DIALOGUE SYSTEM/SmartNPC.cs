@@ -22,6 +22,7 @@ public class SmartNPC : MonoBehaviour
     [Tooltip("Point the camera looks at during this NPC conversation. Falls back to the NPC root when empty.")]
     [SerializeField] private Transform dialogueCameraTarget;
     [SerializeField, Min(0.01f)] private float dialogueCameraTargetTransitionSpeed = 0.2f;
+    [SerializeField, Min(0.01f)] private float dialogueCameraRestoreTransitionSpeed = 1f;
 
     private bool czyPostacA_W_Zasiegu = false;
     private bool czyPostacB_W_Zasiegu = false;
@@ -171,12 +172,17 @@ public class SmartNPC : MonoBehaviour
         if (!string.IsNullOrWhiteSpace(zoomPresetName))
             dialogueCameraController?.BeginDialogueZoomPreset(zoomPresetName, zoomTransitionSpeed);
     }
+    public void EndDialogueCameraFocus()
+    {
+        RestoreDialogueCameraFocus();
+    }
+
     private void RestoreDialogueCameraFocus()
     {
         if (dialogueCameraFocusActive)
             ConversationManager.OnConversationEnded -= RestoreDialogueCameraFocus;
 
-        dialogueCameraController?.RestoreLookAtTargetSmooth(dialogueCameraTargetTransitionSpeed);
+        dialogueCameraController?.RestoreLookAtTargetSmooth(dialogueCameraRestoreTransitionSpeed);
         dialogueCameraController = null;
         dialogueCameraFocusActive = false;
     }

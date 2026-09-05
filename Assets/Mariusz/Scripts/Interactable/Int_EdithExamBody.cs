@@ -67,6 +67,11 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     [SerializeField] private Lvl3DialogueLine[] ringCpDialogue;
     [SerializeField] private Lvl3DialogueLine[] paperCpDialogue;
     [SerializeField] private Lvl3DialogueLine[] bulletCpDialogue;
+    [Header("Arthur Conversation Conditions")]
+    [Tooltip("Arthur's SmartNPC. Ring and Paper are set on both his Sherlock and Watson conversations.")]
+    [SerializeField] private SmartNPC arthurSmartNpc;
+    [SerializeField] private string arthurRingParameterName = "Ring";
+    [SerializeField] private string arthurPaperParameterName = "Paper";
     [Tooltip("Played before every Bullet CP attempt after the player failed the examination conversation once.")]
     [SerializeField] private Lvl3DialogueLine[] bulletCpRetryDialogue =
     {
@@ -178,6 +183,13 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
 
         if (watsonNavMesh == null && watsonGO != null)
             watsonNavMesh = watsonGO.GetComponent<NavMeshAgent>();
+
+        if (arthurSmartNpc == null)
+        {
+            int_lv1_ArthurNPC arthurInteraction = FindFirstObjectByType<int_lv1_ArthurNPC>();
+            if (arthurInteraction != null)
+                arthurSmartNpc = arthurInteraction.GetComponentInChildren<SmartNPC>(true);
+        }
 
         SetExaminationClueObjectsActive(false);
         //watsonNavMesh = watsonGO.GetComponent<NavMeshAgent>();
@@ -311,6 +323,8 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         if (!performed || examinationCompleted || edithIdeaRevealed)
             return;
 
+        SetArthurExaminationCondition(clueIndex);
+
         Lvl3DialogueLine[] clueDialogue = GetClueDialogue(clueIndex);
 
         if (clueIndex == 2 && bulletCpSmartNpc != null)
@@ -379,6 +393,28 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         // Disabling it here would stop its dialogue coroutine and cut the audio off.
         if (finalCpDialogueAlreadyFinished)
             ContinueAfterFinalClueDialogue();
+    }
+
+    private void SetArthurExaminationCondition(int clueIndex)
+    {
+        string parameterName = clueIndex switch
+        {
+            0 => arthurRingParameterName,
+            1 => arthurPaperParameterName,
+            _ => null
+        };
+
+        if (string.IsNullOrWhiteSpace(parameterName) || arthurSmartNpc == null)
+            return;
+
+        SetConversationBoolParameter(arthurSmartNpc.rozmowaDlaPostaciA, parameterName, true);
+        SetConversationBoolParameter(arthurSmartNpc.rozmowaDlaPostaciB, parameterName, true);
+    }
+
+    private void SetConversationBoolParameter(NPCConversation conversation, string parameterName, bool value)
+    {
+        if (conversation != null)
+            conversation.SetRuntimeBoolParameter(parameterName, value);
     }
 
     private void StartBulletCpConversation()
@@ -500,6 +536,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
             return;
 
         bool examDone = bulletExamDone || IsBulletExamDoneConversationParameterSet();
+        bulletCpSmartNpc?.EndDialogueCameraFocus();
         StopWaitingForBulletCpConversation();
         BeginBulletCpResultDialogue(examDone);
     }

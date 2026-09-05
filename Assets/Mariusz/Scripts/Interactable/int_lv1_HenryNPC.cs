@@ -12,6 +12,7 @@ public class int_lv1_HenryNPC : Int_lv1_NpcDialogBase
 
     protected override InteractionType RequiredInteractionType => InteractionType.int_lv1_HenryNPC;
     protected override bool ShouldFacePlayerBeforeDialogue => false;
+    protected override bool ShouldFaceInteractingPlayerTowardNpcBeforeDialogue => true;
 
     private void Awake()
     {

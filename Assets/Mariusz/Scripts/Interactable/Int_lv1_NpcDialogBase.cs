@@ -23,6 +23,7 @@ public abstract class Int_lv1_NpcDialogBase : Lvl3InteractionDialogueBase
     protected abstract InteractionType RequiredInteractionType { get; }
     protected override Lvl3DialogueLine[] DefaultDialogueLines => null;
     protected virtual bool ShouldFacePlayerBeforeDialogue => facePlayerBeforeDialogue;
+    protected virtual bool ShouldFaceInteractingPlayerTowardNpcBeforeDialogue => false;
     protected virtual void OnNpcDialogueStarted() { }
     protected virtual void OnNpcDialogueFinished() { }
 
@@ -68,6 +69,15 @@ public abstract class Int_lv1_NpcDialogBase : Lvl3InteractionDialogueBase
                 player != null ? player.transform : null,
                 facePlayerTurnSpeed,
                 facePlayerTolerance);
+
+        if (ShouldFaceInteractingPlayerTowardNpcBeforeDialogue && player != null)
+        {
+            yield return NpcDialogueFacingUtility.FacePlayer(
+                player.transform,
+                smartNPC.transform,
+                facePlayerTurnSpeed,
+                facePlayerTolerance);
+        }
 
         if (introAudioSource != null && introAudioClip != null)
             introAudioSource.PlayOneShot(introAudioClip);
@@ -128,6 +138,7 @@ public abstract class Int_lv1_NpcDialogBase : Lvl3InteractionDialogueBase
         if (QuestManager.Instance != null)
             QuestManager.Instance.OdnotujRozmowe(playerId, smartNPC.npcID);
 
+        smartNPC.BeginDialogueCameraFocus();
         ConversationManager.Instance.StartConversation(conversation);
 
         if (smartNPC.noteIDToUnlock >= 0 && JournalManager.Instance != null)

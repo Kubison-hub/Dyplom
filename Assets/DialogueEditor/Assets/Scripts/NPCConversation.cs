@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -45,6 +45,9 @@ namespace DialogueEditor
         // Runtime vars
         public UnityEngine.Events.UnityEvent Event;
         public List<EditableParameter> ParameterList; // Serialized into the json string
+
+        // Values supplied by gameplay scripts and applied whenever this conversation is started.
+        private readonly Dictionary<string, bool> runtimeBoolParameterOverrides = new Dictionary<string, bool>();
 
         
 
@@ -106,6 +109,14 @@ namespace DialogueEditor
                 }
             }
             return null;
+        }
+
+        public void SetRuntimeBoolParameter(string parameterName, bool value)
+        {
+            if (string.IsNullOrWhiteSpace(parameterName))
+                return;
+
+            runtimeBoolParameterOverrides[parameterName] = value;
         }
 
 
@@ -369,7 +380,11 @@ namespace DialogueEditor
                 if (ec.Parameters[i].ParameterType == EditableParameter.eParamType.Bool)
                 {
                     EditableBoolParameter editableParam = ec.Parameters[i] as EditableBoolParameter;
-                    BoolParameter boolParam = new BoolParameter(editableParam.ParameterName, editableParam.BoolValue);
+                    bool value = editableParam.BoolValue;
+                    if (runtimeBoolParameterOverrides.TryGetValue(editableParam.ParameterName, out bool runtimeValue))
+                        value = runtimeValue;
+
+                    BoolParameter boolParam = new BoolParameter(editableParam.ParameterName, value);
                     conversation.Parameters.Add(boolParam);
                 }
                 else if (ec.Parameters[i].ParameterType == EditableParameter.eParamType.Int)
