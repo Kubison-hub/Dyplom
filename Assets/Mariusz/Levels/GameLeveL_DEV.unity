@@ -228130,7 +228130,13 @@ MonoBehaviour:
   - {fileID: 2121600233}
   - {fileID: 1459094892}
   - {fileID: 473474515}
-  itemIcons: []
+  itemIcons:
+  - itemType: 1
+    icon: {fileID: 21300000, guid: 3cb1ffb09c7daca46b707d9d462ab9e3, type: 3}
+  - itemType: 2
+    icon: {fileID: 0}
+  - itemType: 0
+    icon: {fileID: 0}
   logujDiagnostyke: 1
   keyInInv: 0
   selectedWoodBlock: 0
