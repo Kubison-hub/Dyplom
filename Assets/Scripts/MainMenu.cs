@@ -18,34 +18,14 @@ public class MainMenu : MonoBehaviour
         ShowCanvas(mainMenuCanvas);
     }
 
-    private void Update()
-    {
-        // Resetowanie zapisu intro do testów
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            PlayerPrefs.DeleteKey("IntroObejrzane");
-            PlayerPrefs.Save();
-            Debug.Log("Zresetowano intro!");
-        }
-    }
-
+    // Nowa gra: zawsze przez intro.
     public void PlayGame()
     {
-        // Nowa gra: upewniamy siê, ¿e nie wczytujemy zapisu
+        // Upewniamy siê, ¿e nowa gra nie wczytuje zapisu
         PlayerPrefs.SetInt("LoadGameOnStart", 0);
         PlayerPrefs.Save();
 
-        if (PlayerPrefs.GetInt("IntroObejrzane", 0) == 1)
-        {
-            Debug.Log("MainMenu: intro ju¿ obejrzane, ³adujê od razu grê.");
-            LoadGameLevel();
-            return;
-        }
-
-        PlayerPrefs.SetInt("IntroObejrzane", 1);
-        PlayerPrefs.Save();
-
-        Debug.Log("MainMenu: ³adujê scenê Intro.");
+        Debug.Log("MainMenu: nowa gra, ³adujê scenê Intro.");
         SceneManager.LoadScene("Intro");
     }
 
