@@ -4136,6 +4136,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 442535691}
   m_Mesh: {fileID: 2086233530841513824, guid: a6d3af169fe59a54785284c9673313e4, type: 3}
+--- !u!1 &446156227 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8482380844181798902, guid: 3452e3d8f5d800c4ca4af31644d134ee, type: 3}
+  m_PrefabInstance: {fileID: 3722726987613572374}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &446471495
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5038,6 +5043,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cinematicPanel: {fileID: 364274080}
   videoPlayer: {fileID: 148461679}
+  mainMenuCanvas: {fileID: 1689539514}
+  controlCanvas: {fileID: 1726360083}
+  creditsCanvas: {fileID: 684709434}
+  settingsCanvas: {fileID: 446156227}
 --- !u!4 &534910990
 Transform:
   m_ObjectHideFlags: 0
@@ -10030,6 +10039,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cinematicPanel: {fileID: 0}
   videoPlayer: {fileID: 0}
+  mainMenuCanvas: {fileID: 0}
+  controlCanvas: {fileID: 0}
+  creditsCanvas: {fileID: 0}
+  settingsCanvas: {fileID: 0}
 --- !u!4 &1180262179
 Transform:
   m_ObjectHideFlags: 0
@@ -14147,6 +14160,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cinematicPanel: {fileID: 0}
   videoPlayer: {fileID: 0}
+  mainMenuCanvas: {fileID: 0}
+  controlCanvas: {fileID: 0}
+  creditsCanvas: {fileID: 0}
+  settingsCanvas: {fileID: 0}
 --- !u!114 &1689539516
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14656,6 +14673,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1724506398}
   m_Mesh: {fileID: 7464698390509708042, guid: a6d3af169fe59a54785284c9673313e4, type: 3}
+--- !u!1 &1726360083 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2739879759962528462, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
+  m_PrefabInstance: {fileID: 316030311}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1735296164
 GameObject:
   m_ObjectHideFlags: 0

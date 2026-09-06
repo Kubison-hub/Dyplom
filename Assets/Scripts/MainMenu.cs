@@ -1,14 +1,18 @@
-
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Video;
-
 
 public class MainMenu : MonoBehaviour
 {
     [Header("Ustawienia Intro (Cinematic)")]
     public GameObject cinematicPanel;
     public VideoPlayer videoPlayer;
+
+    [Header("UI Canvasy")]
+    public GameObject mainMenuCanvas;
+    public GameObject controlCanvas;
+    public GameObject creditsCanvas;
+    public GameObject settingsCanvas;
 
     private bool isPlayingIntro = false;
 
@@ -20,6 +24,9 @@ public class MainMenu : MonoBehaviour
         {
             videoPlayer.loopPointReached += OnVideoFinished;
         }
+
+        // W³¹cz Main Menu i ukryj resztê na starcie
+        ShowCanvas(mainMenuCanvas);
     }
 
     private void Update()
@@ -42,7 +49,6 @@ public class MainMenu : MonoBehaviour
 
     public void PlayGame()
     {
-        // Upewniamy siê, ¿e gra NIE ³aduje zapisu przy nowej grze
         PlayerPrefs.SetInt("LoadGameOnStart", 0);
         PlayerPrefs.Save();
 
@@ -68,14 +74,10 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    // NOWA FUNKCJA - podepnij j¹ pod przycisk "Wczytaj" w Menu
     public void LoadGameFromMenu()
     {
-        // Ustawiamy flagê, ¿eby SaveLoadManager wczyta³ dane po wejœciu na scenê
         PlayerPrefs.SetInt("LoadGameOnStart", 1);
         PlayerPrefs.Save();
-
-        // Od razu ³adujemy scenê z pominiêciem intro
         LoadGameLevel();
     }
 
@@ -96,18 +98,37 @@ public class MainMenu : MonoBehaviour
         Application.Quit();
     }
 
+    // --- ZARZ¥DZANIE CANVASAMI ---
+
     public void Sterowanie()
     {
-        SceneManager.LoadScene("Sterowanie");
+        ShowCanvas(controlCanvas);
     }
 
     public void Credits()
     {
-        SceneManager.LoadScene("Credits");
+        ShowCanvas(creditsCanvas);
+    }
+
+    public void Settings()
+    {
+        ShowCanvas(settingsCanvas);
     }
 
     public void Menu()
     {
-        SceneManager.LoadScene("MainMenu");
+        ShowCanvas(mainMenuCanvas);
+    }
+
+    private void ShowCanvas(GameObject canvasToShow)
+    {
+        // Wy³¹cza wszystkie canvasy
+        if (mainMenuCanvas != null) mainMenuCanvas.SetActive(false);
+        if (controlCanvas != null) controlCanvas.SetActive(false);
+        if (creditsCanvas != null) creditsCanvas.SetActive(false);
+        if (settingsCanvas != null) settingsCanvas.SetActive(false);
+
+        // W³¹cza tylko ten docelowy
+        if (canvasToShow != null) canvasToShow.SetActive(true);
     }
 }
