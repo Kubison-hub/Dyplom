@@ -1,77 +1,52 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Video;
+
+using Debug = UnityEngine.Debug;
+using Application = UnityEngine.Application;
 
 public class MainMenu : MonoBehaviour
 {
-    [Header("Ustawienia Intro (Cinematic)")]
-    public GameObject cinematicPanel;
-    public VideoPlayer videoPlayer;
-
     [Header("UI Canvasy")]
     public GameObject mainMenuCanvas;
     public GameObject controlCanvas;
     public GameObject creditsCanvas;
     public GameObject settingsCanvas;
 
-    private bool isPlayingIntro = false;
-
     private void Start()
     {
-        if (cinematicPanel != null) cinematicPanel.SetActive(false);
-
-        if (videoPlayer != null)
-        {
-            videoPlayer.loopPointReached += OnVideoFinished;
-        }
-
         // W³¹cz Main Menu i ukryj resztê na starcie
         ShowCanvas(mainMenuCanvas);
     }
 
     private void Update()
     {
-        if (isPlayingIntro)
-        {
-            if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Escape))
-            {
-                LoadGameLevel();
-            }
-        }
-
         // Resetowanie zapisu intro do testów
         if (Input.GetKeyDown(KeyCode.R))
         {
             PlayerPrefs.DeleteKey("IntroObejrzane");
+            PlayerPrefs.Save();
             Debug.Log("Zresetowano intro!");
         }
     }
 
     public void PlayGame()
     {
+        // Nowa gra: upewniamy siê, ¿e nie wczytujemy zapisu
         PlayerPrefs.SetInt("LoadGameOnStart", 0);
         PlayerPrefs.Save();
 
         if (PlayerPrefs.GetInt("IntroObejrzane", 0) == 1)
         {
+            Debug.Log("MainMenu: intro ju¿ obejrzane, ³adujê od razu grê.");
             LoadGameLevel();
             return;
         }
 
-        if (cinematicPanel != null && videoPlayer != null)
-        {
-            cinematicPanel.SetActive(true);
-            videoPlayer.Play();
-            isPlayingIntro = true;
-            Cursor.visible = false;
+        PlayerPrefs.SetInt("IntroObejrzane", 1);
+        PlayerPrefs.Save();
 
-            PlayerPrefs.SetInt("IntroObejrzane", 1);
-            PlayerPrefs.Save();
-        }
-        else
-        {
-            LoadGameLevel();
-        }
+        Debug.Log("MainMenu: ³adujê scenê Intro.");
+        SceneManager.LoadScene("Intro");
     }
 
     public void LoadGameFromMenu()
@@ -81,15 +56,9 @@ public class MainMenu : MonoBehaviour
         LoadGameLevel();
     }
 
-    void OnVideoFinished(VideoPlayer vp)
-    {
-        LoadGameLevel();
-    }
-
-    void LoadGameLevel()
+    public void LoadGameLevel()
     {
         Cursor.visible = true;
-        isPlayingIntro = false;
         SceneManager.LoadScene("GameLeveL_DEV");
     }
 
