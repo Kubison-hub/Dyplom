@@ -563,9 +563,10 @@ public class SaveLoadManager : MonoBehaviour
         }
     }
 
-    // Zwraca grupy poziomow w scenie. Konwencja: nazwa to "LEVEL_" + numer,
-    // np. LEVEL_1, LEVEL_2. Podgrupy typu LEVEL_1_ROOMS sa pomijane -
-    // ich stan nalezy do wnetrza poziomu, nie do przelaczania poziomow.
+    // Zwraca grupy poziomow w scenie. Nie zgadujemy nazw: bierzemy WSZYSTKIE
+    // bezposrednie dzieci obiektu-rodzica poziomow (tego z "LEVELS" w nazwie).
+    // Dzieki temu dziala niezaleznie od tego, czy grupa nazywa sie LEVEL_2,
+    // LEVEL2, "Level 2 - Pietro" czy jakkolwiek inaczej.
     private static Transform[] ZnajdzGrupyPoziomow()
     {
         List<Transform> grupy = new List<Transform>();
@@ -573,25 +574,26 @@ public class SaveLoadManager : MonoBehaviour
         Transform[] wszystkie = FindObjectsByType<Transform>(
             FindObjectsInactive.Include, FindObjectsSortMode.None);
 
+        // 1. Szukamy rodzica poziomow - obiektu z "LEVELS" w nazwie.
         foreach (Transform t in wszystkie)
         {
-            if (t == null || !t.name.StartsWith("LEVEL_"))
+            if (t == null || t.name.IndexOf("LEVELS", System.StringComparison.OrdinalIgnoreCase) < 0)
                 continue;
 
-            string reszta = t.name.Substring("LEVEL_".Length);
+            for (int i = 0; i < t.childCount; i++)
+                grupy.Add(t.GetChild(i));
 
-            bool samCyfry = reszta.Length > 0;
-            foreach (char c in reszta)
+            break;
+        }
+
+        // 2. Zapasowo: obiekty z "LEVEL" w nazwie, jesli rodzica nie ma.
+        if (grupy.Count == 0)
+        {
+            foreach (Transform t in wszystkie)
             {
-                if (!char.IsDigit(c))
-                {
-                    samCyfry = false;
-                    break;
-                }
+                if (t != null && t.name.IndexOf("LEVEL", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                    grupy.Add(t);
             }
-
-            if (samCyfry)
-                grupy.Add(t);
         }
 
         return grupy.ToArray();
@@ -608,13 +610,12 @@ public class SaveLoadManager : MonoBehaviour
             grupa.active = t.gameObject.activeSelf;
             lista.Add(grupa);
 
-            Debug.Log("SaveGame: poziom '" + t.name + "' aktywny: " + grupa.active);
+            Debug.Log("SaveGame: grupa poziomu '" + t.name + "' aktywna: " + grupa.active);
         }
 
         if (lista.Count == 0)
         {
-            Debug.LogWarning("SaveGame: nie znaleziono zadnej grupy poziomu (LEVEL_1, LEVEL_2, ...). " +
-                             "Jesli poziomy nazywaja sie inaczej, ich stan NIE zostanie zapisany.");
+            Debug.LogWarning("SaveGame: nie znaleziono grup poziomow. Stan poziomow NIE zostanie zapisany.");
         }
 
         return lista;
@@ -625,6 +626,26 @@ public class SaveLoadManager : MonoBehaviour
         if (zapisane == null || zapisane.Count == 0)
         {
             Debug.Log("LoadGame: brak grup poziomow w zapisie.");
+            return;
+        }
+
+        // Zabezpieczenie: gdyby zapis mial wszystkie grupy wylaczone, wczytanie
+        // dalo by czarny ekran. Wtedy lepiej nie ruszac nic.
+        bool ktorakolwiekAktywna = false;
+        foreach (LevelGroupSaveData grupa in zapisane)
+        {
+            if (grupa != null && grupa.active)
+            {
+                ktorakolwiekAktywna = true;
+                break;
+            }
+        }
+
+        if (!ktorakolwiekAktywna)
+        {
+            Debug.LogWarning("LoadGame: w zapisie zadna grupa poziomu nie jest aktywna. " +
+                             "Pomijam przywracanie poziomow, zeby nie zgasic calej sceny. " +
+                             "Prawdopodobnie przy zapisie grupa aktywnego poziomu nie zostala rozpoznana.");
             return;
         }
 
@@ -646,7 +667,7 @@ public class SaveLoadManager : MonoBehaviour
             t.gameObject.SetActive(active);
             przywrocone++;
 
-            Debug.Log("LoadGame: poziom '" + t.name + "' ustawiony na aktywny: " + active);
+            Debug.Log("LoadGame: grupa poziomu '" + t.name + "' aktywna: " + active);
         }
 
         Debug.Log("LoadGame: przywrocono stan " + przywrocone + " z " + zapisane.Count + " grup poziomow.");

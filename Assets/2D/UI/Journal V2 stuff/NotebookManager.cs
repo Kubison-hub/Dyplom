@@ -111,6 +111,14 @@ public class NotebookManager : MonoBehaviour
         {
             ToggleNotebook();
         }
+
+        // Szybki podglad notatki otwarty z flaga closeOnLeftMouseClick
+        // zamyka sie pierwszym kliknieciem lewym przyciskiem.
+        if (openedAsQuickRead && quickReadClosesOnLeftClick && IsNotebookOpen &&
+            Input.GetMouseButtonDown(0))
+        {
+            CloseNotebook();
+        }
     }
 
     public void ToggleNotebook()
@@ -985,7 +993,18 @@ public class NotebookManager : MonoBehaviour
             return;
         }
 
-        Dictionary<string, NoteData> baza = ZbierzWszystkieNotatkiZeSceny();
+        Dictionary<string, NoteData> baza;
+
+        try
+        {
+            baza = ZbierzWszystkieNotatkiZeSceny();
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("NotebookManager: blad przy zbieraniu assetow notatek: " + e.Message +
+                           " Notatki nie zostana przywrocone, ale reszta wczytywania bedzie kontynuowana.");
+            return;
+        }
 
         if (allNotes == null)
             allNotes = new List<NoteData>();
@@ -1065,6 +1084,24 @@ public class NotebookManager : MonoBehaviour
         return baza;
     }
 
+    // Przepuszczamy tylko NoteData[] oraz List<NoteData> / kolekcje NoteData.
+    private static bool CzyPoleMozeZawieracNotatki(System.Type typ)
+    {
+        if (typ.IsArray)
+            return typeof(NoteData).IsAssignableFrom(typ.GetElementType());
+
+        if (!typ.IsGenericType)
+            return false;
+
+        foreach (System.Type argument in typ.GetGenericArguments())
+        {
+            if (typeof(NoteData).IsAssignableFrom(argument))
+                return true;
+        }
+
+        return false;
+    }
+
     private void ZbierzNotatkiZKomponentow(Dictionary<string, NoteData> baza)
     {
         const BindingFlags flagi = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
@@ -1101,7 +1138,13 @@ public class NotebookManager : MonoBehaviour
                     continue;
                 }
 
-                // Tablica lub lista notatek
+                // Tablica lub lista notatek.
+                // Sprawdzamy typ pola, a NIE wartosci - inaczej wpadamy np. na
+                // Transform (ktory tez jest IEnumerable) i przy nieprzypisanym
+                // polu Unity rzuca UnassignedReferenceException.
+                if (!CzyPoleMozeZawieracNotatki(pole.FieldType))
+                    continue;
+
                 IEnumerable kolekcja = wartosc as IEnumerable;
                 if (kolekcja == null)
                     continue;
