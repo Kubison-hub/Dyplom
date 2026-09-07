@@ -55,7 +55,7 @@ public class lvl2_Int_Letter : Lvl3InteractionDialogueBase
         }
 
         if (openNotebookNoteAfterPickup)
-            interactable.AddAndOpenNote(notebookNoteIndex);
+            interactable.AddAndOpenNote(notebookNoteIndex, -60f, true);
 
         interactable.isInteractableActive = false;
         if (player != null)

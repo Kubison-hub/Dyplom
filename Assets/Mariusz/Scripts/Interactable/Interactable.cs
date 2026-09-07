@@ -2067,6 +2067,16 @@ public class Interactable : MonoBehaviour
 
     public void AddAndOpenNote(int noteIndex)
     {
+        AddAndOpenNote(noteIndex, null, false);
+    }
+
+    public void AddAndOpenNote(int noteIndex, float quickReadDisplayPositionX, bool closeOnLeftMouseClick)
+    {
+        AddAndOpenNote(noteIndex, (float?)quickReadDisplayPositionX, closeOnLeftMouseClick);
+    }
+
+    private void AddAndOpenNote(int noteIndex, float? quickReadDisplayPositionX, bool closeOnLeftMouseClick)
+    {
         if (databaseNotes == null || noteIndex < 0 || noteIndex >= databaseNotes.Length)
         {
             Debug.LogWarning($"{name}: no valid Database Note exists at index {noteIndex}.");
@@ -2081,7 +2091,10 @@ public class Interactable : MonoBehaviour
             return;
         }
 
-        notebookManager.ShowNoteImmediately(note);
+        if (quickReadDisplayPositionX.HasValue)
+            notebookManager.ShowNoteImmediately(note, quickReadDisplayPositionX.Value, closeOnLeftMouseClick);
+        else
+            notebookManager.ShowNoteImmediately(note);
     }
     public void SetQuestionFXEagleVisionState(bool active)
     {
