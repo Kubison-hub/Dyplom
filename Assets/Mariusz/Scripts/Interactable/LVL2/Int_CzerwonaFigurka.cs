@@ -11,11 +11,13 @@ public class Int_CzerwonaFigurka : Lvl3InteractionDialogueBase
     [SerializeField] private Animator safeAnimator;
 
     [Header("Pickup Dialogue")]
-    [SerializeField] private Lvl3DialogueLine[] pickupDialogue =
+    [SerializeField]
+    private Lvl3DialogueLine[] pickupDialogue =
     {
         new Lvl3DialogueLine { speaker = Lvl3DialogueSpeaker.Sherlock, text = "Czerwona figurka.", duration = 2f }
     };
-    [SerializeField] private Lvl3DialogueLine[] noSpaceDialogue =
+    [SerializeField]
+    private Lvl3DialogueLine[] noSpaceDialogue =
     {
         new Lvl3DialogueLine { speaker = Lvl3DialogueSpeaker.Sherlock, text = "Nie mam miejsca w ekwipunku.", duration = 2f }
     };
@@ -35,6 +37,12 @@ public class Int_CzerwonaFigurka : Lvl3InteractionDialogueBase
 
         collected = true;
         GetComponent<Interactable>()?.MarkCompleted();
+
+        // Zapis: bez tego figurka wroci na podloge po wczytaniu gry,
+        // mimo ze bedzie juz w ekwipunku.
+        if (SaveLoadManager.Instance != null)
+            SaveLoadManager.Instance.MarkCollected(gameObject);
+
         CluesLog.Instance?.RegisterTableMechanismElement(ItemType.Czerwona);
         if (spline != null)
             spline.SetActive(false);

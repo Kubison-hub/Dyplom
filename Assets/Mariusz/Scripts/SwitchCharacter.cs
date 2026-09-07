@@ -1,4 +1,7 @@
 using UnityEngine;
+
+// Alias chroni przed 'using System.Diagnostics;' dopisywanym przez Visual Studio (CS0104).
+using Debug = UnityEngine.Debug;
 using UnityEngine.InputSystem;
 using Unity.Cinemachine;
 using UnityEngine.AI;
@@ -13,7 +16,7 @@ using PxP.DOCS;
 
 public class SwitchCharacter : MonoBehaviour
 {
-  
+
 
     public static SwitchCharacter Instance;
 
@@ -52,7 +55,7 @@ public class SwitchCharacter : MonoBehaviour
             Debug.LogError("dynamicOcclusionCutoutSystem == null");
         }
 
-        
+
 
         SetActivePlayer(0);
 
@@ -66,8 +69,8 @@ public class SwitchCharacter : MonoBehaviour
         {
             canSwitch = false;
         }
-            
-        
+
+
     }
 
     private void Update()
@@ -92,7 +95,7 @@ public class SwitchCharacter : MonoBehaviour
         {
             int nextIndex = (activePlayerIndex + 1) % players.Length;
             SetActivePlayer(nextIndex);
-            
+
         }
 
         //if (players[1].enabled == false)
@@ -231,4 +234,31 @@ public class SwitchCharacter : MonoBehaviour
         dynamicOcclusionCutoutSystem.m_target = target;
     }
 
+
+    // ---------------------------------------------------------------
+    // SYSTEM ZAPISU - aktywna postac
+    // ---------------------------------------------------------------
+
+    // Przywraca postac, ktora gracz sterowal w momencie zapisu.
+    // SetActivePlayer dziala tylko gdy canSwitch == true, a po Start()
+    // moze byc wylaczone - dlatego zdejmujemy blokade na czas przelaczenia.
+    public void RestoreActivePlayer(int index)
+    {
+        if (players == null || index < 0 || index >= players.Length)
+        {
+            Debug.LogWarning("SwitchCharacter: zapisany indeks postaci (" + index +
+                             ") jest poza zakresem. Zostawiam obecna postac.");
+            return;
+        }
+
+        bool poprzednieCanSwitch = canSwitch;
+        canSwitch = true;
+
+        SetActivePlayer(index);
+
+        canSwitch = poprzednieCanSwitch;
+
+        Debug.Log("SwitchCharacter: przywrocono aktywna postac: " +
+                  players[index].gameObject.name + " (indeks " + index + ").");
+    }
 }

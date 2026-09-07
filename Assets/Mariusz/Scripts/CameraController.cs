@@ -1,6 +1,9 @@
 using System;
 using DialogueEditor;
 using UnityEngine;
+
+// Alias chroni przed 'using System.Diagnostics;' dopisywanym przez Visual Studio (CS0104).
+using Debug = UnityEngine.Debug;
 using UnityEngine.InputSystem;
 using Unity.Cinemachine;
 
@@ -696,6 +699,50 @@ public class CameraController : MonoBehaviour
 
 
     //FIX
+
+    // ---------------------------------------------------------------
+    // SYSTEM ZAPISU - cel kamery
+    // ---------------------------------------------------------------
+
+    // Aktualny cel patrzenia. Jesli trwa gladkie przejscie, zwraca
+    // cel docelowy, a nie pomocniczy proxy.
+    public Transform CurrentLookAtTarget
+    {
+        get
+        {
+            if (cineCamera == null)
+                return null;
+
+            if (smoothLookAtDestination != null)
+                return smoothLookAtDestination;
+
+            if (hasLookAtOverride && lookAtTargetBeforeOverride != null &&
+                cineCamera.LookAt == smoothLookAtProxy)
+            {
+                return lookAtTargetBeforeOverride;
+            }
+
+            return cineCamera.LookAt;
+        }
+    }
+
+    // Ustawia cel kamery natychmiast i czysci wszystkie nadpisania.
+    // Uzywane przy wczytywaniu zapisu, zeby kamera nie zostala
+    // uwiazana do obiektu z przerwanego dialogu.
+    public void ForceLookAtTarget(Transform target)
+    {
+        if (cineCamera == null || target == null)
+            return;
+
+        hasLookAtOverride = false;
+        lookAtTargetBeforeOverride = null;
+        hasTargetOverride = false;
+        overriddenLookAtTarget = null;
+        smoothLookAtDestination = null;
+        restoringSmoothLookAtTarget = false;
+
+        cineCamera.LookAt = target;
+    }
 }
 
 public enum CameraZoomState

@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
+using Unity.Cinemachine;
 
 using Debug = UnityEngine.Debug;
 using Application = UnityEngine.Application;
@@ -99,12 +100,14 @@ public class SaveLoadManager : MonoBehaviour
             if (QuestManager.Instance.sherlockController != null)
                 data.sherlockPosition = QuestManager.Instance.sherlockController.transform.position;
             else
-                Debug.LogWarning("SaveGame: sherlockController jest pusty.");
+                Debug.LogWarning("SaveGame: sherlockController jest pusty - pozycja Sherlocka NIE zostanie zapisana. " +
+                                 "Przypisz pole 'Sherlock Controller' w komponencie QuestManager.");
 
             if (QuestManager.Instance.watsonController != null)
                 data.watsonPosition = QuestManager.Instance.watsonController.transform.position;
             else
-                Debug.LogWarning("SaveGame: watsonController jest pusty.");
+                Debug.LogWarning("SaveGame: watsonController jest pusty - pozycja Watsona NIE zostanie zapisana. " +
+                                 "Przypisz pole 'Watson Controller' w komponencie QuestManager.");
 
             data.sherlock_NPC1 = QuestManager.Instance.sherlock_Gadal_Z_NPC1;
             data.watson_NPC1 = QuestManager.Instance.watson_Gadal_Z_NPC1;
@@ -112,12 +115,7 @@ public class SaveLoadManager : MonoBehaviour
             data.watson_NPC2 = QuestManager.Instance.watson_Gadal_Z_NPC2;
             data.rozmowaMiedzyGraczami = QuestManager.Instance.rozmowaMiedzyGraczamiOdbyta;
 
-            if (QuestManager.Instance.hiddenItems != null &&
-                QuestManager.Instance.hiddenItems.Length > 0 &&
-                QuestManager.Instance.hiddenItems[0] != null)
-            {
-                data.czyPrzedmiotySiePojawily = QuestManager.Instance.hiddenItems[0].activeSelf;
-            }
+            data.czyPrzedmiotySiePojawily = CzyUkrytePrzedmiotyOdsloniete();
         }
         else
         {
@@ -137,6 +135,84 @@ public class SaveLoadManager : MonoBehaviour
 
         data.pickedUpItemIDs = new List<string>(collectedObjectIDs);
 
+        // --- Ukonczone interakcje (zagadki, drzwi, dialogi) ---
+        if (GameProgressManager.Instance != null)
+        {
+            data.completedInteractionIDs = GameProgressManager.Instance.GetCompletedInteractionIds();
+            Debug.Log("SaveGame: zapisuje ukonczone interakcje: " + data.completedInteractionIDs.Count);
+        }
+        else
+        {
+            data.completedInteractionIDs = new List<string>();
+            Debug.LogWarning("SaveGame: brak GameProgressManager.Instance - postep interakcji NIE zostanie zapisany. " +
+                             "Dodaj komponent GameProgressManager do sceny.");
+        }
+
+        // --- Panel zadan (lista celow) ---
+        if (CluesLog.Instance != null)
+        {
+            data.questLog = CluesLog.Instance.GetSaveState();
+            Debug.Log("SaveGame: zapisuje postep panelu zadan.");
+        }
+        else
+        {
+            Debug.LogWarning("SaveGame: brak CluesLog.Instance - postep celow NIE zostanie zapisany.");
+        }
+
+        // --- Etap samouczka / sekwencji startowej ---
+        if (TutorialTimeline.Instance != null)
+        {
+            data.tutorialStage = TutorialTimeline.Instance.GetSaveStage();
+            Debug.Log("SaveGame: zapisuje etap samouczka: " + data.tutorialStage);
+        }
+        else
+        {
+            Debug.LogWarning("SaveGame: brak TutorialTimeline.Instance - etap samouczka NIE zostanie zapisany.");
+        }
+
+        // --- Odkryte punkty sledztwa ---
+        data.discoveredIdeaPointIDs = ZbierzOdkrytePunkty();
+
+        // --- Pozycje NPC ---
+        data.npcs = ZbierzNpc();
+
+        // --- Aktywna postac ---
+        if (SwitchCharacter.Instance != null)
+        {
+            data.activePlayerIndex = SwitchCharacter.Instance.activePlayerIndex;
+            data.cameraLookAtIDs = ZbierzCeleKamer();
+            Debug.Log("SaveGame: zapisuje aktywna postac, indeks: " + data.activePlayerIndex);
+        }
+        else
+        {
+            Debug.LogWarning("SaveGame: brak SwitchCharacter.Instance - aktywna postac NIE zostanie zapisana.");
+        }
+
+        // --- Badanie ciala Lady Edith ---
+        Int_EdithExamBody edithExam = FindFirstObjectByType<Int_EdithExamBody>(FindObjectsInactive.Include);
+        if (edithExam != null)
+        {
+            data.edithExam = edithExam.GetSaveState();
+            Debug.Log("SaveGame: zapisuje badanie ciala Lady Edith (" +
+                      data.edithExam.collectedExamClueCount + " punktow).");
+        }
+        else
+        {
+            Debug.LogWarning("SaveGame: nie znaleziono Int_EdithExamBody - badanie ciala NIE zostanie zapisane.");
+        }
+
+        // --- Notatnik ---
+        if (NotebookManager.Instance != null)
+        {
+            data.notebookNotes = NotebookManager.Instance.GetSaveNoteNames();
+            data.notebookUnreadNotes = NotebookManager.Instance.GetSaveUnreadNoteNames();
+            Debug.Log("SaveGame: zapisuje notatki w notatniku: " + data.notebookNotes.Count);
+        }
+        else
+        {
+            Debug.LogWarning("SaveGame: brak NotebookManager.Instance - notatki NIE zostana zapisane.");
+        }
+
         if (JournalManager.Instance != null)
             data.unlockedNoteIDs = JournalManager.Instance.unlockedNoteIndices;
         else
@@ -153,14 +229,43 @@ public class SaveLoadManager : MonoBehaviour
         {
             string json = JsonUtility.ToJson(data, true);
             File.WriteAllText(path, json);
-            Debug.Log("Gra zapisana w: " + path + " (przedmiotow w eq: " +
-                      (data.itemsInInventory != null ? data.itemsInInventory.Count : 0) +
-                      ", podniesionych: " + data.pickedUpItemIDs.Count + ")");
+            Debug.Log("Gra zapisana w: " + path +
+                      " (eq: " + (data.itemsInInventory != null ? data.itemsInInventory.Count : 0) +
+                      ", podniesionych: " + data.pickedUpItemIDs.Count +
+                      ", interakcji: " + data.completedInteractionIDs.Count + ")");
         }
         catch (System.Exception e)
         {
             Debug.LogError("SaveGame: blad zapisu pliku! " + e.Message);
         }
+    }
+
+    // Sprawdza, czy ukryte przedmioty zostaly odsloniete.
+    // Nie patrzy tylko na hiddenItems[0] - ten obiekt moze byc juz podniesiony
+    // i zniszczony, co blednie dawalo false.
+    private bool CzyUkrytePrzedmiotyOdsloniete()
+    {
+        GameObject[] ukryte = QuestManager.Instance.hiddenItems;
+
+        if (ukryte == null || ukryte.Length == 0)
+            return false;
+
+        bool brakujeChocJednego = false;
+
+        foreach (GameObject item in ukryte)
+        {
+            // Obiekt zniszczony = zostal podniesiony, czyli wczesniej byl widoczny.
+            if (item == null)
+            {
+                brakujeChocJednego = true;
+                continue;
+            }
+
+            if (item.activeSelf)
+                return true;
+        }
+
+        return brakujeChocJednego;
     }
 
     // ---------------------------------------------------------------
@@ -198,31 +303,25 @@ public class SaveLoadManager : MonoBehaviour
             return;
         }
 
+        // --- Tutoriale: MUSZA byc przywrocone jako pierwsze ---
+        // SpawnHiddenItems() ponizej pokazuje tutorial o przedmiotach do znalezienia.
+        // Bez wczesniejszego przywrocenia listy widzianych tutoriali popup wyskoczylby
+        // po kazdym wczytaniu zapisu.
+        if (TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.RestoreShownTutorials(data.shownTutorialIDs);
+            Debug.Log("LoadGame: przywrocono widziane tutoriale: " +
+                      (data.shownTutorialIDs != null ? data.shownTutorialIDs.Count : 0));
+        }
+        else
+        {
+            Debug.LogWarning("LoadGame: brak TutorialManager.Instance - tutoriale moga wyskoczyc ponownie.");
+        }
+
         if (QuestManager.Instance != null)
         {
-            if (QuestManager.Instance.sherlockController != null)
-            {
-                var sherlockCC = QuestManager.Instance.sherlockController.GetComponent<CharacterController>();
-                if (sherlockCC) sherlockCC.enabled = false;
-                QuestManager.Instance.sherlockController.transform.position = data.sherlockPosition;
-                if (sherlockCC) sherlockCC.enabled = true;
-            }
-            else
-            {
-                Debug.LogWarning("LoadGame: sherlockController jest pusty, pomijam pozycje.");
-            }
-
-            if (QuestManager.Instance.watsonController != null)
-            {
-                var watsonCC = QuestManager.Instance.watsonController.GetComponent<CharacterController>();
-                if (watsonCC) watsonCC.enabled = false;
-                QuestManager.Instance.watsonController.transform.position = data.watsonPosition;
-                if (watsonCC) watsonCC.enabled = true;
-            }
-            else
-            {
-                Debug.LogWarning("LoadGame: watsonController jest pusty, pomijam pozycje.");
-            }
+            PrzywrocPozycje(QuestManager.Instance.sherlockController, data.sherlockPosition, "Sherlock");
+            PrzywrocPozycje(QuestManager.Instance.watsonController, data.watsonPosition, "Watson");
 
             QuestManager.Instance.sherlock_Gadal_Z_NPC1 = data.sherlock_NPC1;
             QuestManager.Instance.watson_Gadal_Z_NPC1 = data.watson_NPC1;
@@ -245,16 +344,112 @@ public class SaveLoadManager : MonoBehaviour
         // Po SpawnHiddenItems, zeby objac takze przedmioty dopiero co odsloniete.
         UsunPodniesionePrzedmioty(data.pickedUpItemIDs);
 
+        // --- Ukonczone interakcje ---
+        PrzywrocUkonczoneInterakcje(data.completedInteractionIDs);
+
+        // --- Pozycje NPC ---
+        PrzywrocNpc(data.npcs);
+
+        // --- Odkryte punkty sledztwa ---
+        // MUSI byc przed CluesLog: panel przelicza licznik "Zbadaj pomieszczenie"
+        // po stanie punktow, wiec bez tego pierwsze nowe odkrycie zerowaloby licznik.
+        PrzywrocOdkrytePunkty(data.discoveredIdeaPointIDs);
+
+        // --- Badanie ciala Lady Edith ---
+        // Przed CluesLog: skrypt sam wypycha licznik do panelu.
+        Int_EdithExamBody edithExam = FindFirstObjectByType<Int_EdithExamBody>(FindObjectsInactive.Include);
+        if (edithExam != null)
+            edithExam.RestoreSaveState(data.edithExam);
+        else
+            Debug.LogWarning("LoadGame: nie znaleziono Int_EdithExamBody - badanie ciala nie zostanie przywrocone.");
+
+        // --- Panel zadan (lista celow) ---
+        if (CluesLog.Instance != null)
+            CluesLog.Instance.RestoreSaveState(data.questLog);
+        else
+            Debug.LogWarning("LoadGame: brak CluesLog.Instance - postep celow nie zostanie przywrocony.");
+
+        // --- Etap samouczka: na koncu, zeby nic go pozniej nie nadpisalo ---
+        if (TutorialTimeline.Instance != null)
+            TutorialTimeline.Instance.RestoreSaveStage(data.tutorialStage);
+        else
+            Debug.LogWarning("LoadGame: brak TutorialTimeline.Instance - sekwencja startowa poleci od nowa.");
+
+        // --- Notatnik ---
+        if (NotebookManager.Instance != null)
+            NotebookManager.Instance.RestoreNotes(data.notebookNotes, data.notebookUnreadNotes);
+        else
+            Debug.LogWarning("LoadGame: brak NotebookManager.Instance - notatki nie zostana przywrocone.");
+
         if (JournalManager.Instance != null && data.unlockedNoteIDs != null)
         {
             foreach (int id in data.unlockedNoteIDs)
                 JournalManager.Instance.UnlockNote(id);
         }
 
-        if (TutorialManager.Instance != null)
-            TutorialManager.Instance.RestoreShownTutorials(data.shownTutorialIDs);
+        // --- Aktywna postac: na samym koncu ---
+        // SetActivePlayer przestawia priorytety kamer, wiec musi byc po wszystkim,
+        // co moglo ruszac kamera (dialogi, punkty sledztwa, panel zadan).
+        if (SwitchCharacter.Instance != null)
+        {
+            PrzywrocCeleKamer(data.cameraLookAtIDs);
+            SwitchCharacter.Instance.RestoreActivePlayer(data.activePlayerIndex);
+        }
+        else
+        {
+            Debug.LogWarning("LoadGame: brak SwitchCharacter.Instance - aktywna postac nie zostanie przywrocona.");
+        }
 
         Debug.Log("Gra wczytana!");
+    }
+
+    // Ustawia pozycje postaci. CharacterController trzeba wylaczyc,
+    // inaczej nadpisze recznie ustawiona pozycje.
+    private void PrzywrocPozycje(PlayerController controller, Vector3 pozycja, string nazwa)
+    {
+        if (controller == null)
+        {
+            Debug.LogWarning("LoadGame: " + nazwa + " - kontroler jest pusty, pomijam pozycje. " +
+                             "Przypisz pole w komponencie QuestManager.");
+            return;
+        }
+
+        if (pozycja == Vector3.zero)
+        {
+            Debug.LogWarning("LoadGame: " + nazwa + " ma w zapisie pozycje (0,0,0). " +
+                             "Plik pochodzi z zapisu zrobionego przy nieprzypisanym kontrolerze - " +
+                             "pomijam, zeby nie wrzucic postaci pod mape. Zrob nowy zapis.");
+            return;
+        }
+
+        // NavMeshAgent trzyma wlasna pozycje i w nastepnej klatce przeciagnalby
+        // postac z powrotem. Do teleportacji sluzy Warp().
+        UnityEngine.AI.NavMeshAgent agent = controller.GetComponent<UnityEngine.AI.NavMeshAgent>();
+        CharacterController cc = controller.GetComponent<CharacterController>();
+
+        if (cc != null) cc.enabled = false;
+
+        bool przeniesiony = false;
+
+        if (agent != null && agent.isActiveAndEnabled)
+        {
+            agent.ResetPath();
+            przeniesiony = agent.Warp(pozycja);
+
+            if (!przeniesiony)
+            {
+                Debug.LogWarning("LoadGame: " + nazwa + " - Warp na " + pozycja +
+                                 " nie znalazl NavMesha. Ustawiam pozycje bezposrednio.");
+            }
+        }
+
+        if (!przeniesiony)
+            controller.transform.position = pozycja;
+
+        if (cc != null) cc.enabled = true;
+
+        Debug.Log("LoadGame: " + nazwa + " ustawiony na " + pozycja +
+                  (agent != null ? " (przez NavMeshAgent.Warp)" : "") + ".");
     }
 
     private void PrzywrocEkwipunek(List<ItemType> zapisanePrzedmioty)
@@ -298,7 +493,8 @@ public class SaveLoadManager : MonoBehaviour
         // Przechodzimy po WSZYSTKICH obiektach sceny (takze nieaktywnych)
         // i porownujemy ich sciezke z lista podniesionych.
         int usuniete = 0;
-        Transform[] wszystkieObiekty = FindObjectsOfType<Transform>(true);
+        Transform[] wszystkieObiekty = FindObjectsByType<Transform>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
 
         foreach (Transform t in wszystkieObiekty)
         {
@@ -317,6 +513,268 @@ public class SaveLoadManager : MonoBehaviour
         if (usuniete < zapisaneID.Count)
         {
             Debug.LogWarning("LoadGame: nie znaleziono czesci obiektow. Zapisane ID: " +
+                             string.Join(" | ", zapisaneID));
+        }
+    }
+
+    // Odtwarza stan ukonczonych interakcji przez GameProgressManager.
+    // ID sa stabilne (GUID w polu saveId komponentu Interactable),
+    // wiec nie psuja sie przy zmianie nazw obiektow w hierarchii.
+    private void PrzywrocUkonczoneInterakcje(List<string> zapisaneID)
+    {
+        if (GameProgressManager.Instance == null)
+        {
+            Debug.LogWarning("LoadGame: brak GameProgressManager.Instance - " +
+                             "postep interakcji nie zostanie przywrocony.");
+            return;
+        }
+
+        if (zapisaneID == null || zapisaneID.Count == 0)
+        {
+            Debug.Log("LoadGame: brak ukonczonych interakcji w zapisie.");
+            return;
+        }
+
+        int przywrocone = 0;
+        List<string> nieznalezione = new List<string>();
+
+        foreach (string id in zapisaneID)
+        {
+            if (GameProgressManager.Instance.RestoreInteractionCompletedState(id, true))
+                przywrocone++;
+            else
+                nieznalezione.Add(id);
+        }
+
+        Debug.Log("LoadGame: przywrocono " + przywrocone + " z " + zapisaneID.Count + " ukonczonych interakcji.");
+
+        if (nieznalezione.Count > 0)
+        {
+            Debug.LogWarning("LoadGame: nie znaleziono interakcji o ID: " + string.Join(" | ", nieznalezione) +
+                             ". Kliknij 'Refresh Interaction List' na komponencie GameProgressManager.");
+        }
+    }
+
+    // Zapisuje cel patrzenia kazdej kamery postaci (kolejnosc jak w playersCamera).
+    private List<string> ZbierzCeleKamer()
+    {
+        List<string> cele = new List<string>();
+
+        CinemachineCamera[] kamery = SwitchCharacter.Instance.playersCamera;
+        if (kamery == null)
+            return cele;
+
+        foreach (CinemachineCamera kamera in kamery)
+        {
+            CameraController controller = kamera != null ? kamera.GetComponent<CameraController>() : null;
+            Transform cel = controller != null ? controller.CurrentLookAtTarget : null;
+
+            cele.Add(cel != null ? BuildObjectID(cel.gameObject) : "");
+        }
+
+        Debug.Log("SaveGame: zapisuje cele kamer: " + string.Join(" | ", cele));
+        return cele;
+    }
+
+    private void PrzywrocCeleKamer(List<string> zapisaneID)
+    {
+        if (zapisaneID == null || zapisaneID.Count == 0)
+        {
+            Debug.Log("LoadGame: brak celow kamer w zapisie.");
+            return;
+        }
+
+        CinemachineCamera[] kamery = SwitchCharacter.Instance.playersCamera;
+        if (kamery == null)
+            return;
+
+        // Budujemy mape sciezka -> Transform raz, zeby nie skanowac sceny w petli.
+        Dictionary<string, Transform> poSciezce = new Dictionary<string, Transform>();
+        foreach (Transform t in FindObjectsByType<Transform>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (t != null)
+                poSciezce[BuildObjectID(t.gameObject)] = t;
+        }
+
+        int przywrocone = 0;
+
+        for (int i = 0; i < kamery.Length && i < zapisaneID.Count; i++)
+        {
+            if (string.IsNullOrEmpty(zapisaneID[i]))
+                continue;
+
+            CameraController controller = kamery[i] != null ? kamery[i].GetComponent<CameraController>() : null;
+            if (controller == null)
+                continue;
+
+            Transform cel;
+            if (!poSciezce.TryGetValue(zapisaneID[i], out cel))
+            {
+                Debug.LogWarning("LoadGame: nie znaleziono celu kamery '" + zapisaneID[i] + "'.");
+                continue;
+            }
+
+            controller.ForceLookAtTarget(cel);
+            przywrocone++;
+        }
+
+        Debug.Log("LoadGame: przywrocono cele " + przywrocone + " kamer.");
+    }
+
+    // Zwraca wszystkie NPC w scenie. Konwencja: nazwa obiektu konczy sie na "_NPC".
+    private static Transform[] ZnajdzNpc()
+    {
+        List<Transform> npc = new List<Transform>();
+
+        Transform[] wszystkie = FindObjectsByType<Transform>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        foreach (Transform t in wszystkie)
+        {
+            if (t != null && t.name.EndsWith("_NPC"))
+                npc.Add(t);
+        }
+
+        return npc.ToArray();
+    }
+
+    private List<NpcSaveData> ZbierzNpc()
+    {
+        List<NpcSaveData> lista = new List<NpcSaveData>();
+
+        foreach (Transform t in ZnajdzNpc())
+        {
+            NpcSaveData npc = new NpcSaveData();
+            npc.objectId = BuildObjectID(t.gameObject);
+            npc.position = t.position;
+            npc.eulerAngles = t.eulerAngles;
+            npc.active = t.gameObject.activeSelf;
+            lista.Add(npc);
+        }
+
+        Debug.Log("SaveGame: zapisuje pozycje NPC: " + lista.Count);
+        return lista;
+    }
+
+    private void PrzywrocNpc(List<NpcSaveData> zapisane)
+    {
+        if (zapisane == null || zapisane.Count == 0)
+        {
+            Debug.Log("LoadGame: brak pozycji NPC w zapisie.");
+            return;
+        }
+
+        Dictionary<string, NpcSaveData> poId = new Dictionary<string, NpcSaveData>();
+        foreach (NpcSaveData npc in zapisane)
+        {
+            if (npc != null && !string.IsNullOrEmpty(npc.objectId))
+                poId[npc.objectId] = npc;
+        }
+
+        int przywrocone = 0;
+
+        foreach (Transform t in ZnajdzNpc())
+        {
+            NpcSaveData npc;
+            if (!poId.TryGetValue(BuildObjectID(t.gameObject), out npc))
+                continue;
+
+            t.gameObject.SetActive(npc.active);
+
+            // NavMeshAgent trzeba przenosic przez Warp, inaczej wroci na stare miejsce.
+            UnityEngine.AI.NavMeshAgent agent = t.GetComponent<UnityEngine.AI.NavMeshAgent>();
+            bool przeniesiony = false;
+
+            if (agent != null && agent.isActiveAndEnabled)
+            {
+                agent.ResetPath();
+                przeniesiony = agent.Warp(npc.position);
+            }
+
+            if (!przeniesiony)
+                t.position = npc.position;
+
+            t.eulerAngles = npc.eulerAngles;
+            przywrocone++;
+        }
+
+        Debug.Log("LoadGame: przywrocono pozycje " + przywrocone + " z " + zapisane.Count + " NPC.");
+
+        if (przywrocone < zapisane.Count)
+        {
+            Debug.LogWarning("LoadGame: nie znaleziono czesci NPC. Sprawdz, czy nie zmienily sie " +
+                             "nazwy obiektow lub ich miejsce w hierarchii.");
+        }
+    }
+
+    // Zbiera ideaId wszystkich odkrytych punktow sledztwa w scenie.
+    private List<string> ZbierzOdkrytePunkty()
+    {
+        List<string> odkryte = new List<string>();
+
+        DetectiveIdeaPoint[] punkty = FindObjectsByType<DetectiveIdeaPoint>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        foreach (DetectiveIdeaPoint punkt in punkty)
+        {
+            if (punkt == null || !punkt.IsDiscovered)
+                continue;
+
+            if (string.IsNullOrWhiteSpace(punkt.ideaId))
+            {
+                Debug.LogWarning("SaveGame: punkt '" + punkt.name + "' jest odkryty, ale ma puste pole 'Idea Id'. " +
+                                 "Nie zostanie zapisany.", punkt);
+                continue;
+            }
+
+            odkryte.Add(punkt.ideaId);
+        }
+
+        Debug.Log("SaveGame: zapisuje odkryte punkty sledztwa: " + odkryte.Count + " z " + punkty.Length + ".");
+        return odkryte;
+    }
+
+    // Oznacza punkty jako odkryte. DiscoverPoint wywoluje zdarzenie OnDiscovered,
+    // dzieki czemu CluesLog sam przelicza licznik "Zbadaj pomieszczenie".
+    private void PrzywrocOdkrytePunkty(List<string> zapisaneID)
+    {
+        if (zapisaneID == null || zapisaneID.Count == 0)
+        {
+            Debug.Log("LoadGame: brak odkrytych punktow sledztwa w zapisie.");
+            return;
+        }
+
+        if (DetectiveIdeaManager.Instance == null)
+        {
+            Debug.LogWarning("LoadGame: brak DetectiveIdeaManager.Instance - punkty sledztwa nie zostana przywrocone.");
+            return;
+        }
+
+        HashSet<string> szukane = new HashSet<string>(zapisaneID);
+
+        DetectiveIdeaPoint[] punkty = FindObjectsByType<DetectiveIdeaPoint>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        int przywrocone = 0;
+
+        foreach (DetectiveIdeaPoint punkt in punkty)
+        {
+            if (punkt == null || string.IsNullOrWhiteSpace(punkt.ideaId))
+                continue;
+
+            if (!szukane.Contains(punkt.ideaId))
+                continue;
+
+            DetectiveIdeaManager.Instance.DiscoverPoint(punkt);
+            przywrocone++;
+        }
+
+        Debug.Log("LoadGame: przywrocono " + przywrocone + " z " + zapisaneID.Count + " odkrytych punktow sledztwa.");
+
+        if (przywrocone < zapisaneID.Count)
+        {
+            Debug.LogWarning("LoadGame: nie znaleziono czesci punktow. Zapisane ID: " +
                              string.Join(" | ", zapisaneID));
         }
     }

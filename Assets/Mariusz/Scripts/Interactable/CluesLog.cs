@@ -5,6 +5,11 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+// Aliasy chronia przed 'using System.Diagnostics;', ktory Visual Studio
+// dopisuje po wklejeniu kodu i psuje kompilacje (CS0104).
+using Debug = UnityEngine.Debug;
+using Random = UnityEngine.Random;
+
 /// <summary>
 /// Lightweight objective log for the current story flow. It deliberately does
 /// not depend on ClueManager, conclusions, or quest ScriptableObjects.
@@ -1320,5 +1325,130 @@ public class CluesLog : MonoBehaviour
             builder.AppendLine($" • <s>{text}</s>");
         else
             builder.AppendLine($" • {text}");
+    }
+
+    // ---------------------------------------------------------------
+    // SYSTEM ZAPISU - postep celow w panelu zadan
+    // ---------------------------------------------------------------
+
+    // Pakuje caly postep panelu do jednego obiektu (dla SaveLoadManager).
+    public CluesLogSaveData GetSaveState()
+    {
+        CluesLogSaveData d = new CluesLogSaveData();
+
+        d.crimeSceneCompleted = crimeSceneCompleted;
+        d.crimeSceneVisible = crimeSceneVisible;
+        d.ideaPointPuzzleSolved = ideaPointPuzzleSolved;
+        d.tableMechanismObjectiveStarted = tableMechanismObjectiveStarted;
+        d.tableMechanismCompleted = tableMechanismCompleted;
+        d.secretDoorOpeningPuzzleSolved = secretDoorOpeningPuzzleSolved;
+        d.secretPassageExplored = secretPassageExplored;
+        d.greenTableMechanismElementCollected = greenTableMechanismElementCollected;
+        d.redTableMechanismElementCollected = redTableMechanismElementCollected;
+        d.blueTableMechanismElementCollected = blueTableMechanismElementCollected;
+        d.basementIdeaPointSearchCompleted = basementIdeaPointSearchCompleted;
+        d.connectionsCompleted = connectionsCompleted;
+        d.connectionsVisible = connectionsVisible;
+        d.sessionWitnessesVisible = sessionWitnessesVisible;
+        d.askSelmaAboutHenrySpiritVisible = askSelmaAboutHenrySpiritVisible;
+        d.askArthurAboutFoundItemsVisible = askArthurAboutFoundItemsVisible;
+        d.askedArthurAboutRing = askedArthurAboutRing;
+        d.askedArthurAboutPaper = askedArthurAboutPaper;
+        d.upperFloorEvidenceVisible = upperFloorEvidenceVisible;
+        d.basementEvidenceVisible = basementEvidenceVisible;
+        d.findEthelVisible = findEthelVisible;
+        d.findEthelCompleted = findEthelCompleted;
+        d.findWayUpstairsVisible = findWayUpstairsVisible;
+        d.searchUpperFloorVisible = searchUpperFloorVisible;
+        d.findEthelHiddenDoorVisible = findEthelHiddenDoorVisible;
+        d.investigateEthelPassageVisible = investigateEthelPassageVisible;
+        d.searchBasementVisible = searchBasementVisible;
+        d.findBasementExitVisible = findBasementExitVisible;
+        d.findBasementHiddenDoorVisible = findBasementHiddenDoorVisible;
+        d.confrontSessionVisible = confrontSessionVisible;
+        d.followEthelVisible = followEthelVisible;
+        d.collectedEdithBodyClues = collectedEdithBodyClues;
+        d.discoveredRoomIdeaPoints = discoveredRoomIdeaPoints;
+        d.discoveredBasementIdeaPoints = discoveredBasementIdeaPoints;
+        d.interviewedSessionWitnesses = interviewedSessionWitnesses;
+        d.collectedUpperFloorEvidence = collectedUpperFloorEvidence;
+        d.collectedBasementEvidence = collectedBasementEvidence;
+
+        d.interviewedSessionWitnessIds = new List<int>(interviewedSessionWitnessIds);
+        d.collectedBasementEvidenceIds = new List<string>(collectedBasementEvidenceIds);
+
+        return d;
+    }
+
+    // Przywraca postep panelu z zapisu i odswieza tekst na ekranie.
+    public void RestoreSaveState(CluesLogSaveData d)
+    {
+        if (d == null)
+        {
+            Debug.LogWarning("CluesLog: brak danych panelu zadan w zapisie - zostawiam stan startowy.");
+            return;
+        }
+
+        crimeSceneCompleted = d.crimeSceneCompleted;
+        crimeSceneVisible = d.crimeSceneVisible;
+        ideaPointPuzzleSolved = d.ideaPointPuzzleSolved;
+        tableMechanismObjectiveStarted = d.tableMechanismObjectiveStarted;
+        tableMechanismCompleted = d.tableMechanismCompleted;
+        secretDoorOpeningPuzzleSolved = d.secretDoorOpeningPuzzleSolved;
+        secretPassageExplored = d.secretPassageExplored;
+        greenTableMechanismElementCollected = d.greenTableMechanismElementCollected;
+        redTableMechanismElementCollected = d.redTableMechanismElementCollected;
+        blueTableMechanismElementCollected = d.blueTableMechanismElementCollected;
+        basementIdeaPointSearchCompleted = d.basementIdeaPointSearchCompleted;
+        connectionsCompleted = d.connectionsCompleted;
+        connectionsVisible = d.connectionsVisible;
+        sessionWitnessesVisible = d.sessionWitnessesVisible;
+        askSelmaAboutHenrySpiritVisible = d.askSelmaAboutHenrySpiritVisible;
+        askArthurAboutFoundItemsVisible = d.askArthurAboutFoundItemsVisible;
+        askedArthurAboutRing = d.askedArthurAboutRing;
+        askedArthurAboutPaper = d.askedArthurAboutPaper;
+        upperFloorEvidenceVisible = d.upperFloorEvidenceVisible;
+        basementEvidenceVisible = d.basementEvidenceVisible;
+        findEthelVisible = d.findEthelVisible;
+        findEthelCompleted = d.findEthelCompleted;
+        findWayUpstairsVisible = d.findWayUpstairsVisible;
+        searchUpperFloorVisible = d.searchUpperFloorVisible;
+        findEthelHiddenDoorVisible = d.findEthelHiddenDoorVisible;
+        investigateEthelPassageVisible = d.investigateEthelPassageVisible;
+        searchBasementVisible = d.searchBasementVisible;
+        findBasementExitVisible = d.findBasementExitVisible;
+        findBasementHiddenDoorVisible = d.findBasementHiddenDoorVisible;
+        confrontSessionVisible = d.confrontSessionVisible;
+        followEthelVisible = d.followEthelVisible;
+        collectedEdithBodyClues = d.collectedEdithBodyClues;
+        discoveredRoomIdeaPoints = d.discoveredRoomIdeaPoints;
+        discoveredBasementIdeaPoints = d.discoveredBasementIdeaPoints;
+        interviewedSessionWitnesses = d.interviewedSessionWitnesses;
+        collectedUpperFloorEvidence = d.collectedUpperFloorEvidence;
+        collectedBasementEvidence = d.collectedBasementEvidence;
+
+        interviewedSessionWitnessIds.Clear();
+        if (d.interviewedSessionWitnessIds != null)
+        {
+            foreach (int id in d.interviewedSessionWitnessIds)
+                interviewedSessionWitnessIds.Add(id);
+        }
+
+        collectedBasementEvidenceIds.Clear();
+        if (d.collectedBasementEvidenceIds != null)
+        {
+            foreach (string id in d.collectedBasementEvidenceIds)
+                collectedBasementEvidenceIds.Add(id);
+        }
+
+        Debug.Log("CluesLog: przywrocono postep panelu zadan (cialo Edith: " + collectedEdithBodyClues +
+                  ", pomieszczenia: " + discoveredRoomIdeaPoints +
+                  ", swiadkowie: " + interviewedSessionWitnesses + ").");
+
+        // Pasek zadan wlacza normalnie dialog startowy. Po wczytaniu zapisu
+        // ten dialog sie nie odtwarza, wiec pokazujemy panel wprost.
+        SetQuestLogVisible(true);
+
+        UpdateLog(false);
     }
 }

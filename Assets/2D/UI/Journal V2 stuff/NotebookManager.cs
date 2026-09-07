@@ -1,5 +1,10 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+
+// Alias chroni przed 'using System.Diagnostics;' dopisywanym przez Visual Studio (CS0104).
+using Debug = UnityEngine.Debug;
+using Image = UnityEngine.UI.Image;
+using Random = UnityEngine.Random;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
@@ -892,5 +897,131 @@ public class NotebookManager : MonoBehaviour
 
         if (taskObjectivesText != null)
             taskObjectivesText.text = cluesLog.GetObjectivesText();
+    }
+
+    // ---------------------------------------------------------------
+    // SYSTEM ZAPISU - zebrane notatki
+    // ---------------------------------------------------------------
+
+    // Zwraca nazwy assetow zebranych notatek, od najnowszej do najstarszej.
+    public List<string> GetSaveNoteNames()
+    {
+        List<string> nazwy = new List<string>();
+
+        if (allNotes == null)
+            return nazwy;
+
+        foreach (NoteData note in allNotes)
+        {
+            if (note != null)
+                nazwy.Add(note.name);
+        }
+
+        return nazwy;
+    }
+
+    // Nazwy notatek, ktorych gracz jeszcze nie otworzyl (kropka "nowe").
+    public List<string> GetSaveUnreadNoteNames()
+    {
+        List<string> nazwy = new List<string>();
+
+        foreach (NoteData note in unreadNotes)
+        {
+            if (note != null)
+                nazwy.Add(note.name);
+        }
+
+        return nazwy;
+    }
+
+    public void RestoreNotes(List<string> nazwyNotatek, List<string> nazwyNieprzeczytanych)
+    {
+        if (nazwyNotatek == null || nazwyNotatek.Count == 0)
+        {
+            Debug.Log("NotebookManager: brak zapisanych notatek.");
+            return;
+        }
+
+        Dictionary<string, NoteData> baza = ZbierzWszystkieNotatkiZeSceny();
+
+        if (allNotes == null)
+            allNotes = new List<NoteData>();
+
+        HashSet<string> nieprzeczytane = nazwyNieprzeczytanych != null
+            ? new HashSet<string>(nazwyNieprzeczytanych)
+            : new HashSet<string>();
+
+        int przywrocone = 0;
+        List<string> nieznalezione = new List<string>();
+
+        // Idziemy od konca, bo notatki wstawiamy na poczatek listy -
+        // dzieki temu kolejnosc wyjdzie taka jak przy zapisie.
+        for (int i = nazwyNotatek.Count - 1; i >= 0; i--)
+        {
+            string nazwa = nazwyNotatek[i];
+
+            NoteData note;
+            if (!baza.TryGetValue(nazwa, out note))
+            {
+                nieznalezione.Add(nazwa);
+                continue;
+            }
+
+            if (allNotes.Contains(note))
+                continue;
+
+            allNotes.Insert(0, note);
+            przywrocone++;
+
+            if (nieprzeczytane.Contains(nazwa))
+                unreadNotes.Add(note);
+        }
+
+        RefreshCategoryButtons();
+
+        Debug.Log("NotebookManager: przywrocono " + przywrocone + " z " + nazwyNotatek.Count +
+                  " notatek (nieprzeczytanych: " + unreadNotes.Count + ").");
+
+        if (nieznalezione.Count > 0)
+        {
+            Debug.LogWarning("NotebookManager: nie znaleziono assetow notatek: " +
+                             string.Join(" | ", nieznalezione) +
+                             ". Sprawdz, czy sa przypisane w polu 'Database Notes' jakiegos Interactable.");
+        }
+    }
+
+    // NotebookManager nie ma listy wszystkich mozliwych notatek - assety NoteData
+    // sa przypisane w polach 'databaseNotes' komponentow Interactable w scenie.
+    // Zbieramy je wszystkie, zeby moc odtworzyc notatke po nazwie assetu.
+    private Dictionary<string, NoteData> ZbierzWszystkieNotatkiZeSceny()
+    {
+        Dictionary<string, NoteData> baza = new Dictionary<string, NoteData>();
+
+        // Notatki juz zebrane (np. ustawione w Inspectorze).
+        if (allNotes != null)
+        {
+            foreach (NoteData note in allNotes)
+            {
+                if (note != null)
+                    baza[note.name] = note;
+            }
+        }
+
+        Interactable[] interakcje = FindObjectsByType<Interactable>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        foreach (Interactable interactable in interakcje)
+        {
+            if (interactable == null || interactable.databaseNotes == null)
+                continue;
+
+            foreach (NoteData note in interactable.databaseNotes)
+            {
+                if (note != null)
+                    baza[note.name] = note;
+            }
+        }
+
+        return baza;
     }
 }

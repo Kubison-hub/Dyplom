@@ -3,6 +3,9 @@ using System;
 
 using Unity.Cinemachine;
 using UnityEngine;
+
+// Alias chroni przed 'using System.Diagnostics;' dopisywanym przez Visual Studio (CS0104).
+using Debug = UnityEngine.Debug;
 using UnityEngine.AI;
 using UnityEngine.Video;
 using DialogueEditor;
@@ -15,7 +18,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
 
     public bool performed = false;
     public CinemachineCamera interactionCamera;
-    private CinemachineSplineDolly splineDolly; 
+    private CinemachineSplineDolly splineDolly;
 
     public GameObject watsonGO;
     public GameObject sherlockGO;
@@ -29,7 +32,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     [SerializeField] private Transform watsonExaminationPoint;
     [SerializeField, Min(0.01f)] private float watsonExaminationArrivalTolerance = 0.1f;
     [SerializeField, Min(1f)] private float watsonExaminationRotationSpeed = 360f;
-    [SerializeField]private Collider intCollider;
+    [SerializeField] private Collider intCollider;
 
     //public GameObject[] nextInteractions;
     public GameObject nextInteractions;
@@ -48,7 +51,8 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     [SerializeField, TextArea] private string tutorialPopupText;
     [SerializeField] private VideoClip tutorialPopupVideoClip;
     [Header("Initial Examination Dialogue")]
-    [SerializeField] private Lvl3DialogueLine[] initialExaminationDialogue =
+    [SerializeField]
+    private Lvl3DialogueLine[] initialExaminationDialogue =
     {
         new Lvl3DialogueLine
         {
@@ -67,7 +71,8 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     [SerializeField] private string arthurRingParameterName = "Ring";
     [SerializeField] private string arthurPaperParameterName = "Paper";
     [Tooltip("Played before every Bullet CP attempt after the player failed the examination conversation once.")]
-    [SerializeField] private Lvl3DialogueLine[] bulletCpRetryDialogue =
+    [SerializeField]
+    private Lvl3DialogueLine[] bulletCpRetryDialogue =
     {
         new Lvl3DialogueLine
         {
@@ -76,7 +81,8 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
             duration = 2f
         }
     };
-    [SerializeField] private Lvl3DialogueLine[] bulletCpExamDoneDialogue =
+    [SerializeField]
+    private Lvl3DialogueLine[] bulletCpExamDoneDialogue =
     {
         new Lvl3DialogueLine
         {
@@ -88,7 +94,8 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     [Header("Bullet Idea Point Check")]
     [Tooltip("Optional IdeaPoint checked after the successful Bullet CP examination.")]
     [SerializeField] private DetectiveIdeaPoint bulletIdeaPointToCheck;
-    [SerializeField] private Lvl3DialogueLine[] bulletIdeaPointMissingDialogue =
+    [SerializeField]
+    private Lvl3DialogueLine[] bulletIdeaPointMissingDialogue =
     {
         new Lvl3DialogueLine
         {
@@ -97,7 +104,8 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
             duration = 3f
         }
     };
-    [SerializeField] private Lvl3DialogueLine[] bulletCpExamIncompleteDialogue =
+    [SerializeField]
+    private Lvl3DialogueLine[] bulletCpExamIncompleteDialogue =
     {
         new Lvl3DialogueLine
         {
@@ -128,9 +136,9 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
 
     [Min(1)] public int requiredCluesToRevealIdea = 3;
 
-    public bool bulletExamined = false; 
+    public bool bulletExamined = false;
     public GameObject bulletLine;
-    
+
     public int currentRequiredBulletExam = 0;
 
     private int collectedExamClueCount;
@@ -195,7 +203,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
 
         //splineDolly = interactionCamera.GetComponent<CinemachineSplineDolly>();
 
-        
+
     }
 
     private void OnDestroy()
@@ -266,8 +274,8 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
 
         player.currentInteractable = null;
 
-        
-        
+
+
     }
 
 
@@ -298,7 +306,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
             splineDolly.CameraPosition = 0.5f;
             interactionCamera.Priority = 50;
 
-            
+
         }
     }
 
@@ -1026,7 +1034,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         Debug.LogWarning("Int_EdithExamBody: IdeaPoint_Edith was not found.");
     }
 
-   
+
 
     private void PerformWatsonAction()
     {
@@ -1043,7 +1051,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
 
     //private void CheckWatsonArrival()
     //{
-       
+
     //    if (watsonNavMesh.pathPending)
     //        return;
 
@@ -1082,5 +1090,152 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
 
     }
 
-    
+
+
+    // ---------------------------------------------------------------
+    // SYSTEM ZAPISU - postep badania ciala Lady Edith
+    // ---------------------------------------------------------------
+
+    public EdithExamSaveData GetSaveState()
+    {
+        EdithExamSaveData d = new EdithExamSaveData();
+
+        d.performed = performed;
+        d.collectedExamClueCount = collectedExamClueCount;
+        d.ringCpCollected = ringCpCollected;
+        d.paperCpCollected = paperCpCollected;
+        d.bulletCpExamAttempted = bulletCpExamAttempted;
+        d.edithIdeaRevealed = edithIdeaRevealed;
+        d.examinationCompleted = examinationCompleted;
+        d.allCpCollectedClueAdded = allCpCollectedClueAdded;
+        d.arthurFoundItemsObjectiveAdded = arthurFoundItemsObjectiveAdded;
+        d.tutorialPopupShown = tutorialPopupShown;
+
+        // Stan poszczegolnych punktow badania czytamy wprost z ich komponentow.
+        d.ringPerformed = GetRingCp() != null && GetRingCp().performed;
+        d.paperPerformed = GetPaperCp() != null && GetPaperCp().performed;
+        d.bulletPerformed = GetBulletCp() != null && GetBulletCp().performed;
+
+        return d;
+    }
+
+    public void RestoreSaveState(EdithExamSaveData d)
+    {
+        if (d == null || !d.performed)
+        {
+            Debug.Log("Int_EdithExamBody: brak zapisanego postepu badania ciala.");
+            return;
+        }
+
+        performed = true;
+        collectedExamClueCount = d.collectedExamClueCount;
+        ringCpCollected = d.ringCpCollected;
+        paperCpCollected = d.paperCpCollected;
+        bulletCpExamAttempted = d.bulletCpExamAttempted;
+        edithIdeaRevealed = d.edithIdeaRevealed;
+        allCpCollectedClueAdded = d.allCpCollectedClueAdded;
+        arthurFoundItemsObjectiveAdded = d.arthurFoundItemsObjectiveAdded;
+        tutorialPopupShown = d.tutorialPopupShown;
+
+        // Dialog wstepny byl juz odegrany - nie odtwarzamy go ponownie.
+        waitingForInitialDialogue = false;
+        initialDialogueCompleted = true;
+
+        // Cialo bylo juz zbadane, wiec punkty badania musza byc widoczne.
+        SetExaminationClueObjectsActive(true);
+
+        if (intCollider != null)
+            intCollider.enabled = true;
+
+        if (nextInteractions != null)
+            nextInteractions.SetActive(true);
+
+        // Warunki w rozmowach Arthura (pierscien / papier).
+        if (ringCpCollected)
+            SetArthurConditionByName(arthurRingParameterName);
+
+        if (paperCpCollected)
+            SetArthurConditionByName(arthurPaperParameterName);
+
+        // Zebrane punkty badania oznaczamy jako wykonane, zeby nie dawaly
+        // poszlaki i notatki po drugim razie.
+        if (d.ringPerformed)
+            WylaczZebranyPunkt(GetRingCp() != null ? GetRingCp().gameObject : null);
+
+        if (d.paperPerformed)
+        {
+            Int_Edith_Paper paperCp = GetPaperCp();
+            if (paperCp != null)
+            {
+                paperCp.performed = true;
+
+                if (paperCp.paper != null)
+                    paperCp.paper.SetActive(false);
+
+                WylaczZebranyPunkt(paperCp.gameObject);
+            }
+        }
+
+        if (d.bulletPerformed)
+            WylaczZebranyPunkt(GetBulletCp() != null ? GetBulletCp().gameObject : null);
+
+        // Panel zadan dostaje licznik z prawdziwego stanu.
+        CluesLog.Instance?.SetLadyEdithBodyProgress(collectedExamClueCount, requiredCluesToRevealIdea);
+
+        Debug.Log("Int_EdithExamBody: przywrocono badanie ciala (" + collectedExamClueCount +
+                  "/" + requiredCluesToRevealIdea + ").");
+
+        // Badanie bylo domkniete - wygaszamy interakcje calkowicie.
+        if (d.examinationCompleted || d.edithIdeaRevealed)
+        {
+            completionDialoguePending = false;
+            EndExamination(true);
+        }
+    }
+
+    private void SetArthurConditionByName(string parameterName)
+    {
+        if (arthurSmartNpc == null || string.IsNullOrWhiteSpace(parameterName))
+            return;
+
+        SetConversationBoolParameter(arthurSmartNpc.rozmowaDlaPostaciA, parameterName, true);
+        SetConversationBoolParameter(arthurSmartNpc.rozmowaDlaPostaciB, parameterName, true);
+    }
+
+    // Ustawia flage 'performed' na punkcie badania i wygasza jego Interactable.
+    private void WylaczZebranyPunkt(GameObject cpObject)
+    {
+        if (cpObject == null)
+            return;
+
+        Int_Edith_Ring ring = cpObject.GetComponent<Int_Edith_Ring>();
+        if (ring != null) ring.performed = true;
+
+        Int_Edith_BulletHole bullet = cpObject.GetComponent<Int_Edith_BulletHole>();
+        if (bullet != null) bullet.performed = true;
+
+        Interactable cpInteractable = cpObject.GetComponent<Interactable>();
+        if (cpInteractable != null)
+        {
+            cpInteractable.isInteractableActive = false;
+            cpInteractable.allowQuestionFXWhenInactive = false;
+            cpInteractable.SetQuestionFXEagleVisionState(false);
+            cpInteractable.interactiveShader = null;
+        }
+    }
+
+    private Int_Edith_Ring GetRingCp()
+    {
+        return GetComponentInChildren<Int_Edith_Ring>(true);
+    }
+
+    private Int_Edith_Paper GetPaperCp()
+    {
+        return GetComponentInChildren<Int_Edith_Paper>(true);
+    }
+
+    private Int_Edith_BulletHole GetBulletCp()
+    {
+        return GetComponentInChildren<Int_Edith_BulletHole>(true);
+    }
 }

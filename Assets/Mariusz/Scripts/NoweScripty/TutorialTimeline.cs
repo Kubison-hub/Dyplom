@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using DialogueEditor;
 using UnityEngine;
+
+// Alias chroni przed 'using System.Diagnostics;' dopisywanym przez Visual Studio (CS0104).
+using Debug = UnityEngine.Debug;
 using UnityEngine.Events;
 using UnityEngine.AI;
 using UnityEngine.InputSystem;
@@ -72,7 +75,8 @@ public class TutorialTimeline : MonoBehaviour
     [SerializeField] private bool showFocusTutorialPopup;
     [SerializeField, Min(0f)] private float focusTutorialPopupDelay = 10f;
     [SerializeField] private string focusTutorialPopupTitle = "SKUPIENIE";
-    [SerializeField, TextArea] private string focusTutorialPopupText =
+    [SerializeField, TextArea]
+    private string focusTutorialPopupText =
         "Sherlock moze skupic mysli, aby odnalezc wskazowki.\n\nWcisnij Lewy Shift, aby wejsc w tryb skupienia.";
     [SerializeField] private VideoClip focusTutorialPopupVideoClip;
 
@@ -92,7 +96,8 @@ public class TutorialTimeline : MonoBehaviour
     [SerializeField, Min(0f)] private float cameraSettleDuration = 5f;
     [SerializeField] private string ideaLineTutorialId = "IdeaLinePuzzleTutorial";
     [SerializeField] private string ideaLineTutorialPopupTitle = "LACZENIE FAKTOW";
-    [SerializeField, TextArea] private string ideaLineTutorialText =
+    [SerializeField, TextArea]
+    private string ideaLineTutorialText =
         "Sherlock to mistrz dedukcji:\n- Polacz fakty w odpowiedniej kolejnosci.";
     [SerializeField] private VideoClip ideaLineTutorialPopupVideoClip;
 
@@ -927,5 +932,65 @@ public class TutorialTimeline : MonoBehaviour
         PlayerController player = GetIdeaLineTutorialPlayer();
         if (player != null)
             player.SetTutorialInputLocked(locked);
+    }
+
+    // ---------------------------------------------------------------
+    // SYSTEM ZAPISU - etap samouczka / sekwencji startowej
+    // ---------------------------------------------------------------
+
+    // Zwraca nazwe aktualnego etapu (dla SaveLoadManager).
+    public string GetSaveStage()
+    {
+        return currentStage.ToString();
+    }
+
+    // Przywraca etap z zapisu. Jesli gracz byl juz za sekwencja startowa,
+    // nie odtwarzamy jej ponownie - tylko odblokowujemy sterowanie
+    // i ustawiamy odpowiedni etap.
+    public void RestoreSaveStage(string zapisanyEtap)
+    {
+        if (string.IsNullOrWhiteSpace(zapisanyEtap))
+        {
+            Debug.LogWarning("TutorialTimeline: brak etapu w zapisie - zostawiam sekwencje startowa.");
+            return;
+        }
+
+        TutorialStage etap;
+        if (!System.Enum.TryParse(zapisanyEtap, out etap))
+        {
+            Debug.LogWarning("TutorialTimeline: nieznany etap '" + zapisanyEtap + "' - zostawiam sekwencje startowa.");
+            return;
+        }
+
+        // Zapis w trakcie samego intro: nie ma sensu odtwarzac dialogu w polowie,
+        // przechodzimy do stanu "intro obejrzane".
+        if (etap == TutorialStage.WaitingForOpeningTutorial ||
+            etap == TutorialStage.RunningOpeningConversationSequence ||
+            etap == TutorialStage.WaitingForOpeningPopupDelay ||
+            etap == TutorialStage.WaitingForOpeningPopupClose)
+        {
+            etap = TutorialStage.WaitingForFirstWorldClick;
+        }
+
+        // Zapis w trakcie animacji kamery do zagadki linii: wracamy do zbierania
+        // punktow, zeby nie odtwarzac przejazdu kamery od polowy.
+        if (etap == TutorialStage.MovingToIdeaLineTutorialPosition ||
+            etap == TutorialStage.WaitingForIdeaLineTutorialClose)
+        {
+            etap = TutorialStage.WaitingForIdeaPoints;
+        }
+
+        // Odblokowuje sterowanie, kursor i zglasza start timeline (HUD).
+        BeginFirstWorldClickStage();
+
+        // Blokujemy ponowne uruchomienie sekwencji startowej w Update().
+        openingTutorialWasVisible = true;
+        openingConversationSequenceStarted = true;
+
+        if (etap != TutorialStage.WaitingForFirstWorldClick)
+            currentStage = etap;
+
+        Debug.Log("TutorialTimeline: przywrocono etap " + currentStage +
+                  " (w zapisie: " + zapisanyEtap + ").");
     }
 }
