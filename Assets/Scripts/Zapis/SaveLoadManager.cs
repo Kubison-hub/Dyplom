@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
+using System.Reflection;
 using Unity.Cinemachine;
 
 using Debug = UnityEngine.Debug;
@@ -176,6 +177,9 @@ public class SaveLoadManager : MonoBehaviour
         // --- Aktywne grupy poziomow ---
         data.levelGroups = ZbierzGrupyPoziomow();
 
+        // --- Stan zagadek: flagi, pozycje, animatory ---
+        ZbierzStanZagadek(data);
+
         // --- Pozycje NPC ---
         data.npcs = ZbierzNpc();
 
@@ -310,6 +314,10 @@ public class SaveLoadManager : MonoBehaviour
         // Reszta (pozycje, NPC, przedmioty) odnosi sie do obiektow wewnatrz
         // tych grup. Na wylaczonej grupie nic nie da sie odnalezc.
         PrzywrocGrupyPoziomow(data.levelGroups);
+
+        // --- Stan zagadek: flagi, pozycje, animatory ---
+        // Po wlaczeniu grup, zeby objac takze obiekty dopiero co odsloniete.
+        PrzywrocStanZagadek(data);
 
         // --- Tutoriale ---
         // SpawnHiddenItems() ponizej pokazuje tutorial o przedmiotach do znalezienia.
@@ -563,114 +571,371 @@ public class SaveLoadManager : MonoBehaviour
         }
     }
 
-    // Zwraca grupy poziomow w scenie. Nie zgadujemy nazw: bierzemy WSZYSTKIE
-    // bezposrednie dzieci obiektu-rodzica poziomow (tego z "LEVELS" w nazwie).
-    // Dzieki temu dziala niezaleznie od tego, czy grupa nazywa sie LEVEL_2,
-    // LEVEL2, "Level 2 - Pietro" czy jakkolwiek inaczej.
-    private static Transform[] ZnajdzGrupyPoziomow()
+    // Zwraca korzen hierarchii poziomow - obiekt z "LEVELS" w nazwie.
+    private static Transform ZnajdzKorzenPoziomow()
     {
-        List<Transform> grupy = new List<Transform>();
-
         Transform[] wszystkie = FindObjectsByType<Transform>(
             FindObjectsInactive.Include, FindObjectsSortMode.None);
 
-        // 1. Szukamy rodzica poziomow - obiektu z "LEVELS" w nazwie.
         foreach (Transform t in wszystkie)
         {
-            if (t == null || t.name.IndexOf("LEVELS", System.StringComparison.OrdinalIgnoreCase) < 0)
-                continue;
-
-            for (int i = 0; i < t.childCount; i++)
-                grupy.Add(t.GetChild(i));
-
-            break;
+            if (t != null && t.name.IndexOf("LEVELS", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                return t;
         }
 
-        // 2. Zapasowo: obiekty z "LEVEL" w nazwie, jesli rodzica nie ma.
-        if (grupy.Count == 0)
-        {
-            foreach (Transform t in wszystkie)
-            {
-                if (t != null && t.name.IndexOf("LEVEL", System.StringComparison.OrdinalIgnoreCase) >= 0)
-                    grupy.Add(t);
-            }
-        }
-
-        return grupy.ToArray();
+        return null;
     }
 
+    // Wszystkie obiekty w drzewie poziomow (korzen + potomkowie).
+    private static void ZbierzDrzewo(Transform korzen, List<Transform> wynik)
+    {
+        if (korzen == null)
+            return;
+
+        wynik.Add(korzen);
+
+        for (int i = 0; i < korzen.childCount; i++)
+            ZbierzDrzewo(korzen.GetChild(i), wynik);
+    }
+
+    // Zapisujemy sciezki obiektow WYLACZONYCH. Przejscie na kolejny poziom
+    // wlacza nie tylko grupe LEVEL_x, ale i obiekty w jej wnetrzu (pokoje,
+    // swiatla), wiec sam stan grupy nie wystarcza.
     private List<LevelGroupSaveData> ZbierzGrupyPoziomow()
     {
         List<LevelGroupSaveData> lista = new List<LevelGroupSaveData>();
 
-        foreach (Transform t in ZnajdzGrupyPoziomow())
+        Transform korzen = ZnajdzKorzenPoziomow();
+        if (korzen == null)
         {
-            LevelGroupSaveData grupa = new LevelGroupSaveData();
-            grupa.objectId = BuildObjectID(t.gameObject);
-            grupa.active = t.gameObject.activeSelf;
-            lista.Add(grupa);
-
-            Debug.Log("SaveGame: grupa poziomu '" + t.name + "' aktywna: " + grupa.active);
+            Debug.LogWarning("SaveGame: nie znaleziono obiektu z 'LEVELS' w nazwie. " +
+                             "Stan poziomow NIE zostanie zapisany.");
+            return lista;
         }
 
-        if (lista.Count == 0)
+        List<Transform> drzewo = new List<Transform>();
+        ZbierzDrzewo(korzen, drzewo);
+
+        foreach (Transform t in drzewo)
         {
-            Debug.LogWarning("SaveGame: nie znaleziono grup poziomow. Stan poziomow NIE zostanie zapisany.");
+            if (t == null || t.gameObject.activeSelf)
+                continue;
+
+            LevelGroupSaveData wpis = new LevelGroupSaveData();
+            wpis.objectId = BuildObjectID(t.gameObject);
+            wpis.active = false;
+            lista.Add(wpis);
         }
+
+        Debug.Log("SaveGame: drzewo poziomow '" + korzen.name + "' - obiektow: " + drzewo.Count +
+                  ", wylaczonych: " + lista.Count + ".");
 
         return lista;
     }
 
     private void PrzywrocGrupyPoziomow(List<LevelGroupSaveData> zapisane)
     {
-        if (zapisane == null || zapisane.Count == 0)
+        if (zapisane == null)
         {
-            Debug.Log("LoadGame: brak grup poziomow w zapisie.");
+            Debug.Log("LoadGame: brak stanu poziomow w zapisie.");
             return;
         }
 
-        // Zabezpieczenie: gdyby zapis mial wszystkie grupy wylaczone, wczytanie
-        // dalo by czarny ekran. Wtedy lepiej nie ruszac nic.
-        bool ktorakolwiekAktywna = false;
-        foreach (LevelGroupSaveData grupa in zapisane)
+        Transform korzen = ZnajdzKorzenPoziomow();
+        if (korzen == null)
         {
-            if (grupa != null && grupa.active)
+            Debug.LogWarning("LoadGame: nie znaleziono obiektu z 'LEVELS' w nazwie. " +
+                             "Stan poziomow nie zostanie przywrocony.");
+            return;
+        }
+
+        HashSet<string> wylaczone = new HashSet<string>();
+        foreach (LevelGroupSaveData wpis in zapisane)
+        {
+            if (wpis != null && !string.IsNullOrEmpty(wpis.objectId))
+                wylaczone.Add(wpis.objectId);
+        }
+
+        List<Transform> drzewo = new List<Transform>();
+        ZbierzDrzewo(korzen, drzewo);
+
+        int wlaczone = 0;
+        int zgaszone = 0;
+
+        foreach (Transform t in drzewo)
+        {
+            if (t == null)
+                continue;
+
+            bool maBycAktywny = !wylaczone.Contains(BuildObjectID(t.gameObject));
+
+            if (t.gameObject.activeSelf == maBycAktywny)
+                continue;
+
+            t.gameObject.SetActive(maBycAktywny);
+
+            if (maBycAktywny)
+                wlaczone++;
+            else
+                zgaszone++;
+        }
+
+        Debug.Log("LoadGame: stan poziomow przywrocony (wlaczono: " + wlaczone +
+                  ", wylaczono: " + zgaszone + ", obiektow w drzewie: " + drzewo.Count + ").");
+    }
+
+    // ---------------------------------------------------------------
+    // STAN ZAGADEK W DRZEWIE POZIOMOW
+    // ---------------------------------------------------------------
+
+    private const BindingFlags FlagiPol =
+        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
+    private static string KluczFlagi(GameObject go, System.Type typ, string pole)
+    {
+        return BuildObjectID(go) + "|" + typ.Name + "|" + pole;
+    }
+
+    private void ZbierzStanZagadek(GameData data)
+    {
+        data.levelFlags = new List<ScriptFlagSaveData>();
+        data.levelTransforms = new List<TransformSaveData>();
+        data.levelAnimators = new List<AnimatorSaveData>();
+
+        Transform korzen = ZnajdzKorzenPoziomow();
+        if (korzen == null)
+            return;
+
+        List<Transform> drzewo = new List<Transform>();
+        ZbierzDrzewo(korzen, drzewo);
+
+        foreach (Transform t in drzewo)
+        {
+            if (t == null)
+                continue;
+
+            // 1. Pozycja i obrot - lapie przesuniete sciany, przyciski, dzwignie.
+            TransformSaveData trans = new TransformSaveData();
+            trans.objectId = BuildObjectID(t.gameObject);
+            trans.localPosition = t.localPosition;
+            trans.localEuler = t.localEulerAngles;
+            data.levelTransforms.Add(trans);
+
+            // 2. Animator - stan otwartych drzwi.
+            Animator animator = t.GetComponent<Animator>();
+            if (animator != null && animator.runtimeAnimatorController != null)
+                data.levelAnimators.Add(ZbierzAnimator(t.gameObject, animator));
+
+            // 3. Flagi bool w skryptach - 'performed', 'isOpen', 'canOpen'.
+            foreach (MonoBehaviour mb in t.GetComponents<MonoBehaviour>())
             {
-                ktorakolwiekAktywna = true;
-                break;
+                if (mb == null)
+                    continue;
+
+                foreach (FieldInfo pole in mb.GetType().GetFields(FlagiPol))
+                {
+                    if (pole.FieldType != typeof(bool))
+                        continue;
+
+                    ScriptFlagSaveData flaga = new ScriptFlagSaveData();
+                    flaga.key = KluczFlagi(t.gameObject, mb.GetType(), pole.Name);
+
+                    try
+                    {
+                        flaga.value = (bool)pole.GetValue(mb);
+                    }
+                    catch (System.Exception)
+                    {
+                        continue;
+                    }
+
+                    data.levelFlags.Add(flaga);
+                }
             }
         }
 
-        if (!ktorakolwiekAktywna)
+        Debug.Log("SaveGame: stan zagadek - flag: " + data.levelFlags.Count +
+                  ", pozycji: " + data.levelTransforms.Count +
+                  ", animatorow: " + data.levelAnimators.Count + ".");
+    }
+
+    private static AnimatorSaveData ZbierzAnimator(GameObject go, Animator animator)
+    {
+        AnimatorSaveData dane = new AnimatorSaveData();
+        dane.objectId = BuildObjectID(go);
+        dane.boolNames = new List<string>();
+        dane.boolValues = new List<bool>();
+        dane.floatNames = new List<string>();
+        dane.floatValues = new List<float>();
+        dane.intNames = new List<string>();
+        dane.intValues = new List<int>();
+
+        if (animator.layerCount > 0)
         {
-            Debug.LogWarning("LoadGame: w zapisie zadna grupa poziomu nie jest aktywna. " +
-                             "Pomijam przywracanie poziomow, zeby nie zgasic calej sceny. " +
-                             "Prawdopodobnie przy zapisie grupa aktywnego poziomu nie zostala rozpoznana.");
+            AnimatorStateInfo stan = animator.GetCurrentAnimatorStateInfo(0);
+            dane.stateHash = stan.fullPathHash;
+            dane.normalizedTime = stan.normalizedTime;
+        }
+
+        foreach (AnimatorControllerParameter parametr in animator.parameters)
+        {
+            switch (parametr.type)
+            {
+                case AnimatorControllerParameterType.Bool:
+                    dane.boolNames.Add(parametr.name);
+                    dane.boolValues.Add(animator.GetBool(parametr.name));
+                    break;
+                case AnimatorControllerParameterType.Float:
+                    dane.floatNames.Add(parametr.name);
+                    dane.floatValues.Add(animator.GetFloat(parametr.name));
+                    break;
+                case AnimatorControllerParameterType.Int:
+                    dane.intNames.Add(parametr.name);
+                    dane.intValues.Add(animator.GetInteger(parametr.name));
+                    break;
+            }
+        }
+
+        return dane;
+    }
+
+    private void PrzywrocStanZagadek(GameData data)
+    {
+        Transform korzen = ZnajdzKorzenPoziomow();
+        if (korzen == null)
             return;
+
+        List<Transform> drzewo = new List<Transform>();
+        ZbierzDrzewo(korzen, drzewo);
+
+        // Mapa sciezka -> Transform, zeby nie skanowac drzewa w petli.
+        Dictionary<string, Transform> poSciezce = new Dictionary<string, Transform>();
+        foreach (Transform t in drzewo)
+        {
+            if (t != null)
+                poSciezce[BuildObjectID(t.gameObject)] = t;
         }
 
-        Dictionary<string, bool> poId = new Dictionary<string, bool>();
-        foreach (LevelGroupSaveData grupa in zapisane)
-        {
-            if (grupa != null && !string.IsNullOrEmpty(grupa.objectId))
-                poId[grupa.objectId] = grupa.active;
-        }
+        int pozycje = PrzywrocPozycjeObiektow(data.levelTransforms, poSciezce);
+        int flagi = PrzywrocFlagiSkryptow(data.levelFlags, poSciezce);
+        int animatory = PrzywrocAnimatory(data.levelAnimators, poSciezce);
 
-        int przywrocone = 0;
+        Debug.Log("LoadGame: stan zagadek przywrocony (pozycji: " + pozycje +
+                  ", flag: " + flagi + ", animatorow: " + animatory + ").");
+    }
 
-        foreach (Transform t in ZnajdzGrupyPoziomow())
+    private static int PrzywrocPozycjeObiektow(
+        List<TransformSaveData> zapisane, Dictionary<string, Transform> poSciezce)
+    {
+        if (zapisane == null)
+            return 0;
+
+        int licznik = 0;
+
+        foreach (TransformSaveData dane in zapisane)
         {
-            bool active;
-            if (!poId.TryGetValue(BuildObjectID(t.gameObject), out active))
+            Transform t;
+            if (dane == null || !poSciezce.TryGetValue(dane.objectId, out t) || t == null)
                 continue;
 
-            t.gameObject.SetActive(active);
-            przywrocone++;
-
-            Debug.Log("LoadGame: grupa poziomu '" + t.name + "' aktywna: " + active);
+            t.localPosition = dane.localPosition;
+            t.localEulerAngles = dane.localEuler;
+            licznik++;
         }
 
-        Debug.Log("LoadGame: przywrocono stan " + przywrocone + " z " + zapisane.Count + " grup poziomow.");
+        return licznik;
+    }
+
+    private static int PrzywrocFlagiSkryptow(
+        List<ScriptFlagSaveData> zapisane, Dictionary<string, Transform> poSciezce)
+    {
+        if (zapisane == null)
+            return 0;
+
+        Dictionary<string, bool> mapa = new Dictionary<string, bool>();
+        foreach (ScriptFlagSaveData flaga in zapisane)
+        {
+            if (flaga != null && !string.IsNullOrEmpty(flaga.key))
+                mapa[flaga.key] = flaga.value;
+        }
+
+        int licznik = 0;
+
+        foreach (Transform t in poSciezce.Values)
+        {
+            if (t == null)
+                continue;
+
+            foreach (MonoBehaviour mb in t.GetComponents<MonoBehaviour>())
+            {
+                if (mb == null)
+                    continue;
+
+                System.Type typ = mb.GetType();
+
+                foreach (FieldInfo pole in typ.GetFields(FlagiPol))
+                {
+                    if (pole.FieldType != typeof(bool))
+                        continue;
+
+                    bool wartosc;
+                    if (!mapa.TryGetValue(KluczFlagi(t.gameObject, typ, pole.Name), out wartosc))
+                        continue;
+
+                    try
+                    {
+                        pole.SetValue(mb, wartosc);
+                        licznik++;
+                    }
+                    catch (System.Exception)
+                    {
+                    }
+                }
+            }
+        }
+
+        return licznik;
+    }
+
+    private static int PrzywrocAnimatory(
+        List<AnimatorSaveData> zapisane, Dictionary<string, Transform> poSciezce)
+    {
+        if (zapisane == null)
+            return 0;
+
+        int licznik = 0;
+
+        foreach (AnimatorSaveData dane in zapisane)
+        {
+            Transform t;
+            if (dane == null || !poSciezce.TryGetValue(dane.objectId, out t) || t == null)
+                continue;
+
+            Animator animator = t.GetComponent<Animator>();
+            if (animator == null || animator.runtimeAnimatorController == null)
+                continue;
+
+            for (int i = 0; i < dane.boolNames.Count; i++)
+                animator.SetBool(dane.boolNames[i], dane.boolValues[i]);
+
+            for (int i = 0; i < dane.floatNames.Count; i++)
+                animator.SetFloat(dane.floatNames[i], dane.floatValues[i]);
+
+            for (int i = 0; i < dane.intNames.Count; i++)
+                animator.SetInteger(dane.intNames[i], dane.intValues[i]);
+
+            if (dane.stateHash != 0)
+            {
+                // Odtwarzamy stan od razu w miejscu, w ktorym byl przy zapisie -
+                // dzieki temu otwarte drzwi zostaja otwarte, bez animacji.
+                animator.Play(dane.stateHash, 0, dane.normalizedTime);
+                animator.Update(0f);
+            }
+
+            licznik++;
+        }
+
+        return licznik;
     }
 
     // Zapisuje cel patrzenia kazdej kamery postaci (kolejnosc jak w playersCamera).

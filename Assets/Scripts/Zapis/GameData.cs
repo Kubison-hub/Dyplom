@@ -48,6 +48,13 @@ public class GameData
     // wczytywalby sie zawsze na pierwszym poziomie.
     public List<LevelGroupSaveData> levelGroups;
 
+    // Stan zagadek w drzewie poziomow: flagi skryptow, pozycje obiektow
+    // i stany animatorow. Bez tego otwarte drzwi wracaja zamkniete,
+    // a przesuniete mechanizmy do pozycji wyjsciowej.
+    public List<ScriptFlagSaveData> levelFlags;
+    public List<TransformSaveData> levelTransforms;
+    public List<AnimatorSaveData> levelAnimators;
+
     // --- Cele kamer postaci (LookAt) ---
     // Scena startuje z kamera wycelowana w Selme (seans), a przesuwa ja dopiero
     // dialog otwierajacy. Po wczytaniu ten dialog nie leci, wiec cel trzeba zapisac.
@@ -163,6 +170,38 @@ public class NpcSaveData
     public Vector3 position;
     public Vector3 eulerAngles;  // obrot, zeby NPC nie patrzyl w zla strone
     public bool active;          // czy obiekt byl wlaczony
+}
+
+// Stan flagi bool w skrypcie (np. 'performed', 'isOpen', 'canOpen').
+[System.Serializable]
+public class ScriptFlagSaveData
+{
+    public string key;   // sciezka|typKomponentu|nazwaPola
+    public bool value;
+}
+
+// Pozycja i obrot obiektu wzgledem rodzica.
+[System.Serializable]
+public class TransformSaveData
+{
+    public string objectId;
+    public Vector3 localPosition;
+    public Vector3 localEuler;
+}
+
+// Stan animatora - stan aktualny i parametry.
+[System.Serializable]
+public class AnimatorSaveData
+{
+    public string objectId;
+    public int stateHash;
+    public float normalizedTime;
+    public List<string> boolNames;
+    public List<bool> boolValues;
+    public List<string> floatNames;
+    public List<float> floatValues;
+    public List<string> intNames;
+    public List<int> intValues;
 }
 
 // Stan wlaczenia jednej grupy poziomu.
