@@ -61,6 +61,10 @@ public class NotebookManager : MonoBehaviour
     private PlayerInput notebookLockedInput;
     private bool notebookDisabledInput;
     private bool openedAsQuickRead;
+    private bool closeQuickReadOnLeftMouseClick;
+    private bool quickReadDisplayPositionOverridden;
+    private Vector2 quickReadDisplayOriginalPosition;
+    private int quickReadOpenedFrame;
     private bool notebookPausedTime;
 
     public bool IsNotebookOpen => notebookPanel != null && notebookPanel.activeSelf;
@@ -92,11 +96,19 @@ public class NotebookManager : MonoBehaviour
         if (cluesLog != null)
             cluesLog.OnLogUpdated -= UpdateTaskDisplay;
 
+        RestoreQuickReadDisplayPosition();
         ResumeGameplayTime();
     }
 
     private void Update()
     {
+        if (openedAsQuickRead && closeQuickReadOnLeftMouseClick && IsNotebookOpen &&
+            Time.frameCount > quickReadOpenedFrame && Input.GetMouseButtonDown(0))
+        {
+            CloseNotebook();
+            return;
+        }
+
         if (Input.GetKeyDown(KeyCode.Tab) && !IsTutorialBlockingNotebook())
         {
             ToggleNotebook();
@@ -139,7 +151,9 @@ public class NotebookManager : MonoBehaviour
         if (notebookPanel != null)
             notebookPanel.SetActive(false);
 
+        RestoreQuickReadDisplayPosition();
         openedAsQuickRead = false;
+        closeQuickReadOnLeftMouseClick = false;
         RestoreQuestLogAfterNotebook();
         RestoreActivePlayerInput();
         ResumeGameplayTime();
@@ -420,11 +434,24 @@ public class NotebookManager : MonoBehaviour
 
     public void ShowNoteImmediately(NoteData note)
     {
+        ShowNoteImmediately(note, null, false);
+    }
+
+    public void ShowNoteImmediately(NoteData note, float quickReadDisplayPositionX, bool closeOnLeftMouseClick)
+    {
+        ShowNoteImmediately(note, (float?)quickReadDisplayPositionX, closeOnLeftMouseClick);
+    }
+
+    private void ShowNoteImmediately(NoteData note, float? quickReadDisplayPositionX, bool closeOnLeftMouseClick)
+    {
         if (note == null || notebookPanel == null)
             return;
 
         AddNote(note);
         openedAsQuickRead = true;
+        this.closeQuickReadOnLeftMouseClick = closeOnLeftMouseClick;
+        quickReadOpenedFrame = Time.frameCount;
+        ApplyQuickReadDisplayPosition(quickReadDisplayPositionX);
 
         if (!IsNotebookOpen)
         {
@@ -440,6 +467,34 @@ public class NotebookManager : MonoBehaviour
             categoryPanel.SetActive(false);
 
         DisplayNote(note);
+    }
+
+    private void ApplyQuickReadDisplayPosition(float? positionX)
+    {
+        RestoreQuickReadDisplayPosition();
+
+        if (!positionX.HasValue || noteDisplayArea == null)
+            return;
+
+        RectTransform displayAreaRect = noteDisplayArea.GetComponent<RectTransform>();
+        if (displayAreaRect == null)
+            return;
+
+        quickReadDisplayOriginalPosition = displayAreaRect.anchoredPosition;
+        displayAreaRect.anchoredPosition = new Vector2(positionX.Value, quickReadDisplayOriginalPosition.y);
+        quickReadDisplayPositionOverridden = true;
+    }
+
+    private void RestoreQuickReadDisplayPosition()
+    {
+        if (!quickReadDisplayPositionOverridden || noteDisplayArea == null)
+            return;
+
+        RectTransform displayAreaRect = noteDisplayArea.GetComponent<RectTransform>();
+        if (displayAreaRect != null)
+            displayAreaRect.anchoredPosition = quickReadDisplayOriginalPosition;
+
+        quickReadDisplayPositionOverridden = false;
     }
 
     private void HideQuestLogForNotebook()
