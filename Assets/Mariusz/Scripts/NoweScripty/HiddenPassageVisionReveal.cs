@@ -81,7 +81,9 @@ public class HiddenPassageVisionReveal : MonoBehaviour
             return;
         }
 
-        bool visionActive = EagleVisionSystem.Instance != null && EagleVisionSystem.Instance.isActive;
+        bool visionActive = EagleVisionSystem.Instance != null &&
+                            EagleVisionSystem.Instance.isActive &&
+                            IsSherlockActive();
 
         if (visionActive != visionWasActive)
         {
@@ -110,6 +112,11 @@ public class HiddenPassageVisionReveal : MonoBehaviour
     private void OnDisable()
     {
         HideReconstruction();
+    }
+
+    private static bool IsSherlockActive()
+    {
+        return SwitchCharacter.Instance == null || SwitchCharacter.Instance.activePlayerIndex == 0;
     }
 
     private void HideReconstruction()
