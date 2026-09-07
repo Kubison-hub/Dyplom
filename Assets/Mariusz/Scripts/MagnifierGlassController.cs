@@ -369,6 +369,10 @@ public class MagnifierGlassController : MonoBehaviour
             TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput)
             return false;
 
+        // Dragging an IdeaPoint owns the F input until the line is released or cancelled.
+        if (DetectiveIdeaManager.Instance != null && DetectiveIdeaManager.Instance.IsDraggingIdea())
+            return false;
+
         if (loupeSuppressedUntilKeyRelease)
         {
             if (Input.GetKey(loupeKey))
