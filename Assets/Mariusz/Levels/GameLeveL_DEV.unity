@@ -79969,7 +79969,7 @@ MonoBehaviour:
   currentZoomIndex: 0
   rotationSpeed: 2
   rotationDamping: 0.25
-  autoRotateCamera: 1
+  autoRotateCamera: 0
   autoRotateSpeed: 8
   resumeAfterDelay: 0
   autoRotateResumeDelay: 15
@@ -80008,7 +80008,7 @@ MonoBehaviour:
     bottomRadius: 7
     bottomHeight: 6
   startZoomIndex: 2
-  manualZoomMinIndex: 0
+  manualZoomMinIndex: 2
   manualZoomMaxIndex: 3
 --- !u!114 &581095109
 MonoBehaviour:
@@ -114430,6 +114430,7 @@ GameObject:
   - component: {fileID: 838203360}
   - component: {fileID: 838203359}
   - component: {fileID: 838203335}
+  - component: {fileID: 838203372}
   m_Layer: 0
   m_Name: ConversationEventInfo
   m_TagString: Untagged
@@ -115183,6 +115184,25 @@ MonoBehaviour:
   NodeID: 0
   TMPFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   Icon: {fileID: 21300000, guid: 2e55e86a6c27ac747a03ea151d5da193, type: 3}
+  Audio: {fileID: 0}
+--- !u!114 &838203372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 838203334}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00abedce3cdbbba46bf2d86c9518c9f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Event:
+    m_PersistentCalls:
+      m_Calls: []
+  NodeID: 16
+  TMPFont: {fileID: 0}
+  Icon: {fileID: 0}
   Audio: {fileID: 0}
 --- !u!1 &838366312
 GameObject:
@@ -263828,32 +263848,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83189876d4d389f43b7dd2e925aa112e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CurrentIDCounter: 16
-  json: "{\"Options\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":10}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-95,\"yPos\":960},\"ID\":6,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Sherlock:
-    Taki mam zamiar...\",\"parentUIDs\":[4],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":8}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":423,\"yPos\":802},\"ID\":7,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Watson:
-    Spokojnie, Madame Selmo.\",\"parentUIDs\":[4],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":12}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":152,\"yPos\":1319},\"ID\":11,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Zajmiemy
-    si\u0119 wszystkim.\",\"parentUIDs\":[10],\"SpeechUID\":-1}],\"Parameters\":[],\"SpeechNodes\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":1}],\"EditorInfo\":{\"isRoot\":true,\"xPos\":284.5,\"yPos\":22},\"ID\":0,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"To
+  CurrentIDCounter: 17
+  json: "{\"Options\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":10}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-355.5,\"yPos\":960},\"ID\":6,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Sherlock:
+    Taki mam zamiar...\",\"parentUIDs\":[4],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":8}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":162.5,\"yPos\":802},\"ID\":7,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Watson:
+    Spokojnie, Madame Selmo.\",\"parentUIDs\":[4],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":12}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-108.5,\"yPos\":1319},\"ID\":11,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Zajmiemy
+    si\u0119 wszystkim.\",\"parentUIDs\":[10],\"SpeechUID\":-1},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":244,\"yPos\":150},\"ID\":16,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"WYJD\u017B
+    (DEBUG DO USUNI\u0118CIA)\",\"parentUIDs\":[0],\"SpeechUID\":-1}],\"Parameters\":[],\"SpeechNodes\":[{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":16}],\"EditorInfo\":{\"isRoot\":true,\"xPos\":24,\"yPos\":22},\"ID\":0,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"To
     niepoj\u0119te! Jak mog\u0142o do tego doj\u015B\u0107, i to w moim domu, na
     moim seansie?!\",\"parentUIDs\":[],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
-    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":2}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":273,\"yPos\":167},\"ID\":1,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Bardzo\u2026
-    ciekawe.\",\"parentUIDs\":[0],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":3}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":272,\"yPos\":288},\"ID\":2,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Co
+    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":2}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":12.5,\"yPos\":167},\"ID\":1,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Bardzo\u2026
+    ciekawe.\",\"parentUIDs\":[],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":3}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":11.5,\"yPos\":288},\"ID\":2,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Co
     w tym ciekawego, panie Holmes? To tragedia.\",\"parentUIDs\":[1],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
-    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":4}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":274,\"yPos\":473},\"ID\":3,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dobrze
+    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":4}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":13.5,\"yPos\":473},\"ID\":3,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dobrze
     si\u0119 sk\u0142ada, \u017Ce tu jeste\u015Bmy i mo\u017Cemy zbada\u0107, co
-    zasz\u0142o, pani Selmo.\",\"parentUIDs\":[2],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":6},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":7}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":276,\"yPos\":617},\"ID\":4,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Si\u0142a
+    zasz\u0142o, pani Selmo.\",\"parentUIDs\":[2],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":6},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":7}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":15.5,\"yPos\":617},\"ID\":4,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Si\u0142a
     wy\u017Csza zes\u0142a\u0142a mi pan\xF3w. Prosz\u0119 zrobi\u0107 wszystko,
     by wyja\u015Bni\u0107, co si\u0119 tutaj wydarzy\u0142o.\",\"parentUIDs\":[3],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
-    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":9}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":317,\"yPos\":936},\"ID\":8,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jak
+    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":9}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":56.5,\"yPos\":936},\"ID\":8,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jak
     mog\u0119 by\u0107 spokojna? Moja klientka w\u0142a\u015Bnie zgin\u0119\u0142a!\",\"parentUIDs\":[7],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
-    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":10}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":315,\"yPos\":1084},\"ID\":9,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Wiem,
+    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":10}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":54.5,\"yPos\":1084},\"ID\":9,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Wiem,
     \u017Ce to przyt\u0142aczaj\u0105cy moment, ale je\u015Bli zachowa pani spok\xF3j,
     pozostali p\xF3jd\u0105 za pani przyk\u0142adem. Nam r\xF3wnie\u017C \u0142atwiej
-    b\u0119dzie z nimi porozmawia\u0107.\",\"parentUIDs\":[8],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":11}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":154,\"yPos\":1196},\"ID\":10,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dobrze.
+    b\u0119dzie z nimi porozmawia\u0107.\",\"parentUIDs\":[8],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":11}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-106.5,\"yPos\":1196},\"ID\":10,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dobrze.
     Moja renoma nie mo\u017Ce ucierpie\u0107 przez to, co tu zasz\u0142o. Postaram
     si\u0119 zachowa\u0107 twarz mimo tych tragicznych okoliczno\u015Bci.\",\"parentUIDs\":[9,6],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
-    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":13}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":144,\"yPos\":1450},\"ID\":12,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Wygl\u0105da
-    na to, \u017Ce z zabawnego wieczoru przechodzimy do pracy, drogi Watsonie.\",\"parentUIDs\":[11],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":15}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":140,\"yPos\":1567},\"ID\":13,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Telegram
-    nie k\u0142ama\u0142. Faktycznie kto\u015B dzisiaj zgin\u0105\u0142\u2026\",\"parentUIDs\":[12],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":139,\"yPos\":1689},\"ID\":15,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Bardzo
+    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":13}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-116.5,\"yPos\":1450},\"ID\":12,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Wygl\u0105da
+    na to, \u017Ce z zabawnego wieczoru przechodzimy do pracy, drogi Watsonie.\",\"parentUIDs\":[11],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":15}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-120.5,\"yPos\":1567},\"ID\":13,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Telegram
+    nie k\u0142ama\u0142. Faktycznie kto\u015B dzisiaj zgin\u0105\u0142\u2026\",\"parentUIDs\":[12],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-121.5,\"yPos\":1689},\"ID\":15,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Bardzo
     ciekawe. Czas rozpocz\u0105\u0107 \u015Bledztwo.\",\"parentUIDs\":[13],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0}]}"
   saveVersion: 110
   DefaultName: 
@@ -263874,6 +263895,7 @@ MonoBehaviour:
   - {fileID: 838203360}
   - {fileID: 838203359}
   - {fileID: 838203335}
+  - {fileID: 838203372}
   ContinueFont: {fileID: 0}
   EndConversationFont: {fileID: 0}
   Event:
@@ -294580,7 +294602,7 @@ MonoBehaviour:
     centerHeight: 8
     bottomRadius: 7
     bottomHeight: 6
-  startZoomIndex: 1
+  startZoomIndex: 0
   manualZoomMinIndex: 0
   manualZoomMaxIndex: 3
 --- !u!114 &2073143494

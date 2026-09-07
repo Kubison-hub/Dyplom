@@ -267,7 +267,7 @@ public class TutorialTimeline : MonoBehaviour
         ConversationManager conversationManager = ConversationManager.Instance;
         if (openingConversation != null && conversationManager != null)
         {
-            SetCameraZoom(CameraZoomState.Narrow, openingConversationZoomTransitionSpeed);
+            SetCameraZoom(CameraZoomState.Medium, openingConversationZoomTransitionSpeed);
             if (focusCameraOnOpeningConversation)
             {
                 openingConversationNpc?.SetDialogueCameraReturnTarget(openingConversationReturnCameraTarget);
