@@ -177,6 +177,8 @@ public class Int_lv3_Ethel : MonoBehaviour
 
         if (ethel2InteractionGameObject != null)
             ethel2InteractionGameObject.SetActive(true);
+
+        interactable?.MarkCompleted();
     }
 
     private IEnumerator MoveInactivePlayerAfterDelay(PlayerController activePlayer)

@@ -1,12 +1,23 @@
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 using System.Collections;
+using System;
+using DialogueEditor;
 
 public class int_lv1_HenryNPC : Int_lv1_NpcDialogBase
 {
     [Header("Dialogue Rig")]
     [SerializeField] private Rig dialogueRig;
     [SerializeField, Min(0.01f)] private float rigBlendDuration = 0.25f;
+
+    [Header("Repeat Dialogue")]
+    [SerializeField] private SmartNPC henrySmartNpc;
+    [SerializeField] private NPCConversation repeatConversationForSherlock;
+    [SerializeField] private NPCConversation repeatConversationForWatson;
+
+    [Header("Selma Dialogue Unlock")]
+    [SerializeField] private SmartNPC selmaSmartNpc;
+    [SerializeField] private string selmaHenryParameterName = "Henry";
 
     private Coroutine rigBlendCoroutine;
 
@@ -26,6 +37,10 @@ public class int_lv1_HenryNPC : Int_lv1_NpcDialogBase
     protected override void Start()
     {
         base.Start();
+
+        if (henrySmartNpc == null)
+            henrySmartNpc = GetComponentInChildren<SmartNPC>(true);
+
         SetRigWeightImmediate(0f);
     }
 
@@ -37,6 +52,71 @@ public class int_lv1_HenryNPC : Int_lv1_NpcDialogBase
     protected override void OnNpcDialogueFinished()
     {
         BlendRigWeight(0f);
+        SwitchToRepeatDialogue();
+        UnlockSelmaHenryDialogueOption();
+    }
+
+    private void SwitchToRepeatDialogue()
+    {
+        if (henrySmartNpc == null)
+            return;
+
+        if (repeatConversationForSherlock != null)
+            henrySmartNpc.rozmowaDlaPostaciA = repeatConversationForSherlock;
+
+        if (repeatConversationForWatson != null)
+            henrySmartNpc.rozmowaDlaPostaciB = repeatConversationForWatson;
+    }
+
+    private void UnlockSelmaHenryDialogueOption()
+    {
+        if (string.IsNullOrWhiteSpace(selmaHenryParameterName))
+            return;
+
+        if (selmaSmartNpc == null)
+        {
+            Int_SelmaDialog selmaDialogue = FindFirstObjectByType<Int_SelmaDialog>();
+            selmaSmartNpc = selmaDialogue != null ? selmaDialogue.smartNPC : null;
+        }
+
+        if (selmaSmartNpc == null)
+        {
+            Debug.LogWarning("Henry dialogue finished, but Selma SmartNPC is not assigned.", this);
+            return;
+        }
+
+        SetConversationBool(selmaSmartNpc.rozmowaDlaPostaciA);
+        SetConversationBool(selmaSmartNpc.rozmowaDlaPostaciB);
+    }
+
+    private void SetConversationBool(NPCConversation conversation)
+    {
+        if (conversation == null)
+            return;
+
+        string requestedParameterName = selmaHenryParameterName.Trim();
+        string resolvedParameterName = requestedParameterName;
+
+        // Conversation parameters live inside its serialized JSON. Resolve the
+        // stored name so an accidental leading/trailing whitespace cannot make
+        // the gameplay flag differ from the condition used by the dialogue.
+        if (conversation.ParameterList == null)
+            conversation.DeserializeForEditor();
+
+        if (conversation.ParameterList != null)
+        {
+            foreach (EditableParameter parameter in conversation.ParameterList)
+            {
+                if (parameter != null &&
+                    string.Equals(parameter.ParameterName?.Trim(), requestedParameterName, StringComparison.Ordinal))
+                {
+                    resolvedParameterName = parameter.ParameterName;
+                    break;
+                }
+            }
+        }
+
+        conversation.SetRuntimeBoolParameter(resolvedParameterName, true);
     }
 
     private void OnDisable()

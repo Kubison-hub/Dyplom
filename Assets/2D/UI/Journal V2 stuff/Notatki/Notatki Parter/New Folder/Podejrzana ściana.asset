@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ebbf5064190e4340af5d5b2b99c1ef0, type: 3}
+  m_Name: "Podejrzana \u015Bciana"
+  m_EditorClassIdentifier: 
+  noteTitle: "Podejrzana \u015Bciana."
+  category: 0
+  person: 0
+  observation: 5
+  content: "Za \u015Bcian\u0105 salonu prawdopodobnie znajduje si\u0119 pomieszczenie.
+    Przechodz\u0105c obok, wyczu\u0142em lekki przeci\u0105g, a po bli\u017Cszym
+    przyjrzeniu si\u0119 \u015Bcianie zauwa\u017Cy\u0142em, \u017Ce jeden jej fragment
+    odstaje od reszty."
+  customPaperGraphic: {fileID: 0}

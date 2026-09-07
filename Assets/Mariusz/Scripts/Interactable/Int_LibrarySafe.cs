@@ -44,10 +44,6 @@ public class Int_LibrarySafe : Lvl3InteractionDialogueBase
     [SerializeField] private GameObject contents;
     [SerializeField] private int_LibraryPainting libraryPainting;
 
-    [Header("Violet Escort")]
-    [Tooltip("Violet's WatsonEscortNPC. When she is currently escorted, opening this safe makes Watson say farewell and sends her back to Root Position.")]
-    [SerializeField] private WatsonEscortNPC violetEscortNpc;
-
     private SafeCodeDrumMinigame currentMinigame;
     private PlayerController interactingPlayer;
     private bool hasKey;
@@ -120,6 +116,7 @@ public class Int_LibrarySafe : Lvl3InteractionDialogueBase
 
         CloseMinigame();
         isOpen = true;
+        GetComponent<Interactable>()?.MarkCompleted();
 
         if (safeAnimator != null && !string.IsNullOrWhiteSpace(openTrigger))
             safeAnimator.SetTrigger(openTrigger);
@@ -131,20 +128,12 @@ public class Int_LibrarySafe : Lvl3InteractionDialogueBase
             contents.SetActive(true);
 
         libraryPainting?.DeactivatePaintingInteraction();
-        DismissVioletEscort();
 
         interactable.interactiveShader = null;
         interactable.isInteractableActive = false;
 
         if (interactionCollider != null)
             interactionCollider.enabled = false;
-    }
-
-    private void DismissVioletEscort()
-    {
-        WatsonEscortController escortController = WatsonEscortController.Instance;
-        if (escortController != null && escortController.IsEscortingNpc(violetEscortNpc))
-            escortController.ForceFarewell();
     }
 
     private void HandleClosed()

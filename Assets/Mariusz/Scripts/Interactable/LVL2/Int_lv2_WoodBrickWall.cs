@@ -161,6 +161,7 @@ public class Int_lv2_WoodBrickWall : Lvl3InteractionDialogueBase
         }
 
         correctBlockAccepted = true;
+        GetComponent<Interactable>()?.MarkCompleted();
         SetMountedVisual(mountedVariant, true);
 
         lvl2_Int_EthelWallButton mountedButton = GetMountedEthelWallButton();

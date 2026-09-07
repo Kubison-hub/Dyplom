@@ -454,6 +454,24 @@ public class CameraController : MonoBehaviour
         return SetZoomPreset(presetName, transitionSmoothSpeed);
     }
 
+    public bool SetDialogueReturnZoomPreset(string presetName)
+    {
+        if (zoomPresets == null || string.IsNullOrWhiteSpace(presetName))
+            return false;
+
+        for (int i = 0; i < zoomPresets.Length; i++)
+        {
+            if (!string.Equals(zoomPresets[i].name, presetName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            dialoguePreviousZoomIndex = i;
+            return true;
+        }
+
+        Debug.LogWarning($"{name}: Dialogue return zoom preset '{presetName}' was not found.");
+        return false;
+    }
+
     public void OverrideCameraTarget(Transform target)
     {
         if (cineCamera == null || target == null)
@@ -558,6 +576,27 @@ public class CameraController : MonoBehaviour
             ? cineCamera.LookAt.position
             : lookAtTargetBeforeOverride.position;
         smoothLookAtDestination = lookAtTargetBeforeOverride;
+        smoothLookAtTransitionSpeed = Mathf.Max(0.01f, transitionSpeed);
+        restoringSmoothLookAtTarget = true;
+        cineCamera.LookAt = smoothLookAtProxy;
+    }
+
+    public void ReturnLookAtToTargetSmooth(Transform target, float transitionSpeed)
+    {
+        if (target == null)
+        {
+            RestoreLookAtTargetSmooth(transitionSpeed);
+            return;
+        }
+
+        if (cineCamera == null)
+            return;
+
+        EnsureSmoothLookAtProxy();
+        smoothLookAtProxy.position = cineCamera.LookAt != null
+            ? cineCamera.LookAt.position
+            : target.position;
+        smoothLookAtDestination = target;
         smoothLookAtTransitionSpeed = Mathf.Max(0.01f, transitionSpeed);
         restoringSmoothLookAtTarget = true;
         cineCamera.LookAt = smoothLookAtProxy;

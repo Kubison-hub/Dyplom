@@ -150,7 +150,10 @@ public class MouseTooltipManager : MonoBehaviour
 
     private static bool IsWorldInputBlocked()
     {
-        return NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen ||
+        return PlayerController.IsWorldInputLocked ||
+               DialogueEditor.ConversationManager.Instance != null &&
+               DialogueEditor.ConversationManager.Instance.IsConversationActive ||
+               NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen ||
                TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput ||
                TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput;
     }

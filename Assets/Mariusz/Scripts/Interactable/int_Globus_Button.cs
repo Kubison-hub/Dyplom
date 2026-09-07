@@ -43,6 +43,7 @@ public class int_Globus_Button : MonoBehaviour, IVioletRoomInteractionGate
             return;
 
         performed = true;
+        interactable?.MarkCompleted();
 
         if (audioController != null)
             audioController.PlayUnlock();

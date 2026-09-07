@@ -268,6 +268,7 @@ public class Int_StairsUp : MonoBehaviour
         }
 
         player.currentInteractable = null;
+        interactable?.MarkCompleted();
 
         yield return null;
     }

@@ -21,6 +21,7 @@ public class Int_lv3_ControlUnit : Lvl3InteractionDialogueBase
         {
             CluesLog.Instance?.RegisterBasementEvidence("ControlUnit");
             CluesLog.Instance?.SetControlUnitDescription();
+            GetComponent<Interactable>()?.MarkCompleted();
         }
 
         PlayDialogue(player, hasBeenExamined ? repeatDialogueLines : firstDialogueLines);

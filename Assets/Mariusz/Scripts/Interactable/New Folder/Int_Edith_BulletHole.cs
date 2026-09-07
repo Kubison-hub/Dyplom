@@ -46,6 +46,7 @@ public class Int_Edith_BulletHole : MonoBehaviour
             return;
 
         performed = true;
+        interactable?.MarkCompleted();
         interactable?.AddClue(0);
         ideaPoint?.RevealFromExternalSource();
 

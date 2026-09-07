@@ -65,6 +65,7 @@ public class Int_lv3_ClockSecretPassage : Lvl3ClockworkInteraction
         }
 
         opened = true;
+        Interactable?.MarkCompleted();
         CluesLog.Instance?.RemoveFindBasementHiddenDoorObjective();
         openAudioSource?.Play();
 
@@ -97,6 +98,7 @@ public class Int_lv3_ClockSecretPassage : Lvl3ClockworkInteraction
             return;
 
         opened = true;
+        Interactable?.MarkCompleted();
         CluesLog.Instance?.RemoveFindBasementHiddenDoorObjective();
         openAudioSource?.Play();
 

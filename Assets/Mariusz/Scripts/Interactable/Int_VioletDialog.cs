@@ -30,6 +30,24 @@ public class Int_VioletDialog : Lvl3InteractionDialogueBase
     [Tooltip("Played after Violet faces the player and before the SmartNPC conversation begins.")]
     [SerializeField] private Lvl3DialogueLine[] introDialogue;
 
+    [Header("Watson Escort Unlock")]
+    [Tooltip("When enabled, Violet's normal dialogue cannot be started until Watson has escorted her to a valid destination.")]
+    [SerializeField] private bool requireSuccessfulWatsonEscort = true;
+    [SerializeField] private bool automaticallyStartDialogueAfterEscort = true;
+
+    [Header("After Watson Escort Dialogue")]
+    [SerializeField, Min(1f)] private float sherlockFaceVioletTurnSpeed = 300f;
+    [SerializeField, Min(0.1f)] private float sherlockFaceVioletTolerance = 1f;
+    [SerializeField] private Lvl3DialogueLine[] sherlockAfterEscortDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Teraz mam szans\u0119 przeszuka\u0107 bibliotek\u0119.",
+            duration = 3f
+        }
+    };
+
     [Header("Library Awareness")]
     [Tooltip("Assign the Violet GameObject that actually carries WatsonEscortNPC and NavMeshAgent.")]
     [SerializeField] private Transform violetPositionTarget;
@@ -42,16 +60,30 @@ public class Int_VioletDialog : Lvl3InteractionDialogueBase
     [SerializeField] private QueryTriggerInteraction libraryVisionTriggerInteraction = QueryTriggerInteraction.Ignore;
 
     public bool IsLibraryObserved => libraryRoomVolume == null ? isVioletInRoom : isLibraryObserved;
+    public bool IsOutsideLibraryButObserving => !isVioletInRoom && IsLibraryObserved;
 
     public Transform moveDestination;
     private Vector3 destination;
     private bool isLibraryObserved;
     private bool dialogueStarting;
+    private bool dialogueUnlocked;
+    private bool dialogueStartedByEscort;
+    private bool switchToSherlockAfterEscortDialogue = true;
+
+    public bool IsDialogueAvailable => !requireSuccessfulWatsonEscort || dialogueUnlocked;
+    public bool IsDialogueInProgress => dialogueStarting;
+    public bool IsDialogueAvailableFor(PlayerController player)
+    {
+        return IsDialogueAvailable || !IsWatson(player);
+    }
+    public bool WillAutomaticallyStartAfterEscort => automaticallyStartDialogueAfterEscort;
 
     protected override Lvl3DialogueLine[] DefaultDialogueLines => introDialogue;
 
     private void Start()
     {
+
+        dialogueUnlocked = !requireSuccessfulWatsonEscort;
 
         if (Instance == null)
         {
@@ -96,6 +128,13 @@ public class Int_VioletDialog : Lvl3InteractionDialogueBase
 
     public void PerformInteraction(PlayerController player)
     {
+        if (!IsDialogueAvailableFor(player))
+        {
+            if (player != null)
+                player.currentInteractable = null;
+            return;
+        }
+
         if (!dialogueStarting && ConversationManager.Instance != null && !ConversationManager.Instance.IsConversationActive)
         {
             if (!performed)
@@ -122,6 +161,36 @@ public class Int_VioletDialog : Lvl3InteractionDialogueBase
         //this.gameObject.SetActive(false);
     }
 
+    private static bool IsWatson(PlayerController player)
+    {
+        if (player == null || SwitchCharacter.Instance == null ||
+            SwitchCharacter.Instance.players == null || SwitchCharacter.Instance.players.Length < 2 ||
+            SwitchCharacter.Instance.players[1] == null)
+            return false;
+
+        return SwitchCharacter.Instance.players[1].GetComponent<PlayerController>() == player;
+    }
+
+    public bool UnlockAndStartDialogueAfterEscort(PlayerController player, bool switchToSherlockAfterDialogue = true)
+    {
+        dialogueUnlocked = true;
+
+        if (!automaticallyStartDialogueAfterEscort || dialogueStarting ||
+            ConversationManager.Instance == null || ConversationManager.Instance.IsConversationActive)
+            return false;
+
+        dialogueStartedByEscort = true;
+        switchToSherlockAfterEscortDialogue = switchToSherlockAfterDialogue;
+        PerformInteraction(player);
+        return true;
+    }
+
+    public void PlaySherlockAfterEscortDialogue(PlayerController sherlock)
+    {
+        if (sherlock != null && sherlockAfterEscortDialogue != null && sherlockAfterEscortDialogue.Length > 0)
+            PlayDialogue(sherlock, sherlockAfterEscortDialogue);
+    }
+
     private IEnumerator BeginDialogue(PlayerController player)
     {
         dialogueStarting = true;
@@ -144,6 +213,21 @@ public class Int_VioletDialog : Lvl3InteractionDialogueBase
             PlayDialogue(player, introDialogue);
             while (IsDialoguePlaying)
                 yield return null;
+        }
+
+        if (dialogueStartedByEscort && dialogueTransform != null &&
+            SwitchCharacter.Instance != null && SwitchCharacter.Instance.players != null &&
+            SwitchCharacter.Instance.players.Length > 0)
+        {
+            PlayerController sherlock = SwitchCharacter.Instance.players[0].GetComponent<PlayerController>();
+            if (sherlock != null)
+            {
+                yield return NpcDialogueFacingUtility.FacePlayer(
+                    sherlock.transform,
+                    dialogueTransform,
+                    sherlockFaceVioletTurnSpeed,
+                    sherlockFaceVioletTolerance);
+            }
         }
 
         smartNPC?.SprawdzIZacznijRozmowe();
@@ -173,7 +257,27 @@ public class Int_VioletDialog : Lvl3InteractionDialogueBase
             dialogueTransform.rotation = rotationBeforeDialogue;
         }
 
+        bool dialogueWasStartedByEscort = dialogueStartedByEscort;
+        bool redFigureCollected = InventoryManager.Instance != null &&
+                                  InventoryManager.Instance.items.Contains(ItemType.Czerwona);
+        bool returnControlToSherlock = dialogueWasStartedByEscort &&
+                                       switchToSherlockAfterEscortDialogue &&
+                                       !redFigureCollected;
+        dialogueStartedByEscort = false;
+        switchToSherlockAfterEscortDialogue = true;
         dialogueStarting = false;
+
+        if (dialogueWasStartedByEscort && redFigureCollected)
+        {
+            WatsonEscortController.Instance?.ForceFarewell();
+            yield break;
+        }
+
+        if (returnControlToSherlock)
+        {
+            PlayerController sherlock = WatsonEscortController.Instance?.RestoreSwitchingAndSelectSherlock();
+
+        }
     }
 
     public void ChangeCamera()

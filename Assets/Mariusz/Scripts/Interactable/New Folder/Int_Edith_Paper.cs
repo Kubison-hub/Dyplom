@@ -29,6 +29,7 @@ public class Int_Edith_Paper : MonoBehaviour
             return;
 
         performed = true;
+        interactable?.MarkCompleted();
         interactable.isInteractableActive = false;
         player.currentInteractable = null;
 

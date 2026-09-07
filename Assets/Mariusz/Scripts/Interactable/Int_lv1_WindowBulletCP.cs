@@ -39,6 +39,7 @@ public class Int_lv1_WindowBulletCP : Lvl3InteractionDialogueBase
             return;
 
         bulletFound = true;
+        interactable?.MarkCompleted();
         foundAudio?.Play();
         windowExamination?.RegisterWindowClue();
         PlayDialogue(player, bulletFoundDialogue);

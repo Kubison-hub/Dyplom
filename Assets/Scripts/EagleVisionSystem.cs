@@ -51,23 +51,31 @@ public class EagleVisionSystem : MonoBehaviour
     {
         bool tutorialBlocksVisionInput = TutorialTimeline.Instance != null &&
                                          TutorialTimeline.Instance.BlocksWorldInput;
+        bool dialogueBlocksVisionInput = DialogueEditor.ConversationManager.Instance != null &&
+                                         DialogueEditor.ConversationManager.Instance.IsConversationActive;
+        bool visionInputBlocked = tutorialBlocksVisionInput || dialogueBlocksVisionInput;
+
+        if (dialogueBlocksVisionInput)
+            forcedActiveUntil = 0f;
+
         bool puzzleForcesVision =
-            (TutorialTimeline.Instance != null && TutorialTimeline.Instance.KeepsEagleVisionActive) ||
-            (BasementIdeaPointPuzzle.Instance != null && BasementIdeaPointPuzzle.Instance.KeepsEagleVisionActive);
-        bool magnifierActivatesVision = !tutorialBlocksVisionInput &&
-                                       Input.GetKey(magnifierHoldKey) &&
-                                       !IsWatsonActive();
-        bool watsonEscortActivatesVision = !tutorialBlocksVisionInput &&
-                                           IsWatsonActive() &&
-                                           Input.GetKey(magnifierHoldKey) &&
-                                           WatsonEscortController.Instance != null &&
-                                           WatsonEscortController.Instance.IsEscorting;
-        bool shouldBeActive = (!tutorialBlocksVisionInput && Input.GetKey(visionHoldKey)) ||
-                              magnifierActivatesVision ||
-                              watsonEscortActivatesVision ||
-                              puzzleForcesVision ||
-                              IsIdeaSequenceActive() ||
-                              Time.unscaledTime < forcedActiveUntil;
+            !dialogueBlocksVisionInput &&
+            ((TutorialTimeline.Instance != null && TutorialTimeline.Instance.KeepsEagleVisionActive) ||
+             (BasementIdeaPointPuzzle.Instance != null && BasementIdeaPointPuzzle.Instance.KeepsEagleVisionActive));
+        bool magnifierActivatesVision = !visionInputBlocked &&
+                                        Input.GetKey(magnifierHoldKey) &&
+                                        !IsWatsonActive();
+        bool watsonEscortActivatesVision = !visionInputBlocked &&
+                                            IsWatsonActive() &&
+                                            Input.GetKey(magnifierHoldKey) &&
+                                            WatsonEscortController.Instance != null &&
+                                            WatsonEscortController.Instance.IsEscorting;
+        bool shouldBeActive = (!visionInputBlocked && Input.GetKey(visionHoldKey)) ||
+                               magnifierActivatesVision ||
+                               watsonEscortActivatesVision ||
+                               puzzleForcesVision ||
+                               (!dialogueBlocksVisionInput && IsIdeaSequenceActive()) ||
+                               (!dialogueBlocksVisionInput && Time.unscaledTime < forcedActiveUntil);
         if (isActive != shouldBeActive)
         {
             isActive = shouldBeActive;

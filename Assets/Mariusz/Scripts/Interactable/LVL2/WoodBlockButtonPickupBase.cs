@@ -46,6 +46,7 @@ public abstract class WoodBlockButtonPickupBase : Lvl3InteractionDialogueBase
         }
 
         collected = true;
+        GetComponent<Interactable>()?.MarkCompleted();
         if (setHiddenDoorHasKeyOnPickup && hiddenDoorToUnlock != null)
             hiddenDoorToUnlock.SetHasKey(true);
 

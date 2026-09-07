@@ -35,6 +35,7 @@ public class Int_LibraryKey : Lvl3InteractionDialogueBase
             return;
 
         performed = true;
+        interactable?.MarkCompleted();
 
         if (keyRenderer != null)
             keyRenderer.enabled = false;

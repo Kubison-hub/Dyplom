@@ -41,6 +41,7 @@ public class lvl2_Int_EthelRoom : Lvl3InteractionDialogueBase
             return;
 
         performed = true;
+        GetComponent<Interactable>()?.MarkCompleted();
         StartCoroutine(AddClue());
 
         PlayInteractionDialogue(null);

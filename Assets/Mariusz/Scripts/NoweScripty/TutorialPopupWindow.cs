@@ -50,9 +50,10 @@ public class TutorialPopupWindow : MonoBehaviour
         if (Time.unscaledTime - openedAtUnscaledTime < 0.15f)
             return;
 
-        bool leftClick = Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
-        bool escape = Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame;
-        if (leftClick || escape || Input.GetMouseButtonDown(0))
+        bool enter = Keyboard.current != null &&
+                     (Keyboard.current.enterKey.wasPressedThisFrame ||
+                      Keyboard.current.numpadEnterKey.wasPressedThisFrame);
+        if (enter)
             TutorialTimeline.Instance?.CloseGameplayTutorialPopup();
     }
 }

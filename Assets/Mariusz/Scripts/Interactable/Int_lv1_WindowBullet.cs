@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Video;
 
 [RequireComponent(typeof(Interactable))]
 public class Int_lv1_WindowBullet : Lvl3InteractionDialogueBase
@@ -17,6 +18,12 @@ public class Int_lv1_WindowBullet : Lvl3InteractionDialogueBase
         }
     };
 
+    [Header("First Use Tutorial Popup")]
+    [SerializeField] private bool showTutorialPopupOnFirstUse = true;
+    [SerializeField] private string tutorialPopupTitle;
+    [SerializeField, TextArea] private string tutorialPopupText;
+    [SerializeField] private VideoClip tutorialPopupVideoClip;
+
     [Header("Examination Zone")]
     [SerializeField, Min(0.1f)] private float examinationZoneRange = 1.5f;
     [SerializeField] private Vector3 examinationZoneOffset;
@@ -34,6 +41,7 @@ public class Int_lv1_WindowBullet : Lvl3InteractionDialogueBase
     private bool isCameraInExaminationMode;
     private bool clueFound;
     private bool completed;
+    private bool tutorialPopupShown;
 
     protected override Lvl3DialogueLine[] DefaultDialogueLines => windowExaminationDialogue;
 
@@ -85,6 +93,8 @@ public class Int_lv1_WindowBullet : Lvl3InteractionDialogueBase
         clueFound = false;
 
         PlayDialogue(player, windowExaminationDialogue);
+        if (windowExaminationDialogue == null || windowExaminationDialogue.Length == 0)
+            ShowFirstUseTutorialPopup();
 
         if (interactable != null)
         {
@@ -117,6 +127,28 @@ public class Int_lv1_WindowBullet : Lvl3InteractionDialogueBase
         clueFound = true;
         windowBulletIdeaPoint?.RevealFromExternalSource();
         CompleteInteraction();
+    }
+
+    protected override void OnDialogueSequenceCompleted(Lvl3DialogueLine[] lines)
+    {
+        if (lines == windowExaminationDialogue)
+            ShowFirstUseTutorialPopup();
+    }
+
+    private void ShowFirstUseTutorialPopup()
+    {
+        if (!showTutorialPopupOnFirstUse || tutorialPopupShown)
+            return;
+
+        TutorialTimeline tutorialTimeline = TutorialTimeline.Instance;
+        if (tutorialTimeline == null)
+            return;
+
+        tutorialPopupShown = true;
+        tutorialTimeline.ShowGameplayTutorialPopup(
+            tutorialPopupTitle,
+            tutorialPopupText,
+            tutorialPopupVideoClip);
     }
 
     private void EnterExaminationCamera()
@@ -171,6 +203,7 @@ public class Int_lv1_WindowBullet : Lvl3InteractionDialogueBase
             return;
 
         completed = true;
+        interactable?.MarkCompleted();
         isExamining = false;
         examiningPlayer = null;
 

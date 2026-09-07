@@ -150,6 +150,7 @@ public class Int_lv3_Keyhole : Lvl3ClockworkInteraction
         }
 
         opened = true;
+        Interactable?.MarkCompleted();
         isOpening = false;
 
         if (Interactable != null)

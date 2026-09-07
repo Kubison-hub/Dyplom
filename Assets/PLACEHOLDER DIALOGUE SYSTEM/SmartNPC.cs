@@ -22,7 +22,7 @@ public class SmartNPC : MonoBehaviour
     [Tooltip("Point the camera looks at during this NPC conversation. Falls back to the NPC root when empty.")]
     [SerializeField] private Transform dialogueCameraTarget;
     [SerializeField, Min(0.01f)] private float dialogueCameraTargetTransitionSpeed = 0.2f;
-    [SerializeField, Min(0.01f)] private float dialogueCameraRestoreTransitionSpeed = 1f;
+    [SerializeField, Min(0.01f)] private float dialogueCameraRestoreTransitionSpeed = 3f;
 
     private bool czyPostacA_W_Zasiegu = false;
     private bool czyPostacB_W_Zasiegu = false;
@@ -35,6 +35,7 @@ public class SmartNPC : MonoBehaviour
     private Coroutine movementCoroutine;
     private CameraController dialogueCameraController;
     private bool dialogueCameraFocusActive;
+    private Transform dialogueCameraReturnTarget;
 
     private void OnDestroy()
     {
@@ -177,14 +178,22 @@ public class SmartNPC : MonoBehaviour
         RestoreDialogueCameraFocus();
     }
 
+    public void SetDialogueCameraReturnTarget(Transform target)
+    {
+        dialogueCameraReturnTarget = target;
+    }
+
     private void RestoreDialogueCameraFocus()
     {
         if (dialogueCameraFocusActive)
             ConversationManager.OnConversationEnded -= RestoreDialogueCameraFocus;
 
-        dialogueCameraController?.RestoreLookAtTargetSmooth(dialogueCameraRestoreTransitionSpeed);
+        dialogueCameraController?.ReturnLookAtToTargetSmooth(
+            dialogueCameraReturnTarget,
+            dialogueCameraRestoreTransitionSpeed);
         dialogueCameraController = null;
         dialogueCameraFocusActive = false;
+        dialogueCameraReturnTarget = null;
     }
 
     private static CameraController GetActiveCameraController()

@@ -338,6 +338,7 @@ public class Int_lv1_HidenWallMask : Lvl3InteractionDialogueBase
             return;
 
         solved = true;
+        interactable?.MarkCompleted();
         PlayDialogue(null, completionDialogue);
 
         if (ethelHiddenRoom)
@@ -382,13 +383,7 @@ public class Int_lv1_HidenWallMask : Lvl3InteractionDialogueBase
 
     protected override void OnDialogueSequenceCompleted(Lvl3DialogueLine[] lines)
     {
-        if (lines != completionDialogue || watsonCompletionPosition == null)
-            return;
-
-        if (watsonCompletionCoroutine != null)
-            StopCoroutine(watsonCompletionCoroutine);
-
-        watsonCompletionCoroutine = StartCoroutine(MoveWatsonToCompletionPosition());
+        // The solved wall now ends after its dialogue; Watson remains where he is.
     }
 
     private IEnumerator MoveWatsonToCompletionPosition()

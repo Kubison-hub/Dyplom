@@ -42,6 +42,10 @@ public class WatsonEscortController : MonoBehaviour
     [SerializeField] private string placementPreviewVisibilityProperty = "_Visibility";
     [SerializeField, Min(0f)] private float placementPreviewBaseVisibility = 1.2f;
     [SerializeField] private Color escortRingColor = new Color(0.36f, 0.9f, 0.55f, 0.8f);
+    [SerializeField] private string placementPreviewColorProperty = "_FresnelColor";
+    [Tooltip("Green channel value of the preview material when the destination is fully valid. 45 equals 45/255 in the material color picker.")]
+    [SerializeField, Range(0f, 1f)] private float validEscortPreviewGreen = 45f / 255f;
+    [SerializeField, Min(0f)] private float sherlockAfterEscortDialogueDelay = 2f;
     [Tooltip("The preview remains fully visible until this percentage of the escort range, then fades to zero at the edge.")]
     [SerializeField, Range(0f, 0.99f)] private float rangePreviewFadeStart = 0.75f;
 
@@ -55,14 +59,21 @@ public class WatsonEscortController : MonoBehaviour
     private Coroutine escortRoutine;
     private GameObject placementPreview;
     private bool isPlacingDestination;
+    private bool isApproachingNpc;
     private Vector3 placementDestination;
     private Quaternion placementRotation = Quaternion.identity;
     private float defaultWatsonSpeed;
     private Vector3 escortRangeOrigin;
     private bool hasEscortRangeOrigin;
     private bool isPlacementWithinRange;
+    private bool isPlacementDestinationAllowed;
     private MaterialPropertyBlock placementPreviewPropertyBlock;
+    private float placementPreviewVisibilityMultiplier = 1f;
+    private float placementPreviewValidationColorAmount;
     private float sherlockActiveEscortElapsed;
+    private WatsonEscortNPC pendingEscortDialogueNpc;
+    private Coroutine pendingEscortDialogueRoutine;
+    private Coroutine sherlockAfterEscortDialogueRoutine;
 
     public bool IsEscorting => escortedNpc != null;
 
@@ -102,8 +113,12 @@ public class WatsonEscortController : MonoBehaviour
             if (isPlacingDestination)
                 CancelPlacementPreview();
 
+            CancelNpcApproachForTutorial();
+
             return;
         }
+
+        TryStartPendingEscortDialogue();
 
         bool watsonGripActive = MagnifierGlassController.IsWatsonGripActive;
         if (!watsonGripActive)
@@ -120,6 +135,20 @@ public class WatsonEscortController : MonoBehaviour
             return;
 
         UpdatePlacementPreview();
+    }
+
+    private void LateUpdate()
+    {
+        // The preview prefab contains an Animator. Apply the result after animation
+        // updates so its destination-validation color cannot be overwritten.
+        if (isPlacingDestination && placementPreview != null &&
+            placementPreview.activeInHierarchy && isPlacementWithinRange)
+        {
+            ApplyPlacementPreviewAppearance(
+                placementPreviewVisibilityMultiplier,
+                placementPreviewValidationColorAmount,
+                escortedNpc != null && escortedNpc.UsesDestinationValidation);
+        }
     }
 
     private void UpdateSherlockEscortTimeout()
@@ -156,6 +185,7 @@ public class WatsonEscortController : MonoBehaviour
 
         escortedNpc = npc;
         sherlockActiveEscortElapsed = 0f;
+        isApproachingNpc = true;
         escortRoutine = StartCoroutine(ApproachNpcAndBeginEscort());
         return true;
     }
@@ -228,6 +258,7 @@ public class WatsonEscortController : MonoBehaviour
         if (!MoveWatsonTo(approachPoint))
         {
             escortedNpc = null;
+            isApproachingNpc = false;
             escortRoutine = null;
             yield break;
         }
@@ -240,6 +271,7 @@ public class WatsonEscortController : MonoBehaviour
         if (MagnifierGlassController.IsWatsonGripActive)
             BeginPlacementPreview();
 
+        isApproachingNpc = false;
         escortedNpc.PlayApproachDialogue();
         yield return RotateWatsonTowards(escortedNpc.transform.position);
         yield return escortedNpc.RotateTowards(transform.position);
@@ -270,6 +302,14 @@ public class WatsonEscortController : MonoBehaviour
         {
             escortRoutine = null;
             yield break;
+        }
+
+        bool destinationAllowsDialogue = escortedNpc.IsEscortDestinationAllowed(safeNpcDestination);
+        if (destinationAllowsDialogue && escortedNpc.WillStartDialogueAfterValidEscort &&
+            sherlockAfterEscortDialogueRoutine == null)
+        {
+            sherlockAfterEscortDialogueRoutine = StartCoroutine(
+                PlaySherlockAfterEscortDialogueAfterDelay(escortedNpc));
         }
 
         formationRotation = GetInfluencedRotation(
@@ -383,6 +423,9 @@ public class WatsonEscortController : MonoBehaviour
             RestoreWatsonSpeed();
             escortedNpc.RestoreMovementSpeed();
             yield return FacePair(watsonFinalRotation, npcFinalRotation);
+            yield return escortedNpc.WaitForDialogueToFinish();
+            if (destinationAllowsDialogue && escortedNpc.WillStartDialogueAfterValidEscort)
+                pendingEscortDialogueNpc = escortedNpc;
         }
 
         escortRoutine = null;
@@ -393,7 +436,15 @@ public class WatsonEscortController : MonoBehaviour
         if (escortRoutine != null)
             StopCoroutine(escortRoutine);
 
+        isApproachingNpc = false;
+        if (pendingEscortDialogueRoutine != null)
+            StopCoroutine(pendingEscortDialogueRoutine);
+        if (sherlockAfterEscortDialogueRoutine != null)
+            StopCoroutine(sherlockAfterEscortDialogueRoutine);
+
         escortRoutine = null;
+        pendingEscortDialogueRoutine = null;
+        sherlockAfterEscortDialogueRoutine = null;
         watsonAgent?.ResetPath();
         RestoreWatsonSpeed();
         CancelPlacementPreview();
@@ -412,8 +463,67 @@ public class WatsonEscortController : MonoBehaviour
         }
 
         escortedNpc = null;
+        pendingEscortDialogueNpc = null;
         hasEscortRangeOrigin = false;
         sherlockActiveEscortElapsed = 0f;
+    }
+
+    public PlayerController RestoreSwitchingAndSelectSherlock()
+    {
+        if (SwitchCharacter.Instance == null)
+            return null;
+
+        SwitchCharacter.Instance.canSwitch = true;
+        SwitchCharacter.Instance.SetActivePlayer(0);
+
+        if (SwitchCharacter.Instance.players == null || SwitchCharacter.Instance.players.Length == 0)
+            return null;
+
+        return SwitchCharacter.Instance.players[0].GetComponent<PlayerController>();
+    }
+
+    private void TryStartPendingEscortDialogue()
+    {
+        if (pendingEscortDialogueNpc == null || pendingEscortDialogueRoutine != null || escortRoutine != null ||
+            SwitchCharacter.Instance == null || SwitchCharacter.Instance.activePlayerIndex != 1)
+            return;
+
+        if (!IsEscortingNpc(pendingEscortDialogueNpc))
+        {
+            pendingEscortDialogueNpc = null;
+            return;
+        }
+
+        pendingEscortDialogueRoutine = StartCoroutine(StartPendingEscortDialogue());
+    }
+
+    private IEnumerator StartPendingEscortDialogue()
+    {
+        yield return FacePairAtEachOther();
+
+        if (pendingEscortDialogueNpc != null && SwitchCharacter.Instance != null &&
+            SwitchCharacter.Instance.activePlayerIndex == 1 &&
+            pendingEscortDialogueNpc.NotifyValidEscortDestinationReached(watson))
+        {
+            pendingEscortDialogueNpc = null;
+        }
+
+        pendingEscortDialogueRoutine = null;
+    }
+
+    private IEnumerator PlaySherlockAfterEscortDialogueAfterDelay(WatsonEscortNPC npc)
+    {
+        if (sherlockAfterEscortDialogueDelay > 0f)
+            yield return new WaitForSeconds(sherlockAfterEscortDialogueDelay);
+
+        if (IsEscortingNpc(npc) && SwitchCharacter.Instance != null &&
+            SwitchCharacter.Instance.players != null && SwitchCharacter.Instance.players.Length > 0)
+        {
+            npc.PlaySherlockAfterEscortDialogue(
+                SwitchCharacter.Instance.players[0].GetComponent<PlayerController>());
+        }
+
+        sherlockAfterEscortDialogueRoutine = null;
     }
 
     private bool MoveWatsonTo(Vector3 destination)
@@ -433,6 +543,21 @@ public class WatsonEscortController : MonoBehaviour
                watsonAgent.remainingDistance <= watsonAgent.stoppingDistance + formationTolerance &&
                (!watsonAgent.hasPath || watsonAgent.velocity.sqrMagnitude < 0.01f);
     }
+
+    private void CancelNpcApproachForTutorial()
+    {
+        if (!isApproachingNpc)
+            return;
+
+        if (escortRoutine != null)
+            StopCoroutine(escortRoutine);
+
+        watsonAgent?.ResetPath();
+        escortedNpc = null;
+        isApproachingNpc = false;
+        escortRoutine = null;
+    }
+
 
     private bool TryGetWatsonPathDistance(Vector3 destination, out float distance)
     {
@@ -589,6 +714,21 @@ public class WatsonEscortController : MonoBehaviour
         yield return escortedNpc.RotateToRotation(npcTarget);
     }
 
+    private IEnumerator FacePairAtEachOther()
+    {
+        if (escortedNpc == null)
+            yield break;
+
+        Vector3 npcToWatson = transform.position - escortedNpc.transform.position;
+        npcToWatson.y = 0f;
+        if (npcToWatson.sqrMagnitude < 0.0001f)
+            yield break;
+
+        Quaternion npcTarget = Quaternion.LookRotation(npcToWatson.normalized, Vector3.up);
+        Quaternion watsonTarget = Quaternion.LookRotation(-npcToWatson.normalized, Vector3.up);
+        yield return FacePair(watsonTarget, npcTarget);
+    }
+
     private bool TryGetPlacementPoint(out Vector3 point)
     {
         point = default;
@@ -611,7 +751,13 @@ public class WatsonEscortController : MonoBehaviour
 
         placementRotation = GetInfluencedRotation(placementDestination, GetPlacementFallbackDirection(), out _);
         isPlacementWithinRange = IsWithinEscortRange(placementDestination);
+        isPlacementDestinationAllowed = escortedNpc == null || escortedNpc.IsEscortDestinationAllowed(placementDestination);
+        float destinationValidationColorAmount = escortedNpc != null
+            ? escortedNpc.GetDestinationValidationColorAmount(placementDestination)
+            : 1f;
         float visibilityMultiplier = GetRangeVisibilityMultiplier(placementDestination);
+        placementPreviewVisibilityMultiplier = visibilityMultiplier;
+        placementPreviewValidationColorAmount = destinationValidationColorAmount;
 
         if (isPlacementWithinRange)
         {
@@ -630,7 +776,10 @@ public class WatsonEscortController : MonoBehaviour
                 placementRotation);
             placementPreview.SetActive(isPlacementWithinRange);
             if (isPlacementWithinRange)
-                ApplyPlacementPreviewVisibility(visibilityMultiplier);
+                ApplyPlacementPreviewAppearance(
+                    visibilityMultiplier,
+                    destinationValidationColorAmount,
+                    escortedNpc != null && escortedNpc.UsesDestinationValidation);
         }
     }
 
@@ -782,13 +931,15 @@ public class WatsonEscortController : MonoBehaviour
         return 1f - Mathf.InverseLerp(rangePreviewFadeStart, 1f, normalizedDistance);
     }
 
-    private void ApplyPlacementPreviewVisibility(float visibilityMultiplier)
+    private void ApplyPlacementPreviewAppearance(float visibilityMultiplier, float validationColorAmount, bool applyValidationColor)
     {
         if (placementPreview == null || placementPreviewPropertyBlock == null)
             return;
 
         int visibilityPropertyId = Shader.PropertyToID(placementPreviewVisibilityProperty);
+        int colorPropertyId = Shader.PropertyToID(placementPreviewColorProperty);
         float visibility = placementPreviewBaseVisibility * Mathf.Clamp01(visibilityMultiplier);
+        Material targetPreviewMaterial = escortedNpc != null ? escortedNpc.PlacementPreviewMaterial : null;
         foreach (Renderer renderer in placementPreview.GetComponentsInChildren<Renderer>(true))
         {
             Material[] materials = renderer.sharedMaterials;
@@ -796,11 +947,20 @@ public class WatsonEscortController : MonoBehaviour
             {
                 Material material = materials[materialIndex];
                 if (material == null || !material.HasProperty(visibilityPropertyId) ||
-                    (placementPreviewShader != null && material.shader != placementPreviewShader))
+                    (targetPreviewMaterial != null && material != targetPreviewMaterial) ||
+                    (targetPreviewMaterial == null && placementPreviewShader != null && material.shader != placementPreviewShader))
                     continue;
 
-                placementPreviewPropertyBlock.Clear();
+                renderer.GetPropertyBlock(placementPreviewPropertyBlock, materialIndex);
                 placementPreviewPropertyBlock.SetFloat(visibilityPropertyId, visibility);
+                if (material.HasProperty(colorPropertyId))
+                {
+                    Color fresnelColor = material.GetColor(colorPropertyId);
+                    if (applyValidationColor)
+                        fresnelColor.g = Mathf.Lerp(0f, validEscortPreviewGreen, validationColorAmount);
+
+                    placementPreviewPropertyBlock.SetColor(colorPropertyId, fresnelColor);
+                }
                 renderer.SetPropertyBlock(placementPreviewPropertyBlock, materialIndex);
             }
         }

@@ -221,7 +221,9 @@ public class MagnifierGlassController : MonoBehaviour
     {
         UpdateDebugLoupeToggle();
 
-        if (NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen ||
+        if (DialogueEditor.ConversationManager.Instance != null &&
+            DialogueEditor.ConversationManager.Instance.IsConversationActive ||
+            NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen ||
             TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput ||
             TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput)
         {
@@ -297,7 +299,9 @@ public class MagnifierGlassController : MonoBehaviour
 
     private void LateUpdate()
     {
-        if ((NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen) ||
+        if ((DialogueEditor.ConversationManager.Instance != null &&
+             DialogueEditor.ConversationManager.Instance.IsConversationActive) ||
+            (NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen) ||
             (TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput) ||
             (TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput) ||
             !rotateSherlockTowardLoupeHit || !IsLoupeHeld() || !hasInspectionHit || IsWatsonActive())
@@ -360,7 +364,9 @@ public class MagnifierGlassController : MonoBehaviour
 
     private bool IsLoupeHeld()
     {
-        if (TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput)
+        if (DialogueEditor.ConversationManager.Instance != null &&
+            DialogueEditor.ConversationManager.Instance.IsConversationActive ||
+            TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput)
             return false;
 
         if (loupeSuppressedUntilKeyRelease)

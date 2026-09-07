@@ -28,6 +28,7 @@ public class Int_Edith_Ring : MonoBehaviour
             return;
 
         performed = true;
+        interactable?.MarkCompleted();
         interactable.isInteractableActive = false;
         player.currentInteractable = null;
 

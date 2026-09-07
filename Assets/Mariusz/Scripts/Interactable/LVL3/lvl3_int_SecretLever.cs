@@ -69,6 +69,7 @@ public class lvl3_int_SecretLever : MonoBehaviour
             return;
 
         performed = true;
+        GetComponent<Interactable>()?.MarkCompleted();
         ShowTopText("Mechanizm ruszyl.", "Drzwi sie otwieraja.");
 
         if (playerRotateCoroutine == null)

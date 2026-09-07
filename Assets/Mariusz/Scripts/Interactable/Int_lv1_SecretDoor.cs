@@ -60,6 +60,7 @@ public class Int_lv1_SecretDoor : Lvl3InteractionDialogueBase
         }
 
         performed = true;
+        interactable?.MarkCompleted();
         player.currentInteractable = null;
 
         if (interactable != null)

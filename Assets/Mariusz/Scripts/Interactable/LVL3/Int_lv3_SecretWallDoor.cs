@@ -113,6 +113,7 @@ public class Int_lv3_SecretWallDoor : Lvl3ClockworkInteraction
             return;
 
         IsOpened = true;
+        Interactable?.MarkCompleted();
         CluesLog.Instance?.RemoveFindBasementHiddenDoorObjective();
 
         if (doorAnimator != null && !string.IsNullOrWhiteSpace(openTrigger))

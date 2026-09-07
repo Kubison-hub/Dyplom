@@ -33,6 +33,7 @@ public class Int_lv1_CircleTable : Lvl3InteractionDialogueBase
             return;
 
         performed = true;
+        GetComponent<Interactable>()?.MarkCompleted();
 
         PlayDialogue(player, circleTableDialogue);
 

@@ -232,6 +232,9 @@ public class Int_lv3_Ethel_2 : MonoBehaviour
             exit.canExit = true;
         }
 
+        interactable?.MarkCompleted();
+        alternativeInteraction?.GetComponent<Interactable>()?.MarkCompleted();
+
     }
 
     private void DisableGameObjectsOnComplete()

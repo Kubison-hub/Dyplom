@@ -35,6 +35,7 @@ public class Int_ZielonaFigurka : Lvl3InteractionDialogueBase
         }
 
         collected = true;
+        GetComponent<Interactable>()?.MarkCompleted();
         // NOWE: rejestrujemy podniesienie, zeby po wczytaniu zapisu
         // ten obiekt nie pojawil sie ponownie na scenie.
         if (SaveLoadManager.Instance != null)

@@ -25,6 +25,7 @@ public class Interaction : MonoBehaviour
     public void PerformInteraction(PlayerController player)
     {
         performed = true;
+        interactable?.MarkCompleted();
         Debug.Log(interactable.name + ", interaction Performed");
 
         interactable.AddClue(0, cardPosition);

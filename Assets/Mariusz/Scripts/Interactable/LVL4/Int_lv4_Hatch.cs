@@ -134,6 +134,7 @@ public class Int_lv4_Hatch : Lvl3InteractionDialogueBase
     private IEnumerator OpenHatch(PlayerController watson)
     {
         opened = true;
+        GetComponent<Interactable>()?.MarkCompleted();
         ActivateNextInteractions();
         PlayDialogue(watson, watsonOpenDialogue);
 

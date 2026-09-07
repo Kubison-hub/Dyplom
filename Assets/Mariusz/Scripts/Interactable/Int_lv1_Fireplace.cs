@@ -38,6 +38,7 @@ public class Int_lv1_Fireplace : Lvl3InteractionDialogueBase
             return;
 
         performed = true;
+        interactable?.MarkCompleted();
         PlayDialogue(player, fireplaceDialogue);
 
         FindFirePlaceIdeaPointIfNeeded();

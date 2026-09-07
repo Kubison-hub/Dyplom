@@ -64,6 +64,7 @@ public class Int_lv3_ClockKey : Lvl3ClockworkInteraction
         }
 
         collected = true;
+        GetComponent<Interactable>()?.MarkCompleted();
 
         if (pickupAudioSource != null && pickupAudioClip != null)
             pickupAudioSource.PlayOneShot(pickupAudioClip);

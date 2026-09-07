@@ -34,6 +34,7 @@ public class Int_CzerwonaFigurka : Lvl3InteractionDialogueBase
         }
 
         collected = true;
+        GetComponent<Interactable>()?.MarkCompleted();
         CluesLog.Instance?.RegisterTableMechanismElement(ItemType.Czerwona);
         if (spline != null)
             spline.SetActive(false);
@@ -49,7 +50,9 @@ public class Int_CzerwonaFigurka : Lvl3InteractionDialogueBase
     protected override void OnDialogueSequenceCompleted(Lvl3DialogueLine[] lines)
     {
         if (destroyAfterDialogue && lines == pickupDialogue)
+        {
             Destroy(gameObject);
+        }
     }
 
     private void HideCollectedFigure()

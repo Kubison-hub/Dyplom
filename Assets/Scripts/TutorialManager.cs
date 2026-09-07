@@ -50,10 +50,10 @@ public class TutorialManager : MonoBehaviour
 
     private void Update()
     {
-        // Logika zamykania tutoriala kliknięciem
+        // Tutorial panels are dismissed only with Enter, so a world click cannot close them.
         if (isTutorialActive)
         {
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
             {
                 ZamknijTutorial();
             }
@@ -68,6 +68,7 @@ public class TutorialManager : MonoBehaviour
         // Dodajemy do zbioru "widzianych"
         pokazaneTutoriale.Add(unikalneID);
 
+        CancelActivePlayerPendingInteraction();
         PlayerTopText.Instance?.ClearAllTopText();
 
         if (tutorialText != null) tutorialText.text = tresc;
@@ -77,8 +78,28 @@ public class TutorialManager : MonoBehaviour
         isTutorialActive = true;
         GameplayTimePause.Pause(this);
 
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
+    }
+
+    private static void CancelActivePlayerPendingInteraction()
+    {
+        SwitchCharacter switchCharacter = SwitchCharacter.Instance;
+        if (switchCharacter != null && switchCharacter.players != null)
+        {
+            int activeIndex = switchCharacter.activePlayerIndex;
+            if (activeIndex >= 0 && activeIndex < switchCharacter.players.Length &&
+                switchCharacter.players[activeIndex] != null)
+            {
+                PlayerController activePlayer = switchCharacter.players[activeIndex]
+                    .GetComponent<PlayerController>();
+                activePlayer?.CancelPendingInteraction();
+                return;
+            }
+        }
+
+        foreach (PlayerController player in FindObjectsByType<PlayerController>(
+                     FindObjectsInactive.Exclude,
+                     FindObjectsSortMode.None))
+            player?.CancelPendingInteraction();
     }
 
     public void ZamknijTutorial()
@@ -90,10 +111,7 @@ public class TutorialManager : MonoBehaviour
         isTutorialActive = false;
         GameplayTimePause.Resume(this);
 
-        blockWorldInputUntilMouseRelease = true;
-        StartCoroutine(ReleaseWorldInputAfterMouseRelease());
-
-
+        blockWorldInputUntilMouseRelease = false;
     }
     private void PlayTutorialSound(AudioClip clip)
     {
@@ -101,15 +119,6 @@ public class TutorialManager : MonoBehaviour
             tutorialAudioSource.PlayOneShot(clip);
     }
 
-    private IEnumerator ReleaseWorldInputAfterMouseRelease()
-    {
-        yield return null;
-
-        while (Input.GetMouseButton(0))
-            yield return null;
-
-        blockWorldInputUntilMouseRelease = false;
-    }
     private IEnumerator PokazStartowyTutorial()
     {
         

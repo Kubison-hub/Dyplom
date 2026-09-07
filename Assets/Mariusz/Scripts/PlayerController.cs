@@ -186,10 +186,12 @@ public class PlayerController : MonoBehaviour
         // Czy otwarty jest dziennik? (Sprawdzamy null, żeby nie wywaliło błędu jeśli nie ma Managera)
         bool dziennikAktywny = (JournalManager.Instance != null && JournalManager.Instance.isJournalOpen);
         bool notebookAktywny = NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen;
+        bool tutorialPanelAktywny = TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput;
 
         // Jeśli któraś z blokad jest aktywna...
         if ((dialogAktywny && !conversationMovementAllowed) ||
-            dziennikAktywny || notebookAktywny || tutorialMovementLocked || minigameMovementLocked)
+            dziennikAktywny || notebookAktywny || tutorialPanelAktywny ||
+            tutorialMovementLocked || minigameMovementLocked)
         {
             // ...zablokuj NavMesh.
             LockMovement();
@@ -223,6 +225,21 @@ public class PlayerController : MonoBehaviour
 
         if (tutorialMovementLocked)
             LockMovement();
+    }
+
+    public void CancelPendingInteraction()
+    {
+        currentInteractable = null;
+        currentInteractionPoint = null;
+        ClearAutoInteractionApproachPoint();
+        isPerformingInteraction = false;
+        isWaitingForInteractionReaction = false;
+
+        if (navMeshAgent != null && navMeshAgent.isActiveAndEnabled && navMeshAgent.isOnNavMesh)
+        {
+            navMeshAgent.ResetPath();
+            navMeshAgent.updateRotation = true;
+        }
     }
 
 

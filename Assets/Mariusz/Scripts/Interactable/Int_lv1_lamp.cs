@@ -69,6 +69,7 @@ public class Int_lv1_lamp : Lvl3InteractionDialogueBase
 
         completed = true;
         performed = true;
+        interactable?.MarkCompleted();
 
         if (interactable != null)
         {

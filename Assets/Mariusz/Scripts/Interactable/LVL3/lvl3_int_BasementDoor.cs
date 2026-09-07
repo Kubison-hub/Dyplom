@@ -102,6 +102,7 @@ public class lvl3_int_BasementDoor : MonoBehaviour
     private IEnumerator OpenDoor()
     {
         isOpen = true;
+        interactable?.MarkCompleted();
 
         if (interactable != null)
         {

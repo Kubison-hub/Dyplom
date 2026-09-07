@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using DialogueEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.AI;
@@ -19,6 +20,7 @@ public class TutorialTimeline : MonoBehaviour
     public enum TutorialStage
     {
         WaitingForOpeningTutorial,
+        RunningOpeningConversationSequence,
         WaitingForOpeningPopupDelay,
         WaitingForOpeningPopupClose,
         WaitingForFirstWorldClick,
@@ -31,8 +33,6 @@ public class TutorialTimeline : MonoBehaviour
 
     [Header("Camera")]
     [SerializeField] private CameraController[] tutorialCameras;
-    [SerializeField] private CameraZoomState openingZoomState = CameraZoomState.Medium;
-    [SerializeField] private CameraZoomState firstClickZoomState = CameraZoomState.Medium;
 
     [Header("Player Control")]
     [SerializeField] private PlayerController[] tutorialPlayers;
@@ -45,6 +45,23 @@ public class TutorialTimeline : MonoBehaviour
     [SerializeField] private string openingPopupTitle = "PORUSZANIE SIE";
     [SerializeField, TextArea] private string openingPopupText;
     [SerializeField] private VideoClip openingPopupVideoClip;
+
+    [Header("Opening Conversation And Notebook")]
+    [Tooltip("Runs after the first standard tutorial panel closes. Leave the conversation empty to skip the dialogue.")]
+    [SerializeField] private bool runOpeningConversationSequence = true;
+    [SerializeField] private NPCConversation openingConversation;
+    [Tooltip("Optional SmartNPC whose dialogue camera target is used during the opening conversation.")]
+    [SerializeField] private SmartNPC openingConversationNpc;
+    [Tooltip("When disabled, the opening dialogue changes only the zoom and leaves the current camera LookAt unchanged.")]
+    [SerializeField] private bool focusCameraOnOpeningConversation;
+    [SerializeField, Min(0.01f)] private float openingConversationZoomTransitionSpeed = 0.2f;
+    [Tooltip("LookAt target used by SmartNPC when the opening conversation ends. Leave empty for the normal camera return.")]
+    [SerializeField] private Transform openingConversationReturnCameraTarget;
+    [SerializeField, Min(0f)] private float openingConversationCameraLeadDelay = 1f;
+    [SerializeField, Min(0f)] private float openingConversationInputRestoreDelay = 1f;
+    [SerializeField, Min(0f)] private float notebookTutorialDelay = 1f;
+    [SerializeField, TextArea] private string notebookTutorialText;
+    [SerializeField] private string notebookTutorialId = "NotebookTutorial";
 
     [Header("Tutorial Popup Audio")]
     [SerializeField] private AudioSource tutorialPopupAudioSource;
@@ -100,6 +117,7 @@ public class TutorialTimeline : MonoBehaviour
     [SerializeField] private bool logIdeaLineTutorialProgress = true;
 
     private bool openingTutorialWasVisible;
+    private bool openingConversationSequenceStarted;
     private Coroutine moveToIdeaLineTutorialCoroutine;
     private string lastIdeaPointDebugStatus;
     private Coroutine firstPopupCoroutine;
@@ -119,6 +137,13 @@ public class TutorialTimeline : MonoBehaviour
 
         if (tutorialObjectivePanel != null)
             tutorialObjectivePanel.gameObject.SetActive(false);
+
+        // Prevent one-frame world input and hover feedback before the opening tutorial starts.
+        PlayerController.SetWorldInputLocked(true);
+        SetTutorialMovementLocked(true);
+        SetTutorialInputLocked(true);
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void OnDestroy()
@@ -212,7 +237,14 @@ public class TutorialTimeline : MonoBehaviour
         if (currentStage != TutorialStage.WaitingForOpeningTutorial)
             return;
 
-        SetCameraZoom(openingZoomState);
+        if (runOpeningConversationSequence && !openingConversationSequenceStarted)
+        {
+            openingConversationSequenceStarted = true;
+            currentStage = TutorialStage.RunningOpeningConversationSequence;
+            StartCoroutine(RunOpeningConversationAndNotebookSequence());
+            return;
+        }
+
         if (showOpeningPopupAfterTutorial && tutorialPopupPrefab != null)
         {
             currentStage = TutorialStage.WaitingForOpeningPopupDelay;
@@ -223,6 +255,66 @@ public class TutorialTimeline : MonoBehaviour
 
         BeginFirstWorldClickStage();
 
+    }
+
+    private IEnumerator RunOpeningConversationAndNotebookSequence()
+    {
+        SetTutorialMovementLocked(true);
+        SetTutorialInputLocked(true);
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+
+        ConversationManager conversationManager = ConversationManager.Instance;
+        if (openingConversation != null && conversationManager != null)
+        {
+            SetCameraZoom(CameraZoomState.Narrow, openingConversationZoomTransitionSpeed);
+            if (focusCameraOnOpeningConversation)
+            {
+                openingConversationNpc?.SetDialogueCameraReturnTarget(openingConversationReturnCameraTarget);
+                openingConversationNpc?.BeginDialogueCameraFocus();
+            }
+
+            if (openingConversationCameraLeadDelay > 0f)
+                yield return new WaitForSecondsRealtime(openingConversationCameraLeadDelay);
+
+            conversationManager.StartConversation(openingConversation);
+
+            yield return null;
+            // ConversationManager applies the active camera's default dialogue preset on its first frame.
+            // Reapply the opening framing afterwards so this sequence stays on Narrow while it continues to move.
+            SetCameraZoom(CameraZoomState.Narrow, openingConversationZoomTransitionSpeed);
+
+            if (openingConversationInputRestoreDelay > 0f)
+                yield return new WaitForSecondsRealtime(openingConversationInputRestoreDelay);
+
+            PlayerController.SetWorldInputLocked(false);
+            SetTutorialInputLocked(false);
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+            while (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
+                yield return null;
+
+            SetCameraZoom(CameraZoomState.Wide);
+        }
+
+        if (notebookTutorialDelay > 0f)
+            yield return new WaitForSeconds(notebookTutorialDelay);
+
+        NotebookManager notebookManager = NotebookManager.Instance;
+        if (notebookManager != null && !notebookManager.IsNotebookOpen)
+            notebookManager.ToggleNotebook();
+
+        TutorialManager tutorialManager = TutorialManager.Instance;
+        if (tutorialManager != null && !string.IsNullOrWhiteSpace(notebookTutorialText))
+        {
+            tutorialManager.PokazTutorial(notebookTutorialText, notebookTutorialId);
+            while (tutorialManager.BlocksWorldInput)
+                yield return null;
+        }
+
+        BeginFirstWorldClickStage();
+        StartFocusTutorialPopupCountdown();
+        LogIdeaLineTutorial("Opening conversation and notebook tutorial completed. Waiting for the first world click.");
     }
 
     public void NotifyWorldClick()
@@ -259,7 +351,6 @@ public class TutorialTimeline : MonoBehaviour
 
     private void CompleteFirstWorldClickStage()
     {
-        SetCameraZoom(firstClickZoomState);
         onFirstWorldClick?.Invoke();
 
         currentStage = TutorialStage.WaitingForIdeaPoints;
@@ -379,9 +470,9 @@ public class TutorialTimeline : MonoBehaviour
 
     private static bool WasPopupCloseRequestedThisFrame()
     {
-        bool leftClick = Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
-        bool escape = Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame;
-        return leftClick || escape || Input.GetMouseButtonDown(0);
+        return Keyboard.current != null &&
+               (Keyboard.current.enterKey.wasPressedThisFrame ||
+                Keyboard.current.numpadEnterKey.wasPressedThisFrame);
     }
 
     private IEnumerator ReleasePopupInputAfterMouseRelease()
@@ -437,7 +528,11 @@ public class TutorialTimeline : MonoBehaviour
 
     private void BeginFirstWorldClickStage()
     {
+        PlayerController.SetWorldInputLocked(false);
         SetTutorialMovementLocked(false);
+        SetTutorialInputLocked(false);
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
         currentStage = TutorialStage.WaitingForFirstWorldClick;
         onTimelineStarted?.Invoke();
     }
@@ -744,7 +839,7 @@ public class TutorialTimeline : MonoBehaviour
             EagleVisionSystem.Instance.HoldVisionFor(eagleVisionHoldRefreshDuration);
     }
 
-    private void SetCameraZoom(CameraZoomState zoomState)
+    private void SetCameraZoom(CameraZoomState zoomState, float transitionSmoothSpeed = -1f)
     {
         if (tutorialCameras == null)
             return;
@@ -752,7 +847,7 @@ public class TutorialTimeline : MonoBehaviour
         foreach (CameraController cameraController in tutorialCameras)
         {
             if (cameraController != null)
-                cameraController.SetZoomState(zoomState);
+                cameraController.SetZoomIndex((int)zoomState, transitionSmoothSpeed);
         }
     }
 
@@ -812,6 +907,18 @@ public class TutorialTimeline : MonoBehaviour
         {
             if (playerController != null)
                 playerController.SetTutorialMovementLocked(locked);
+        }
+    }
+
+    private void SetTutorialInputLocked(bool locked)
+    {
+        if (tutorialPlayers == null)
+            return;
+
+        foreach (PlayerController playerController in tutorialPlayers)
+        {
+            if (playerController != null)
+                playerController.SetTutorialInputLocked(locked);
         }
     }
 

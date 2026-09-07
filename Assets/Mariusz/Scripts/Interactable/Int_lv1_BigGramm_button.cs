@@ -92,6 +92,7 @@ public class Int_lv1_BigGramm_button : MonoBehaviour
             buttonAnimator.SetTrigger(pressTriggerName);
 
         completed = true;
+        interactable?.MarkCompleted();
         Debug.Log("KONIEC");
         DisableInteraction();
         ActivateNextInteractions();

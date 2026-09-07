@@ -55,6 +55,16 @@ public class WatsonEscortNPC : MonoBehaviour
     [Header("Placement Preview")]
     [Tooltip("Optional prefab shown in the center of the NavMesh ring while Watson chooses this NPC's destination. When empty, the Interactable shader object is cloned.")]
     [SerializeField] private GameObject placementPreviewPrefab;
+    [Tooltip("Material on the preview prefab that receives visibility and valid/invalid destination colors. It may be used by a child renderer of the prefab.")]
+    [SerializeField] private Material placementPreviewMaterial;
+
+    [Header("Destination Validation")]
+    [Tooltip("When assigned, Watson cannot place this NPC inside this volume. Use this for Violet's library area.")]
+    [SerializeField] private Collider forbiddenDestinationVolume;
+    [Tooltip("Distance outside the forbidden volume over which the preview changes smoothly from invalid to valid.")]
+    [SerializeField, Min(0.01f)] private float destinationValidationColorBlendDistance = 1f;
+    [Tooltip("Optional Violet dialogue that becomes available and starts automatically after the first valid escort destination.")]
+    [SerializeField] private Int_VioletDialog violetDialogueAfterEscort;
 
     [Header("Influence Points")]
     [Tooltip("Only these points affect this NPC's final escort orientation. Leave empty to use the legacy global scene points when fallback is enabled.")]
@@ -67,6 +77,8 @@ public class WatsonEscortNPC : MonoBehaviour
     private Coroutine returnToRootCoroutine;
     private float defaultSpeed;
     private bool isWalkingAnimationActive;
+    private bool successfulEscortDialogueStarted;
+    private bool sherlockAfterEscortDialoguePlayed;
 
     public NavMeshAgent Agent => navMeshAgent;
     public bool IsReadyForEscort { get; private set; }
@@ -74,11 +86,17 @@ public class WatsonEscortNPC : MonoBehaviour
     public GameObject PlacementPreviewPrefab => placementPreviewPrefab != null
         ? placementPreviewPrefab
         : interactable != null ? interactable.interactiveShader : null;
+    public Material PlacementPreviewMaterial => placementPreviewMaterial;
     public WatsonEscortInfluencePoint[] InfluencePoints => influencePoints;
     public bool UseGlobalInfluencePointsWhenListEmpty => useGlobalInfluencePointsWhenListEmpty;
     public float SherlockActiveFarewellDelay => sherlockActiveFarewellDelay;
     public float EscortRangeOverride => escortRangeOverride;
     public Int_SelmaDialog LinkedSelmaDialogue => linkedSelmaDialogue;
+    public bool UsesDestinationValidation => forbiddenDestinationVolume != null;
+    public bool WillStartDialogueAfterValidEscort => !successfulEscortDialogueStarted &&
+                                                     violetDialogueAfterEscort != null &&
+                                                     violetDialogueAfterEscort.WillAutomaticallyStartAfterEscort;
+    public bool IsEscortDialogueInProgress => violetDialogueAfterEscort != null && violetDialogueAfterEscort.IsDialogueInProgress;
 
     private void Awake()
     {
@@ -89,6 +107,8 @@ public class WatsonEscortNPC : MonoBehaviour
             animator = GetComponent<Animator>();
         if (rotationTarget == null)
             rotationTarget = transform;
+        if (violetDialogueAfterEscort == null)
+            violetDialogueAfterEscort = GetComponent<Int_VioletDialog>();
 
         if (navMeshAgent != null)
             defaultSpeed = navMeshAgent.speed;
@@ -129,6 +149,12 @@ public class WatsonEscortNPC : MonoBehaviour
 
     public Vector3 GetWatsonApproachPoint(Vector3 watsonPosition)
     {
+        if (interactable != null && interactable.interactabePoint != null &&
+            NavMesh.SamplePosition(interactable.interactabePoint.position, out NavMeshHit interactionPointHit, 1.5f, NavMesh.AllAreas))
+        {
+            return interactionPointHit.position;
+        }
+
         Vector3 direction = watsonPosition - transform.position;
         direction.y = 0f;
         if (direction.sqrMagnitude < 0.001f)
@@ -138,6 +164,54 @@ public class WatsonEscortNPC : MonoBehaviour
         return NavMesh.SamplePosition(desired, out NavMeshHit hit, 1.5f, NavMesh.AllAreas)
             ? hit.position
             : desired;
+    }
+
+    public bool IsEscortDestinationAllowed(Vector3 destination)
+    {
+        if (forbiddenDestinationVolume == null)
+            return true;
+
+        Vector3 closestPoint = forbiddenDestinationVolume.ClosestPoint(destination);
+        return (closestPoint - destination).sqrMagnitude > 0.0001f;
+    }
+
+    public float GetDestinationValidationColorAmount(Vector3 destination)
+    {
+        if (forbiddenDestinationVolume == null)
+            return 1f;
+
+        Vector3 closestPoint = forbiddenDestinationVolume.ClosestPoint(destination);
+        float distanceOutsideVolume = Vector3.Distance(destination, closestPoint);
+        return Mathf.Clamp01(distanceOutsideVolume / destinationValidationColorBlendDistance);
+    }
+
+    public bool NotifyValidEscortDestinationReached(PlayerController watson, bool switchToSherlockAfterDialogue = true)
+    {
+        if (successfulEscortDialogueStarted || violetDialogueAfterEscort == null)
+            return false;
+
+        bool dialogueStarted = violetDialogueAfterEscort.UnlockAndStartDialogueAfterEscort(
+            watson,
+            switchToSherlockAfterDialogue);
+        if (dialogueStarted)
+            successfulEscortDialogueStarted = true;
+
+        return dialogueStarted;
+    }
+
+    public void PlaySherlockAfterEscortDialogue(PlayerController sherlock)
+    {
+        if (sherlockAfterEscortDialoguePlayed || violetDialogueAfterEscort == null)
+            return;
+
+        sherlockAfterEscortDialoguePlayed = true;
+        violetDialogueAfterEscort.PlaySherlockAfterEscortDialogue(sherlock);
+    }
+
+    public IEnumerator WaitForDialogueToFinish()
+    {
+        while (dialogueCoroutine != null)
+            yield return null;
     }
 
     public bool MoveTo(Vector3 destination)
@@ -346,6 +420,12 @@ public class WatsonEscortNPC : MonoBehaviour
 
     private IEnumerator PlayDialogueLine(Lvl3DialogueLine line)
     {
+        while (TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput ||
+               TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput)
+        {
+            yield return null;
+        }
+
         string sherlockText = line.speaker == Lvl3DialogueSpeaker.Sherlock ? line.text : string.Empty;
         string watsonText = line.speaker == Lvl3DialogueSpeaker.Watson ? line.text : string.Empty;
         string selmaText = line.speaker == Lvl3DialogueSpeaker.Selma ? line.text : string.Empty;

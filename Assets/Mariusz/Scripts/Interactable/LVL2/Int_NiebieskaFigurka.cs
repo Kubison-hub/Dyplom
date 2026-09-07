@@ -33,6 +33,7 @@ public class Int_NiebieskaFigurka : Lvl3InteractionDialogueBase
         }
 
         collected = true;
+        GetComponent<Interactable>()?.MarkCompleted();
         CluesLog.Instance?.RegisterTableMechanismElement(ItemType.Niebieska);
         if (spline != null)
             spline.SetActive(false);

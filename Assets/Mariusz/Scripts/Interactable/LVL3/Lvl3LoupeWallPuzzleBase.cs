@@ -209,6 +209,7 @@ public abstract class Lvl3LoupeWallPuzzleBase : Lvl3InteractionDialogueBase
             return;
 
         solved = true;
+        interactable?.MarkCompleted();
         OnPuzzleSolved();
         PlayCompletionDialogue();
 

@@ -1,4 +1,5 @@
 using System.Collections;
+using System;
 
 using Unity.Cinemachine;
 using UnityEngine;
@@ -27,6 +28,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     [Header("Bullet CP Watson Position")]
     [SerializeField] private Transform watsonExaminationPoint;
     [SerializeField, Min(0.01f)] private float watsonExaminationArrivalTolerance = 0.1f;
+    [SerializeField, Min(1f)] private float watsonExaminationRotationSpeed = 360f;
     [SerializeField]private Collider intCollider;
 
     //public GameObject[] nextInteractions;
@@ -45,14 +47,6 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     [SerializeField] private string tutorialPopupTitle = "BADANIE CIALA";
     [SerializeField, TextArea] private string tutorialPopupText;
     [SerializeField] private VideoClip tutorialPopupVideoClip;
-    [Header("Notebook Tutorial Panel")]
-    [Tooltip("Shows the standard tutorial panel after every required examination clue has been collected.")]
-    [SerializeField] private bool showNotebookTutorialPanel = true;
-    [SerializeField] private string notebookTutorialId = "EdithExamNotebook";
-    [SerializeField, TextArea] private string notebookTutorialText =
-        "W trakcie rozgrywki przydatne informacje zapisywane są w notatniku.\nWciśnij \"Tab\", aby go otworzyć.";
-    [Tooltip("Delay between revealing Edith's IdeaPoint and showing the notebook tutorial panel.")]
-    [SerializeField, Min(0f)] private float notebookTutorialDelayAfterIdeaReveal = 2f;
     [Header("Initial Examination Dialogue")]
     [SerializeField] private Lvl3DialogueLine[] initialExaminationDialogue =
     {
@@ -160,6 +154,9 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     private bool bulletExamDone;
     private bool bulletCpExamAttempted;
     private bool bulletCpResultDialoguePlaying;
+    private bool ringCpCollected;
+    private bool paperCpCollected;
+    private bool arthurFoundItemsObjectiveAdded;
     private PlayerController bulletCpPlayer;
     private Coroutine bulletCpConversationCoroutine;
     private Int_Edith_BulletHole pendingBulletCp;
@@ -397,6 +394,8 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
 
     private void SetArthurExaminationCondition(int clueIndex)
     {
+        RegisterArthurFoundItemClue(clueIndex);
+
         string parameterName = clueIndex switch
         {
             0 => arthurRingParameterName,
@@ -411,10 +410,52 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         SetConversationBoolParameter(arthurSmartNpc.rozmowaDlaPostaciB, parameterName, true);
     }
 
+    private void RegisterArthurFoundItemClue(int clueIndex)
+    {
+        switch (clueIndex)
+        {
+            case 0:
+                ringCpCollected = true;
+                break;
+            case 1:
+                paperCpCollected = true;
+                break;
+            default:
+                return;
+        }
+
+        if (arthurFoundItemsObjectiveAdded || !ringCpCollected || !paperCpCollected)
+            return;
+
+        arthurFoundItemsObjectiveAdded = true;
+        CluesLog.Instance?.AddAskArthurAboutFoundItemsObjective();
+    }
+
     private void SetConversationBoolParameter(NPCConversation conversation, string parameterName, bool value)
     {
-        if (conversation != null)
-            conversation.SetRuntimeBoolParameter(parameterName, value);
+        if (conversation == null || string.IsNullOrWhiteSpace(parameterName))
+            return;
+
+        string requestedParameterName = parameterName.Trim();
+        string resolvedParameterName = requestedParameterName;
+
+        if (conversation.ParameterList == null)
+            conversation.DeserializeForEditor();
+
+        if (conversation.ParameterList != null)
+        {
+            foreach (EditableParameter parameter in conversation.ParameterList)
+            {
+                if (parameter != null &&
+                    string.Equals(parameter.ParameterName?.Trim(), requestedParameterName, StringComparison.Ordinal))
+                {
+                    resolvedParameterName = parameter.ParameterName;
+                    break;
+                }
+            }
+        }
+
+        conversation.SetRuntimeBoolParameter(resolvedParameterName, value);
     }
 
     private void StartBulletCpConversation()
@@ -504,6 +545,8 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
             yield return null;
         }
 
+        yield return RotateWatsonToExaminationPoint();
+
         bulletCpConversationCoroutine = null;
         bulletCpConversationStarting = false;
 
@@ -515,6 +558,39 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         }
 
         StartBulletCpConversationAfterWatsonArrives(conversationManager, conversation);
+    }
+
+    private IEnumerator RotateWatsonToExaminationPoint()
+    {
+        if (watsonExaminationPoint == null || watsonNavMesh == null ||
+            !watsonNavMesh.isActiveAndEnabled || !watsonNavMesh.isOnNavMesh)
+            yield break;
+
+        watsonNavMesh.ResetPath();
+        watsonNavMesh.isStopped = true;
+        watsonNavMesh.updateRotation = false;
+
+        Vector3 forward = watsonExaminationPoint.forward;
+        forward.y = 0f;
+
+        if (forward.sqrMagnitude > 0.0001f)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(forward.normalized, Vector3.up);
+
+            while (Quaternion.Angle(watsonNavMesh.transform.rotation, targetRotation) > 0.1f)
+            {
+                watsonNavMesh.transform.rotation = Quaternion.RotateTowards(
+                    watsonNavMesh.transform.rotation,
+                    targetRotation,
+                    watsonExaminationRotationSpeed * Time.deltaTime);
+                yield return null;
+            }
+
+            watsonNavMesh.transform.rotation = targetRotation;
+        }
+
+        watsonNavMesh.updateRotation = true;
+        watsonNavMesh.isStopped = false;
     }
 
     private void StartBulletCpConversationAfterWatsonArrives(
@@ -859,7 +935,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         if (completionTutorialCoroutine != null)
             return;
 
-        // Keep this interaction alive until the IdeaPoint has been shown before the tutorial covers it.
+        // Keep this interaction alive until the IdeaPoint has been shown.
         completionDialoguePending = true;
         completionTutorialCoroutine = StartCoroutine(FinishExaminationAfterIdeaReveal());
     }
@@ -872,17 +948,9 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
                 yield return null;
         }
 
-        if (notebookTutorialDelayAfterIdeaReveal > 0f)
-            yield return new WaitForSecondsRealtime(notebookTutorialDelayAfterIdeaReveal);
-
-        if (showNotebookTutorialPanel && TutorialManager.Instance != null &&
-            !string.IsNullOrWhiteSpace(notebookTutorialId))
-        {
-            TutorialManager.Instance.PokazTutorial(notebookTutorialText, notebookTutorialId);
-        }
-
         completionDialoguePending = false;
         completionTutorialCoroutine = null;
+        interactable?.MarkCompleted();
         EndExamination(true);
     }
 

@@ -325,6 +325,7 @@ public class lvl3_int_ChestLockpick : Lvl3InteractionDialogueBase, IInteractionA
     private IEnumerator OpenChest()
     {
         isOpen = true;
+        interactable?.MarkCompleted();
 
         if (interactable != null)
         {

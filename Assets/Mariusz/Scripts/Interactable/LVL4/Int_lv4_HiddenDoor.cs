@@ -229,6 +229,7 @@ public class Int_lv4_HiddenDoor : Lvl3InteractionDialogueBase
     private IEnumerator OpenDoor(PlayerController player)
     {
         opened = true;
+        GetComponent<Interactable>()?.MarkCompleted();
         ConsumeRequiredInventoryItem();
         PlayDialogue(player, keyUseDialogue);
 

@@ -165,10 +165,6 @@ public abstract class Lvl3InteractionDialogueBase : MonoBehaviour
             StopCoroutine(dialogueCoroutine);
 
         dialogueCoroutine = null;
-        GetVoiceSource(Lvl3DialogueSpeaker.Sherlock)?.Stop();
-        GetVoiceSource(Lvl3DialogueSpeaker.Watson)?.Stop();
-        GetVoiceSource(Lvl3DialogueSpeaker.Selma)?.Stop();
-        GetVoiceSource(Lvl3DialogueSpeaker.Violet)?.Stop();
         PlayerTopText.Instance?.ClearTopTextIfMatches(activeSherlockText, activeWatsonText);
         PlayerTopText.Instance?.ClearSelmaTopTextIfMatches(activeSelmaText);
         PlayerTopText.Instance?.ClearVioletTopTextIfMatches(activeVioletText);

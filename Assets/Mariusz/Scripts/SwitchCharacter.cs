@@ -75,6 +75,9 @@ public class SwitchCharacter : MonoBehaviour
         if (PlayerController.IsWorldInputLocked)
             return;
 
+        if (TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput)
+            return;
+
         if (TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput)
             return;
 

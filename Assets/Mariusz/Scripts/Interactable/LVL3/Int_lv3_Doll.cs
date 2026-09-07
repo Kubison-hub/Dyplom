@@ -53,6 +53,7 @@ public class Int_lv3_Doll : Lvl3ClockworkInteraction
         }
 
         collected = true;
+        GetComponent<Interactable>()?.MarkCompleted();
         PlayPickupDialogue(player);
 
         if (pickupAudioSource != null && pickupAudioClip != null)

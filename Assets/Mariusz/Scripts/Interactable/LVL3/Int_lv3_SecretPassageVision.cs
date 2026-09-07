@@ -65,6 +65,7 @@ public class Int_lv3_SecretPassageVision : MonoBehaviour
     private void CompleteVision()
     {
         completed = true;
+        GetComponent<Interactable>()?.MarkCompleted();
 
         if (realDoorGameObject != null)
             realDoorGameObject.SetActive(true);

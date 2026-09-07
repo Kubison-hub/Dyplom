@@ -7,6 +7,33 @@ using UnityEngine.AI;
 public class Interactable : MonoBehaviour
 {
 
+    [Header("Save Progress")]
+    [SerializeField, Tooltip("Permanent unique ID used by the save system. Generate it from GameProgressManager.")]
+    private string saveId;
+    [SerializeField, Tooltip("True after this interaction reaches its successful completion point.")]
+    private bool isCompleted;
+
+    public string SaveId => saveId;
+    public bool IsCompleted => isCompleted;
+
+    public void MarkCompleted()
+    {
+        if (isCompleted)
+            return;
+
+        isCompleted = true;
+        GameProgressManager.Instance?.RegisterCompletedInteraction(this);
+    }
+
+    public void RestoreCompletedState(bool completed)
+    {
+        isCompleted = completed;
+
+        if (completed)
+            GameProgressManager.Instance?.RegisterCompletedInteraction(this);
+        else
+            GameProgressManager.Instance?.UnregisterCompletedInteraction(this);
+    }
 
     public bool isInteractableActive = true;
     [Space]
@@ -257,6 +284,10 @@ public class Interactable : MonoBehaviour
             if (escortController != null && escortController.TryStartEscort(escortNpc, player))
                 return;
         }
+
+        Int_VioletDialog violetDialogue = GetComponent<Int_VioletDialog>();
+        if (violetDialogue != null && !violetDialogue.IsDialogueAvailableFor(player))
+            return;
 
         // Selma uses a legacy setup with separate dialogue and escort colliders.
         // A normal click on either collider is redirected to the dialogue marker,

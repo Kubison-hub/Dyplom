@@ -58,12 +58,18 @@ public class DetectiveSequencePuzzle : MonoBehaviour
     public int clueIndex = -1;
     [Tooltip("Enable only on the ground-floor crime-scene puzzle.")]
     [SerializeField] private bool completeCrimeSceneObjectiveOnSolved;
+
+    [Header("Notebook Note On Solved")]
+    [SerializeField] private Interactable solvedNotebookNoteSource;
+    [SerializeField] private int solvedNotebookNoteIndex = -1;
+
     public UnityEvent onSolved;
 
     public bool IsSolved { get; private set; }
 
     private readonly HashSet<string> discoveredConnections = new HashSet<string>();
     private readonly HashSet<string> attemptedConnections = new HashSet<string>();
+    private bool solvedNotebookNoteAdded;
 
     public ConnectionResult TryConnect(DetectiveIdeaPoint from, DetectiveIdeaPoint to)
     {
@@ -299,6 +305,8 @@ public class DetectiveSequencePuzzle : MonoBehaviour
 
         if (solvedDialogue != null && solvedDialogue.Length > 0)
             StartCoroutine(PlaySolvedDialogue());
+        else
+            AddSolvedNotebookNote();
 
         onSolved?.Invoke();
     }
@@ -344,6 +352,17 @@ public class DetectiveSequencePuzzle : MonoBehaviour
             PlayerTopText.Instance?.ClearSelmaTopTextIfMatches(selmaText);
             PlayerTopText.Instance?.ClearVioletTopTextIfMatches(violetText);
         }
+
+        AddSolvedNotebookNote();
+    }
+
+    private void AddSolvedNotebookNote()
+    {
+        if (solvedNotebookNoteAdded || solvedNotebookNoteSource == null || solvedNotebookNoteIndex < 0)
+            return;
+
+        solvedNotebookNoteAdded = true;
+        solvedNotebookNoteSource.AddNote(solvedNotebookNoteIndex);
     }
 
     private void PlaySolvedVoice(Lvl3DialogueLine line)

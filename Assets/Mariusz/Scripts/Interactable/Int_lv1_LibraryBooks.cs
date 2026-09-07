@@ -38,9 +38,21 @@ public class Int_lv1_LibraryBooks : Lvl3InteractionDialogueBase, IVioletRoomInte
         }
     };
 
+    [Header("Violet Observes From Outside Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] violetObservesLibraryDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Violet nadal zerka w stron\u0119 biblioteki, John.",
+            duration = 3f
+        }
+    };
+
     [Header("Debug")]
     [SerializeField] private bool debugIsVioletInRoom;
     [SerializeField] private bool debugIsLibraryObserved;
+    [SerializeField] private bool debugVioletObservesFromOutside;
     [SerializeField] private bool debugVioletGateRedirected;
 
     private Interactable interactable;
@@ -126,6 +138,7 @@ public class Int_lv1_LibraryBooks : Lvl3InteractionDialogueBase, IVioletRoomInte
         violetDialog?.RefreshLibraryAwareness();
         debugIsVioletInRoom = violetDialog != null && violetDialog.isVioletInRoom;
         debugIsLibraryObserved = violetDialog != null && violetDialog.IsLibraryObserved;
+        debugVioletObservesFromOutside = violetDialog != null && violetDialog.IsOutsideLibraryButObserving;
         return debugIsVioletInRoom || debugIsLibraryObserved;
     }
 
@@ -149,7 +162,7 @@ public class Int_lv1_LibraryBooks : Lvl3InteractionDialogueBase, IVioletRoomInte
 
     private IEnumerator PlayVioletGateDialogue()
     {
-        PlayDialogue(null, violetPresentDialogue);
+        PlayDialogue(null, debugVioletObservesFromOutside ? violetObservesLibraryDialogue : violetPresentDialogue);
         while (IsDialoguePlaying)
             yield return null;
 

@@ -128,6 +128,7 @@ public class Int_lv3_SmallBox : Lvl3InteractionDialogueBase
         if (interactable == null)
             return;
 
+        interactable.MarkCompleted();
         interactable.isInteractableActive = false;
         interactable.allowQuestionFXWhenInactive = false;
         interactable.SetQuestionFXEagleVisionState(false);

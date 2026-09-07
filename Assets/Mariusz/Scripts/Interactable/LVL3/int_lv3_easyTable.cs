@@ -175,6 +175,7 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
             if (AllFiguresPlaced())
             {
                 completed = true;
+                GetComponent<Interactable>()?.MarkCompleted();
                 CluesLog.Instance?.CompleteTableMechanismObjective();
                 StartCoroutine(PlayPlacementDialogueThenComplete(player));
             }

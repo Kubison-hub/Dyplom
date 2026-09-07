@@ -232,6 +232,7 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
         }
 
         tutorialCompleted = true;
+        GetComponent<Interactable>()?.MarkCompleted();
         tutorialInProgress = false;
         deactivateOnTutorialComplete?.SetActive(false);
     }

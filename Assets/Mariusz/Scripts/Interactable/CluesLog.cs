@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using TMPro;
@@ -23,6 +22,29 @@ public class CluesLog : MonoBehaviour
     [SerializeField] private TextMeshProUGUI questLogTitleRow;
     [SerializeField] private TextMeshProUGUI questLogObjectiveRow;
     [SerializeField] private TextMeshProUGUI questLogSubObjectiveRow;
+
+    public bool IsQuestLogVisible
+    {
+        get
+        {
+            if (questLogContent != null)
+                return questLogContent.gameObject.activeSelf;
+
+            return questLogText != null && questLogText.gameObject.activeSelf;
+        }
+    }
+
+    public void SetQuestLogVisible(bool visible)
+    {
+        if (questLogContent != null)
+            questLogContent.gameObject.SetActive(visible);
+
+        if (questLogText != null &&
+            (questLogContent == null || !questLogText.transform.IsChildOf(questLogContent)))
+        {
+            questLogText.gameObject.SetActive(visible);
+        }
+    }
 
     [Header("Text")]
     [SerializeField] private string title = "Kto, jak, dlaczego?";
@@ -48,6 +70,7 @@ public class CluesLog : MonoBehaviour
 
     [Header("Journal Update Notice")]
     [SerializeField] private TextMeshProUGUI noteUpdateLogText;
+    [SerializeField] private string storyDescriptionUpdateNotice = "Dziennik został zaktualizowany.";
     [SerializeField, Min(0.01f)] private float noteUpdateFadeDuration = 0.25f;
     [SerializeField, Min(0f)] private float noteUpdateVisibleDuration = 3f;
 
@@ -67,6 +90,8 @@ public class CluesLog : MonoBehaviour
     [SerializeField] private string investigateSecretPassageText = "Zbadaj dokąd prowadzi tajne przejście";
     [SerializeField] private string connectionsText = "Dowiedz się więcej o Powiązaniach Lady Edith";
     [SerializeField] private string interviewSessionWitnessesText = "Przesłuchaj świadków biorących udział w sesji";
+    [SerializeField] private string askSelmaAboutHenrySpiritText = "Porozmawiaj z Madame Selmą o duchu ojca Lady Edith";
+    [SerializeField] private string askArthurAboutFoundItemsText = "Porozmawiaj z Sir Arthurem";
     [SerializeField, Min(1)] private int requiredSessionWitnesses = 5;
     [SerializeField] private string searchUpperFloorEvidenceText = "Przeszukaj piętro w celu zebrania dowodów";
     [SerializeField, Min(1)] private int requiredUpperFloorEvidence = 3;
@@ -113,6 +138,10 @@ public class CluesLog : MonoBehaviour
     private int interviewedSessionWitnesses;
     private readonly HashSet<int> interviewedSessionWitnessIds = new();
     private bool sessionWitnessesVisible = true;
+    private bool askSelmaAboutHenrySpiritVisible;
+    private bool askArthurAboutFoundItemsVisible;
+    private bool askedArthurAboutRing;
+    private bool askedArthurAboutPaper;
     private bool upperFloorEvidenceVisible;
     private int collectedUpperFloorEvidence;
     private bool basementEvidenceVisible;
@@ -401,6 +430,52 @@ public class CluesLog : MonoBehaviour
         sessionWitnessesVisible = false;
         upperFloorEvidenceVisible = true;
         UpdateLog();
+    }
+
+    public void AddAskSelmaAboutHenrySpiritObjective()
+    {
+        askSelmaAboutHenrySpiritVisible = true;
+        UpdateLog();
+    }
+
+    public void RemoveAskSelmaAboutHenrySpiritObjective()
+    {
+        askSelmaAboutHenrySpiritVisible = false;
+        UpdateLog();
+    }
+
+    public void AddAskArthurAboutFoundItemsObjective()
+    {
+        askArthurAboutFoundItemsVisible = !AreArthurFoundItemQuestionsComplete();
+        UpdateLog();
+    }
+
+    public void RegisterArthurRingQuestion()
+    {
+        askedArthurAboutRing = true;
+        RefreshArthurFoundItemsObjective();
+    }
+
+    public void RegisterArthurPaperQuestion()
+    {
+        askedArthurAboutPaper = true;
+        RefreshArthurFoundItemsObjective();
+    }
+
+    private void RefreshArthurFoundItemsObjective()
+    {
+        if (!askArthurAboutFoundItemsVisible)
+            askArthurAboutFoundItemsVisible = true;
+
+        if (AreArthurFoundItemQuestionsComplete())
+            askArthurAboutFoundItemsVisible = false;
+
+        UpdateLog();
+    }
+
+    private bool AreArthurFoundItemQuestionsComplete()
+    {
+        return askedArthurAboutRing && askedArthurAboutPaper;
     }
 
     public void RegisterUpperFloorEvidence()
@@ -864,8 +939,19 @@ public class CluesLog : MonoBehaviour
 
     private void ShowJournalUpdateNotice()
     {
+        ShowJournalUpdateNotice(storyDescriptionUpdateNotice);
+    }
+
+    public void ShowJournalUpdateNotice(string message, bool playAudio = true)
+    {
         if (noteUpdateLogText == null)
             return;
+
+        if (!string.IsNullOrWhiteSpace(message))
+            noteUpdateLogText.text = message;
+
+        if (playAudio && storyDescriptionAudioSource != null && storyDescriptionChangedClip != null)
+            storyDescriptionAudioSource.PlayOneShot(storyDescriptionChangedClip);
 
         if (noteUpdateFadeCoroutine != null)
             StopCoroutine(noteUpdateFadeCoroutine);
@@ -922,9 +1008,6 @@ public class CluesLog : MonoBehaviour
         description = value;
 
         ShowJournalUpdateNotice();
-
-        if (storyDescriptionAudioSource != null && storyDescriptionChangedClip != null)
-            storyDescriptionAudioSource.PlayOneShot(storyDescriptionChangedClip);
     }
 
     public string GetFormattedLog()
@@ -998,6 +1081,19 @@ public class CluesLog : MonoBehaviour
                 AppendNestedObjective(
                     builder,
                     $"{interviewSessionWitnessesText} {interviewedSessionWitnesses}/{requiredSessionWitnesses}",
+                    false);
+            }
+
+            if (askSelmaAboutHenrySpiritVisible)
+                AppendNestedObjective(builder, askSelmaAboutHenrySpiritText, false);
+
+            if (askArthurAboutFoundItemsVisible)
+            {
+                int askedItemsCount = (askedArthurAboutRing ? 1 : 0) +
+                                      (askedArthurAboutPaper ? 1 : 0);
+                AppendNestedObjective(
+                    builder,
+                    $"{askArthurAboutFoundItemsText} {askedItemsCount}/2",
                     false);
             }
 

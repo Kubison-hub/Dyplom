@@ -80,6 +80,7 @@ public class lvl3_int_SecretLeverWall : MonoBehaviour
     private IEnumerator OpenSecretCoroutine()
     {
         isOpen = true;
+        interactable?.MarkCompleted();
 
         if (interactable != null)
         {
