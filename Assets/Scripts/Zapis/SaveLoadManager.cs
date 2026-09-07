@@ -173,6 +173,9 @@ public class SaveLoadManager : MonoBehaviour
         // --- Odkryte punkty sledztwa ---
         data.discoveredIdeaPointIDs = ZbierzOdkrytePunkty();
 
+        // --- Aktywne grupy poziomow ---
+        data.levelGroups = ZbierzGrupyPoziomow();
+
         // --- Pozycje NPC ---
         data.npcs = ZbierzNpc();
 
@@ -303,7 +306,12 @@ public class SaveLoadManager : MonoBehaviour
             return;
         }
 
-        // --- Tutoriale: MUSZA byc przywrocone jako pierwsze ---
+        // --- Aktywne grupy poziomow: MUSZA byc pierwsze ---
+        // Reszta (pozycje, NPC, przedmioty) odnosi sie do obiektow wewnatrz
+        // tych grup. Na wylaczonej grupie nic nie da sie odnalezc.
+        PrzywrocGrupyPoziomow(data.levelGroups);
+
+        // --- Tutoriale ---
         // SpawnHiddenItems() ponizej pokazuje tutorial o przedmiotach do znalezienia.
         // Bez wczesniejszego przywrocenia listy widzianych tutoriali popup wyskoczylby
         // po kazdym wczytaniu zapisu.
@@ -553,6 +561,95 @@ public class SaveLoadManager : MonoBehaviour
             Debug.LogWarning("LoadGame: nie znaleziono interakcji o ID: " + string.Join(" | ", nieznalezione) +
                              ". Kliknij 'Refresh Interaction List' na komponencie GameProgressManager.");
         }
+    }
+
+    // Zwraca grupy poziomow w scenie. Konwencja: nazwa to "LEVEL_" + numer,
+    // np. LEVEL_1, LEVEL_2. Podgrupy typu LEVEL_1_ROOMS sa pomijane -
+    // ich stan nalezy do wnetrza poziomu, nie do przelaczania poziomow.
+    private static Transform[] ZnajdzGrupyPoziomow()
+    {
+        List<Transform> grupy = new List<Transform>();
+
+        Transform[] wszystkie = FindObjectsByType<Transform>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        foreach (Transform t in wszystkie)
+        {
+            if (t == null || !t.name.StartsWith("LEVEL_"))
+                continue;
+
+            string reszta = t.name.Substring("LEVEL_".Length);
+
+            bool samCyfry = reszta.Length > 0;
+            foreach (char c in reszta)
+            {
+                if (!char.IsDigit(c))
+                {
+                    samCyfry = false;
+                    break;
+                }
+            }
+
+            if (samCyfry)
+                grupy.Add(t);
+        }
+
+        return grupy.ToArray();
+    }
+
+    private List<LevelGroupSaveData> ZbierzGrupyPoziomow()
+    {
+        List<LevelGroupSaveData> lista = new List<LevelGroupSaveData>();
+
+        foreach (Transform t in ZnajdzGrupyPoziomow())
+        {
+            LevelGroupSaveData grupa = new LevelGroupSaveData();
+            grupa.objectId = BuildObjectID(t.gameObject);
+            grupa.active = t.gameObject.activeSelf;
+            lista.Add(grupa);
+
+            Debug.Log("SaveGame: poziom '" + t.name + "' aktywny: " + grupa.active);
+        }
+
+        if (lista.Count == 0)
+        {
+            Debug.LogWarning("SaveGame: nie znaleziono zadnej grupy poziomu (LEVEL_1, LEVEL_2, ...). " +
+                             "Jesli poziomy nazywaja sie inaczej, ich stan NIE zostanie zapisany.");
+        }
+
+        return lista;
+    }
+
+    private void PrzywrocGrupyPoziomow(List<LevelGroupSaveData> zapisane)
+    {
+        if (zapisane == null || zapisane.Count == 0)
+        {
+            Debug.Log("LoadGame: brak grup poziomow w zapisie.");
+            return;
+        }
+
+        Dictionary<string, bool> poId = new Dictionary<string, bool>();
+        foreach (LevelGroupSaveData grupa in zapisane)
+        {
+            if (grupa != null && !string.IsNullOrEmpty(grupa.objectId))
+                poId[grupa.objectId] = grupa.active;
+        }
+
+        int przywrocone = 0;
+
+        foreach (Transform t in ZnajdzGrupyPoziomow())
+        {
+            bool active;
+            if (!poId.TryGetValue(BuildObjectID(t.gameObject), out active))
+                continue;
+
+            t.gameObject.SetActive(active);
+            przywrocone++;
+
+            Debug.Log("LoadGame: poziom '" + t.name + "' ustawiony na aktywny: " + active);
+        }
+
+        Debug.Log("LoadGame: przywrocono stan " + przywrocone + " z " + zapisane.Count + " grup poziomow.");
     }
 
     // Zapisuje cel patrzenia kazdej kamery postaci (kolejnosc jak w playersCamera).

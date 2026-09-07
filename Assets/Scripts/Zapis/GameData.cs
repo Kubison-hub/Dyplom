@@ -42,6 +42,12 @@ public class GameData
     // 0 = Sherlock, 1 = Watson. Decyduje tez o tym, ktora kamera ma priorytet.
     public int activePlayerIndex;
 
+    // --- Aktywne grupy poziomow (LEVEL_1, LEVEL_2, ...) ---
+    // Poziomy sa w jednej scenie jako grupy obiektow. Przejscie na kolejny
+    // poziom wlacza jedna grupe i wylacza poprzednia - bez tego zapis
+    // wczytywalby sie zawsze na pierwszym poziomie.
+    public List<LevelGroupSaveData> levelGroups;
+
     // --- Cele kamer postaci (LookAt) ---
     // Scena startuje z kamera wycelowana w Selme (seans), a przesuwa ja dopiero
     // dialog otwierajacy. Po wczytaniu ten dialog nie leci, wiec cel trzeba zapisac.
@@ -157,4 +163,12 @@ public class NpcSaveData
     public Vector3 position;
     public Vector3 eulerAngles;  // obrot, zeby NPC nie patrzyl w zla strone
     public bool active;          // czy obiekt byl wlaczony
+}
+
+// Stan wlaczenia jednej grupy poziomu.
+[System.Serializable]
+public class LevelGroupSaveData
+{
+    public string objectId;   // sciezka w hierarchii
+    public bool active;
 }

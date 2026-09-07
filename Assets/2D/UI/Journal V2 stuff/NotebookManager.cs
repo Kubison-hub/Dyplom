@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 // Alias chroni przed 'using System.Diagnostics;' dopisywanym przez Visual Studio (CS0104).
@@ -66,10 +68,9 @@ public class NotebookManager : MonoBehaviour
     private PlayerInput notebookLockedInput;
     private bool notebookDisabledInput;
     private bool openedAsQuickRead;
-    private bool closeQuickReadOnLeftMouseClick;
-    private bool quickReadDisplayPositionOverridden;
-    private Vector2 quickReadDisplayOriginalPosition;
-    private int quickReadOpenedFrame;
+    private bool quickReadClosesOnLeftClick;
+    private bool hasQuickReadPanelPosition;
+    private Vector2 panelPositionBeforeQuickRead;
     private bool notebookPausedTime;
 
     public bool IsNotebookOpen => notebookPanel != null && notebookPanel.activeSelf;
@@ -101,19 +102,11 @@ public class NotebookManager : MonoBehaviour
         if (cluesLog != null)
             cluesLog.OnLogUpdated -= UpdateTaskDisplay;
 
-        RestoreQuickReadDisplayPosition();
         ResumeGameplayTime();
     }
 
     private void Update()
     {
-        if (openedAsQuickRead && closeQuickReadOnLeftMouseClick && IsNotebookOpen &&
-            Time.frameCount > quickReadOpenedFrame && Input.GetMouseButtonDown(0))
-        {
-            CloseNotebook();
-            return;
-        }
-
         if (Input.GetKeyDown(KeyCode.Tab) && !IsTutorialBlockingNotebook())
         {
             ToggleNotebook();
@@ -156,9 +149,22 @@ public class NotebookManager : MonoBehaviour
         if (notebookPanel != null)
             notebookPanel.SetActive(false);
 
-        RestoreQuickReadDisplayPosition();
         openedAsQuickRead = false;
-        closeQuickReadOnLeftMouseClick = false;
+        quickReadClosesOnLeftClick = false;
+
+        // Przywracamy pozycje panelu sprzed szybkiego podgladu.
+        if (hasQuickReadPanelPosition)
+        {
+            RectTransform panelRect = notebookPanel != null
+                ? notebookPanel.transform as RectTransform
+                : null;
+
+            if (panelRect != null)
+                panelRect.anchoredPosition = panelPositionBeforeQuickRead;
+
+            hasQuickReadPanelPosition = false;
+        }
+
         RestoreQuestLogAfterNotebook();
         RestoreActivePlayerInput();
         ResumeGameplayTime();
@@ -437,26 +443,36 @@ public class NotebookManager : MonoBehaviour
         }
     }
 
+    // Szybki podglad notatki: panel przesuniety w osi X, opcjonalnie
+    // zamykany lewym przyciskiem myszy (uzywane przez Interactable).
+    public void ShowNoteImmediately(NoteData note, float displayPositionX, bool closeOnLeftMouseClick)
+    {
+        if (note == null || notebookPanel == null)
+            return;
+
+        RectTransform panelRect = notebookPanel.transform as RectTransform;
+        if (panelRect != null)
+        {
+            if (!hasQuickReadPanelPosition)
+            {
+                panelPositionBeforeQuickRead = panelRect.anchoredPosition;
+                hasQuickReadPanelPosition = true;
+            }
+
+            panelRect.anchoredPosition = new Vector2(displayPositionX, panelPositionBeforeQuickRead.y);
+        }
+
+        quickReadClosesOnLeftClick = closeOnLeftMouseClick;
+        ShowNoteImmediately(note);
+    }
+
     public void ShowNoteImmediately(NoteData note)
-    {
-        ShowNoteImmediately(note, null, false);
-    }
-
-    public void ShowNoteImmediately(NoteData note, float quickReadDisplayPositionX, bool closeOnLeftMouseClick)
-    {
-        ShowNoteImmediately(note, (float?)quickReadDisplayPositionX, closeOnLeftMouseClick);
-    }
-
-    private void ShowNoteImmediately(NoteData note, float? quickReadDisplayPositionX, bool closeOnLeftMouseClick)
     {
         if (note == null || notebookPanel == null)
             return;
 
         AddNote(note);
         openedAsQuickRead = true;
-        this.closeQuickReadOnLeftMouseClick = closeOnLeftMouseClick;
-        quickReadOpenedFrame = Time.frameCount;
-        ApplyQuickReadDisplayPosition(quickReadDisplayPositionX);
 
         if (!IsNotebookOpen)
         {
@@ -472,34 +488,6 @@ public class NotebookManager : MonoBehaviour
             categoryPanel.SetActive(false);
 
         DisplayNote(note);
-    }
-
-    private void ApplyQuickReadDisplayPosition(float? positionX)
-    {
-        RestoreQuickReadDisplayPosition();
-
-        if (!positionX.HasValue || noteDisplayArea == null)
-            return;
-
-        RectTransform displayAreaRect = noteDisplayArea.GetComponent<RectTransform>();
-        if (displayAreaRect == null)
-            return;
-
-        quickReadDisplayOriginalPosition = displayAreaRect.anchoredPosition;
-        displayAreaRect.anchoredPosition = new Vector2(positionX.Value, quickReadDisplayOriginalPosition.y);
-        quickReadDisplayPositionOverridden = true;
-    }
-
-    private void RestoreQuickReadDisplayPosition()
-    {
-        if (!quickReadDisplayPositionOverridden || noteDisplayArea == null)
-            return;
-
-        RectTransform displayAreaRect = noteDisplayArea.GetComponent<RectTransform>();
-        if (displayAreaRect != null)
-            displayAreaRect.anchoredPosition = quickReadDisplayOriginalPosition;
-
-        quickReadDisplayPositionOverridden = false;
     }
 
     private void HideQuestLogForNotebook()
@@ -1046,13 +1034,13 @@ public class NotebookManager : MonoBehaviour
     }
 
     // NotebookManager nie ma listy wszystkich mozliwych notatek - assety NoteData
-    // sa przypisane w polach 'databaseNotes' komponentow Interactable w scenie.
-    // Zbieramy je wszystkie, zeby moc odtworzyc notatke po nazwie assetu.
+    // sa przypisane w polach roznych komponentow (Interactable, skrypty dialogowe NPC).
+    // Zbieramy je z trzech zrodel, zeby zadna notatka nie umknela.
     private Dictionary<string, NoteData> ZbierzWszystkieNotatkiZeSceny()
     {
         Dictionary<string, NoteData> baza = new Dictionary<string, NoteData>();
 
-        // Notatki juz zebrane (np. ustawione w Inspectorze).
+        // 1. Notatki juz zebrane / ustawione w Inspectorze.
         if (allNotes != null)
         {
             foreach (NoteData note in allNotes)
@@ -1062,21 +1050,69 @@ public class NotebookManager : MonoBehaviour
             }
         }
 
-        Interactable[] interakcje = FindObjectsByType<Interactable>(
-            FindObjectsInactive.Include, FindObjectsSortMode.None);
-
-        foreach (Interactable interactable in interakcje)
+        // 2. Wszystkie assety NoteData wczytane do pamieci.
+        foreach (NoteData note in Resources.FindObjectsOfTypeAll<NoteData>())
         {
-            if (interactable == null || interactable.databaseNotes == null)
-                continue;
-
-            foreach (NoteData note in interactable.databaseNotes)
-            {
-                if (note != null)
-                    baza[note.name] = note;
-            }
+            if (note != null)
+                baza[note.name] = note;
         }
 
+        // 3. Refleksja po komponentach sceny - lapie notatki przypisane
+        //    w skryptach dialogowych NPC, ktorych nie widzi 'databaseNotes'.
+        ZbierzNotatkiZKomponentow(baza);
+
+        Debug.Log("NotebookManager: znaleziono " + baza.Count + " dostepnych assetow notatek.");
         return baza;
+    }
+
+    private void ZbierzNotatkiZKomponentow(Dictionary<string, NoteData> baza)
+    {
+        const BindingFlags flagi = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
+        MonoBehaviour[] komponenty = FindObjectsByType<MonoBehaviour>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        foreach (MonoBehaviour mb in komponenty)
+        {
+            if (mb == null)
+                continue;
+
+            foreach (FieldInfo pole in mb.GetType().GetFields(flagi))
+            {
+                object wartosc;
+
+                try
+                {
+                    wartosc = pole.GetValue(mb);
+                }
+                catch (System.Exception)
+                {
+                    continue;
+                }
+
+                if (wartosc == null)
+                    continue;
+
+                // Pojedyncza notatka
+                NoteData pojedyncza = wartosc as NoteData;
+                if (pojedyncza != null)
+                {
+                    baza[pojedyncza.name] = pojedyncza;
+                    continue;
+                }
+
+                // Tablica lub lista notatek
+                IEnumerable kolekcja = wartosc as IEnumerable;
+                if (kolekcja == null)
+                    continue;
+
+                foreach (object element in kolekcja)
+                {
+                    NoteData note = element as NoteData;
+                    if (note != null)
+                        baza[note.name] = note;
+                }
+            }
+        }
     }
 }
