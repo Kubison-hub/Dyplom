@@ -1154,10 +1154,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1460160271564723240, guid: bfd884273cd9d8948ac82cc111a9c06f, type: 3}
       propertyPath: m_text
-      value: "<b>Maja Bartnicka</b>\r\nProducent \xB7 Projektant poziom\xF3w \xB7
-        Artysta 2D \xB7 Narracja \xB7 Projektant quest\xF3w\r\n\r\n<b>Mariusz Kleszczewski</b>\r\nProjektant
-        poziom\xF3w \xB7 Programista zagadek \u015Brodowiskowych \xB7 Projektant
-        postaci 3D \n\xB7 Animacje \xB7 vfx \xB7 Tester \xB7 Ud\u017Awi\u0119kowienie\r\n\r\n<b>Jakub
+      value: "<b>Maja Bartnicka</b>\r\nProducent \xB7 Narracja \xB7 Projektant quest\xF3w
+        \xB7 Artysta 2D\r\n\r\n<b>Mariusz Kleszczewski</b>\r\nProjektant poziom\xF3w
+        \xB7 Programista zagadek \u015Brodowiskowych \xB7 Projektant postaci 3D \n\xB7
+        Animacje \xB7 vfx \xB7 Tester \xB7 Ud\u017Awi\u0119kowienie\r\n\r\n<b>Jakub
         Suchorab</b>\r\nProgramista \xB7 Projektant rozgrywki \xB7 Tester \xB7 Projektant
         muzyki\r\n\r\n<b>Dominik Zwoli\u0144ski</b>\r\nArtysta 3D \xB7 Artysta UI
         \xB7 Tester"
@@ -3321,8 +3321,14 @@ MonoBehaviour:
     text: "Lepiej by\u0142oby pomyszkowa\u0107 tu w samotno\u015Bci."
     voiceClip: {fileID: 8300000, guid: 23a34616a3be4f64fad93d47706efe47, type: 3}
     duration: 3.1
+  violetObservesLibraryDialogue:
+  - speaker: 0
+    text: "Violet nadal zerka w stron\u0119 biblioteki, John."
+    voiceClip: {fileID: 0}
+    duration: 3
   debugIsVioletInRoom: 0
   debugIsLibraryObserved: 0
+  debugVioletObservesFromOutside: 0
   debugVioletGateRedirected: 0
 --- !u!114 &423670592
 MonoBehaviour:
@@ -3336,6 +3342,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06082a455667b474fa5c9d90a6ee4fec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  saveId: 
+  isCompleted: 0
   isInteractableActive: 1
   interactionType: 50
   interactabePoint: {fileID: 73904996}
@@ -5223,6 +5231,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06082a455667b474fa5c9d90a6ee4fec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  saveId: 
+  isCompleted: 0
   isInteractableActive: 1
   interactionType: 38
   interactabePoint: {fileID: 851467427}
@@ -8634,6 +8644,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06082a455667b474fa5c9d90a6ee4fec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  saveId: 
+  isCompleted: 0
   isInteractableActive: 1
   interactionType: 0
   interactabePoint: {fileID: 0}
@@ -11125,6 +11137,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06082a455667b474fa5c9d90a6ee4fec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  saveId: 
+  isCompleted: 0
   isInteractableActive: 1
   interactionType: 51
   interactabePoint: {fileID: 1628422328}
@@ -13797,8 +13811,14 @@ MonoBehaviour:
     text: "Lepiej by\u0142oby pomyszkowa\u0107 tu w samotno\u015Bci."
     voiceClip: {fileID: 8300000, guid: 23a34616a3be4f64fad93d47706efe47, type: 3}
     duration: 3.05
+  violetObservesLibraryDialogue:
+  - speaker: 0
+    text: "Violet nadal zerka w stron\u0119 biblioteki, John."
+    voiceClip: {fileID: 0}
+    duration: 3
   debugIsVioletInRoom: 0
   debugIsLibraryObserved: 0
+  debugVioletObservesFromOutside: 0
   debugVioletGateRedirected: 0
 --- !u!114 &1675573325
 MonoBehaviour:
@@ -13812,6 +13832,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06082a455667b474fa5c9d90a6ee4fec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  saveId: 
+  isCompleted: 0
   isInteractableActive: 1
   interactionType: 7
   interactabePoint: {fileID: 1537586864}
@@ -16506,6 +16528,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06082a455667b474fa5c9d90a6ee4fec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  saveId: 
+  isCompleted: 0
   isInteractableActive: 1
   interactionType: 49
   interactabePoint: {fileID: 1537586864}

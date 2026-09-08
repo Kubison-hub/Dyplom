@@ -55,6 +55,10 @@ public class CluesLog : MonoBehaviour
     [SerializeField] private string title = "Kto, jak, dlaczego?";
     private string description;
 
+    [Header("Starting Notebook Notes")]
+    [Tooltip("Person notes added to the notebook when a new game starts.")]
+    [SerializeField] private NoteData[] startingPersonNotes;
+
     [Header("Story Descriptions")]
     [SerializeField, TextArea(4, 8)] private string startDescription = "Lady Edith nie żyje. Została zamordowana na naszych oczach podczas spirytystycznego seansu w domu medium, madame Selmy. Gdy zgasły światła, napastnik przemknął przez salon niczym zjawa i zniknął w ciemności. Musimy ustalić, kto pociągnął za spust i dlaczego dokonał tej zbrodni.";
     [SerializeField, TextArea(4, 8)] private string groundFloorIdeasDescription = "Ślady prowadzą ku ścianie salonu. To stamtąd padł strzał, a napastnik musiał wejść przez ukryte przejście. Mechanizm okrągłego stołu otworzył drzwi tuż przed oddaniem strzału.";
@@ -66,7 +70,7 @@ public class CluesLog : MonoBehaviour
     [SerializeField, TextArea(4, 8)] private string basementDescription = "Dotarliśmy do piwnic domu madame Selmy. Mała Ethel musi być gdzieś w tym labiryncie mechanizmów i zamkniętych przejść. Czujemy, że rozwiązanie tej zagadki jest już blisko.";
     [SerializeField, TextArea(4, 8)] private string basementIdeaPointPuzzleDescription = "Zegar, manekin i tarcza zegara wmurowana w ścianę są częściami jednego mechanizmu. Muszę rozgryźć ich wzajemne powiązania, aby odkryć drogę przez sekretną ścianę.";
     [SerializeField, TextArea(4, 8)] private string controlUnitDescription = "Odkryliśmy serce całej iluzji. Ukryte w piwnicy mechanizmy sterują światłami, dźwiękami i ruchomymi elementami domu, nadając seansom madame Selmy pozór zjawisk nadprzyrodzonych. To dzięki nim Duchy Przeszłości zdają się nawiedzać ten dom. Ktoś doskonale znał ten system i mógł wykorzystać go, by ukryć swoje prawdziwe zamiary wśród chaosu seansu.";
-    [SerializeField, TextArea(4, 8)] private string ethelFirstConversationDescription = "Ostatni list Selmy rozwiewa wszelkie wątpliwości. Lady Edith była córką księcia Alberta i dwórki, której romans z przyszłym małżonkiem królowej został starannie zatuszowany. Secret Service zadbało, by prawda nie dotarła ani do królowej, ani do samego Alberta. Selma poznała tę tajemnicę i uczyniła z niej swoje zabezpieczenie, lecz najwyraźniej zapłaciła za to najwyższą cenę. Ethel powierzyła nam jej wiadomość. Musimy ochronić dziewczynkę i skonfrontować domowników z faktami.";
+    [SerializeField, TextArea(4, 8)] private string ethelFirstConversationDescription = "Ethel zdradziła, że jej ojcem jest Arthur, działający w tajemnicy przy ochronie Lady Edith. List odsłania prawdę o pochodzeniu Edith: jej ojcem był książę Albert, a tajemnicę przez lata tuszowały służby królewskie. Selma naraziła siebie i swoich bliskich, poznając ten sekret. Pusty pergamin Edith może zawierać kopię dowodów.";
     [SerializeField, TextArea(4, 8)] private string ethelSecondConversationDescription = "Ethel pokazała nam drugie wyjście z piwnicy. To dowód, że do domu madame Selmy można było dostać się niepostrzeżenie, omijając salon i jego mieszkańców. Pokazała nam również tajne przejście prowadzące szybko na górę. Ktoś mógł wykorzystać tę drogę, by pojawić się podczas seansu niczym zjawa, a potem zniknąć bez śladu.";
 
     [Header("Story Description Audio")]
@@ -205,12 +209,34 @@ public class CluesLog : MonoBehaviour
     private void Start()
     {
         description = startDescription;
+        AddStartingPersonNotes();
 
         SubscribeToRoomIdeaPoints();
         SubscribeToBasementIdeaPoints();
         RefreshRoomIdeaPointProgress(false);
         RefreshBasementIdeaPointProgress(false);
         UpdateLog(false);
+    }
+
+    private void AddStartingPersonNotes()
+    {
+        NotebookManager notebookManager = NotebookManager.Instance;
+        if (notebookManager == null || startingPersonNotes == null)
+            return;
+
+        foreach (NoteData note in startingPersonNotes)
+        {
+            if (note == null)
+                continue;
+
+            if (note.category != NoteCategory.Osoby)
+            {
+                Debug.LogWarning($"CluesLog: starting note '{note.name}' is not in the Osoby category.", note);
+                continue;
+            }
+
+            notebookManager.AddNote(note, showUpdateNotification: false);
+        }
     }
 
     private void Update()
@@ -940,6 +966,7 @@ public class CluesLog : MonoBehaviour
 
         noteUpdateTextAlpha = noteUpdateLogText.color.a;
         SetJournalUpdateNoticeAlpha(0f);
+        noteUpdateLogText.gameObject.SetActive(false);
     }
 
     private void ShowJournalUpdateNotice()
@@ -951,6 +978,8 @@ public class CluesLog : MonoBehaviour
     {
         if (noteUpdateLogText == null)
             return;
+
+        noteUpdateLogText.gameObject.SetActive(true);
 
         if (!string.IsNullOrWhiteSpace(message))
             noteUpdateLogText.text = message;
@@ -974,6 +1003,9 @@ public class CluesLog : MonoBehaviour
 
         yield return FadeJournalUpdateNoticeAlpha(1f, 0f);
         noteUpdateFadeCoroutine = null;
+
+        if (noteUpdateLogText != null)
+            noteUpdateLogText.gameObject.SetActive(false);
     }
 
     private IEnumerator FadeJournalUpdateNoticeAlpha(float from, float to)

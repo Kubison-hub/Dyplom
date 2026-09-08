@@ -53,10 +53,12 @@ public class NotebookManager : MonoBehaviour
     public Image paperImage;
 
     [Header("People View")]
+    [SerializeField] private GameObject personFactsScrollView;
     [SerializeField] private GameObject personFactsContent;
     [SerializeField] private TextMeshProUGUI personFactPrefab;
 
     [Header("Observations View")]
+    [SerializeField] private GameObject observationFactsScrollView;
     [SerializeField] private GameObject observationFactsContent;
     [SerializeField] private TextMeshProUGUI observationFactPrefab;
 
@@ -87,6 +89,25 @@ public class NotebookManager : MonoBehaviour
 
         if (notebookAudioSource == null)
             notebookAudioSource = GetComponent<AudioSource>();
+
+        ResolveFactsScrollViews();
+    }
+
+    private void ResolveFactsScrollViews()
+    {
+        if (personFactsScrollView == null && personFactsContent != null)
+        {
+            ScrollRect scrollRect = personFactsContent.GetComponentInParent<ScrollRect>(true);
+            if (scrollRect != null)
+                personFactsScrollView = scrollRect.gameObject;
+        }
+
+        if (observationFactsScrollView == null && observationFactsContent != null)
+        {
+            ScrollRect scrollRect = observationFactsContent.GetComponentInParent<ScrollRect>(true);
+            if (scrollRect != null)
+                observationFactsScrollView = scrollRect.gameObject;
+        }
     }
 
     private void Start()
@@ -249,20 +270,26 @@ public class NotebookManager : MonoBehaviour
         {
             NotebookPerson firstPerson = NotebookPerson.None;
             HashSet<NotebookPerson> displayedPeople = new HashSet<NotebookPerson>();
+            bool isFirstVisibleEntry = true;
 
             foreach (NoteData note in allNotes)
             {
                 if (!IsPersonNote(note) || !displayedPeople.Add(note.person))
                     continue;
 
-                CreatePersonButton(note.person);
+                CreatePersonButton(note.person, !isFirstVisibleEntry);
 
                 if (firstPerson == NotebookPerson.None)
                     firstPerson = note.person;
+
+                isFirstVisibleEntry = false;
             }
 
             if (firstPerson != NotebookPerson.None)
+            {
+                MarkPersonNotesAsRead(firstPerson);
                 DisplayPerson(firstPerson);
+            }
 
             return;
         }
@@ -272,6 +299,7 @@ public class NotebookManager : MonoBehaviour
             NotebookObservation firstObservation = NotebookObservation.None;
             NoteData firstUngroupedObservation = null;
             HashSet<NotebookObservation> displayedObservations = new HashSet<NotebookObservation>();
+            bool isFirstVisibleEntry = true;
 
             foreach (NoteData note in allNotes)
             {
@@ -283,40 +311,56 @@ public class NotebookManager : MonoBehaviour
                     if (!displayedObservations.Add(note.observation))
                         continue;
 
-                    CreateObservationButton(note.observation);
-                    if (firstObservation == NotebookObservation.None)
+                    CreateObservationButton(note.observation, !isFirstVisibleEntry);
+                    if (isFirstVisibleEntry)
                         firstObservation = note.observation;
+
+                    isFirstVisibleEntry = false;
                     continue;
                 }
 
-                CreateNoteButton(note);
-                if (firstUngroupedObservation == null)
+                CreateNoteButton(note, !isFirstVisibleEntry);
+                if (isFirstVisibleEntry)
                     firstUngroupedObservation = note;
+
+                isFirstVisibleEntry = false;
             }
 
             if (firstObservation != NotebookObservation.None)
+            {
+                MarkObservationNotesAsRead(firstObservation);
                 DisplayObservation(firstObservation);
+            }
             else if (firstUngroupedObservation != null)
+            {
+                MarkNoteAsRead(firstUngroupedObservation);
                 DisplayNote(firstUngroupedObservation);
+            }
 
             return;
         }
 
         // Generuj nową listę dla wybranej kategorii.
+        bool isFirstVisibleNote = true;
         foreach (NoteData note in allNotes)
         {
             if (note.category == selectedCategory)
             {
-                CreateNoteButton(note);
+                CreateNoteButton(note, !isFirstVisibleNote);
 
                 if (firstNote == null)
                     firstNote = note;
+
+                isFirstVisibleNote = false;
             }
         }
 
         // A category opens directly on its first available note.
         if (firstNote != null)
+        {
+            MarkNoteAsRead(firstNote);
             DisplayNote(firstNote);
+        }
     }
 
     public void BackToCategories()
@@ -336,6 +380,8 @@ public class NotebookManager : MonoBehaviour
         categoryPanel.SetActive(true);
         noteListPanel.SetActive(false);
         noteDisplayArea.SetActive(false);
+        SetPeopleFactsVisible(false);
+        SetObservationFactsVisible(false);
 
         // NOWE: Wyświetlamy TaskDisplayArea jako domyślny widok wraz z kategoriami
         if (taskDisplayArea != null)
@@ -349,6 +395,8 @@ public class NotebookManager : MonoBehaviour
         categoryPanel.SetActive(true);
         noteListPanel.SetActive(false);
         noteDisplayArea.SetActive(false);
+        SetPeopleFactsVisible(false);
+        SetObservationFactsVisible(false);
 
         if (taskDisplayArea != null)
             taskDisplayArea.SetActive(true);
@@ -367,13 +415,15 @@ public class NotebookManager : MonoBehaviour
         PlayButtonClickSound();
         noteListPanel.SetActive(true);
         noteDisplayArea.SetActive(false);
+        SetPeopleFactsVisible(false);
+        SetObservationFactsVisible(false);
 
         // NOWE: Upewniamy się, że wracając do listy, TaskDisplayArea jest ukryty
         if (taskDisplayArea != null)
             taskDisplayArea.SetActive(false);
     }
 
-    private void CreateNoteButton(NoteData note)
+    private void CreateNoteButton(NoteData note, bool showNewEntryIndicator = true)
     {
         GameObject newBtn = Instantiate(noteButtonPrefab, noteListContent);
         TextMeshProUGUI titleText = FindNoteButtonTitle(newBtn);
@@ -390,10 +440,10 @@ public class NotebookManager : MonoBehaviour
             });
         }
 
-        SetNewEntryIndicatorVisible(newBtn, unreadNotes.Contains(note));
+        SetNewEntryIndicatorVisible(newBtn, showNewEntryIndicator && unreadNotes.Contains(note));
     }
 
-    private void CreatePersonButton(NotebookPerson person)
+    private void CreatePersonButton(NotebookPerson person, bool showNewEntryIndicator = true)
     {
         GameObject newBtn = Instantiate(noteButtonPrefab, noteListContent);
         TextMeshProUGUI titleText = FindNoteButtonTitle(newBtn);
@@ -410,7 +460,7 @@ public class NotebookManager : MonoBehaviour
             });
         }
 
-        SetNewEntryIndicatorVisible(newBtn, HasUnreadPersonNote(person));
+        SetNewEntryIndicatorVisible(newBtn, showNewEntryIndicator && HasUnreadPersonNote(person));
     }
 
     private void OpenNote(NoteData note)
@@ -510,7 +560,7 @@ public class NotebookManager : MonoBehaviour
         log?.SetQuestLogVisible(true);
     }
 
-    public void AddNote(NoteData note)
+    public void AddNote(NoteData note, bool showUpdateNotification = true)
     {
         if (note == null)
             return;
@@ -524,7 +574,9 @@ public class NotebookManager : MonoBehaviour
         allNotes.Insert(0, note);
         unreadNotes.Add(note);
         Debug.Log("DODANO NOTATKE: " + note.name, note);
-        CluesLog.Instance?.ShowJournalUpdateNotice(GetNoteAddedNotice(note), false);
+
+        if (showUpdateNotification)
+            CluesLog.Instance?.ShowJournalUpdateNotice(GetNoteAddedNotice(note), false);
 
         if (note.category == NoteCategory.Osoby && note.person == NotebookPerson.None)
             Debug.LogWarning("NotebookManager: note in category Osoby has no assigned person.", note);
@@ -582,7 +634,7 @@ public class NotebookManager : MonoBehaviour
             RefreshCategoryButtons();
     }
 
-    private void CreateObservationButton(NotebookObservation observation)
+    private void CreateObservationButton(NotebookObservation observation, bool showNewEntryIndicator = true)
     {
         GameObject newBtn = Instantiate(noteButtonPrefab, noteListContent);
         TextMeshProUGUI titleText = FindNoteButtonTitle(newBtn);
@@ -599,7 +651,7 @@ public class NotebookManager : MonoBehaviour
             });
         }
 
-        SetNewEntryIndicatorVisible(newBtn, HasUnreadObservationNote(observation));
+        SetNewEntryIndicatorVisible(newBtn, showNewEntryIndicator && HasUnreadObservationNote(observation));
     }
 
     private void OpenObservation(NotebookObservation observation)
@@ -631,7 +683,7 @@ public class NotebookManager : MonoBehaviour
             return;
         }
 
-        observationFactsContent.SetActive(true);
+        SetObservationFactsVisible(true);
         ClearObservationFacts();
 
         for (int i = allNotes.Count - 1; i >= 0; i--)
@@ -664,6 +716,9 @@ public class NotebookManager : MonoBehaviour
 
     private void SetObservationFactsVisible(bool visible)
     {
+        if (observationFactsScrollView != null)
+            observationFactsScrollView.SetActive(visible);
+
         if (observationFactsContent != null)
             observationFactsContent.SetActive(visible);
     }
@@ -709,6 +764,7 @@ public class NotebookManager : MonoBehaviour
             case NotebookObservation.MiejsceZbrodni: return "Miejsce zbrodni";
             case NotebookObservation.SekretnePrzejscie: return "Sekretne przejście";
             case NotebookObservation.UkrytePrzejscie: return "Ukryte przejście";
+            case NotebookObservation.PulapkaWPiwnicy: return "Pułapka w piwnicy";
             default: return string.Empty;
         }
     }
@@ -742,7 +798,7 @@ public class NotebookManager : MonoBehaviour
             return;
         }
 
-        personFactsContent.SetActive(true);
+        SetPeopleFactsVisible(true);
         ClearPersonFacts();
 
         // allNotes stores newest notes first; profiles read naturally from oldest fact to newest.
@@ -776,6 +832,9 @@ public class NotebookManager : MonoBehaviour
 
     private void SetPeopleFactsVisible(bool visible)
     {
+        if (personFactsScrollView != null)
+            personFactsScrollView.SetActive(visible);
+
         if (personFactsContent != null)
             personFactsContent.SetActive(visible);
     }
@@ -818,7 +877,7 @@ public class NotebookManager : MonoBehaviour
             case NotebookPerson.LadyVioletOgilvy: return "Lady Violet Ogilvy";
             case NotebookPerson.SirHenry: return "Sir Henry";
             case NotebookPerson.Arthur: return "Arthur";
-            case NotebookPerson.ReverendGeorge: return "Wielebny George";
+            case NotebookPerson.ReverendGeorge: return "Ojciec George";
             case NotebookPerson.LittleEthel: return "Mała Ethel";
             default: return string.Empty;
         }
@@ -840,7 +899,7 @@ public class NotebookManager : MonoBehaviour
                     ? "Dodano wpis w notatniku: " + GetObservationDisplayName(note.observation) + "."
                     : "Dodano wpis w notatniku: obserwacja. " + note.noteTitle;
             case NoteCategory.Obiekty:
-                return "Dodano wpis w notatniku: obiekt. " + note.noteTitle;
+                return "Dodano wpis w notatniku: " + note.noteTitle + ".";
             case NoteCategory.Zadania:
                 return "Dodano wpis w notatniku: zadanie. " + note.noteTitle;
             default:

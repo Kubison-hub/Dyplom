@@ -26,6 +26,7 @@ public class TutorialManager : MonoBehaviour
 
     public bool BlocksWorldInput => isTutorialActive || blockWorldInputUntilMouseRelease;
     private bool blockWorldInputUntilMouseRelease;
+    private bool activeTutorialPlaysAudio = true;
 
 
 
@@ -60,7 +61,7 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
-    public void PokazTutorial(string tresc, string unikalneID)
+    public void PokazTutorial(string tresc, string unikalneID, bool playAudio = true)
     {
         // Jeśli ID jest w zbiorze, to znaczy, że już to widzieliśmy -> wychodzimy
         if (pokazaneTutoriale.Contains(unikalneID)) return;
@@ -70,10 +71,12 @@ public class TutorialManager : MonoBehaviour
 
         CancelActivePlayerPendingInteraction();
         PlayerTopText.Instance?.ClearAllTopText();
+        activeTutorialPlaysAudio = playAudio;
 
         if (tutorialText != null) tutorialText.text = tresc;
         if (tutorialPanel != null) tutorialPanel.SetActive(true);
-        PlayTutorialSound(tutorialOpenClip);
+        if (activeTutorialPlaysAudio)
+            PlayTutorialSound(tutorialOpenClip);
 
         isTutorialActive = true;
         GameplayTimePause.Pause(this);
@@ -104,11 +107,13 @@ public class TutorialManager : MonoBehaviour
 
     public void ZamknijTutorial()
     {
-        PlayTutorialSound(tutorialCloseClip);
+        if (activeTutorialPlaysAudio)
+            PlayTutorialSound(tutorialCloseClip);
 
         if (tutorialPanel != null) tutorialPanel.SetActive(false);
 
         isTutorialActive = false;
+        activeTutorialPlaysAudio = true;
         GameplayTimePause.Resume(this);
 
         blockWorldInputUntilMouseRelease = false;

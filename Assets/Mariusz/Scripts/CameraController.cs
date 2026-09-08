@@ -75,9 +75,13 @@ public class CameraController : MonoBehaviour
     private bool hasLookAtOverride;
     private Transform smoothLookAtProxy;
     private Transform smoothLookAtDestination;
+    private Vector3 smoothLookAtDestinationPosition;
     private float smoothLookAtTransitionSpeed;
+    private bool smoothLookAtUsesAnchoredDestination;
+    private float smoothLookAtAnchorSnapDistance;
     private bool restoringSmoothLookAtTarget;
     private int dialoguePreviousZoomIndex = -1;
+    private bool dialogueZoomWasOverridden;
     private float dialogueAutoRotationWeight;
 
     private void Awake()
@@ -313,8 +317,21 @@ public class CameraController : MonoBehaviour
         {
             if (!dialogAutoRotateActive)
             {
-                dialoguePreviousZoomIndex = targetZoomIndex;
-                SetZoomPreset(dialogueZoomPresetName, dialogueZoomTransitionSpeed);
+                NPCConversation conversation = ConversationManager.Instance.ActiveConversationSource;
+                bool useAutomaticDialogueCamera = conversation == null || conversation.UseAutomaticDialogueCamera;
+
+                dialogueZoomWasOverridden = useAutomaticDialogueCamera;
+                if (useAutomaticDialogueCamera)
+                {
+                    dialoguePreviousZoomIndex = targetZoomIndex;
+                    string presetName = conversation != null && !string.IsNullOrWhiteSpace(conversation.AutomaticDialogueCameraPreset)
+                        ? conversation.AutomaticDialogueCameraPreset
+                        : dialogueZoomPresetName;
+                    float zoomSpeed = conversation != null
+                        ? conversation.AutomaticDialogueCameraZoomSpeed
+                        : dialogueZoomTransitionSpeed;
+                    SetZoomPreset(presetName, zoomSpeed);
+                }
                 autoRotateCamera = false;
                 dialogAutoRotationSuppressedByManualInput = false;
             }
@@ -334,10 +351,11 @@ public class CameraController : MonoBehaviour
             autoRotationSuppressedByManualInput = false;
             autoRotateCamera = false;
 
-            if (dialoguePreviousZoomIndex >= 0)
+            if (dialogueZoomWasOverridden && dialoguePreviousZoomIndex >= 0)
                 SetZoomIndex(dialoguePreviousZoomIndex, dialogueZoomTransitionSpeed);
 
             dialoguePreviousZoomIndex = -1;
+            dialogueZoomWasOverridden = false;
         }
 
         dialogueAutoRotationWeight = 0f;
@@ -547,6 +565,8 @@ public class CameraController : MonoBehaviour
             ? cineCamera.LookAt.position
             : target.position;
         smoothLookAtDestination = target;
+        smoothLookAtDestinationPosition = target.position;
+        smoothLookAtUsesAnchoredDestination = false;
         smoothLookAtTransitionSpeed = Mathf.Max(0.01f, transitionSpeed);
         restoringSmoothLookAtTarget = false;
         cineCamera.LookAt = smoothLookAtProxy;
@@ -560,6 +580,8 @@ public class CameraController : MonoBehaviour
         cineCamera.LookAt = lookAtTargetBeforeOverride;
         hasLookAtOverride = false;
         smoothLookAtDestination = null;
+        smoothLookAtDestinationPosition = Vector3.zero;
+        smoothLookAtUsesAnchoredDestination = false;
         restoringSmoothLookAtTarget = false;
     }
 
@@ -579,6 +601,8 @@ public class CameraController : MonoBehaviour
             ? cineCamera.LookAt.position
             : lookAtTargetBeforeOverride.position;
         smoothLookAtDestination = lookAtTargetBeforeOverride;
+        smoothLookAtDestinationPosition = lookAtTargetBeforeOverride.position;
+        smoothLookAtUsesAnchoredDestination = false;
         smoothLookAtTransitionSpeed = Mathf.Max(0.01f, transitionSpeed);
         restoringSmoothLookAtTarget = true;
         cineCamera.LookAt = smoothLookAtProxy;
@@ -600,6 +624,34 @@ public class CameraController : MonoBehaviour
             ? cineCamera.LookAt.position
             : target.position;
         smoothLookAtDestination = target;
+        smoothLookAtDestinationPosition = target.position;
+        smoothLookAtUsesAnchoredDestination = false;
+        smoothLookAtTransitionSpeed = Mathf.Max(0.01f, transitionSpeed);
+        restoringSmoothLookAtTarget = true;
+        cineCamera.LookAt = smoothLookAtProxy;
+    }
+
+    // Used only by scripted sequences that must finish at a stable point before
+    // attaching the camera back to a moving gameplay target.
+    public void ReturnLookAtToTargetSmoothAndAttach(Transform target, float transitionSpeed, float snapDistance)
+    {
+        if (target == null)
+        {
+            RestoreLookAtTargetSmooth(transitionSpeed);
+            return;
+        }
+
+        if (cineCamera == null)
+            return;
+
+        EnsureSmoothLookAtProxy();
+        smoothLookAtProxy.position = cineCamera.LookAt != null
+            ? cineCamera.LookAt.position
+            : target.position;
+        smoothLookAtDestination = target;
+        smoothLookAtDestinationPosition = target.position;
+        smoothLookAtUsesAnchoredDestination = true;
+        smoothLookAtAnchorSnapDistance = Mathf.Max(0.01f, snapDistance);
         smoothLookAtTransitionSpeed = Mathf.Max(0.01f, transitionSpeed);
         restoringSmoothLookAtTarget = true;
         cineCamera.LookAt = smoothLookAtProxy;
@@ -622,17 +674,26 @@ public class CameraController : MonoBehaviour
             return;
 
         float blend = 1f - Mathf.Exp(-smoothLookAtTransitionSpeed * Time.deltaTime);
+        Vector3 destinationPosition = smoothLookAtUsesAnchoredDestination
+            ? smoothLookAtDestinationPosition
+            : smoothLookAtDestination.position;
+        float snapDistance = smoothLookAtUsesAnchoredDestination
+            ? smoothLookAtAnchorSnapDistance
+            : 0.01f;
+
         smoothLookAtProxy.position = Vector3.Lerp(
             smoothLookAtProxy.position,
-            smoothLookAtDestination.position,
+            destinationPosition,
             blend);
 
-        if ((smoothLookAtProxy.position - smoothLookAtDestination.position).sqrMagnitude > 0.0001f)
+        float snapDistanceSquared = snapDistance * snapDistance;
+        if ((smoothLookAtProxy.position - destinationPosition).sqrMagnitude > snapDistanceSquared)
             return;
 
-        smoothLookAtProxy.position = smoothLookAtDestination.position;
+        smoothLookAtProxy.position = destinationPosition;
         cineCamera.LookAt = smoothLookAtDestination;
         smoothLookAtDestination = null;
+        smoothLookAtUsesAnchoredDestination = false;
 
         if (restoringSmoothLookAtTarget)
         {
@@ -726,6 +787,12 @@ public class CameraController : MonoBehaviour
         }
     }
 
+    public bool IsSmoothLookAtTransitionActive =>
+        smoothLookAtProxy != null &&
+        smoothLookAtDestination != null &&
+        cineCamera != null &&
+        cineCamera.LookAt == smoothLookAtProxy;
+
     // Ustawia cel kamery natychmiast i czysci wszystkie nadpisania.
     // Uzywane przy wczytywaniu zapisu, zeby kamera nie zostala
     // uwiazana do obiektu z przerwanego dialogu.
@@ -739,6 +806,8 @@ public class CameraController : MonoBehaviour
         hasTargetOverride = false;
         overriddenLookAtTarget = null;
         smoothLookAtDestination = null;
+        smoothLookAtDestinationPosition = Vector3.zero;
+        smoothLookAtUsesAnchoredDestination = false;
         restoringSmoothLookAtTarget = false;
 
         cineCamera.LookAt = target;

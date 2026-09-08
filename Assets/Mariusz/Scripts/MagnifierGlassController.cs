@@ -790,7 +790,19 @@ public class MagnifierGlassController : MonoBehaviour
     private void RestoreLoupeLookAt()
     {
         if (loupeLookAtCameraController != null)
-            loupeLookAtCameraController.RestoreLookAtTarget();
+        {
+            Transform sherlock = GetSherlockTransform();
+            if (sherlock != null)
+            {
+                // The loupe is Sherlock-only, so its exit should always return
+                // to the gameplay target instead of reviving an old camera focus.
+                loupeLookAtCameraController.ForceLookAtTarget(sherlock);
+            }
+            else
+            {
+                loupeLookAtCameraController.RestoreLookAtTarget();
+            }
+        }
 
         loupeLookAtCameraController = null;
         loupeLookAtVelocity = Vector3.zero;

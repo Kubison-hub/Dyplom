@@ -72,15 +72,25 @@ MonoBehaviour:
   ideaId: IdeaPoint
   ideaTitle: Trop
   ideaDescription: Description
+  ideaDescriptionDelay: 0.2
+  discoveryMode: 0
+  revealedRendererDuration: 4
+  connections: []
   ideaAnchor: {fileID: 0}
   ideaVisual: {fileID: 0}
   autoCreateVisual: 1
   visualScale: 0.18
-  visualMaterial: {fileID: 0}
+  visualMaterial: {fileID: 2100000, guid: 09477f72d886d1f4f8be0f7dceaa0048, type: 2}
+  visualColor: {r: 0.56, g: 0.82, b: 0.62, a: 1}
   setVisualLayer: 1
   visualLayerName: Outlined Objects
+  useVisualAsRaycastTarget: 1
+  hoverScaleIncrease: 0.2
   clickableCollider: {fileID: 0}
   ideaAnchorChildName: IdeaAnchor
+  questionFX: {fileID: 0}
+  questionFXRateProperty: Rate
+  questionFXDisableDelay: 5
 --- !u!1 &6663586698503483895
 GameObject:
   m_ObjectHideFlags: 0

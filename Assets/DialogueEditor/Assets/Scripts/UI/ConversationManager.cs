@@ -9,6 +9,7 @@ namespace DialogueEditor
     {
         private enum eState
         {
+            WaitingForDialogueUI,
             TransitioningDialogueBoxOn,
             ScrollingText,
             TransitioningOptionsOn,
@@ -68,6 +69,8 @@ namespace DialogueEditor
             }
         }
 
+        public NPCConversation ActiveConversationSource { get; private set; }
+
         // Private
         private float m_elapsedScrollTime;
         private int m_scrollIndex;
@@ -78,6 +81,7 @@ namespace DialogueEditor
         private Conversation m_conversation;
         private SpeechNode m_currentSpeech;
         private OptionNode m_selectedOption;
+        private Coroutine m_delayedDialogueUICoroutine;
 
         // Selection options
         private List<UIConversationButton> m_uiOptions;
@@ -137,6 +141,22 @@ namespace DialogueEditor
                     TransitioningDialogueBoxOff_Update();
                     break;
             }
+
+            UpdateKeyboardSelection();
+        }
+
+        private void UpdateKeyboardSelection()
+        {
+            if (m_state != eState.Idle || UnityEngine.InputSystem.Keyboard.current == null)
+                return;
+
+            if (UnityEngine.InputSystem.Keyboard.current.upArrowKey.wasPressedThisFrame)
+                SelectPreviousOption();
+            else if (UnityEngine.InputSystem.Keyboard.current.downArrowKey.wasPressedThisFrame)
+                SelectNextOption();
+            else if (UnityEngine.InputSystem.Keyboard.current.enterKey.wasPressedThisFrame ||
+                     UnityEngine.InputSystem.Keyboard.current.numpadEnterKey.wasPressedThisFrame)
+                PressSelectedOption();
         }
 
 
@@ -147,18 +167,54 @@ namespace DialogueEditor
 
         public void StartConversation(NPCConversation conversation)
         {
+            if (m_delayedDialogueUICoroutine != null)
+            {
+                StopCoroutine(m_delayedDialogueUICoroutine);
+                m_delayedDialogueUICoroutine = null;
+            }
+
             inConversation = true;
+            ActiveConversationSource = conversation;
             m_conversation = conversation.Deserialize();
             if (OnConversationStarted != null)
                 OnConversationStarted.Invoke();
 
-            TurnOnUI();
             m_currentSpeech = m_conversation.Root;
+            if (conversation.DialogueUIDelay > 0f)
+            {
+                SetState(eState.WaitingForDialogueUI);
+                m_delayedDialogueUICoroutine = StartCoroutine(ShowDialogueUIAfterDelay(conversation.DialogueUIDelay));
+                return;
+            }
+
+            BeginDialogueUI();
+        }
+
+        private System.Collections.IEnumerator ShowDialogueUIAfterDelay(float delay)
+        {
+            yield return new WaitForSecondsRealtime(delay);
+            m_delayedDialogueUICoroutine = null;
+
+            if (!inConversation || m_state != eState.WaitingForDialogueUI)
+                yield break;
+
+            BeginDialogueUI();
+        }
+
+        private void BeginDialogueUI()
+        {
+            TurnOnUI();
             SetState(eState.TransitioningDialogueBoxOn);
         }
 
         public void EndConversation()
         {
+            if (m_delayedDialogueUICoroutine != null)
+            {
+                StopCoroutine(m_delayedDialogueUICoroutine);
+                m_delayedDialogueUICoroutine = null;
+            }
+
             inConversation = false;
             SetState(eState.TransitioningDialogueOff);
 

@@ -10,9 +10,18 @@ namespace DialogueEditor
     {
         private static GUIStyle boldStyle;
         private static GUIStyle regularStyle;
+        private SerializedProperty useAutomaticDialogueCameraProperty;
+        private SerializedProperty automaticDialogueCameraPresetProperty;
+        private SerializedProperty automaticDialogueCameraZoomSpeedProperty;
+        private SerializedProperty dialogueUIDelayProperty;
 
         void OnEnable()
         {
+            useAutomaticDialogueCameraProperty = serializedObject.FindProperty("useAutomaticDialogueCamera");
+            automaticDialogueCameraPresetProperty = serializedObject.FindProperty("automaticDialogueCameraPreset");
+            automaticDialogueCameraZoomSpeedProperty = serializedObject.FindProperty("automaticDialogueCameraZoomSpeed");
+            dialogueUIDelayProperty = serializedObject.FindProperty("dialogueUIDelay");
+
             boldStyle = new GUIStyle();
             boldStyle.alignment = TextAnchor.MiddleLeft;
             boldStyle.fontStyle = FontStyle.Bold;
@@ -39,6 +48,17 @@ namespace DialogueEditor
             EditorGUILayout.PrefixLabel("Conversation: ", boldStyle);
             EditorGUILayout.TextField(serializedObject.targetObject.name, regularStyle);
             EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space();
+            EditorGUILayout.PropertyField(useAutomaticDialogueCameraProperty);
+            if (useAutomaticDialogueCameraProperty.boolValue)
+            {
+                EditorGUILayout.PropertyField(automaticDialogueCameraPresetProperty);
+                EditorGUILayout.PropertyField(automaticDialogueCameraZoomSpeedProperty);
+            }
+
+            EditorGUILayout.PropertyField(dialogueUIDelayProperty);
+
             serializedObject.ApplyModifiedProperties();
         }
     }

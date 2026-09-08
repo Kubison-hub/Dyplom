@@ -1,6 +1,8 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal; // Konieczne dla obs?ugi URP i Kamery
+using UnityEngine.Video;
 
 public class EagleVisionSystem : MonoBehaviour
 {
@@ -19,12 +21,24 @@ public class EagleVisionSystem : MonoBehaviour
     public bool isActive = false;
     public KeyCode visionHoldKey = KeyCode.LeftShift;
     public KeyCode magnifierHoldKey = KeyCode.F;
+
+    [Header("First Vision Eye Tutorial")]
+    [SerializeField] private bool showFirstVisionEyeTutorial = true;
+    [SerializeField, Min(0f)] private float firstVisionEyeTutorialDelay = 1.5f;
+    [SerializeField, Min(0f)] private float firstVisionEyeReleaseDelay = 0.2f;
+    [SerializeField] private string firstVisionEyeTutorialTitle = "WIZJA DETEKTYWA";
+    [SerializeField, TextArea] private string firstVisionEyeTutorialText;
+    [SerializeField] private VideoClip firstVisionEyeTutorialVideoClip;
+
     private UniversalAdditionalCameraData cameraData; // Komponent kamery URP
 
     public EagleVisionScanner eagleVisionScanner;
     public WatsonEagleVisionScanner watsonEagleVisionScanner;
 
     private float forcedActiveUntil;
+    private bool firstVisionEyeTutorialShown;
+    private bool firstVisionEyeTutorialForcesActive;
+    private Coroutine firstVisionEyeTutorialCoroutine;
 
     public static EagleVisionSystem Instance;
     void Start()
@@ -70,17 +84,27 @@ public class EagleVisionSystem : MonoBehaviour
                                             Input.GetKey(magnifierHoldKey) &&
                                             WatsonEscortController.Instance != null &&
                                             WatsonEscortController.Instance.IsEscorting;
+        bool manuallyActivatedVision = !visionInputBlocked &&
+                                       !IsWatsonActive() &&
+                                       Input.GetKeyDown(visionHoldKey);
         bool shouldBeActive = (!visionInputBlocked && Input.GetKey(visionHoldKey)) ||
                                magnifierActivatesVision ||
                                watsonEscortActivatesVision ||
                                puzzleForcesVision ||
                                (!dialogueBlocksVisionInput && IsIdeaSequenceActive()) ||
+                               firstVisionEyeTutorialForcesActive ||
                                (!dialogueBlocksVisionInput && Time.unscaledTime < forcedActiveUntil);
         if (isActive != shouldBeActive)
         {
             isActive = shouldBeActive;
             //SwitchRenderer();
             Scan();
+        }
+
+        if (manuallyActivatedVision && !firstVisionEyeTutorialShown && showFirstVisionEyeTutorial)
+        {
+            firstVisionEyeTutorialShown = true;
+            firstVisionEyeTutorialCoroutine = StartCoroutine(ShowFirstVisionEyeTutorialAfterDelay());
         }
 
         SyncSherlockScannerState();
@@ -112,6 +136,41 @@ public class EagleVisionSystem : MonoBehaviour
     public void HoldVisionFor(float duration)
     {
         forcedActiveUntil = Mathf.Max(forcedActiveUntil, Time.unscaledTime + Mathf.Max(0f, duration));
+    }
+
+    private IEnumerator ShowFirstVisionEyeTutorialAfterDelay()
+    {
+        if (firstVisionEyeTutorialDelay > 0f)
+            yield return new WaitForSecondsRealtime(firstVisionEyeTutorialDelay);
+
+        TutorialTimeline tutorialTimeline = TutorialTimeline.Instance;
+        if (tutorialTimeline == null || !tutorialTimeline.ShowGameplayTutorialPopup(
+            firstVisionEyeTutorialTitle,
+            firstVisionEyeTutorialText,
+            firstVisionEyeTutorialVideoClip))
+        {
+            firstVisionEyeTutorialShown = false;
+            firstVisionEyeTutorialCoroutine = null;
+            yield break;
+        }
+
+        firstVisionEyeTutorialForcesActive = true;
+        if (!isActive)
+        {
+            isActive = true;
+            Scan();
+        }
+
+        while (tutorialTimeline != null && tutorialTimeline.BlocksWorldInput)
+            yield return null;
+
+        if (firstVisionEyeReleaseDelay > 0f)
+            yield return new WaitForSecondsRealtime(firstVisionEyeReleaseDelay);
+
+        // The normal Shift check in Update keeps the vision active when the player still holds it.
+        firstVisionEyeTutorialForcesActive = false;
+
+        firstVisionEyeTutorialCoroutine = null;
     }
 
     private bool IsIdeaSequenceActive()

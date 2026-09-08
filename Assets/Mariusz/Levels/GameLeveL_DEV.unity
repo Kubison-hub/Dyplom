@@ -2606,8 +2606,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "Dzennik zosta\u0142 zaktualizowany."
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  m_sharedMaterial: {fileID: 6229730292464864198, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3291,6 +3291,10 @@ MonoBehaviour:
   - {fileID: 612463996}
   ContinueFont: {fileID: 0}
   EndConversationFont: {fileID: 0}
+  useAutomaticDialogueCamera: 1
+  automaticDialogueCameraPreset: Narrow
+  automaticDialogueCameraZoomSpeed: 0.2
+  dialogueUIDelay: 0
   Event:
     m_PersistentCalls:
       m_Calls: []
@@ -13064,20 +13068,13 @@ MonoBehaviour:
   sherlockSpeedReactionDelay: 0
   sherlockInteractionFocusDuration: 4
   sherlockNavMeshSampleRadius: 1
-  objectDescription: Sir Arthur
+  objectDescription: Arthur
   interactiveShader: {fileID: 644639953}
   interactionShaderVisibility: 1
   interactionShaderPulseSpeed: 1.5
   clues:
   - {fileID: 0}
-  databaseNotes:
-  - {fileID: 11400000, guid: a32295ee8396ac94ab8722a0196a7372, type: 2}
-  - {fileID: 11400000, guid: 5521c8caddbf2814d9d665e3cf3e1058, type: 2}
-  - {fileID: 11400000, guid: 477ea31654d5f654da0575df55ce140c, type: 2}
-  - {fileID: 11400000, guid: d0aa5eb1f1595204ab4e6dafd04fe8d5, type: 2}
-  - {fileID: 11400000, guid: 81e4f64f03b0383459f88f0a659853a0, type: 2}
-  - {fileID: 11400000, guid: 542f717e9d20127429acd1556397b5a9, type: 2}
-  - {fileID: 11400000, guid: 17a166e3df4bc3449a6115eadb633893, type: 2}
+  databaseNotes: []
   addDatabaseNotesAutomatically: 1
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
@@ -14326,7 +14323,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e8e154e4d54b9840aea016ee4332be5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  canGoUpStairs: 1
+  canGoUpStairs: 0
   performed: 0
   SherlockGO: {fileID: 6246396674198932830}
   moveDestination: {fileID: 646232193}
@@ -14825,12 +14822,36 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 403954052152616929, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 403954052152616929, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 403954052152616929, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 403954052152616929, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 41.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 403954052152616929, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 403954052152616929, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -41.579956
+      value: -45.03
       objectReference: {fileID: 0}
     - target: {fileID: 556290291386943930, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 663806883455490081, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 835275879931850456, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
       propertyPath: m_VerticalScrollbarSpacing
@@ -14843,6 +14864,19 @@ PrefabInstance:
     - target: {fileID: 1792250795770176101, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1838028954207984806, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_text
+      value: "Lady Edith nie \u017Cyje. Zosta\u0142a zamordowana podczas spirytystycznego
+        seansu w domu medium, madame Selmy. Gdy zgas\u0142y \u015Bwiat\u0142a, tajemniczy
+        sprawca wy\u0142oni\u0142 si\u0119 z ciemno\u015Bci niczym zjawa, odda\u0142
+        \u015Bmiertelny strza\u0142 i znikn\u0105\u0142, zanim ktokolwiek zdo\u0142a\u0142
+        go dostrzec. Musimy ustali\u0107, kto poci\u0105gn\u0105\u0142 za spust i
+        dlaczego dokona\u0142 tak straszliwego morderstwa."
+      objectReference: {fileID: 0}
+    - target: {fileID: 1838028954207984806, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_margin.z
+      value: -3.0184937
       objectReference: {fileID: 0}
     - target: {fileID: 1907255107776420490, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
       propertyPath: m_Size
@@ -14880,13 +14914,53 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 118.36902
       objectReference: {fileID: 0}
+    - target: {fileID: 2626677754102182331, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2626677754102182331, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2626677754102182331, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2626677754102182331, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2626677754102182331, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2626677754102182331, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -77.62
+      objectReference: {fileID: 0}
+    - target: {fileID: 3039844153592898083, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3039844153592898083, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3039844153592898083, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3039844153592898083, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3039844153592898083, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: 88.614136
       objectReference: {fileID: 0}
     - target: {fileID: 3039844153592898083, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -9.064941
+      value: -9.065001
       objectReference: {fileID: 0}
     - target: {fileID: 3298588012421814198, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
       propertyPath: m_AnchorMax.x
@@ -14982,7 +15056,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5191904540288440304, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.0000076293945
+      value: -0.000030517578
       objectReference: {fileID: 0}
     - target: {fileID: 5898295590597205616, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
       propertyPath: m_Name
@@ -14990,7 +15064,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6804130050747627936, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7068236336453114578, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
       propertyPath: m_IsActive
@@ -15081,8 +15155,56 @@ PrefabInstance:
       value: 11.1883545
       objectReference: {fileID: 0}
     - target: {fileID: 7767588158244697013, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7767588158244697013, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7767588158244697013, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7767588158244697013, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7767588158244697013, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7767588158244697013, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -63.05005
+      value: -69.950005
+      objectReference: {fileID: 0}
+    - target: {fileID: 7943068152646593655, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7943068152646593655, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7943068152646593655, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7943068152646593655, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7943068152646593655, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7943068152646593655, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9036744995683948110, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
+      propertyPath: m_Volume
+      value: 0.5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
@@ -15090,10 +15212,10 @@ PrefabInstance:
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 4575378136183080578, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 589169032}
+      addedObject: {fileID: 1949408975}
     - targetCorrespondingSourceObject: {fileID: 4575378136183080578, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1214415862}
+      addedObject: {fileID: 1348409226}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c4c349b242619764aa1b4817aeb0163a, type: 3}
 --- !u!1 &98063390
@@ -16294,6 +16416,10 @@ MonoBehaviour:
   - {fileID: 1602747307}
   ContinueFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   EndConversationFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  useAutomaticDialogueCamera: 1
+  automaticDialogueCameraPreset: Narrow
+  automaticDialogueCameraZoomSpeed: 0.2
+  dialogueUIDelay: 0
   Event:
     m_PersistentCalls:
       m_Calls: []
@@ -21515,9 +21641,9 @@ MonoBehaviour:
     duration: 2
   farewellDialogueLines:
   - speaker: 1
-    text: Pani wybaczy...
-    voiceClip: {fileID: 0}
-    duration: 2
+    text: Panienka wybaczy.
+    voiceClip: {fileID: 8300000, guid: 971c31ab74f7e814e94bcb09f526d171, type: 3}
+    duration: 1.52
   sherlockVoiceSource: {fileID: 1120607583}
   watsonVoiceSource: {fileID: 8390739253207350096}
   selmaVoiceSource: {fileID: 1259649565}
@@ -27459,6 +27585,7 @@ Transform:
   - {fileID: 1309333513}
   - {fileID: 695123145}
   - {fileID: 143305935}
+  - {fileID: 386972823}
   - {fileID: 977721068}
   - {fileID: 776463317}
   - {fileID: 1409362965}
@@ -31266,7 +31393,8 @@ MonoBehaviour:
   interactionShaderVisibility: 1
   interactionShaderPulseSpeed: 1.5
   clues: []
-  databaseNotes: []
+  databaseNotes:
+  - {fileID: 11400000, guid: 9843c42be0d82864093d2786273e506f, type: 2}
   addDatabaseNotesAutomatically: 1
   questionVFX: {fileID: 1879250881}
   interactionVFX: {fileID: 0}
@@ -38619,6 +38747,10 @@ MonoBehaviour:
   - {fileID: 2117404327}
   ContinueFont: {fileID: 0}
   EndConversationFont: {fileID: 0}
+  useAutomaticDialogueCamera: 1
+  automaticDialogueCameraPreset: Narrow
+  automaticDialogueCameraZoomSpeed: 0.2
+  dialogueUIDelay: 0
   Event:
     m_PersistentCalls:
       m_Calls: []
@@ -38735,6 +38867,97 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3180451742331075813, guid: 3332642b86f870647bc1915dd84802a4, type: 3}
   m_PrefabInstance: {fileID: 1682294374}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &274632989
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 274632990}
+  - component: {fileID: 274632993}
+  - component: {fileID: 274632992}
+  - component: {fileID: 274632991}
+  m_Layer: 5
+  m_Name: Viewport
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &274632990
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 274632989}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1427030136}
+  - {fileID: 1214415862}
+  m_Father: {fileID: 1348409226}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: -0.0000076294}
+  m_Pivot: {x: 0, y: 1}
+--- !u!114 &274632991
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 274632989}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31a19414c41e5ae4aae2af33fee712f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShowMaskGraphic: 0
+--- !u!114 &274632992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 274632989}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &274632993
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 274632989}
+  m_CullTransparentMesh: 1
 --- !u!1001 &275225690
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -40492,6 +40715,97 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 290005790}
   m_Mesh: {fileID: 5908587702650814170, guid: 5270c73fb7a7b314d95fd4b15bffc786, type: 3}
+--- !u!1 &290033783
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 290033784}
+  - component: {fileID: 290033787}
+  - component: {fileID: 290033786}
+  - component: {fileID: 290033785}
+  m_Layer: 5
+  m_Name: Viewport
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &290033784
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 290033783}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1292786062}
+  - {fileID: 589169032}
+  m_Father: {fileID: 1949408975}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: -0.0000076294}
+  m_Pivot: {x: 0, y: 1}
+--- !u!114 &290033785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 290033783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31a19414c41e5ae4aae2af33fee712f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShowMaskGraphic: 0
+--- !u!114 &290033786
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 290033783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &290033787
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 290033783}
+  m_CullTransparentMesh: 1
 --- !u!1001 &290114546
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -42893,6 +43207,7 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 286967b757f39c644afc54bb1f41a610, type: 2}
   - {fileID: 2100000, guid: 056e71f6e2297554d9c1fad649ea0b25, type: 2}
   - {fileID: 2100000, guid: bb79de4b8c789b7438dfc2d31fd81e7d, type: 2}
+  - {fileID: 2100000, guid: dcf48297a709db242ab871ca530f88ce, type: 2}
   targetTag: Player
   m_camera: {fileID: 330585545}
   m_target: {fileID: 0}
@@ -45038,8 +45353,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.16664934, y: 0.79788285, z: -0.25581372, w: 0.51977915}
-  m_LocalPosition: {x: -20.636452, y: 9.923546, z: 1.9122579}
+  m_LocalRotation: {x: 0.16128078, y: 0.8283857, z: -0.30078754, w: 0.4441763}
+  m_LocalPosition: {x: -20.233631, y: 9.923546, z: 2.5721853}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -45921,6 +46236,14 @@ MonoBehaviour:
   isActive: 0
   visionHoldKey: 304
   magnifierHoldKey: 102
+  showFirstVisionEyeTutorial: 1
+  firstVisionEyeTutorialDelay: 1.5
+  firstVisionEyeReleaseDelay: 1
+  firstVisionEyeTutorialTitle: Tryb skupienia
+  firstVisionEyeTutorialText: "W trybie skupienia Sherlock mo\u017Ce dostrzec znajduj\u0105ce
+    si\u0119 w pobli\u017Cu istotne elementy otoczenia oznaczone znakami zapytania.
+    Gdy dostrze\u017Cesz taki znak, warto dok\u0142adniej zbada\u0107 wskazany obiekt."
+  firstVisionEyeTutorialVideoClip: {fileID: 32900000, guid: a46ae5a91cc614343bf641ad47f50001, type: 3}
   eagleVisionScanner: {fileID: 2142722458}
   watsonEagleVisionScanner: {fileID: 799615993}
 --- !u!114 &336058962
@@ -48340,6 +48663,7 @@ MonoBehaviour:
   tutorialCameras:
   - {fileID: 2073143493}
   - {fileID: 581095108}
+  initialCameraLookAtTarget: {fileID: 1351491653}
   tutorialPlayers: []
   tutorialPopupPrefab: {fileID: -5409750516660514421, guid: 9cc4d8bdb71584a4296eab30f66be6ea, type: 3}
   tutorialPopupParent: {fileID: 1610576065}
@@ -48352,16 +48676,23 @@ MonoBehaviour:
   runOpeningConversationSequence: 1
   openingConversation: {fileID: 1867447842}
   openingConversationNpc: {fileID: 1259649560}
-  focusCameraOnOpeningConversation: 1
-  openingConversationZoomTransitionSpeed: 0.2
+  focusCameraOnOpeningConversation: 0
+  openingConversationPreDialogueZoomPreset: Medium
+  openingConversationCompleteZoomPreset: Wide
+  openingConversationZoomTransitionSpeed: 0.4
   openingConversationReturnCameraTarget: {fileID: 8698072099319906755}
-  openingConversationCameraLeadDelay: 1
+  openingConversationReturnCameraTransitionSpeed: 1
+  openingConversationReturnCameraSnapDistance: 0.5
+  openingSequenceCompleteZoomPreset: Wide
+  openingConversationStartDelay: 0
+  openingConversationCameraLeadDelay: 2
   openingConversationInputRestoreDelay: 1
-  notebookTutorialDelay: 1
+  notebookTutorialPanelDelay: 1
   notebookTutorialText: "W trakcie rozgrywki progres gry i przydatne informacje zapisywane
     s\u0105 w notatniku.\nWci\u015Bnij [Tab], aby otworzy\u0107 lub zamkn\u0105\u0107
     notatnik."
   notebookTutorialId: NotebookTutorial
+  notebookTutorialPanelPlayAudio: 0
   tutorialPopupAudioSource: {fileID: 349493651}
   tutorialPopupOpenAudio: {fileID: 8300000, guid: 383a6d04f685ff64aae7b30765b8e512, type: 3}
   tutorialPopupCloseAudio: {fileID: 8300000, guid: 383a6d04f685ff64aae7b30765b8e512, type: 3}
@@ -49322,6 +49653,137 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5fe3a804d6149e143ac4a3a5a653dbe7, type: 3}
+--- !u!1001 &356379281
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 225994067}
+    m_Modifications:
+    - target: {fileID: 2801768388850130156, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_Name
+      value: QuestionFX
+      objectReference: {fileID: 0}
+    - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.5135175
+      objectReference: {fileID: 0}
+    - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.5176774
+      objectReference: {fileID: 0}
+    - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.52605677
+      objectReference: {fileID: 0}
+    - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.011
+      objectReference: {fileID: 0}
+    - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.008
+      objectReference: {fileID: 0}
+    - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.0035
+      objectReference: {fileID: 0}
+    - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7040294792784999926, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_PropertySheet.m_Vector2f.m_Array.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7040294792784999926, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_PropertySheet.m_Int.m_Array.Array.data[0].m_Value
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 7040294792784999926, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_PropertySheet.m_Vector2f.m_Array.Array.data[0].m_Name
+      value: Size
+      objectReference: {fileID: 0}
+    - target: {fileID: 7040294792784999926, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_PropertySheet.m_Vector2f.m_Array.Array.data[1].m_Name
+      value: LiveTime
+      objectReference: {fileID: 0}
+    - target: {fileID: 7040294792784999926, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_PropertySheet.m_Vector2f.m_Array.Array.data[0].m_Value.x
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 7040294792784999926, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_PropertySheet.m_Vector2f.m_Array.Array.data[0].m_Value.y
+      value: 0.04
+      objectReference: {fileID: 0}
+    - target: {fileID: 7040294792784999926, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_PropertySheet.m_Vector2f.m_Array.Array.data[1].m_Value.x
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7040294792784999926, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_PropertySheet.m_Vector2f.m_Array.Array.data[1].m_Value.y
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7040294792784999926, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_PropertySheet.m_Vector3f.m_Array.Array.data[2].m_Value.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7040294792784999926, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_PropertySheet.m_Vector3f.m_Array.Array.data[2].m_Value.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7040294792784999926, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_PropertySheet.m_Vector3f.m_Array.Array.data[2].m_Value.z
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7040294792784999926, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_PropertySheet.m_Vector2f.m_Array.Array.data[0].m_Overridden
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7040294792784999926, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_PropertySheet.m_Vector2f.m_Array.Array.data[1].m_Overridden
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+--- !u!4 &356379282 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+  m_PrefabInstance: {fileID: 356379281}
+  m_PrefabAsset: {fileID: 0}
+--- !u!2083052967 &356379283 stripped
+VisualEffect:
+  m_CorrespondingSourceObject: {fileID: 7040294792784999926, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+  m_PrefabInstance: {fileID: 356379281}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &357151028
 GameObject:
   m_ObjectHideFlags: 0
@@ -49810,17 +50272,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 363373497}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.26, y: 0.36, z: 0.36}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1007851237}
+  m_Father: {fileID: 590715038}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.4, y: -74.9}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 2.5704, y: -372.48007}
+  m_SizeDelta: {x: 612.6301, y: 62.4286}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &363373499
 MonoBehaviour:
@@ -49842,7 +50304,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Kliknij ENTER aby zamkn\u0105\u0107"
+  m_text: "Wci\u015Bnij ENTER aby zamkn\u0105\u0107"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   m_sharedMaterial: {fileID: 6229730292464864198, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
@@ -49851,8 +50313,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4290822336
+  m_fontColor: {r: 0.754717, g: 0.754717, b: 0.754717, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -49869,8 +50331,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 13
-  m_fontSizeBase: 13
+  m_fontSize: 41.08
+  m_fontSizeBase: 41.08
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -52571,6 +53033,93 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 8f427c31ca36a8642b261ea1b87c935b, type: 3}
   m_PrefabInstance: {fileID: 406374694}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &386972822
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 192899238}
+    m_Modifications:
+    - target: {fileID: 3904824193157187340, guid: 95f68281136c95446bb587f8a3789874, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -2.79
+      objectReference: {fileID: 0}
+    - target: {fileID: 3904824193157187340, guid: 95f68281136c95446bb587f8a3789874, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.10000038
+      objectReference: {fileID: 0}
+    - target: {fileID: 3904824193157187340, guid: 95f68281136c95446bb587f8a3789874, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.693
+      objectReference: {fileID: 0}
+    - target: {fileID: 3904824193157187340, guid: 95f68281136c95446bb587f8a3789874, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.69414157
+      objectReference: {fileID: 0}
+    - target: {fileID: 3904824193157187340, guid: 95f68281136c95446bb587f8a3789874, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3904824193157187340, guid: 95f68281136c95446bb587f8a3789874, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.71983856
+      objectReference: {fileID: 0}
+    - target: {fileID: 3904824193157187340, guid: 95f68281136c95446bb587f8a3789874, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3904824193157187340, guid: 95f68281136c95446bb587f8a3789874, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3904824193157187340, guid: 95f68281136c95446bb587f8a3789874, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 452.082
+      objectReference: {fileID: 0}
+    - target: {fileID: 3904824193157187340, guid: 95f68281136c95446bb587f8a3789874, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4430249311087631798, guid: 95f68281136c95446bb587f8a3789874, type: 3}
+      propertyPath: m_Name
+      value: Fotel (8)
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 315388572371661731, guid: 95f68281136c95446bb587f8a3789874, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4430249311087631798, guid: 95f68281136c95446bb587f8a3789874, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 386972825}
+  m_SourcePrefab: {fileID: 100100000, guid: 95f68281136c95446bb587f8a3789874, type: 3}
+--- !u!4 &386972823 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3904824193157187340, guid: 95f68281136c95446bb587f8a3789874, type: 3}
+  m_PrefabInstance: {fileID: 386972822}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &386972824 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4430249311087631798, guid: 95f68281136c95446bb587f8a3789874, type: 3}
+  m_PrefabInstance: {fileID: 386972822}
+  m_PrefabAsset: {fileID: 0}
+--- !u!208 &386972825
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 386972824}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!4 &388389449 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3180451742331075813, guid: 3332642b86f870647bc1915dd84802a4, type: 3}
@@ -57144,8 +57693,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Sterowanie
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  m_sharedMaterial: {fileID: 6229730292464864198, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -64823,8 +65372,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  m_sharedMaterial: {fileID: 6229730292464864198, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -79827,7 +80376,7 @@ Transform:
   m_GameObject: {fileID: 581095103}
   serializedVersion: 2
   m_LocalRotation: {x: 0.031298947, y: 0.9347295, z: -0.3435851, w: 0.085149355}
-  m_LocalPosition: {x: -2.64155, y: 6.05, z: 2.8754134}
+  m_LocalPosition: {x: -2.643508, y: 6.05, z: 2.8757648}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -79887,6 +80436,13 @@ MonoBehaviour:
     centerHeight: 8
     bottomRadius: 7
     bottomHeight: 6
+  - name: FirstDialog
+    topRadius: 16.2
+    topHeight: -8.29
+    centerRadius: 14.4
+    centerHeight: -1.55
+    bottomRadius: 7.52
+    bottomHeight: 7.56
   startZoomIndex: 2
   manualZoomMinIndex: 2
   manualZoomMaxIndex: 3
@@ -80468,7 +81024,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &589169032
 RectTransform:
   m_ObjectHideFlags: 0
@@ -80476,18 +81032,18 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 589169031}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 50662032}
-  m_Father: {fileID: 1819345016}
+  m_Father: {fileID: 290033784}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 11.138306, y: -20.28003}
-  m_SizeDelta: {x: -40.123, y: 0}
+  m_AnchoredPosition: {x: 0.35263062, y: -0.0000076293945}
+  m_SizeDelta: {x: 0.90527344, y: 5}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &589169033
 MonoBehaviour:
@@ -80518,8 +81074,8 @@ MonoBehaviour:
   m_Padding:
     m_Left: 2
     m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
+    m_Top: 2
+    m_Bottom: 3
   m_ChildAlignment: 0
   m_Spacing: 1.4
   m_ChildForceExpandWidth: 0
@@ -80691,6 +81247,8 @@ GameObject:
   - component: {fileID: 590715038}
   - component: {fileID: 590715040}
   - component: {fileID: 590715039}
+  - component: {fileID: 590715042}
+  - component: {fileID: 590715041}
   m_Layer: 5
   m_Name: TutorialPanel
   m_TagString: Untagged
@@ -80712,6 +81270,7 @@ RectTransform:
   m_Children:
   - {fileID: 363398740}
   - {fileID: 1821212682}
+  - {fileID: 363373498}
   - {fileID: 1007851237}
   m_Father: {fileID: 1999830497}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -80727,13 +81286,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 590715037}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.6745098}
+  m_Color: {r: 0, g: 0, b: 0, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -80758,6 +81317,46 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 590715037}
   m_CullTransparentMesh: 1
+--- !u!114 &590715041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 590715037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+--- !u!223 &590715042
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 590715037}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 25
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
 --- !u!4 &590763879 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5637010910199398165, guid: 763f79373af50024aabb6157f9941575, type: 3}
@@ -89701,10 +90300,11 @@ Transform:
   m_GameObject: {fileID: 644680258}
   serializedVersion: 2
   m_LocalRotation: {x: 0.131137, y: 0.6948404, z: 0.13113703, w: 0.6948404}
-  m_LocalPosition: {x: -0.0473, y: 0, z: 0}
-  m_LocalScale: {x: 0.030000001, y: 0.099999994, z: -0.08}
+  m_LocalPosition: {x: -0.0453, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1926533601}
   m_Father: {fileID: 246304301}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &644680260
@@ -89816,8 +90416,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 5.19, y: 2.1, z: 3.54}
-  m_Center: {x: 0, y: 0.4, z: 0.74}
+  m_Size: {x: 0.12, y: 0.2, z: 0.2}
+  m_Center: {x: 0, y: 0, z: -0.06}
 --- !u!23 &644680263
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -89825,7 +90425,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 644680258}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -97974,6 +98574,8 @@ MonoBehaviour:
   blackBoardFadeDelay: 0.35
   blackBoardFadeDuration: 1
   ethel2InteractionGameObject: {fileID: 186060041}
+  openNotebookNoteAfterConversation: 0
+  notebookNoteIndex: 0
   inactiveSherlockTarget: {fileID: 1864498912}
   inactiveWatsonTarget: {fileID: 1190974027}
   inactivePlayerMoveDelay: 2
@@ -98023,7 +98625,8 @@ MonoBehaviour:
   interactionShaderVisibility: 1
   interactionShaderPulseSpeed: 1.5
   clues: []
-  databaseNotes: []
+  databaseNotes:
+  - {fileID: 11400000, guid: 9e96fbc0bacf8fb48998915060f91d46, type: 2}
   addDatabaseNotesAutomatically: 1
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
@@ -103215,8 +103818,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  m_sharedMaterial: {fileID: 6229730292464864198, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -114958,7 +115561,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Event:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1473337945}
+        m_TargetAssemblyTypeName: Int_SelmaDialog, Assembly-CSharp
+        m_MethodName: ReturnCameraAndMoveSelmaToPosition
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   NodeID: 16
   TMPFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   Icon: {fileID: 0}
@@ -120180,8 +120795,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "Zapisz Gr\u0119"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  m_sharedMaterial: {fileID: 6229730292464864198, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -136238,8 +136853,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  m_sharedMaterial: {fileID: 6229730292464864198, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -139787,7 +140402,6 @@ RectTransform:
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 2047213974}
-  - {fileID: 363373498}
   m_Father: {fileID: 590715038}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -170936,18 +171550,18 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1214415861}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 939184516}
-  m_Father: {fileID: 1819345016}
+  m_Father: {fileID: 274632990}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 11.138306, y: -20.28003}
-  m_SizeDelta: {x: -40.123, y: 0}
+  m_AnchoredPosition: {x: 0.35263443, y: 0}
+  m_SizeDelta: {x: 0.90527344, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1214415863
 MonoBehaviour:
@@ -170978,7 +171592,7 @@ MonoBehaviour:
   m_Padding:
     m_Left: 2
     m_Right: 0
-    m_Top: 0
+    m_Top: 2
     m_Bottom: 0
   m_ChildAlignment: 0
   m_Spacing: 1.4
@@ -176828,23 +177442,19 @@ MonoBehaviour:
     voiceClip: {fileID: 8300000, guid: 9ef39a58b313d594fbb68522a505e3f2, type: 3}
     duration: 1
   destinationDialogueLines:
-  - speaker: 0
+  - speaker: 1
     text: Droga Pani...
     voiceClip: {fileID: 8300000, guid: ff89055fc3cad824b870430664e99567, type: 3}
     duration: 1.36
-  - speaker: 0
+  - speaker: 1
     text: Madame...
     voiceClip: {fileID: 8300000, guid: 08b951fbab340534bb716d2a2f2b3d4a, type: 3}
-    duration: 0
-  - speaker: 0
+    duration: 1
+  - speaker: 1
     text: Madame...
     voiceClip: {fileID: 8300000, guid: 08b951fbab340534bb716d2a2f2b3d4a, type: 3}
     duration: 0.9
-  farewellDialogueLines:
-  - speaker: 1
-    text: Pani Wybaczy...
-    voiceClip: {fileID: 0}
-    duration: 2
+  farewellDialogueLines: []
   sherlockVoiceSource: {fileID: 1120607583}
   watsonVoiceSource: {fileID: 8390739253207350096}
   selmaVoiceSource: {fileID: 1259649565}
@@ -181623,6 +182233,41 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1539429728346017381, guid: 4797a1e76018fd04bba4e5ef5dac860c, type: 3}
   m_PrefabInstance: {fileID: 1000116063}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1292786061
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1292786062}
+  m_Layer: 5
+  m_Name: Content
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &1292786062
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1292786061}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 290033784}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 300}
+  m_Pivot: {x: 0, y: 1}
 --- !u!1 &1293028514
 GameObject:
   m_ObjectHideFlags: 0
@@ -186487,8 +187132,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  m_sharedMaterial: {fileID: 6229730292464864198, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -187789,6 +188434,113 @@ VisualEffect:
         m_Overridden: 1
     m_Bool:
       m_Array: []
+--- !u!1 &1348409225
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1348409226}
+  - component: {fileID: 1348409229}
+  - component: {fileID: 1348409228}
+  - component: {fileID: 1348409227}
+  m_Layer: 5
+  m_Name: ObservationFact Scroll View
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1348409226
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1348409225}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 274632990}
+  m_Father: {fileID: 1819345016}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 93.39981, y: -65.35741}
+  m_SizeDelta: {x: 124.2, y: 87.9548}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1348409227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1348409225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1aa08ab6e0800fa44ae55d278d1423e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Content: {fileID: 1214415862}
+  m_Horizontal: 0
+  m_Vertical: 1
+  m_MovementType: 2
+  m_Elasticity: 0.1
+  m_Inertia: 1
+  m_DecelerationRate: 0.135
+  m_ScrollSensitivity: 0.2
+  m_Viewport: {fileID: 274632990}
+  m_HorizontalScrollbar: {fileID: 0}
+  m_VerticalScrollbar: {fileID: 0}
+  m_HorizontalScrollbarVisibility: 2
+  m_VerticalScrollbarVisibility: 2
+  m_HorizontalScrollbarSpacing: -3
+  m_VerticalScrollbarSpacing: -3
+  m_OnValueChanged:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &1348409228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1348409225}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1348409229
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1348409225}
+  m_CullTransparentMesh: 1
 --- !u!1 &1348708054
 GameObject:
   m_ObjectHideFlags: 0
@@ -198252,6 +199004,41 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2089963138}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1427030135
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1427030136}
+  m_Layer: 5
+  m_Name: Content
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &1427030136
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1427030135}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 274632990}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 300}
+  m_Pivot: {x: 0, y: 1}
 --- !u!1 &1427473846
 GameObject:
   m_ObjectHideFlags: 0
@@ -210918,8 +211705,7 @@ MonoBehaviour:
     duration: 3.3
   ringCpDialogue:
   - speaker: 0
-    text: "Z\u0142oty pier\u015Bcie\u0144, za du\u017Cy na palec ofiary i do tego
-      ma wygrawerowan\u0105 liter\u0119 A."
+    text: "Z\u0142oty pier\u015Bcie\u0144..."
     voiceClip: {fileID: 8300000, guid: 1112628e5c583874c854b67a4ecad992, type: 3}
     duration: 1.6
   paperCpDialogue:
@@ -210929,14 +211715,13 @@ MonoBehaviour:
     duration: 2.5
   bulletCpDialogue:
   - speaker: 0
-    text: "Hmm...zdajmy si\u0119 na twoje medyczne do\u015Bwiadczenie Watsonie, czy
-      mo\u017Cesz przyjrze\u0107 si\u0119 ofierze?"
-    voiceClip: {fileID: 8300000, guid: d00eafc166c49724f8c60d0592f42e7a, type: 3}
-    duration: 3.2
+    text: "Zdajmy si\u0119 na twoje medyczne do\u015Bwiadczenie Watsonie."
+    voiceClip: {fileID: 8300000, guid: f06358f166562f948ab61a5b27ff8697, type: 3}
+    duration: 3.28
   - speaker: 1
     text: "Oczywi\u015Bcie."
-    voiceClip: {fileID: 8300000, guid: 851301b13c014d445a2d9472b59dd4f4, type: 3}
-    duration: 2.3
+    voiceClip: {fileID: 8300000, guid: d63264fa3bd292741a5be0c99cdca444, type: 3}
+    duration: 1.5
   arthurSmartNpc: {fileID: 90534607}
   arthurRingParameterName: Ring
   arthurPaperParameterName: Paper
@@ -210948,14 +211733,14 @@ MonoBehaviour:
   bulletCpExamDoneDialogue:
   - speaker: 1
     text: "Kula trafi\u0142a prosto w serce i przesz\u0142a na wylot."
-    voiceClip: {fileID: 0}
-    duration: 3
+    voiceClip: {fileID: 8300000, guid: cc58ca6e75fa7a14f946769b1026b0b2, type: 3}
+    duration: 4.25
   bulletIdeaPointToCheck: {fileID: 1531085681}
   bulletIdeaPointMissingDialogue:
   - speaker: 0
     text: W takim razie, gdzie jest kula?
-    voiceClip: {fileID: 0}
-    duration: 2
+    voiceClip: {fileID: 8300000, guid: edd1df7204185e946a32852982aac972, type: 3}
+    duration: 2.1
   bulletCpExamIncompleteDialogue:
   - speaker: 1
     text: "Musz\u0119 dok\u0142adniej przyjrze\u0107 si\u0119 cia\u0142u."
@@ -215036,9 +215821,9 @@ MonoBehaviour:
   windowBulletIdeaPoint: {fileID: 1531085681}
   windowExaminationDialogue:
   - speaker: 0
-    text: "Uszkodzone okno, musz\u0119 przyjrze\u0107 si\u0119 temu z bliska."
-    voiceClip: {fileID: 8300000, guid: bafb453c178060b4486386a55c1020d6, type: 3}
-    duration: 4.7
+    text: "Uszkodzone okno, musz\u0119 si\u0119 przyjrze\u0107 z bliska."
+    voiceClip: {fileID: 8300000, guid: c3ede6f4c35a5f34cb250b6184f1589c, type: 3}
+    duration: 4.5
   showTutorialPopupOnFirstUse: 0
   tutorialPopupTitle: 
   tutorialPopupText: 
@@ -216340,7 +217125,7 @@ MonoBehaviour:
   enableLoupeSizeScroll: 0
   loupeSizeScrollSensitivity: 0.5
   enableFirstUseTutorialPopup: 0
-  firstUseTutorialTitle: Lups Sherlocka
+  firstUseTutorialTitle: Lupa Sherlocka
   firstUseTutorialText: Sherlock moze uzywac swojej lupy, aby odkrywac szczegoly
     i tropy.
   firstUseTutorialVideoClip: {fileID: 32900000, guid: 22038f223ab1488478138ac156432cd9, type: 3}
@@ -228989,7 +229774,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.5
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -239316,11 +240101,15 @@ MonoBehaviour:
   questLogObjectiveRow: {fileID: 1414921808}
   questLogSubObjectiveRow: {fileID: 1491107120}
   title: "Duchy Przesz\u0142o\u015Bci"
+  startingPersonNotes:
+  - {fileID: 11400000, guid: 568f76744e4bfc0449cfa7a0b73870eb, type: 2}
+  - {fileID: 11400000, guid: 34ccf6749ff44204bbaf2b65ecb974aa, type: 2}
   startDescription: "Lady Edith nie \u017Cyje. Zosta\u0142a zamordowana na naszych
     oczach podczas spirytystycznego seansu w domu medium, madame Selmy. Gdy zgas\u0142y
-    \u015Bwiat\u0142a, napastnik przemkn\u0105\u0142 przez salon niczym zjawa i znikn\u0105\u0142
-    w ciemno\u015Bci. Musimy ustali\u0107, kto poci\u0105gn\u0105\u0142 za spust
-    i dlaczego dokona\u0142 tej zbrodni."
+    \u015Bwiat\u0142a, tajemniczy sprawca wy\u0142oni\u0142 si\u0119 z ciemno\u015Bci
+    niczym zjawa, odda\u0142 \u015Bmiertelny strza\u0142 i znikn\u0105\u0142, zanim
+    ktokolwiek zdo\u0142a\u0142 go dostrzec. Musimy ustali\u0107, kto poci\u0105gn\u0105\u0142
+    za spust i dlaczego dopu\u015Bci\u0142 si\u0119 tak straszliwego morderstwa.\r\n"
   groundFloorIdeasDescription: "\u015Alady prowadz\u0105 ku \u015Bcianie salonu.
     To stamt\u0105d pad\u0142 strza\u0142, a napastnik musia\u0142 wej\u015B\u0107
     przez ukryte przej\u015Bcie. Mechanizm okr\u0105g\u0142ego sto\u0142u otworzy\u0142
@@ -251420,7 +252209,8 @@ MonoBehaviour:
   interactionShaderVisibility: 1
   interactionShaderPulseSpeed: 1.5
   clues: []
-  databaseNotes: []
+  databaseNotes:
+  - {fileID: 11400000, guid: 1be9d511693f9d24ebfe1dfaf717fd11, type: 2}
   addDatabaseNotesAutomatically: 1
   questionVFX: {fileID: 55507969}
   interactionVFX: {fileID: 0}
@@ -251964,8 +252754,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Pauza
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  m_sharedMaterial: {fileID: 6229730292464864198, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -252311,8 +253101,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "Sherlock \n"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  m_sharedMaterial: {fileID: 6229730292464864198, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -263759,32 +264549,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentIDCounter: 17
-  json: "{\"Options\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":10}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-97.83328,\"yPos\":757.332947},\"ID\":6,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Sherlock:
-    Taki mam zamiar...\",\"parentUIDs\":[4],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":8}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":420.166718,\"yPos\":599.3332},\"ID\":7,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Watson:
-    Spokojnie, Madame Selmo.\",\"parentUIDs\":[4],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":12}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":149.166718,\"yPos\":1116.333},\"ID\":11,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Zajmiemy
-    si\u0119 wszystkim.\",\"parentUIDs\":[10],\"SpeechUID\":-1},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":501.666718,\"yPos\":-52.6669},\"ID\":16,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"WYJD\u017B
-    (DEBUG DO USUNI\u0118CIA)\",\"parentUIDs\":[],\"SpeechUID\":-1}],\"Parameters\":[],\"SpeechNodes\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":1}],\"EditorInfo\":{\"isRoot\":true,\"xPos\":281.666718,\"yPos\":-181.333344},\"ID\":0,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"To
+  json: "{\"Options\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":10}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-255,\"yPos\":922.66626},\"ID\":6,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Sherlock:
+    Taki mam zamiar...\",\"parentUIDs\":[4],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":8}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":263,\"yPos\":763.6665},\"ID\":7,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Watson:
+    Spokojnie, Madame Selmo.\",\"parentUIDs\":[4],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":12}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-7,\"yPos\":1279.66638},\"ID\":11,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Zajmiemy
+    si\u0119 wszystkim.\",\"parentUIDs\":[10],\"SpeechUID\":-1},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":410.5,\"yPos\":104.666443},\"ID\":16,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"WYJD\u017B
+    (DEBUG DO USUNI\u0118CIA)\",\"parentUIDs\":[],\"SpeechUID\":-1}],\"Parameters\":[],\"SpeechNodes\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":1}],\"EditorInfo\":{\"isRoot\":true,\"xPos\":124.5,\"yPos\":-16},\"ID\":0,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"To
     niepoj\u0119te! Jak mog\u0142o do tego doj\u015B\u0107, i to w moim domu, na
     moim seansie?!\",\"parentUIDs\":[],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
-    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":2}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":270.166718,\"yPos\":-35.6669},\"ID\":1,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Bardzo\u2026
-    ciekawe.\",\"parentUIDs\":[0],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":3}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":269.166718,\"yPos\":85.3331},\"ID\":2,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Co
+    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":2}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":113,\"yPos\":129.666443},\"ID\":1,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"To
+    bardzo\u2026 ciekawe.\",\"parentUIDs\":[0],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":3}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":112,\"yPos\":250.666443},\"ID\":2,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Co
     w tym ciekawego, panie Holmes? To tragedia.\",\"parentUIDs\":[1],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
-    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":4}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":271.166718,\"yPos\":270.33313},\"ID\":3,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dobrze
-    si\u0119 sk\u0142ada, \u017Ce tu jeste\u015Bmy i mo\u017Cemy zbada\u0107, co
-    zasz\u0142o, pani Selmo.\",\"parentUIDs\":[2],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":6},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":7}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":273.166718,\"yPos\":414.33313},\"ID\":4,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Si\u0142a
+    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":4}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":114,\"yPos\":435.6665},\"ID\":3,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dobrze
+    si\u0119 sk\u0142ada, \u017Ce tu jeste\u015Bmy i mo\u017Cemy zbada\u0107, <nobr>co
+    zasz\u0142o<\\/nobr>, pani Selmo.\",\"parentUIDs\":[2],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":6},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":7}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":116,\"yPos\":579.6665},\"ID\":4,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Si\u0142a
     wy\u017Csza zes\u0142a\u0142a mi pan\xF3w. Prosz\u0119 zrobi\u0107 wszystko,
     by wyja\u015Bni\u0107, co si\u0119 tutaj wydarzy\u0142o.\",\"parentUIDs\":[3],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
-    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":9}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":314.166718,\"yPos\":733.332947},\"ID\":8,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jak
-    mog\u0119 by\u0107 spokojna? Moja klientka w\u0142a\u015Bnie zgin\u0119\u0142a!\",\"parentUIDs\":[7],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
-    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":10}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":312.166718,\"yPos\":881.332947},\"ID\":9,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Wiem,
+    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":9}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":157,\"yPos\":898.66626},\"ID\":8,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jak
+    mog\u0119 by\u0107 spokojna? Moja klientka w\u0142a\u015Bnie zosta\u0142a zamordowana!\",\"parentUIDs\":[7],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
+    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":10}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":155,\"yPos\":1045.66626},\"ID\":9,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Wiem,
     \u017Ce to przyt\u0142aczaj\u0105cy moment, ale je\u015Bli zachowa pani spok\xF3j,
     pozostali p\xF3jd\u0105 za pani przyk\u0142adem. Nam r\xF3wnie\u017C \u0142atwiej
-    b\u0119dzie z nimi porozmawia\u0107.\",\"parentUIDs\":[8],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":11}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":151.166718,\"yPos\":993.332947},\"ID\":10,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dobrze.
-    Moja renoma nie mo\u017Ce ucierpie\u0107 przez to, co tu zasz\u0142o. Postaram
-    si\u0119 zachowa\u0107 twarz mimo tych tragicznych okoliczno\u015Bci.\",\"parentUIDs\":[9,6],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
-    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":13}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":141.166718,\"yPos\":1247.333},\"ID\":12,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Wygl\u0105da
-    na to, \u017Ce z zabawnego wieczoru przechodzimy do pracy, drogi Watsonie.\",\"parentUIDs\":[11],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":15}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":137.166718,\"yPos\":1364.33276},\"ID\":13,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Telegram
-    nie k\u0142ama\u0142. Faktycznie kto\u015B dzisiaj zgin\u0105\u0142\u2026\",\"parentUIDs\":[12],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":136.166718,\"yPos\":1486.333},\"ID\":15,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Bardzo
+    b\u0119dzie z nimi porozmawia\u0107.\",\"parentUIDs\":[8],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":11}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-6,\"yPos\":1158.66626},\"ID\":10,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dobrze.
+    Moja renoma nie mo\u017Ce przez to ucierpie\u0107. Postaram si\u0119 zachowa\u0107
+    twarz mimo tych tragicznych okoliczno\u015Bci.\",\"parentUIDs\":[9,6],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
+    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":13}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-16,\"yPos\":1412.66638},\"ID\":12,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Wygl\u0105da
+    na to, \u017Ce z zabawnego wieczoru przechodzimy do pracy, drogi Watsonie.\",\"parentUIDs\":[11],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":15}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-20,\"yPos\":1528.66614},\"ID\":13,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Telegram
+    nie k\u0142ama\u0142. Faktycznie kto\u015B dzisiaj zgin\u0105\u0142\u2026\",\"parentUIDs\":[12],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-24,\"yPos\":1687.66638},\"ID\":15,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Bardzo
     ciekawe. Czas rozpocz\u0105\u0107 \u015Bledztwo.\",\"parentUIDs\":[13],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0}]}"
   saveVersion: 110
   DefaultName: 
@@ -263808,9 +264598,25 @@ MonoBehaviour:
   - {fileID: 838203372}
   ContinueFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   EndConversationFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  useAutomaticDialogueCamera: 1
+  automaticDialogueCameraPreset: FirstDialog
+  automaticDialogueCameraZoomSpeed: 0.04
+  dialogueUIDelay: 0.5
   Event:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1473337945}
+        m_TargetAssemblyTypeName: Int_SelmaDialog, Assembly-CSharp
+        m_MethodName: ReturnCameraAndMoveSelmaToPosition
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1867447843
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -273691,6 +274497,96 @@ MonoBehaviour:
   lampHandRig: {fileID: 1926224216}
   lampHolder: {fileID: 2019838813}
   blendDuration: 0.2
+--- !u!1001 &1926533600
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 644680259}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 7deed2f27b97add49a0bdafdb40193da, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.14
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7deed2f27b97add49a0bdafdb40193da, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.13999999
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7deed2f27b97add49a0bdafdb40193da, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.13999997
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7deed2f27b97add49a0bdafdb40193da, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.004104471
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7deed2f27b97add49a0bdafdb40193da, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.012559984
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7deed2f27b97add49a0bdafdb40193da, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.037900314
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7deed2f27b97add49a0bdafdb40193da, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.3876412
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7deed2f27b97add49a0bdafdb40193da, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.030475684
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7deed2f27b97add49a0bdafdb40193da, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.920694
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7deed2f27b97add49a0bdafdb40193da, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.033588726
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7deed2f27b97add49a0bdafdb40193da, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 17.248
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7deed2f27b97add49a0bdafdb40193da, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -46.89
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7deed2f27b97add49a0bdafdb40193da, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: -10.727
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7deed2f27b97add49a0bdafdb40193da, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -4683669308469848369, guid: 7deed2f27b97add49a0bdafdb40193da, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: dcf48297a709db242ab871ca530f88ce, type: 2}
+    - target: {fileID: 919132149155446097, guid: 7deed2f27b97add49a0bdafdb40193da, type: 3}
+      propertyPath: m_Name
+      value: klucz
+      objectReference: {fileID: 0}
+    - target: {fileID: 3219882101630006985, guid: 7deed2f27b97add49a0bdafdb40193da, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: dcf48297a709db242ab871ca530f88ce, type: 2}
+    - target: {fileID: 7071182760956848314, guid: 7deed2f27b97add49a0bdafdb40193da, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: dcf48297a709db242ab871ca530f88ce, type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7deed2f27b97add49a0bdafdb40193da, type: 3}
+--- !u!4 &1926533601 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7deed2f27b97add49a0bdafdb40193da, type: 3}
+  m_PrefabInstance: {fileID: 1926533600}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1927091175 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
@@ -277314,6 +278210,113 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1539429728346017381, guid: 4797a1e76018fd04bba4e5ef5dac860c, type: 3}
   m_PrefabInstance: {fileID: 525885657}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1949408974
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1949408975}
+  - component: {fileID: 1949408978}
+  - component: {fileID: 1949408977}
+  - component: {fileID: 1949408976}
+  m_Layer: 5
+  m_Name: PersonFacts Scroll View
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1949408975
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1949408974}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 290033784}
+  m_Father: {fileID: 1819345016}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 93.39981, y: -65.35741}
+  m_SizeDelta: {x: 124.2, y: 87.9548}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1949408976
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1949408974}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1aa08ab6e0800fa44ae55d278d1423e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Content: {fileID: 589169032}
+  m_Horizontal: 0
+  m_Vertical: 1
+  m_MovementType: 2
+  m_Elasticity: 0.1
+  m_Inertia: 1
+  m_DecelerationRate: 0.135
+  m_ScrollSensitivity: 0.2
+  m_Viewport: {fileID: 290033784}
+  m_HorizontalScrollbar: {fileID: 0}
+  m_VerticalScrollbar: {fileID: 0}
+  m_HorizontalScrollbarVisibility: 2
+  m_VerticalScrollbarVisibility: 2
+  m_HorizontalScrollbarSpacing: -3
+  m_VerticalScrollbarSpacing: -3
+  m_OnValueChanged:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &1949408977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1949408974}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1949408978
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1949408974}
+  m_CullTransparentMesh: 1
 --- !u!4 &1949711611 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3180451742331075813, guid: 3332642b86f870647bc1915dd84802a4, type: 3}
@@ -290341,7 +291344,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 1
+  m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &2047213976
@@ -294330,7 +295333,7 @@ MonoBehaviour:
   m_LegacyPriority: 0
   Target:
     TrackingTarget: {fileID: 8698072099319906755}
-    LookAtTarget: {fileID: 1351491653}
+    LookAtTarget: {fileID: 8698072099319906755}
     CustomLookAtTarget: 1
   Lens:
     FieldOfView: 35
@@ -294360,8 +295363,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2073143486}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.16664934, y: 0.7978828, z: -0.25581372, w: 0.5197792}
-  m_LocalPosition: {x: -10.771092, y: 5.973546, z: -0.847728}
+  m_LocalRotation: {x: 0.16128083, y: 0.82838565, z: -0.3007875, w: 0.44417635}
+  m_LocalPosition: {x: -10.368272, y: 5.973546, z: -0.18780065}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -294401,7 +295404,7 @@ MonoBehaviour:
     SplineCurvature: 0.574
   RecenteringTarget: 2
   HorizontalAxis:
-    Value: 119.20001
+    Value: 123.600006
     Center: 0
     Range: {x: -180, y: 180}
     Wrap: 1
@@ -294512,6 +295515,13 @@ MonoBehaviour:
     centerHeight: 8
     bottomRadius: 7
     bottomHeight: 6
+  - name: FirstDialog
+    topRadius: 16.2
+    topHeight: -8.29
+    centerRadius: 14.4
+    centerHeight: -1.55
+    bottomRadius: 7.52
+    bottomHeight: 7.56
   startZoomIndex: 0
   manualZoomMinIndex: 0
   manualZoomMaxIndex: 3
@@ -296680,8 +297690,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Ustawienia
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  m_sharedMaterial: {fileID: 6229730292464864198, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -298589,8 +299599,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  m_sharedMaterial: {fileID: 6229730292464864198, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -305078,7 +306088,7 @@ Transform:
   m_GameObject: {fileID: 2140999151}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.8264421, z: -0, w: 0.56302166}
-  m_LocalPosition: {x: -0.78458035, y: 0, z: -0.6336242}
+  m_LocalPosition: {x: -1.052, y: 0, z: -0.685}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -308495,7 +309505,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3935805933752756943, guid: 284735e55effa414c98d73f52f98d2fd, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -14.5
+      value: -14.152
       objectReference: {fileID: 0}
     - target: {fileID: 3935805933752756943, guid: 284735e55effa414c98d73f52f98d2fd, type: 3}
       propertyPath: m_LocalPosition.y
@@ -308503,7 +309513,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3935805933752756943, guid: 284735e55effa414c98d73f52f98d2fd, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.5999999
+      value: -0.399
       objectReference: {fileID: 0}
     - target: {fileID: 3935805933752756943, guid: 284735e55effa414c98d73f52f98d2fd, type: 3}
       propertyPath: m_LocalRotation.w
@@ -308532,6 +309542,38 @@ PrefabInstance:
     - target: {fileID: 3935805933752756943, guid: 284735e55effa414c98d73f52f98d2fd, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4219201015235833373, guid: 284735e55effa414c98d73f52f98d2fd, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.68
+      objectReference: {fileID: 0}
+    - target: {fileID: 4219201015235833373, guid: 284735e55effa414c98d73f52f98d2fd, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4219201015235833373, guid: 284735e55effa414c98d73f52f98d2fd, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 5.41
+      objectReference: {fileID: 0}
+    - target: {fileID: 4219201015235833373, guid: 284735e55effa414c98d73f52f98d2fd, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.10504931
+      objectReference: {fileID: 0}
+    - target: {fileID: 4219201015235833373, guid: 284735e55effa414c98d73f52f98d2fd, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4219201015235833373, guid: 284735e55effa414c98d73f52f98d2fd, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.994467
+      objectReference: {fileID: 0}
+    - target: {fileID: 4219201015235833373, guid: 284735e55effa414c98d73f52f98d2fd, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4219201015235833373, guid: 284735e55effa414c98d73f52f98d2fd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 167.94
       objectReference: {fileID: 0}
     - target: {fileID: 7511375512255015062, guid: 284735e55effa414c98d73f52f98d2fd, type: 3}
       propertyPath: saveId
@@ -310507,6 +311549,10 @@ MonoBehaviour:
   - {fileID: 8915718904547465707}
   ContinueFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   EndConversationFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  useAutomaticDialogueCamera: 1
+  automaticDialogueCameraPreset: Narrow
+  automaticDialogueCameraZoomSpeed: 0.2
+  dialogueUIDelay: 0
   Event:
     m_PersistentCalls:
       m_Calls: []
@@ -310582,6 +311628,10 @@ MonoBehaviour:
   - {fileID: 5721777910739012120}
   ContinueFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   EndConversationFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  useAutomaticDialogueCamera: 1
+  automaticDialogueCameraPreset: Narrow
+  automaticDialogueCameraZoomSpeed: 0.2
+  dialogueUIDelay: 0
   Event:
     m_PersistentCalls:
       m_Calls: []
@@ -310631,6 +311681,10 @@ MonoBehaviour:
   - {fileID: 3050232187733991340}
   ContinueFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   EndConversationFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  useAutomaticDialogueCamera: 1
+  automaticDialogueCameraPreset: Narrow
+  automaticDialogueCameraZoomSpeed: 0.2
+  dialogueUIDelay: 0
   Event:
     m_PersistentCalls:
       m_Calls: []
@@ -310779,6 +311833,10 @@ MonoBehaviour:
   - {fileID: 8417713413562871198}
   ContinueFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   EndConversationFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  useAutomaticDialogueCamera: 1
+  automaticDialogueCameraPreset: Narrow
+  automaticDialogueCameraZoomSpeed: 0.2
+  dialogueUIDelay: 0
   Event:
     m_PersistentCalls:
       m_Calls:
@@ -312573,6 +313631,10 @@ MonoBehaviour:
   - {fileID: 9103601415553696871}
   ContinueFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   EndConversationFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  useAutomaticDialogueCamera: 1
+  automaticDialogueCameraPreset: Narrow
+  automaticDialogueCameraZoomSpeed: 0.2
+  dialogueUIDelay: 0
   Event:
     m_PersistentCalls:
       m_Calls: []
@@ -312854,8 +313916,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4839443324701872738}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0.00000308454, z: -0, w: 1}
-  m_LocalPosition: {x: -10.7, y: 0, z: -4.2000003}
+  m_LocalRotation: {x: -0, y: 0.23846507, z: -0, w: 0.97115105}
+  m_LocalPosition: {x: -10.701958, y: 0, z: -4.199649}
   m_LocalScale: {x: 0.95, y: 0.95, z: 0.95}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -312872,7 +313934,7 @@ Transform:
   - {fileID: 1277166581}
   - {fileID: 1744454426}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 27.592, z: 0}
 --- !u!4 &2334409105110204118
 Transform:
   m_ObjectHideFlags: 0
@@ -314352,7 +315414,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7748680469469125243, guid: 2ac53fa4b7e319044adc2ef529a847b8, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -13.961676
+      value: -4
       objectReference: {fileID: 0}
     - target: {fileID: 7748680469469125243, guid: 2ac53fa4b7e319044adc2ef529a847b8, type: 3}
       propertyPath: m_LocalPosition.y
@@ -314360,7 +315422,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7748680469469125243, guid: 2ac53fa4b7e319044adc2ef529a847b8, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 2.2607203
+      value: 2.31
       objectReference: {fileID: 0}
     - target: {fileID: 7748680469469125243, guid: 2ac53fa4b7e319044adc2ef529a847b8, type: 3}
       propertyPath: m_LocalRotation.w
@@ -315281,8 +316343,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Lorem ipsum dolor sit amet
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  m_sharedMaterial: {fileID: 6229730292464864198, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -315437,6 +316499,10 @@ MonoBehaviour:
   - {fileID: 3267868601226785911}
   ContinueFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   EndConversationFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  useAutomaticDialogueCamera: 1
+  automaticDialogueCameraPreset: Narrow
+  automaticDialogueCameraZoomSpeed: 0.2
+  dialogueUIDelay: 0
   Event:
     m_PersistentCalls:
       m_Calls: []
@@ -318820,6 +319886,10 @@ PrefabInstance:
       value: a914244a5b204f47b92f610d63443505
       objectReference: {fileID: 0}
     - target: {fileID: 1988154442012820440, guid: 947f756d54b78a248aca4492f4fca19a, type: 3}
+      propertyPath: questionVFX
+      value: 
+      objectReference: {fileID: 356379283}
+    - target: {fileID: 1988154442012820440, guid: 947f756d54b78a248aca4492f4fca19a, type: 3}
       propertyPath: interactionType
       value: 59
       objectReference: {fileID: 0}
@@ -318970,6 +320040,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1485222421072193858, guid: 947f756d54b78a248aca4492f4fca19a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 900635471}
+    - targetCorrespondingSourceObject: {fileID: 1485222421072193858, guid: 947f756d54b78a248aca4492f4fca19a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 356379282}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 947f756d54b78a248aca4492f4fca19a, type: 3}
 --- !u!114 &4223708276602207076
@@ -321603,25 +322676,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentIDCounter: 37
-  json: "{\"Options\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":25}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":243.666626,\"yPos\":349.666718},\"ID\":32,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Tak
-    Ethel,  twoj\u0105 mam\u0105 wszystko jest dobrze.\",\"parentUIDs\":[23],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":27}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":247.666626,\"yPos\":580.333252},\"ID\":33,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Tat\u0105?\",\"parentUIDs\":[25],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":29}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":248.999939,\"yPos\":801.6669},\"ID\":34,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Twojemu
-    tacie nic nie jest.\",\"parentUIDs\":[27],\"SpeechUID\":-1},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":243.666626,\"yPos\":1042.3335},\"ID\":35,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jak\u0105
-    skrzyneczk\u0119?\",\"parentUIDs\":[29],\"SpeechUID\":-1},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":245.666626,\"yPos\":1235.66687},\"ID\":36,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dzi\u0119kuj\u0119
-    ci bardzo.\",\"parentUIDs\":[31],\"SpeechUID\":-1}],\"Parameters\":[],\"SpeechNodes\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":22}],\"EditorInfo\":{\"isRoot\":true,\"xPos\":240.999969,\"yPos\":22},\"ID\":0,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"K-kim
-    jeste\u015B! Aaa, pomocy!\",\"parentUIDs\":[],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ethel\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":23}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":242.666626,\"yPos\":126.666748},\"ID\":22,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Spokojnie,
-    pami\u0119tasz nas z g\xF3ry? Byli\u015Bmy na seansie.\",\"parentUIDs\":[0],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":32}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":243.666626,\"yPos\":238.666718},\"ID\":23,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Czy
+  json: "{\"Options\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":25}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":256.166656,\"yPos\":349.666748},\"ID\":32,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Tak
+    Ethel,  twoj\u0105 mam\u0105 wszystko jest dobrze.\",\"parentUIDs\":[23],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":27}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":260.166656,\"yPos\":580.333252},\"ID\":33,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Tat\u0105?\",\"parentUIDs\":[25],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":29}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":261.499969,\"yPos\":801.6669},\"ID\":34,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Twojemu
+    tacie nic nie jest.\",\"parentUIDs\":[27],\"SpeechUID\":-1},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":256.166656,\"yPos\":1042.3335},\"ID\":35,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jak\u0105
+    skrzyneczk\u0119?\",\"parentUIDs\":[29],\"SpeechUID\":-1},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":258.166656,\"yPos\":1235.66687},\"ID\":36,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dzi\u0119kuj\u0119
+    ci bardzo.\",\"parentUIDs\":[31],\"SpeechUID\":-1}],\"Parameters\":[],\"SpeechNodes\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":22}],\"EditorInfo\":{\"isRoot\":true,\"xPos\":253.5,\"yPos\":22},\"ID\":0,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"K-kim
+    jeste\u015B! Aaa, pomocy!\",\"parentUIDs\":[],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ethel\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":23}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":256.166656,\"yPos\":126.666748},\"ID\":22,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Spokojnie,
+    pami\u0119tasz nas z g\xF3ry? Byli\u015Bmy na seansie.\",\"parentUIDs\":[0],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":32}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":256.166656,\"yPos\":238.666748},\"ID\":23,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Czy
     z moj\u0105 mam\u0105 wszystko w porz\u0105dku? Us\u0142ysza\u0142am strza\u0142,
     a chwil\u0119 wcze\u015Bniej min\u0119\u0142am si\u0119 w podziemiach z jakim\u015B
-    wielkim Panem. Wystraszy\u0142am si\u0119 i przybieg\u0142am tutaj...\",\"parentUIDs\":[22],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ethel\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":33}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":249.333313,\"yPos\":459.000031},\"ID\":25,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"A...
-    a z tat\u0105? Nie powinnam pyta\u0107 ale boj\u0119 si\u0119...\",\"parentUIDs\":[32],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ethel\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":34}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":248.333282,\"yPos\":675.6666},\"ID\":27,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Nie
+    wielkim panem. Wystraszy\u0142am si\u0119 i przybieg\u0142am tutaj...\",\"parentUIDs\":[22],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ethel\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":33}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":261.833344,\"yPos\":459},\"ID\":25,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"A...
+    a z tat\u0105? Nie powinnam pyta\u0107 ale boj\u0119 si\u0119...\",\"parentUIDs\":[32],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ethel\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":34}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":263.8333,\"yPos\":675.6666},\"ID\":27,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Nie
     powinnam tego m\xF3wi\u0107, bo podobno m\xF3j tata to taki dzisiejszy rycerz
     i m\xF3wi\u0142 mi, \u017Ce w musi dzia\u0142a\u0107 w tajemnicy. By\u0142 dzisiaj
-    na seansie ze starsz\u0105 Pani\u0105, kt\xF3r\u0105 chroni. Czy wszystko z nim
-    dobrze?\",\"parentUIDs\":[33],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ethel\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":35}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":246.333282,\"yPos\":909.6675},\"ID\":29,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jak
+    na seansie ze starsz\u0105 pani\u0105, kt\xF3r\u0105 chroni. Czy wszystko z nim
+    dobrze?\",\"parentUIDs\":[33],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ethel\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":35}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":258.8333,\"yPos\":909.6675},\"ID\":29,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jak
     dobrze... mama m\xF3wi\u0142a, \u017Ce jak b\u0119dzie dzia\u0142o si\u0119 co\u015B
     z\u0142ego to mam schowa\u0107 si\u0119 tutaj, a potem i\u015B\u0107 do Pa\u0142acu,
     je\u015Bli si\u0119 da to z Lady Violet i..i przekaza\u0107 skrzyneczk\u0119
-    Kr\xF3lowej.\",\"parentUIDs\":[34],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ethel\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":36}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":248.999939,\"yPos\":1126.33325},\"ID\":31,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Ma\u0142\u0105
+    Kr\xF3lowej.\",\"parentUIDs\":[34],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ethel\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":36}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":261.499969,\"yPos\":1126.33325},\"ID\":31,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Ma\u0142\u0105
     i drewnian\u0105, jest ukryta tu w piwnicy, nie zd\u0105\u017Cy\u0142am po ni\u0105
     p\xF3j\u015B\u0107, bo si\u0119 wystraszy\u0142am... Ale mam do niej kluczyk
     jest w mojej lalce!\",\"parentUIDs\":[],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ethel\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0}]}"
@@ -321653,6 +322726,10 @@ MonoBehaviour:
   - {fileID: 7747918252345109167}
   ContinueFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   EndConversationFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  useAutomaticDialogueCamera: 1
+  automaticDialogueCameraPreset: Narrow
+  automaticDialogueCameraZoomSpeed: 0.2
+  dialogueUIDelay: 0
   Event:
     m_PersistentCalls:
       m_Calls: []
@@ -321678,8 +322755,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Name.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  m_sharedMaterial: {fileID: 6229730292464864198, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -321703,7 +322780,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
+  m_fontSize: 19.35
   m_fontSizeBase: 15
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -322454,6 +323531,10 @@ MonoBehaviour:
   - {fileID: 7937577405545415302}
   ContinueFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   EndConversationFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  useAutomaticDialogueCamera: 1
+  automaticDialogueCameraPreset: Narrow
+  automaticDialogueCameraZoomSpeed: 0.2
+  dialogueUIDelay: 0
   Event:
     m_PersistentCalls:
       m_Calls: []
@@ -324748,6 +325829,10 @@ MonoBehaviour:
   - {fileID: 8849923307901178475}
   ContinueFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   EndConversationFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  useAutomaticDialogueCamera: 1
+  automaticDialogueCameraPreset: Narrow
+  automaticDialogueCameraZoomSpeed: 0.2
+  dialogueUIDelay: 0
   Event:
     m_PersistentCalls:
       m_Calls: []
@@ -329650,61 +330735,61 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentIDCounter: 117
-  json: "{\"Options\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":77}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-168.666565,\"yPos\":292.999939},\"ID\":48,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Co
-    s\u0105dzi ojciec o Lady Edith?\",\"parentUIDs\":[75],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":55}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":882.666748,\"yPos\":395.333252},\"ID\":54,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dzi\u0119kuj\u0119\u2026
-    ojcze.\",\"parentUIDs\":[75,85,89,91,103],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":91}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":336.000366,\"yPos\":395.999939},\"ID\":64,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dlaczego
-    nie wszed\u0142 ojciec do \u015Brodka?\",\"parentUIDs\":[75],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":87}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":84.3339844,\"yPos\":400},\"ID\":73,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jest
-    ojciec oficjalnym opiekunem Lady Violet?\",\"parentUIDs\":[75],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":75}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-141.666321,\"yPos\":1131.99927},\"ID\":92,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Oczywi\u015Bcie\u2026
-    Chc\u0119 jeszcze o co\u015B zapyta\u0107.\",\"parentUIDs\":[85],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":75}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":69.33374,\"yPos\":820.333435},\"ID\":93,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Wszystko
-    jasne, kontynuujmy.\",\"parentUIDs\":[89],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":75}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":338.333618,\"yPos\":748.666931},\"ID\":95,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Zrozumia\u0142e.
-    Mo\u017Cemy dalej?\",\"parentUIDs\":[91],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":99}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":586.667969,\"yPos\":395.999939},\"ID\":97,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Wsp\xF3\u0142pracujecie
-    z Arthurem?\",\"parentUIDs\":[75],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":75}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":579.3342,\"yPos\":962.333069},\"ID\":104,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Te
-    informacje s\u0105 przydatne. Kontynuujmy.\",\"parentUIDs\":[103],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":79}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-183.999573,\"yPos\":693.000061},\"ID\":107,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Sk\u0105d
-    ojciec zna\u0142 jej sytuacj\u0119 rodzinn\u0105?\",\"parentUIDs\":[110],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":81}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-418.999664,\"yPos\":662.3335},\"ID\":108,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Czemu
-    zmar\u0142a nie powinna by\u0142a szuka\u0107 odpowiedzi?\",\"parentUIDs\":[79,110],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":83}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-412.332916,\"yPos\":844.333435},\"ID\":109,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Wida\u0107,
-    \u017Ce ojciec du\u017Co wie\u2026\",\"parentUIDs\":[81],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":85}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-411.666168,\"yPos\":993.666565},\"ID\":113,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"M\xF3wi
-    pan o Lady Edith?\",\"parentUIDs\":[83],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":89}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":83.66724,\"yPos\":575.666565},\"ID\":114,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Cz\u0119sto
-    przebywa\u0142a ze swoj\u0105 ciotk\u0105. Czy r\xF3wnie\u017C jej ojciec pilnowa\u0142?\",\"parentUIDs\":[87],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":101}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":582.3335,\"yPos\":582.999939},\"ID\":115,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Rozmawiali\u015Bcie
-    przed seansem?\",\"parentUIDs\":[99],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":103}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":579.000244,\"yPos\":765.000061},\"ID\":116,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"A
-    co s\u0105dzi ojciec o Arthurze?\",\"parentUIDs\":[101],\"SpeechUID\":-1}],\"Parameters\":[],\"SpeechNodes\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":59}],\"EditorInfo\":{\"isRoot\":true,\"xPos\":430,\"yPos\":22},\"ID\":0,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Panie\u2026\",\"parentUIDs\":[],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0.1,\"Volume\":0},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":886.33374,\"yPos\":480.3332},\"ID\":55,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Je\u015Bli
-    pojawi\u0105 si\u0119 jeszcze jakie\u015B pytania, wr\xF3cimy.\",\"parentUIDs\":[54],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":75}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":421.66626,\"yPos\":118.000061},\"ID\":59,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jestem
+  json: "{\"Options\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":77}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":476.333435,\"yPos\":285.999939},\"ID\":48,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Co
+    s\u0105dzi ojciec o Lady Edith?\",\"parentUIDs\":[75],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":55}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":1527.66675,\"yPos\":388.333252},\"ID\":54,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dzi\u0119kuj\u0119\u2026
+    ojcze.\",\"parentUIDs\":[75,89,91,85,103],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":91}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":981.000366,\"yPos\":388.999939},\"ID\":64,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dlaczego
+    nie wszed\u0142 ojciec do \u015Brodka?\",\"parentUIDs\":[75],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":87}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":729.334,\"yPos\":393},\"ID\":73,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jest
+    ojciec oficjalnym opiekunem Lady Violet?\",\"parentUIDs\":[75],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":75}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":695.3337,\"yPos\":1104.99927},\"ID\":92,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Oczywi\u015Bcie\u2026
+    Chc\u0119 jeszcze o co\u015B zapyta\u0107.\",\"parentUIDs\":[85],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":75}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":714.33374,\"yPos\":813.333435},\"ID\":93,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Wszystko
+    jasne, kontynuujmy.\",\"parentUIDs\":[89],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":75}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":983.3336,\"yPos\":741.666931},\"ID\":95,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Zrozumia\u0142e.
+    Mo\u017Cemy dalej?\",\"parentUIDs\":[91],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":99}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":1231.668,\"yPos\":388.999939},\"ID\":97,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Wsp\xF3\u0142pracujecie
+    z Arthurem?\",\"parentUIDs\":[75],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":75}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":1203.33423,\"yPos\":1090.333},\"ID\":104,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Te
+    informacje s\u0105 przydatne. Kontynuujmy.\",\"parentUIDs\":[103],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":79}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":461.000427,\"yPos\":686.000061},\"ID\":107,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Sk\u0105d
+    ojciec zna\u0142 jej sytuacj\u0119 rodzinn\u0105?\",\"parentUIDs\":[110],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":81}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":226.000366,\"yPos\":655.3335},\"ID\":108,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Czemu
+    zmar\u0142a nie powinna by\u0142a szuka\u0107 odpowiedzi?\",\"parentUIDs\":[79,110],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":83}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":232.667114,\"yPos\":837.333435},\"ID\":109,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Wida\u0107,
+    \u017Ce ojciec du\u017Co wie\u2026\",\"parentUIDs\":[81],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":85}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":233.333862,\"yPos\":986.6665},\"ID\":113,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"M\xF3wi
+    pan o Lady Edith?\",\"parentUIDs\":[83],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":89}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":728.667236,\"yPos\":568.666565},\"ID\":114,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Cz\u0119sto
+    przebywa\u0142a ze swoj\u0105 ciotk\u0105. Czy r\xF3wnie\u017C jej ojciec pilnowa\u0142?\",\"parentUIDs\":[87],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":101}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":1227.3335,\"yPos\":575.999939},\"ID\":115,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Rozmawiali\u015Bcie
+    przed seansem?\",\"parentUIDs\":[99],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":103}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":1224.00024,\"yPos\":758.000061},\"ID\":116,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"A
+    co s\u0105dzi ojciec o Arthurze?\",\"parentUIDs\":[101],\"SpeechUID\":-1}],\"Parameters\":[],\"SpeechNodes\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":59}],\"EditorInfo\":{\"isRoot\":true,\"xPos\":1075,\"yPos\":15},\"ID\":0,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Panie\u2026\",\"parentUIDs\":[],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0.1,\"Volume\":0},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":1531.33374,\"yPos\":473.3332},\"ID\":55,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Je\u015Bli
+    pojawi\u0105 si\u0119 jeszcze jakie\u015B pytania, wr\xF3cimy.\",\"parentUIDs\":[54],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":75}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":1066.66626,\"yPos\":111.000061},\"ID\":59,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jestem
     duchownym, ale najlepiej zwraca\u0107 si\u0119 do mnie \u201Eojcze George\u201D.
     Nie jestem \u017Cadnym panem, tylko s\u0142ug\u0105 Bo\u017Cym.\",\"parentUIDs\":[0],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ojciec
-    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":48},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":73},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":64},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":97},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":54}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":423,\"yPos\":218.333328},\"ID\":75,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Ch\u0119tnie
+    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":48},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":73},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":64},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":97},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":54}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":1068,\"yPos\":211.333328},\"ID\":75,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Ch\u0119tnie
     odpowiem na pytania.\",\"parentUIDs\":[59,92,93,95,104],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ojciec
-    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":110}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-177.666565,\"yPos\":376.6667},\"ID\":77,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Biedna\u2026
+    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":110}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":467.333435,\"yPos\":369.6667},\"ID\":77,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Biedna\u2026
     wcale nie powinna by\u0142a tutaj przychodzi\u0107.\",\"parentUIDs\":[48],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ojciec
-    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":108}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-183.666443,\"yPos\":793.333435},\"ID\":79,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Czy
+    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":108}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":461.333557,\"yPos\":786.333435},\"ID\":79,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Czy
     nie jest oczywiste, \u017Ce od Lady Violet?\",\"parentUIDs\":[107],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ojciec
-    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":109}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-410.666534,\"yPos\":753.000061},\"ID\":81,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Poniewa\u017C
+    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":109}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":234.3335,\"yPos\":746.000061},\"ID\":81,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Poniewa\u017C
     mog\u0142oby to nadszarpn\u0105\u0107 dobre imi\u0119 jej rodziny, i zapewne
     nie tylko jej rodziny. Mia\u0142a kochaj\u0105cych bliskich. Po co zna\u0107
     prawd\u0119 o grzechu, z kt\xF3rego si\u0119 zrodzi\u0142a?\",\"parentUIDs\":[108],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ojciec
-    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":113}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-409.9999,\"yPos\":895.999634},\"ID\":83,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Prawda
+    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":113}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":235.000122,\"yPos\":888.999634},\"ID\":83,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Prawda
     jest taka, \u017Ce niezam\u0119\u017Cna kobieta powinna p\xF3j\u015B\u0107 do
     klasztoru, a nie grzeszy\u0107.\",\"parentUIDs\":[109],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ojciec
-    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":92},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":54}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-407.9999,\"yPos\":1063.999},\"ID\":85,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"\u2026A
+    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":92},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":54}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":237.000122,\"yPos\":1056.999},\"ID\":85,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"\u2026A
     o kim innym?\",\"parentUIDs\":[113],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ojciec
-    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":114}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":82.66724,\"yPos\":471.6667},\"ID\":87,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Tak,
+    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":114}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":727.667236,\"yPos\":464.6667},\"ID\":87,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Tak,
     z polecenia dworu kr\xF3lewskiego czuwam nad jej bezpiecze\u0144stwem.\",\"parentUIDs\":[73],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ojciec
-    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":93},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":54}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":76.00037,\"yPos\":662.666748},\"ID\":89,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"By\u0142a
+    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":93},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":54}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":721.000366,\"yPos\":655.666748},\"ID\":89,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"By\u0142a
     to raczej konieczna ostro\u017Cno\u015B\u0107, ale jestem przekonany, \u017Ce
     gdybym by\u0142 w \u015Brodku, zapobieg\u0142bym tragedii\u2026 To wszystko przez
     Madame Selm\u0119 i jej pod\u0142e praktyki.\",\"parentUIDs\":[114],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ojciec
-    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":95},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":54}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":333,\"yPos\":568.6668},\"ID\":91,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Nie
+    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":95},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":54}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":978,\"yPos\":561.6668},\"ID\":91,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Nie
     pochwalam spirytyzmu. To blu\u017Anierstwo wobec Boga. Moja noga przekroczy\u0142a
     pr\xF3g tego domu dopiero, gdy us\u0142ysza\u0142em wystrza\u0142. Wiedzia\u0142em,
     \u017Ce ta wizyta nie sko\u0144czy si\u0119 niczym dobrym\u2026 ale nie s\u0105dzi\u0142em,
     \u017Ce sko\u0144czy si\u0119 czym\u015B a\u017C tak z\u0142ym.\",\"parentUIDs\":[64],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ojciec
-    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":115}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":585.667969,\"yPos\":470},\"ID\":99,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"W
+    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":115}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":1230.668,\"yPos\":463},\"ID\":99,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"W
     sprawach bezpiecze\u0144stwa \u2014 owszem. Obaj mieli\u015Bmy pod opiek\u0105
     damy, kt\xF3re by\u0142y ze sob\u0105 spokrewnione.\",\"parentUIDs\":[97],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ojciec
-    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":116}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":583.0012,\"yPos\":662.33374},\"ID\":101,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Tak.
+    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":116}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":1228.00122,\"yPos\":655.33374},\"ID\":101,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Tak.
     Prosi\u0142em, aby trzyma\u0142 Lady Edith z dala od tej farsy.\",\"parentUIDs\":[115],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ojciec
-    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":54},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":104}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":586.6677,\"yPos\":842.000061},\"ID\":103,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Arthur
+    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":104},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":54}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":1231.66772,\"yPos\":834.000061},\"ID\":103,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Arthur
     jest dobrym cz\u0142owiekiem, chocia\u017C emocje cz\u0119sto bior\u0105 nad
     nim g\xF3r\u0119. Serce nie zawsze dobrze podpowiada.\",\"parentUIDs\":[116],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ojciec
-    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":107},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":108}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-185.999573,\"yPos\":482.666565},\"ID\":110,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Szuka\u0142a
+    George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":107},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":108}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":459.000427,\"yPos\":475.666565},\"ID\":110,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Szuka\u0142a
     odpowiedzi na pytania, kt\xF3rych nie powinna by\u0142a zadawa\u0107.\",\"parentUIDs\":[77],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Ojciec
     George\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0}]}"
   saveVersion: 110
@@ -329746,6 +330831,10 @@ MonoBehaviour:
   - {fileID: 436030861529253304}
   ContinueFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   EndConversationFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  useAutomaticDialogueCamera: 1
+  automaticDialogueCameraPreset: Medium
+  automaticDialogueCameraZoomSpeed: 0.2
+  dialogueUIDelay: 0
   Event:
     m_PersistentCalls:
       m_Calls: []
@@ -335065,6 +336154,10 @@ MonoBehaviour:
   - {fileID: 4016720408090232858}
   ContinueFont: {fileID: 0}
   EndConversationFont: {fileID: 0}
+  useAutomaticDialogueCamera: 1
+  automaticDialogueCameraPreset: Narrow
+  automaticDialogueCameraZoomSpeed: 0.2
+  dialogueUIDelay: 0
   Event:
     m_PersistentCalls:
       m_Calls: []
@@ -335881,42 +336974,42 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentIDCounter: 46
-  json: "{\"Options\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":36}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":255.966248,\"yPos\":426.924622},\"ID\":13,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jej
-    matka pochodzi\u0142a z rodu Ogilvy?\",\"parentUIDs\":[35],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":31}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":267.867126,\"yPos\":-320.400879},\"ID\":22,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Chcia\u0142bym
-    zada\u0107 panience kilka pyta\u0144 o Lady Edith.\",\"parentUIDs\":[0],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":27}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":671.933655,\"yPos\":-328.734},\"ID\":23,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Czy
-    jest jeszcze co\u015B, co mo\u017Ce panienka powiedzie\u0107?\",\"parentUIDs\":[0],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":25}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":906.267151,\"yPos\":-329.934082},\"ID\":24,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dzi\u0119kuj\u0119
-    za informacje, panienko Violet.\",\"parentUIDs\":[0],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":0}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":515.3341,\"yPos\":-14.8004913},\"ID\":28,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Zmie\u0144my
-    temat.\",\"parentUIDs\":[27],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":25}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":724.5335,\"yPos\":-15.3338165},\"ID\":29,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dzi\u0119kuj\u0119
-    za informacje, panienko Violet.\",\"parentUIDs\":[27],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":0}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-236.9996,\"yPos\":623.3986},\"ID\":37,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Zmie\u0144my
-    temat.\",\"parentUIDs\":[45,36],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":25}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":1132.40161,\"yPos\":620.7326},\"ID\":38,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dzi\u0119kuje
-    za informacje, Panienko Violet.\",\"parentUIDs\":[36],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":33}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":266.1667,\"yPos\":-84.0005341},\"ID\":39,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Kim
-    by\u0142a dla pani Lady Ogilvy?\",\"parentUIDs\":[31],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":42}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-131.833221,\"yPos\":773.3326},\"ID\":41,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dlaczego
-    akurat panienka towarzyszy\u0142a Lady Edith?\",\"parentUIDs\":[36],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":45}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-592.1667,\"yPos\":980.665161},\"ID\":44,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jak
-    ciotka odnosi\u0142a si\u0119 do panienki?\",\"parentUIDs\":[43],\"SpeechUID\":-1}],\"Parameters\":[],\"SpeechNodes\":[{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":22},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":23},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":24}],\"EditorInfo\":{\"isRoot\":true,\"xPos\":599.666565,\"yPos\":-554},\"ID\":0,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Tak?\",\"parentUIDs\":[28,37],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":902.934143,\"yPos\":-256.200745},\"ID\":25,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Prosz\u0119\u2026
-    Odkryjcie prawd\u0119.\",\"parentUIDs\":[24,29,38],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":28},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":29}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":676.0003,\"yPos\":-258.667542},\"ID\":27,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Je\u015Bli
+  json: "{\"Options\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":36}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":562.7997,\"yPos\":596.924561},\"ID\":13,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jej
+    matka pochodzi\u0142a z rodu Ogilvy?\",\"parentUIDs\":[35],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":31}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":590.700562,\"yPos\":-177.400879},\"ID\":22,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Chcia\u0142bym
+    zada\u0107 panience kilka pyta\u0144 o Lady Edith.\",\"parentUIDs\":[0],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":27}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":994.7671,\"yPos\":-185.734009},\"ID\":23,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Czy
+    jest jeszcze co\u015B, co mo\u017Ce panienka powiedzie\u0107?\",\"parentUIDs\":[0],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":25}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":1229.10059,\"yPos\":-186.934082},\"ID\":24,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dzi\u0119kuj\u0119
+    za informacje, panienko Violet.\",\"parentUIDs\":[0],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":0}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":856.1675,\"yPos\":222.199524},\"ID\":28,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Zmie\u0144my
+    temat.\",\"parentUIDs\":[27],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":25}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":1101.367,\"yPos\":211.6662},\"ID\":29,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dzi\u0119kuj\u0119
+    za informacje, panienko Violet.\",\"parentUIDs\":[27],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":0}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":178.833862,\"yPos\":488.398682},\"ID\":37,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Zmie\u0144my
+    temat.\",\"parentUIDs\":[36,45],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":25}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":1455.23511,\"yPos\":763.732666},\"ID\":38,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dzi\u0119kuje
+    za informacje, Panienko Violet.\",\"parentUIDs\":[36],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":33}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":589.0001,\"yPos\":58.99945},\"ID\":39,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Kim
+    by\u0142a dla pani Lady Ogilvy?\",\"parentUIDs\":[31],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":42}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":191.000244,\"yPos\":916.3325},\"ID\":41,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dlaczego
+    akurat panienka towarzyszy\u0142a Lady Edith?\",\"parentUIDs\":[36],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":45}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-269.333252,\"yPos\":1123.66516},\"ID\":44,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jak
+    ciotka odnosi\u0142a si\u0119 do panienki?\",\"parentUIDs\":[43],\"SpeechUID\":-1}],\"Parameters\":[],\"SpeechNodes\":[{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":22},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":23},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":24}],\"EditorInfo\":{\"isRoot\":true,\"xPos\":922.5,\"yPos\":-411},\"ID\":0,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Tak?\",\"parentUIDs\":[28,37],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":1225.76758,\"yPos\":-113.200745},\"ID\":25,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Prosz\u0119\u2026
+    Odkryjcie prawd\u0119.\",\"parentUIDs\":[24,29,38],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":28},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":29}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":998.83374,\"yPos\":-115.667542},\"ID\":27,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Je\u015Bli
     potrzebuj\u0105 panowie wiedzie\u0107 co\u015B wi\u0119cej, prosz\u0119 porozmawia\u0107
     z medium Selm\u0105. To jej dom. M\xF3j narzeczony, Henry, te\u017C wam zapewne
     co\u015B powie \u2014 to rudow\u0142osy m\u0142odzieniec. W ko\u0144cu oboje
-    byli tu w tym strasznym momencie.\",\"parentUIDs\":[23],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":39}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":268.667175,\"yPos\":-240.600388},\"ID\":31,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Nie
+    byli tu w tym strasznym momencie.\",\"parentUIDs\":[23],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":39}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":591.5006,\"yPos\":-97.6004},\"ID\":31,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Nie
     mog\u0119 uwierzy\u0107, \u017Ce ona nie \u017Cyje\u2026 To, to nie mo\u017Ce
-    by\u0107 prawda\u2026\",\"parentUIDs\":[22],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":34}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":260.733826,\"yPos\":56.7999725},\"ID\":33,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"To
+    by\u0107 prawda\u2026\",\"parentUIDs\":[22],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":34}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":583.567261,\"yPos\":199.799988},\"ID\":33,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"To
     jest\u2026 To by\u0142a moja ciotka\u2026 ciocia Edith. Przysz\u0142am z ni\u0105
-    na seans, a teraz le\u017Cy tu m-martwa.\",\"parentUIDs\":[39],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":35}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":262.267273,\"yPos\":177.399826},\"ID\":34,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Niedawno
+    na seans, a teraz le\u017Cy tu m-martwa.\",\"parentUIDs\":[39],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":35}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":585.1007,\"yPos\":320.399841},\"ID\":34,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Niedawno
     zmar\u0142 jej ojciec, m\xF3j dziadek. Na \u0142o\u017Cu \u015Bmierci wyzna\u0142,
     \u017Ce by\u0142a adoptowana\u2026 Wychowa\u0142a si\u0119 w rodzinie swojej
-    matki, ale nawet dziadek nie wiedzia\u0142, kim by\u0142 jej prawdziwy ojciec.\",\"parentUIDs\":[33],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":13}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":262.933777,\"yPos\":287.732117},\"ID\":35,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Przyby\u0142a
+    matki, ale nawet dziadek nie wiedzia\u0142, kim by\u0142 jej prawdziwy ojciec.\",\"parentUIDs\":[33],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":13}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":585.7672,\"yPos\":430.732117},\"ID\":35,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Przyby\u0142a
     tu, by spr\xF3bowa\u0107 go przywo\u0142a\u0107. Chcia\u0142a go pozna\u0107
-    i dowiedzie\u0107 si\u0119, kim by\u0142. Ale nie tak\u2026 nie w ten spos\xF3b\u2026\",\"parentUIDs\":[34],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":38},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":41},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":37}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":78.2673645,\"yPos\":606.5988},\"ID\":36,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Siostra
+    i dowiedzie\u0107 si\u0119, kim by\u0142. Ale nie tak\u2026 nie w ten spos\xF3b\u2026\",\"parentUIDs\":[34],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":41},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":37},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":38}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":403.10083,\"yPos\":749.5989},\"ID\":36,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Siostra
     mojej babki. Odes\u0142ano j\u0105 w m\u0142odo\u015Bci z domu, ale nikt nie
     wiedzia\u0142 lub nie chcia\u0142 powiedzie\u0107, dok\u0105d ani dlaczego. Wi\u0119c
     do niedawna ciocia my\u015Bla\u0142a, \u017Ce brat jej matki i jego \u017Cona
-    byli jej prawdziwymi rodzicami.\",\"parentUIDs\":[13],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":43}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-208.166473,\"yPos\":852.9986},\"ID\":42,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Ciocia
+    byli jej prawdziwymi rodzicami.\",\"parentUIDs\":[13],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":43}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":114.666992,\"yPos\":995.998535},\"ID\":42,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Ciocia
     nigdy nie wysz\u0142a za m\u0105\u017C. Ceni\u0142a wolno\u015B\u0107 bardziej
     ni\u017C konwenanse, a maj\u0105tek zbudowa\u0142a sama, cho\u0107 pochodzi\u0142a
-    z bogatego rodu.\",\"parentUIDs\":[41],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":44}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-357.4998,\"yPos\":962.3319},\"ID\":43,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Je\u015Bli
+    z bogatego rodu.\",\"parentUIDs\":[41],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":44}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-34.66638,\"yPos\":1105.33191},\"ID\":43,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Je\u015Bli
     chodzi o mnie, jestem dam\u0105 dworu Jej Wysoko\u015Bci kr\xF3lowej Wiktorii.
     Z cioci\u0105 zawsze by\u0142y\u015Bmy blisko i to jej zawdzi\u0119czam miejsce
-    na dworze. Cz\u0119sto sp\u0119dza\u0142y\u015Bmy razem czas.\",\"parentUIDs\":[42],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":37}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-598.8332,\"yPos\":844.9991},\"ID\":45,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"My\u015Bl\u0119,
+    na dworze. Cz\u0119sto sp\u0119dza\u0142y\u015Bmy razem czas.\",\"parentUIDs\":[42],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":37}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-275.999756,\"yPos\":987.999},\"ID\":45,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"My\u015Bl\u0119,
     \u017Ce traktowa\u0142a mnie jak w\u0142asne dziecko\u2026\",\"parentUIDs\":[44],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0}]}"
   saveVersion: 110
   DefaultName: 
@@ -335947,6 +337040,10 @@ MonoBehaviour:
   - {fileID: 2712389149653125171}
   ContinueFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   EndConversationFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
+  useAutomaticDialogueCamera: 1
+  automaticDialogueCameraPreset: Narrow
+  automaticDialogueCameraZoomSpeed: 0.2
+  dialogueUIDelay: 0
   Event:
     m_PersistentCalls:
       m_Calls: []

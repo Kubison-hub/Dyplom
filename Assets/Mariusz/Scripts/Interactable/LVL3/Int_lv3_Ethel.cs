@@ -56,6 +56,11 @@ public class Int_lv3_Ethel : MonoBehaviour
     [Tooltip("Whole GameObject with Int_lv3_Ethel_2. It is enabled after Ethel reaches Second Target.")]
     [SerializeField] private GameObject ethel2InteractionGameObject;
 
+    [Header("Notebook")]
+    [Tooltip("Opens this Interactable's Database Note after Ethel's first conversation.")]
+    [SerializeField] private bool openNotebookNoteAfterConversation;
+    [SerializeField, Min(0)] private int notebookNoteIndex;
+
     [Header("Inactive Player Movement")]
     [Tooltip("Sherlock moves here when Watson started Ethel's conversation.")]
     [SerializeField] private Transform inactiveSherlockTarget;
@@ -72,6 +77,9 @@ public class Int_lv3_Ethel : MonoBehaviour
     private void Awake()
     {
         SetupInteractable();
+
+        if (interactable != null && openNotebookNoteAfterConversation)
+            interactable.addDatabaseNotesAutomatically = false;
 
         if (ethelAgent == null)
             ethelAgent = GetComponent<NavMeshAgent>();
@@ -116,11 +124,26 @@ public class Int_lv3_Ethel : MonoBehaviour
         while (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
             yield return null;
 
+        InventoryManager.Instance?.TryRemoveItem(ItemType.SmallBox);
+        yield return OpenNotebookNoteAfterConversation();
+
         CluesLog.Instance?.RegisterBasementEvidence("EthelFirstConversation");
         CluesLog.Instance?.SetEthelFirstConversationDescription();
         inactivePlayer?.SetConversationMovementAllowed(false);
         StartCoroutine(MoveInactivePlayerAfterDelay(player));
         StartCoroutine(RunEthelSequence());
+    }
+
+    private IEnumerator OpenNotebookNoteAfterConversation()
+    {
+        if (!openNotebookNoteAfterConversation || interactable == null)
+            yield break;
+
+        interactable.AddAndOpenNote(notebookNoteIndex, -60f, true);
+        yield return null;
+
+        while (NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen)
+            yield return null;
     }
 
     private void StartEthelConversation(PlayerController player)

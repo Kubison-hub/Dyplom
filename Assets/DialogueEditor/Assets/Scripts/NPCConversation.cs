@@ -42,6 +42,23 @@ namespace DialogueEditor
         [SerializeField] public TMPro.TMP_FontAsset ContinueFont;
         [SerializeField] public TMPro.TMP_FontAsset EndConversationFont;
 
+        [Header("Camera")]
+        [Tooltip("When enabled, CameraController applies this conversation's zoom preset while the dialogue is active.")]
+        [SerializeField] private bool useAutomaticDialogueCamera = true;
+        [Tooltip("Name of the CameraController zoom preset used while automatic dialogue camera is enabled.")]
+        [SerializeField] private string automaticDialogueCameraPreset = "Narrow";
+        [Tooltip("Smooth speed used when the camera moves into this conversation's zoom preset.")]
+        [SerializeField, Min(0.01f)] private float automaticDialogueCameraZoomSpeed = 0.2f;
+
+        [Header("Dialogue UI")]
+        [Tooltip("Realtime delay before this conversation shows its dialogue and option panels.")]
+        [SerializeField, Min(0f)] private float dialogueUIDelay;
+
+        public bool UseAutomaticDialogueCamera => useAutomaticDialogueCamera;
+        public string AutomaticDialogueCameraPreset => automaticDialogueCameraPreset;
+        public float AutomaticDialogueCameraZoomSpeed => automaticDialogueCameraZoomSpeed;
+        public float DialogueUIDelay => dialogueUIDelay;
+
         // Runtime vars
         public UnityEngine.Events.UnityEvent Event;
         public List<EditableParameter> ParameterList; // Serialized into the json string
