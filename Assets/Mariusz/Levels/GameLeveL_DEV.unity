@@ -15743,7 +15743,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -299.69922, y: 18.999023}
+  m_AnchoredPosition: {x: -299.69922, y: 18.999084}
   m_SizeDelta: {x: 496.5, y: 770.1}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &100555588
@@ -286186,7 +286186,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -5, y: -104}
+  m_AnchoredPosition: {x: -5.000122, y: -104}
   m_SizeDelta: {x: 108.907, y: 226.193}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &2010714414
@@ -316478,6 +316478,7 @@ MonoBehaviour:
   - {fileID: 2725403205264171599}
   - {fileID: 5280640604159816149}
   - {fileID: 3267868601226785911}
+  - {fileID: 9213745671215305565}
   ContinueFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   EndConversationFont: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   useAutomaticDialogueCamera: 1
@@ -325618,6 +325619,7 @@ GameObject:
   - component: {fileID: 2725403205264171599}
   - component: {fileID: 5280640604159816149}
   - component: {fileID: 3267868601226785911}
+  - component: {fileID: 9213745671215305565}
   m_Layer: 0
   m_Name: ConversationEventInfo
   m_TagString: Untagged
@@ -337494,6 +337496,25 @@ MonoBehaviour:
   NodeID: 0
   TMPFont: {fileID: 0}
   Icon: {fileID: 21300000, guid: 19c37cad3ee614f41bf4f465df09e006, type: 3}
+  Audio: {fileID: 0}
+--- !u!114 &9213745671215305565
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6273187916952588709}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00abedce3cdbbba46bf2d86c9518c9f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Event:
+    m_PersistentCalls:
+      m_Calls: []
+  NodeID: 36
+  TMPFont: {fileID: 0}
+  Icon: {fileID: 0}
   Audio: {fileID: 0}
 --- !u!114 &9218832881567696810
 MonoBehaviour:
