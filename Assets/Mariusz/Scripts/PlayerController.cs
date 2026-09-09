@@ -155,6 +155,9 @@ public class PlayerController : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit, 100f, interactableMask))
             nextHovered = hit.collider.GetComponentInParent<Interactable>();
 
+        if (nextHovered != null && !nextHovered.CanPlayerInteract(this))
+            nextHovered = null;
+
         SetHoveredInteractable(nextHovered);
     }
 

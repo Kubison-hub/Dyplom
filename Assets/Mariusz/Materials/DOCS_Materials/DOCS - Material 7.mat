@@ -98,7 +98,7 @@ Material:
     - _Metalness: 0
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _Radius: 0
+    - _Radius: 7e-44
     - _Smoothness: 0
     m_Colors:
     - _Base_Colour: {r: 0.3962264, g: 0.18577491, b: 0.016820924, a: 0}
@@ -106,6 +106,6 @@ Material:
     - _MaskEdges: {r: -0.2, g: 0.6, b: 0, a: 0}
     - _PlayerPosition: {r: 0, g: 0, b: 0, a: 0}
     - _TargetPosition: {r: 0, g: 0, b: 0, a: 0}
-    - _Target_Position: {r: 0, g: 0, b: 0, a: 0}
+    - _Target_Position: {r: -10.738139, g: 0.8385542, b: -4.05892, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

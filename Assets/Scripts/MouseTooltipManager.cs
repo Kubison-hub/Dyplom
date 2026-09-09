@@ -80,6 +80,13 @@ public class MouseTooltipManager : MonoBehaviour
 
             if (interactable != null)
             {
+                PlayerController activePlayer = GetActivePlayerController();
+                if (activePlayer == null || !interactable.CanPlayerInteract(activePlayer))
+                {
+                    HideTooltip();
+                    ToggleIntShader(false);
+                    return;
+                }
 
                 //Debug.Log("Interactable");
                 //if (ConversationManager.Instance.inConversation || TutorialManager.Instance.isTutorialActive) return;
@@ -134,6 +141,32 @@ public class MouseTooltipManager : MonoBehaviour
             HideTooltip();
             ToggleIntShader(false);
         }
+    }
+
+    private static PlayerController GetActivePlayerController()
+    {
+        SwitchCharacter switchCharacter = SwitchCharacter.Instance;
+        if (switchCharacter != null && switchCharacter.players != null &&
+            switchCharacter.activePlayerIndex >= 0 &&
+            switchCharacter.activePlayerIndex < switchCharacter.players.Length)
+        {
+            UnityEngine.InputSystem.PlayerInput activeInput =
+                switchCharacter.players[switchCharacter.activePlayerIndex];
+            PlayerController activePlayer = activeInput != null
+                ? activeInput.GetComponent<PlayerController>()
+                : null;
+
+            if (activePlayer != null)
+                return activePlayer;
+        }
+
+        foreach (PlayerController player in FindObjectsByType<PlayerController>(FindObjectsSortMode.None))
+        {
+            if (player != null && player.enabled)
+                return player;
+        }
+
+        return null;
     }
 
     private void ShowTooltip(string text)

@@ -168,6 +168,8 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     private PlayerController bulletCpPlayer;
     private Coroutine bulletCpConversationCoroutine;
     private Int_Edith_BulletHole pendingBulletCp;
+    private Coroutine automaticBulletCpStartCoroutine;
+    private bool automaticBulletCpStartQueued;
 
     public bool IsExaminationCompleted => examinationCompleted || edithIdeaRevealed;
     public bool IsExaminationActive => interactionPerforming && !examinationCompleted && !edithIdeaRevealed;
@@ -179,6 +181,8 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     private void Start()
     {
         interactable = GetComponent<Interactable>();
+        interactable?.SetWatsonInteractionAllowed(true);
+        GetBulletCp()?.GetComponent<Interactable>()?.SetWatsonInteractionAllowed(true);
         FindEdithIdeaPointIfNeeded();
         if (cameraController == null)
             cameraController = FindFirstObjectByType<CameraController>();
@@ -270,12 +274,136 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         {
             BeginExamination(player);
             SetExaminationClueObjectsActive(true);
+            QueueAutomaticBulletCpStart(player);
         }
 
         player.currentInteractable = null;
 
 
 
+    }
+
+    private void QueueAutomaticBulletCpStart(PlayerController player)
+    {
+        if (automaticBulletCpStartQueued || bulletExamined || GetBulletCp() == null)
+            return;
+
+        automaticBulletCpStartQueued = true;
+        LockBulletCpWorldInput();
+        automaticBulletCpStartCoroutine = StartCoroutine(MoveExaminersAndStartBulletCp(player));
+    }
+
+    private IEnumerator MoveExaminersAndStartBulletCp(PlayerController initiatingPlayer)
+    {
+        PlayerController sherlock = FindPlayer(PlayerCharacter.Sherlock, sherlockGO);
+        PlayerController watson = FindPlayer(PlayerCharacter.Watson, watsonGO);
+        Transform sherlockTarget = interactable != null ? interactable.interactabePoint : null;
+        Transform watsonTarget = watsonPosition != null ? watsonPosition : watsonExaminationPoint;
+
+        StartMoveToExaminationPoint(sherlock, sherlockTarget);
+        StartMoveToExaminationPoint(watson, watsonTarget);
+
+        while (IsMovingToExaminationPoint(sherlock) || IsMovingToExaminationPoint(watson))
+            yield return null;
+
+        yield return RotatePlayerToExaminationPoint(sherlock, sherlockTarget);
+        yield return RotatePlayerToExaminationPoint(watson, watsonTarget);
+
+        // The introductory line can play while both characters approach. Bullet CP
+        // starts only after its text has cleared, so the two Top Texts never overlap.
+        while (IsDialoguePlaying)
+            yield return null;
+
+        automaticBulletCpStartCoroutine = null;
+
+        Int_Edith_BulletHole bulletCp = GetBulletCp();
+        if (bulletCp == null || bulletCp.performed || examinationCompleted || edithIdeaRevealed)
+        {
+            ReleaseBulletCpWorldInput();
+            yield break;
+        }
+
+        RegisterBulletExamClue(initiatingPlayer, bulletCp);
+    }
+
+    private static PlayerController FindPlayer(PlayerCharacter character, GameObject fallback)
+    {
+        if (fallback != null)
+        {
+            PlayerController fallbackPlayer = fallback.GetComponent<PlayerController>();
+            if (fallbackPlayer != null)
+                return fallbackPlayer;
+        }
+
+        foreach (PlayerController player in FindObjectsByType<PlayerController>(FindObjectsSortMode.None))
+        {
+            if (player != null && player.playerCharacter == character)
+                return player;
+        }
+
+        return null;
+    }
+
+    private static void StartMoveToExaminationPoint(PlayerController player, Transform target)
+    {
+        if (player == null || target == null || player.navMeshAgent == null ||
+            !player.navMeshAgent.isActiveAndEnabled || !player.navMeshAgent.isOnNavMesh)
+            return;
+
+        if (!NavMeshWallGuard.TryGetClearPath(player.navMeshAgent, target.position, out NavMeshPath path))
+        {
+            Debug.LogWarning($"Int_EdithExamBody: {player.playerCharacter} cannot reach '{target.name}'.", target);
+            return;
+        }
+
+        player.CancelPendingInteraction();
+        player.navMeshAgent.isStopped = false;
+        player.navMeshAgent.updateRotation = true;
+        player.navMeshAgent.SetPath(path);
+    }
+
+    private static bool IsMovingToExaminationPoint(PlayerController player)
+    {
+        if (player == null || player.navMeshAgent == null || !player.navMeshAgent.isActiveAndEnabled ||
+            !player.navMeshAgent.isOnNavMesh)
+            return false;
+
+        NavMeshAgent agent = player.navMeshAgent;
+        return agent.pathPending ||
+               (agent.hasPath && agent.remainingDistance > agent.stoppingDistance + 0.05f) ||
+               agent.velocity.sqrMagnitude > 0.01f;
+    }
+
+    private static IEnumerator RotatePlayerToExaminationPoint(PlayerController player, Transform target)
+    {
+        if (player == null || target == null || player.navMeshAgent == null ||
+            !player.navMeshAgent.isActiveAndEnabled || !player.navMeshAgent.isOnNavMesh)
+            yield break;
+
+        NavMeshAgent agent = player.navMeshAgent;
+        agent.ResetPath();
+        agent.isStopped = true;
+        agent.updateRotation = false;
+
+        Vector3 forward = target.forward;
+        forward.y = 0f;
+        if (forward.sqrMagnitude > 0.0001f)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(forward.normalized, Vector3.up);
+            while (Quaternion.Angle(player.transform.rotation, targetRotation) > 0.1f)
+            {
+                player.transform.rotation = Quaternion.RotateTowards(
+                    player.transform.rotation,
+                    targetRotation,
+                    360f * Time.deltaTime);
+                yield return null;
+            }
+
+            player.transform.rotation = targetRotation;
+        }
+
+        agent.updateRotation = true;
+        agent.isStopped = false;
     }
 
 
@@ -522,12 +650,13 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         if (bulletCpConversationStarting || bulletCpConversationActive)
             return;
 
-        if (watsonExaminationPoint != null && watsonNavMesh != null &&
+        Transform examinationPoint = GetWatsonExaminationPoint();
+        if (examinationPoint != null && watsonNavMesh != null &&
             watsonNavMesh.isActiveAndEnabled && watsonNavMesh.isOnNavMesh)
         {
             bulletCpConversationStarting = true;
             bulletCpConversationCoroutine = StartCoroutine(
-                MoveWatsonToExaminationPointAndBeginConversation(conversationManager, conversation));
+                MoveWatsonToExaminationPointAndBeginConversation(conversationManager, conversation, examinationPoint));
             return;
         }
 
@@ -536,9 +665,10 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
 
     private IEnumerator MoveWatsonToExaminationPointAndBeginConversation(
         ConversationManager conversationManager,
-        NPCConversation conversation)
+        NPCConversation conversation,
+        Transform examinationPoint)
     {
-        watsonNavMesh.SetDestination(watsonExaminationPoint.position);
+        watsonNavMesh.SetDestination(examinationPoint.position);
 
         while (watsonNavMesh != null && watsonNavMesh.isActiveAndEnabled &&
                watsonNavMesh.isOnNavMesh && watsonNavMesh.pathPending)
@@ -553,7 +683,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
             yield return null;
         }
 
-        yield return RotateWatsonToExaminationPoint();
+        yield return RotateWatsonToExaminationPoint(examinationPoint);
 
         bulletCpConversationCoroutine = null;
         bulletCpConversationStarting = false;
@@ -568,9 +698,9 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         StartBulletCpConversationAfterWatsonArrives(conversationManager, conversation);
     }
 
-    private IEnumerator RotateWatsonToExaminationPoint()
+    private IEnumerator RotateWatsonToExaminationPoint(Transform examinationPoint)
     {
-        if (watsonExaminationPoint == null || watsonNavMesh == null ||
+        if (examinationPoint == null || watsonNavMesh == null ||
             !watsonNavMesh.isActiveAndEnabled || !watsonNavMesh.isOnNavMesh)
             yield break;
 
@@ -578,7 +708,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         watsonNavMesh.isStopped = true;
         watsonNavMesh.updateRotation = false;
 
-        Vector3 forward = watsonExaminationPoint.forward;
+        Vector3 forward = examinationPoint.forward;
         forward.y = 0f;
 
         if (forward.sqrMagnitude > 0.0001f)
@@ -599,6 +729,11 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
 
         watsonNavMesh.updateRotation = true;
         watsonNavMesh.isStopped = false;
+    }
+
+    private Transform GetWatsonExaminationPoint()
+    {
+        return watsonPosition != null ? watsonPosition : watsonExaminationPoint;
     }
 
     private void StartBulletCpConversationAfterWatsonArrives(

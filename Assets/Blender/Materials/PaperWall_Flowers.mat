@@ -137,7 +137,7 @@ Material:
     - _Parallax: 0.02
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _Radius: 0
+    - _Radius: 7e-44
     - _ReceiveShadows: 1
     - _Smoothness: 0
     - _SmoothnessTextureChannel: 0
@@ -156,6 +156,6 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 0}
     - _Emissive_Colour: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _Target_Position: {r: 0, g: 0, b: 0, a: 0}
+    - _Target_Position: {r: -10.738139, g: 0.8385542, b: -4.05892, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

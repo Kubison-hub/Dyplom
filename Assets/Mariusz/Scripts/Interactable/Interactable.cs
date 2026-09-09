@@ -38,6 +38,10 @@ public class Interactable : MonoBehaviour
     public bool isInteractableActive = true;
     [Space]
 
+    [Header("Character Access")]
+    [Tooltip("Allows Watson to use this standard interaction. Dialogues, WatsonCarryable and existing shared mechanisms remain available independently of this setting.")]
+    [SerializeField] private bool allowWatsonInteraction;
+
     [SerializeField] private InteractionType interactionType;
     public Transform interactabePoint;
     [Header("Interaction Point Occupancy")]
@@ -209,6 +213,16 @@ public class Interactable : MonoBehaviour
             fader.FadeIn();
         else
             fader.FadeOut();
+    }
+
+    public bool CanPlayerInteract(PlayerController player)
+    {
+        return isInteractableActive && CanPlayerUseInteraction(player);
+    }
+
+    public void SetWatsonInteractionAllowed(bool isAllowed)
+    {
+        allowWatsonInteraction = isAllowed;
     }
     public void SetInteractionShaderForcedVisible(bool isVisible)
     {
@@ -1803,6 +1817,13 @@ public class Interactable : MonoBehaviour
         bool isSherlock = player.playerCharacter == PlayerCharacter.Sherlock ||
                           player.CompareTag("PlayerA") ||
                           (SwitchCharacter.Instance != null && SwitchCharacter.Instance.activePlayerIndex == 0);
+
+        bool isWatsonPlayer = player.playerCharacter == PlayerCharacter.Watson ||
+                              player.CompareTag("PlayerB") ||
+                              (SwitchCharacter.Instance != null && SwitchCharacter.Instance.activePlayerIndex == 1);
+
+        if (isWatsonPlayer && allowWatsonInteraction)
+            return true;
 
         return isSherlock || IsDialogueInteraction();
     }

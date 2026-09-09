@@ -27,12 +27,24 @@ public class int_LibraryPainting : Lvl3InteractionDialogueBase
         }
     };
 
+    [Header("Watson Inspection Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] watsonInspectionDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Watson,
+            text = "Za tym obrazem może znajdować się ukryty mechanizm.",
+            duration = 3f
+        }
+    };
+
     protected override Lvl3DialogueLine[] DefaultDialogueLines => inspectionDialogue;
 
 
     private void Start()
     {
         interactable = GetComponent<Interactable>();
+        interactable?.SetWatsonInteractionAllowed(true);
         interactionCollider = GetComponent<Collider>();
 
         if (cameraController == null)
@@ -45,11 +57,17 @@ public class int_LibraryPainting : Lvl3InteractionDialogueBase
         cameraController?.SetZoomPreset("Narrow", cameraTransitionSpeed);
 
         if (!paintingPushed)
-            PlayDialogue(player, inspectionDialogue);
+            PlayDialogue(player, IsWatson(player) ? watsonInspectionDialogue : inspectionDialogue);
 
         if (player != null)
             player.currentInteractable = null;
 
+    }
+
+    private static bool IsWatson(PlayerController player)
+    {
+        return player != null &&
+               (player.playerCharacter == PlayerCharacter.Watson || player.CompareTag("PlayerB"));
     }
 
     public void PushPainting()
