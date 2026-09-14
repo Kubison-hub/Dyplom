@@ -3153,94 +3153,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7103268507857931997, guid: 3c5436fca64c65048807294d1b7c70e7, type: 3}
   m_PrefabInstance: {fileID: 25879356}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &26189027
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 26189028}
-  - component: {fileID: 26189029}
-  m_Layer: 0
-  m_Name: LV3 ??? Sherlock i Watson
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &26189028
+--- !u!4 &26189028 stripped
 Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 5819991885168220712, guid: 009ffdbf40d76fb46836486523a186b9, type: 3}
+  m_PrefabInstance: {fileID: 291344373981653899}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 26189027}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.56361914, y: -0.6380377, z: -1.5633631}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 612463995}
-  m_Father: {fileID: 1485559967}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &26189029
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 26189027}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 83189876d4d389f43b7dd2e925aa112e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CurrentIDCounter: 22
-  json: "{\"Options\":[],\"Parameters\":[],\"SpeechNodes\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":11}],\"EditorInfo\":{\"isRoot\":true,\"xPos\":430,\"yPos\":22},\"ID\":0,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Zaraz
-    ci wszystko wyja\u015Bni\u0119 Watsonie, ale najpierw pom\xF3\u017C mi otworzy\u0107
-    t\u0119 klap\u0119, kto\u015B schodz\u0105c w d\xF3\u0142 mocno j\u0105 za sob\u0105
-    zatrzasn\u0105\u0142.\",\"parentUIDs\":[],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":12}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":438.000122,\"yPos\":122.000122},\"ID\":11,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Ju\u017C
-    si\u0119 robi, mo\u017Ce nog\u0119 mam nie sprawn\u0105, ale krzepy mi nie brakuje.\",\"parentUIDs\":[0],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":13}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":431.000122,\"yPos\":245.333435},\"ID\":12,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Gotowy
-    na potwory w ciemno\u015Bci?\",\"parentUIDs\":[11],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":14}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":437.000122,\"yPos\":362.000122},\"ID\":13,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Chyba
-    na \\\"duchy\\\" przesz\u0142osci.\",\"parentUIDs\":[12],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":16}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":441.000122,\"yPos\":463.000153},\"ID\":14,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Tutaj
-    Watsonie. Zobacz, ta \u015Bciana widocznie zamocowana jest na ruchomych prowadnicach.\",\"parentUIDs\":[13],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":17}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":446.000122,\"yPos\":586},\"ID\":16,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Ach
-    tak?\",\"parentUIDs\":[14],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":18}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":445.000122,\"yPos\":697},\"ID\":17,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Musz\u0119
-    dowiedzie\u0107 si\u0119 tylko jak otworzy\u0107 te drzwi.\",\"parentUIDs\":[16],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":19}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":448.000183,\"yPos\":814},\"ID\":18,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"To
-    do dzie\u0142a.\",\"parentUIDs\":[17],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":20}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":450.333557,\"yPos\":946.667},\"ID\":19,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Niesamowite,
-    jak Madame Selma przygotowa\u0142a si\u0119 na sw\xF3j biznes.\",\"parentUIDs\":[18],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":21}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":454.000183,\"yPos\":1066.00024},\"ID\":20,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"To
-    prawda, ale Sherlocku, nie s\u0105dzisz, \u017Ce skoro Ethel mog\u0142a os\u0142ugiwa\u0107
-    te mechanizmy, to oznacza, \u017Ce spotka\u0142a gdzie\u015B tutaj zab\xF3jc\u0119?\",\"parentUIDs\":[19],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":458.000183,\"yPos\":1179.00024},\"ID\":21,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"To
-    nawet pewne, dlatego powinni\u015Bmy si\u0119 pospieszy\u0107 i przeszuka\u0107
-    ka\u017Cdy zakamarek. Czas na zadawanie pyta\u0107 i udzielanie odpowiedzi przyjdzie
-    jak znajdziemy ma\u0142\u0105.\",\"parentUIDs\":[20],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0}]}"
-  saveVersion: 110
-  DefaultName: 
-  DefaultSprite: {fileID: 0}
-  DefaultFont: {fileID: 0}
-  NodeSerializedDataList:
-  - {fileID: 612464006}
-  - {fileID: 612464005}
-  - {fileID: 612464004}
-  - {fileID: 612464003}
-  - {fileID: 612464002}
-  - {fileID: 612464001}
-  - {fileID: 612464000}
-  - {fileID: 612463999}
-  - {fileID: 612463998}
-  - {fileID: 612463997}
-  - {fileID: 612463996}
-  ContinueFont: {fileID: 0}
-  EndConversationFont: {fileID: 0}
-  useAutomaticDialogueCamera: 1
-  automaticDialogueCameraPreset: Narrow
-  automaticDialogueCameraZoomSpeed: 0.2
-  dialogueUIDelay: 0
-  Event:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!1 &26922976
 GameObject:
   m_ObjectHideFlags: 0
@@ -15693,7 +15610,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -299.69922, y: 18.998962}
+  m_AnchoredPosition: {x: -299.69922, y: 18.999023}
   m_SizeDelta: {x: 496.5, y: 770.1}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &100555588
@@ -38713,8 +38630,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentIDCounter: 12
-  json: "{\"Options\":[],\"Parameters\":[],\"SpeechNodes\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":11}],\"EditorInfo\":{\"isRoot\":true,\"xPos\":154.5,\"yPos\":22},\"ID\":0,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Watsonie
-    poczekaj tu z nimi, wr\xF3c\u0119 jak najszybciej.\",\"parentUIDs\":[],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":162.5,\"yPos\":122},\"ID\":11,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dobrze,
+  json: "{\"Options\":[],\"Parameters\":[],\"SpeechNodes\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":11}],\"EditorInfo\":{\"isRoot\":true,\"xPos\":200.333344,\"yPos\":22},\"ID\":0,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Watsonie
+    poczekaj tu z nimi, wr\xF3c\u0119 jak najszybciej.\",\"parentUIDs\":[],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":208.333344,\"yPos\":122},\"ID\":11,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dobrze,
     powodzenia. Wo\u0142aj mnie, jakby\u015B potrzebowa\u0142 pomocy.\",\"parentUIDs\":[0],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0}]}"
   saveVersion: 110
   DefaultName: 
@@ -84852,257 +84769,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7103268507857931997, guid: 8a65693167e902a43b1e8af4579de5a0, type: 3}
   m_PrefabInstance: {fileID: 812644214}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &612463994
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 612463995}
-  - component: {fileID: 612464006}
-  - component: {fileID: 612464005}
-  - component: {fileID: 612464004}
-  - component: {fileID: 612464003}
-  - component: {fileID: 612464002}
-  - component: {fileID: 612464001}
-  - component: {fileID: 612464000}
-  - component: {fileID: 612463999}
-  - component: {fileID: 612463998}
-  - component: {fileID: 612463997}
-  - component: {fileID: 612463996}
-  m_Layer: 0
-  m_Name: ConversationEventInfo
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &612463995
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 612463994}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -5.094642, y: -0.43293875, z: 2.2259154}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 26189028}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &612463996
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 612463994}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 00abedce3cdbbba46bf2d86c9518c9f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Event:
-    m_PersistentCalls:
-      m_Calls: []
-  NodeID: 21
-  TMPFont: {fileID: 0}
-  Icon: {fileID: 21300000, guid: 05f3e3270f821214db8a9d125c8d14e5, type: 3}
-  Audio: {fileID: 0}
---- !u!114 &612463997
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 612463994}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 00abedce3cdbbba46bf2d86c9518c9f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Event:
-    m_PersistentCalls:
-      m_Calls: []
-  NodeID: 20
-  TMPFont: {fileID: 0}
-  Icon: {fileID: 21300000, guid: 9ee119ead98895844a385e0b63602f89, type: 3}
-  Audio: {fileID: 0}
---- !u!114 &612463998
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 612463994}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 00abedce3cdbbba46bf2d86c9518c9f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Event:
-    m_PersistentCalls:
-      m_Calls: []
-  NodeID: 19
-  TMPFont: {fileID: 0}
-  Icon: {fileID: 21300000, guid: 05f3e3270f821214db8a9d125c8d14e5, type: 3}
-  Audio: {fileID: 0}
---- !u!114 &612463999
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 612463994}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 00abedce3cdbbba46bf2d86c9518c9f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Event:
-    m_PersistentCalls:
-      m_Calls: []
-  NodeID: 18
-  TMPFont: {fileID: 0}
-  Icon: {fileID: 21300000, guid: 9ee119ead98895844a385e0b63602f89, type: 3}
-  Audio: {fileID: 0}
---- !u!114 &612464000
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 612463994}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 00abedce3cdbbba46bf2d86c9518c9f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Event:
-    m_PersistentCalls:
-      m_Calls: []
-  NodeID: 17
-  TMPFont: {fileID: 0}
-  Icon: {fileID: 21300000, guid: 05f3e3270f821214db8a9d125c8d14e5, type: 3}
-  Audio: {fileID: 0}
---- !u!114 &612464001
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 612463994}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 00abedce3cdbbba46bf2d86c9518c9f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Event:
-    m_PersistentCalls:
-      m_Calls: []
-  NodeID: 16
-  TMPFont: {fileID: 0}
-  Icon: {fileID: 21300000, guid: 9ee119ead98895844a385e0b63602f89, type: 3}
-  Audio: {fileID: 0}
---- !u!114 &612464002
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 612463994}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 00abedce3cdbbba46bf2d86c9518c9f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Event:
-    m_PersistentCalls:
-      m_Calls: []
-  NodeID: 14
-  TMPFont: {fileID: 0}
-  Icon: {fileID: 21300000, guid: 05f3e3270f821214db8a9d125c8d14e5, type: 3}
-  Audio: {fileID: 0}
---- !u!114 &612464003
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 612463994}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 00abedce3cdbbba46bf2d86c9518c9f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Event:
-    m_PersistentCalls:
-      m_Calls: []
-  NodeID: 13
-  TMPFont: {fileID: 0}
-  Icon: {fileID: 21300000, guid: 05f3e3270f821214db8a9d125c8d14e5, type: 3}
-  Audio: {fileID: 0}
---- !u!114 &612464004
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 612463994}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 00abedce3cdbbba46bf2d86c9518c9f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Event:
-    m_PersistentCalls:
-      m_Calls: []
-  NodeID: 12
-  TMPFont: {fileID: 0}
-  Icon: {fileID: 21300000, guid: 9ee119ead98895844a385e0b63602f89, type: 3}
-  Audio: {fileID: 0}
---- !u!114 &612464005
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 612463994}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 00abedce3cdbbba46bf2d86c9518c9f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Event:
-    m_PersistentCalls:
-      m_Calls: []
-  NodeID: 11
-  TMPFont: {fileID: 0}
-  Icon: {fileID: 21300000, guid: 9ee119ead98895844a385e0b63602f89, type: 3}
-  Audio: {fileID: 0}
---- !u!114 &612464006
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 612463994}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 00abedce3cdbbba46bf2d86c9518c9f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Event:
-    m_PersistentCalls:
-      m_Calls: []
-  NodeID: 0
-  TMPFont: {fileID: 0}
-  Icon: {fileID: 21300000, guid: 05f3e3270f821214db8a9d125c8d14e5, type: 3}
-  Audio: {fileID: 0}
 --- !u!4 &613568524 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1791982964362379425, guid: 5fe3a804d6149e143ac4a3a5a653dbe7, type: 3}
@@ -208098,7 +207764,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 273764362}
-  - {fileID: 26189028}
   m_Father: {fileID: 939198822}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1485730942
@@ -298238,6 +297903,7 @@ Transform:
   - {fileID: 1427004025}
   - {fileID: 91682868}
   - {fileID: 41502456}
+  - {fileID: 26189028}
   - {fileID: 1736699296}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -307846,6 +307512,63 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
   m_IsActive: 1
+--- !u!1001 &291344373981653899
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2089963138}
+    m_Modifications:
+    - target: {fileID: 1607527220968036400, guid: 009ffdbf40d76fb46836486523a186b9, type: 3}
+      propertyPath: m_Name
+      value: Sherlock_Watson
+      objectReference: {fileID: 0}
+    - target: {fileID: 5819991885168220712, guid: 009ffdbf40d76fb46836486523a186b9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 5.9042873
+      objectReference: {fileID: 0}
+    - target: {fileID: 5819991885168220712, guid: 009ffdbf40d76fb46836486523a186b9, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 8.801979
+      objectReference: {fileID: 0}
+    - target: {fileID: 5819991885168220712, guid: 009ffdbf40d76fb46836486523a186b9, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -14.311654
+      objectReference: {fileID: 0}
+    - target: {fileID: 5819991885168220712, guid: 009ffdbf40d76fb46836486523a186b9, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5819991885168220712, guid: 009ffdbf40d76fb46836486523a186b9, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5819991885168220712, guid: 009ffdbf40d76fb46836486523a186b9, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5819991885168220712, guid: 009ffdbf40d76fb46836486523a186b9, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5819991885168220712, guid: 009ffdbf40d76fb46836486523a186b9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5819991885168220712, guid: 009ffdbf40d76fb46836486523a186b9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5819991885168220712, guid: 009ffdbf40d76fb46836486523a186b9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 009ffdbf40d76fb46836486523a186b9, type: 3}
 --- !u!1 &305207604715399112
 GameObject:
   m_ObjectHideFlags: 0
@@ -311673,46 +311396,46 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentIDCounter: 73
-  json: "{\"Options\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":25}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-511.533417,\"yPos\":658.7361},\"ID\":38,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Rozumiem...
-    Dzi\u0119kuj\u0119 za rozmow\u0119, Madame Selmo.\",\"parentUIDs\":[47,71],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":34}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-393.8665,\"yPos\":-176.6008},\"ID\":40,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Czy
-    mog\u0119 zapyta\u0107 o pani c\xF3rk\u0119?\",\"parentUIDs\":[21],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":51}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-148.4999,\"yPos\":-175.333344},\"ID\":49,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Ojciec
-    George wyra\u017Ca si\u0119 o pani do\u015B\u0107... krytycznie.\",\"parentUIDs\":[21],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":25}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-108.999985,\"yPos\":690.3335},\"ID\":58,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Rozumiem...
-    Dzi\u0119kuj\u0119 za rozmow\u0119, Madame Selmo.\",\"parentUIDs\":[57],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":35}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-395.333282,\"yPos\":32.00009},\"ID\":59,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Czy
-    mogliby\u015Bmy porozmawia\u0107 z Ethel?\",\"parentUIDs\":[34],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":53}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-145.166763,\"yPos\":33.1665955},\"ID\":61,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Ale
-    mimo to pani\u0105 toleruje. Dlaczego?\",\"parentUIDs\":[51],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":55}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-136.666763,\"yPos\":236.6665},\"ID\":62,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Cz\u0119sto
-    si\u0119 widujecie?\",\"parentUIDs\":[70],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":57}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-144.333511,\"yPos\":416.8329},\"ID\":64,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"W
-    jakich okoliczno\u015Bciach tu przychodzi?\",\"parentUIDs\":[55],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":21}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-860.0001,\"yPos\":172.332764},\"ID\":65,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jeszcze
-    jedna sprawa.\",\"parentUIDs\":[57],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":21}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-644.6665,\"yPos\":317.33313},\"ID\":68,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jest
-    co\u015B jeszcze.\",\"parentUIDs\":[71],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":25}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":275.0001,\"yPos\":-260.66687},\"ID\":69,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"No
-    na razie wszystko.\",\"parentUIDs\":[21],\"SpeechUID\":-1}],\"Parameters\":[{\"__type\":\"EditableBoolParameter:#DialogueEditor\",\"ParameterName\":\"George\",\"BoolValue\":false}],\"SpeechNodes\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":21}],\"EditorInfo\":{\"isRoot\":true,\"xPos\":-387.666534,\"yPos\":-457.3333},\"ID\":0,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Madame
-    Selmo, czy mo\u017Cemy porozmawia\u0107?\",\"parentUIDs\":[],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0.1,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":40},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[{\"__type\":\"EditableBoolCondition:#DialogueEditor\",\"ParameterName\":\"George\",\"CheckType\":0,\"RequiredValue\":true}],\"NodeUID\":49},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[{\"__type\":\"EditableBoolCondition:#DialogueEditor\",\"ParameterName\":\"George\",\"CheckType\":0,\"RequiredValue\":true}],\"NodeUID\":69}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-391.33316,\"yPos\":-321.86734},\"ID\":21,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"S\u0142ucham,
+  json: "{\"Options\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":25}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":391.133118,\"yPos\":1016.06909},\"ID\":38,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Rozumiem...
+    Dzi\u0119kuj\u0119 za rozmow\u0119, Madame Selmo.\",\"parentUIDs\":[71],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":34}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":508.800049,\"yPos\":180.732483},\"ID\":40,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Czy
+    mog\u0119 zapyta\u0107 o pani c\xF3rk\u0119?\",\"parentUIDs\":[21],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":51}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":754.1666,\"yPos\":181.999939},\"ID\":49,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Ojciec
+    George wyra\u017Ca si\u0119 o pani do\u015B\u0107... krytycznie.\",\"parentUIDs\":[21],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":25}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":793.6665,\"yPos\":1047.6665},\"ID\":58,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Rozumiem...
+    Dzi\u0119kuj\u0119 za rozmow\u0119, Madame Selmo.\",\"parentUIDs\":[57],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":35}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":507.333252,\"yPos\":389.3333},\"ID\":59,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Czy
+    mogliby\u015Bmy porozmawia\u0107 z Ethel?\",\"parentUIDs\":[34],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":53}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":757.499756,\"yPos\":390.499817},\"ID\":61,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Ale
+    mimo to pani\u0105 toleruje. Dlaczego?\",\"parentUIDs\":[51],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":55}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":765.999756,\"yPos\":593.9998},\"ID\":62,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Cz\u0119sto
+    si\u0119 widujecie?\",\"parentUIDs\":[70],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":57}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":758.333,\"yPos\":774.1662},\"ID\":64,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"W
+    jakich okoliczno\u015Bciach tu przychodzi?\",\"parentUIDs\":[55],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":21}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":42.66638,\"yPos\":529.6661},\"ID\":65,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jeszcze
+    jedna sprawa.\",\"parentUIDs\":[57],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":21}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":258.000031,\"yPos\":674.666443},\"ID\":68,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jest
+    co\u015B jeszcze.\",\"parentUIDs\":[71],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":25}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":1177.66663,\"yPos\":96.66643},\"ID\":69,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"No
+    na razie wszystko.\",\"parentUIDs\":[21],\"SpeechUID\":-1}],\"Parameters\":[{\"__type\":\"EditableBoolParameter:#DialogueEditor\",\"ParameterName\":\"George\",\"BoolValue\":false}],\"SpeechNodes\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":21}],\"EditorInfo\":{\"isRoot\":true,\"xPos\":515,\"yPos\":-100.000015},\"ID\":0,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Madame
+    Selmo, czy mo\u017Cemy porozmawia\u0107?\",\"parentUIDs\":[],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0.1,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":40},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[{\"__type\":\"EditableBoolCondition:#DialogueEditor\",\"ParameterName\":\"George\",\"CheckType\":0,\"RequiredValue\":true}],\"NodeUID\":49},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[{\"__type\":\"EditableBoolCondition:#DialogueEditor\",\"ParameterName\":\"George\",\"CheckType\":0,\"RequiredValue\":true}],\"NodeUID\":69}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":511.333374,\"yPos\":35.4659576},\"ID\":21,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"S\u0142ucham,
     doktorze.\",\"parentUIDs\":[0,65,68],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
-    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":367.731964,\"yPos\":507.598328},\"ID\":25,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dzi\u0119kuj\u0119,
+    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":1270.39856,\"yPos\":864.9316},\"ID\":25,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dzi\u0119kuj\u0119,
     doktorze.\",\"parentUIDs\":[38,58,69],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
-    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":59}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-395.9993,\"yPos\":-80.7350159},\"ID\":34,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Czego
+    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":59}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":506.667236,\"yPos\":276.5982},\"ID\":34,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Czego
     chce pan si\u0119 dowiedzie\u0107?\",\"parentUIDs\":[40],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
-    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":47}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-394.199371,\"yPos\":91.5315552},\"ID\":35,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Pozwoli
+    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":47}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":508.467163,\"yPos\":448.8648},\"ID\":35,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Pozwoli
     nam pani porozmawia\u0107 z Ethel? Mo\u017Ce s\u0142ysza\u0142a lub widzia\u0142a
-    co\u015B istotnego. Obiecuj\u0119, \u017Ce zadbam o jej komfort.\",\"parentUIDs\":[59],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":71}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-392.333771,\"yPos\":184.801544},\"ID\":47,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Absolutnie
+    co\u015B istotnego. Obiecuj\u0119, \u017Ce zadbam o jej komfort.\",\"parentUIDs\":[59],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":71}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":510.332764,\"yPos\":542.1348},\"ID\":47,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Absolutnie
     nie! Nie pozwol\u0119 wam wej\u015B\u0107 na g\xF3r\u0119, do niej, i zaprz\u0105ta\u0107
     jej g\u0142owy t\u0105 spraw\u0105. \",\"parentUIDs\":[35],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
-    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":61}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-145.333267,\"yPos\":-76.99985},\"ID\":51,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Och,
+    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":61}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":757.333252,\"yPos\":280.333435},\"ID\":51,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Och,
     on gardzi wszystkim, co nie mie\u015Bci si\u0119 w jego zakurzonych ksi\u0119gach.
     Nie docenia, ilu osobom pomagam.\",\"parentUIDs\":[49],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
-    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":72}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-144.166519,\"yPos\":98.66675},\"ID\":53,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Tylko
+    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":72}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":758.5,\"yPos\":456.000061},\"ID\":53,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Tylko
     dlatego, \u017Ce jestem w \u0142askach Kr\xF3lowej. Gdyby nie to, ju\u017C rzuca\u0142by
     na mnie ekskomunik\u0105.\",\"parentUIDs\":[61],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
-    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":64}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-143.333023,\"yPos\":311.999878},\"ID\":55,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Niestety,
+    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":64}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":759.3335,\"yPos\":669.3332},\"ID\":55,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Niestety,
     i na dworze, i tutaj... A twierdzi, \u017Ce nienawidzi tego miejsca.\",\"parentUIDs\":[62],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
-    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":65},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":58}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-148.99971,\"yPos\":497.666016},\"ID\":57,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Obowi\u0105zuje
+    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":65},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":58}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":753.6668,\"yPos\":854.999451},\"ID\":57,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Obowi\u0105zuje
     mnie dyskrecja, ale mog\u0119 powiedzie\u0107, \u017Ce uporczywie pr\xF3buje
     zniech\u0119ci\u0107 mnie do \u015Bwiadczenia moich us\u0142ug...\",\"parentUIDs\":[64],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
-    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":62}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":111.666725,\"yPos\":203.666534},\"ID\":70,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Mi\u0119dzy
+    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":62}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":1014.33325,\"yPos\":560.9998},\"ID\":70,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Mi\u0119dzy
     nami m\xF3wi\u0105c, s\u0105dz\u0119, \u017Ce jest zazdrosny o moje wp\u0142ywy.\",\"parentUIDs\":[72],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
-    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":68},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":38}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":-395.3334,\"yPos\":304.666626},\"ID\":71,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Doceniam
+    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":68},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":38}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":507.33313,\"yPos\":661.999939},\"ID\":71,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Doceniam
     pa\u0144sk\u0105 trosk\u0119, doktorze, ale prosz\u0119 nie miesza\u0107 mojej
     c\xF3rki w to \u015Bledztwo.\",\"parentUIDs\":[47],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
-    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":70}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":113.999733,\"yPos\":97.33325},\"ID\":72,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Prowadz\u0119
+    Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":70}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":1016.66626,\"yPos\":454.666565},\"ID\":72,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Prowadz\u0119
     sesje dla Kr\xF3lowej Wiktorii w sprawie jej zmar\u0142ego ukochanego, ksi\u0119cia
     Alberta.\",\"parentUIDs\":[53],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Madame
     Selma\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0}]}"
