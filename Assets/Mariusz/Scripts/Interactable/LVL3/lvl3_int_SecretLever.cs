@@ -152,8 +152,6 @@ public class lvl3_int_SecretLever : MonoBehaviour
 
     private void SetupInteractable()
     {
-        lvl3_LayerUtility.SetOutlinedObjectsLayer(gameObject);
-
         interactable = GetComponent<Interactable>();
 
         if (interactable != null)

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 [RequireComponent(typeof(Interactable))]
-public class Int_lv3_WallLampHolder : Lvl3ClockworkInteraction
+public class Int_lv3_WallLampHolder : Lvl3ClockworkInteraction, IInteractionApproachGate
 {
     [Header("Lamp References")]
     [Tooltip("First lamp that may be mounted on this holder.")]
@@ -21,6 +21,10 @@ public class Int_lv3_WallLampHolder : Lvl3ClockworkInteraction
     [SerializeField] private Vector3 carriedLampLocalPosition;
     [SerializeField] private Vector3 carriedLampLocalEulerAngles;
 
+    [Header("Mounted Lamp Light")]
+    [Tooltip("Additional light object enabled only while a lamp is mounted in this wall holder.")]
+    [SerializeField] private GameObject mountedLampLight;
+
     [Header("Lamp Audio")]
     [Tooltip("Optional source used when this holder picks up or places a lamp.")]
     [SerializeField] private AudioSource lampAudioSource;
@@ -33,12 +37,30 @@ public class Int_lv3_WallLampHolder : Lvl3ClockworkInteraction
     [SerializeField, TextArea] private string pickedUpLampText = "Zabiorę lampę ze sobą.";
     [SerializeField, TextArea] private string alreadyHoldingLampText = "Nie mogę nieść dwóch lamp.";
 
+    private void Start()
+    {
+        RefreshMountedLampLight();
+    }
+
     public override bool CanPlayerUse(PlayerController player)
     {
         if (player == null)
             return false;
 
         return base.CanPlayerUse(player);
+    }
+
+    public bool CanApproachInteraction(PlayerController player)
+    {
+        return GetMountedLamp() != null || GetCarriedLamp(player) != null;
+    }
+
+    public void ShowApproachBlockedText(PlayerController player)
+    {
+        if (player == null || Interactable == null)
+            return;
+
+        player.RotateTowardsInteractableAndShowTopText(Interactable, missingLampText);
     }
 
     public override void PerformInteraction(PlayerController player)
@@ -69,6 +91,7 @@ public class Int_lv3_WallLampHolder : Lvl3ClockworkInteraction
         carriedLamp.transform.localPosition = wallLampLocalPosition;
         carriedLamp.transform.localRotation = Quaternion.Euler(wallLampLocalEulerAngles);
         carriedLamp.SetActive(true);
+        RefreshMountedLampLight();
 
         PlayLampAudio(placeLampAudio);
 
@@ -94,6 +117,7 @@ public class Int_lv3_WallLampHolder : Lvl3ClockworkInteraction
         mountedLamp.transform.localPosition = carriedLampLocalPosition;
         mountedLamp.transform.localRotation = Quaternion.Euler(carriedLampLocalEulerAngles);
         mountedLamp.SetActive(true);
+        RefreshMountedLampLight();
 
         PlayLampAudio(pickupLampAudio);
 
@@ -161,6 +185,12 @@ public class Int_lv3_WallLampHolder : Lvl3ClockworkInteraction
                wallLampSocket != null &&
                lamp.activeInHierarchy &&
                lamp.transform.IsChildOf(wallLampSocket);
+    }
+
+    private void RefreshMountedLampLight()
+    {
+        if (mountedLampLight != null)
+            mountedLampLight.SetActive(GetMountedLamp() != null);
     }
 
     private void PlayLampAudio(AudioClip clip)

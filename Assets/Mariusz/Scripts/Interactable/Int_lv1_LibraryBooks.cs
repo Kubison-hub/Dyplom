@@ -79,8 +79,6 @@ public class Int_lv1_LibraryBooks : Lvl3InteractionDialogueBase, IVioletRoomInte
 
         performed = true;
 
-        cameraController?.SetZoomState(CameraZoomState.Medium);
-        cameraController?.OrbitHorizontalAxisTo(horizontalAxis, orbitSpeed);
         StartCoroutine(PlayBookshelfDialogueAfterDelay(player));
 
         if (interactable != null)

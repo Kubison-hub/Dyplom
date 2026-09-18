@@ -7,7 +7,7 @@ public class int_LibraryPainting : Lvl3InteractionDialogueBase
     private Interactable interactable;
     private Collider interactionCollider;
     [SerializeField] private CameraController cameraController;
-    [SerializeField, Min(0.1f)] private float cameraTransitionSpeed = 0.5f;
+    [SerializeField, Min(0f)] private float cameraTransitionDuration = 2.5f;
 
     public bool performed = false;
 
@@ -54,7 +54,7 @@ public class int_LibraryPainting : Lvl3InteractionDialogueBase
 
     public void PerformInteraction(PlayerController player)
     {
-        cameraController?.SetZoomPreset("Narrow", cameraTransitionSpeed);
+        cameraController?.SetZoomPreset("Narrow", cameraTransitionDuration);
 
         if (!paintingPushed)
             PlayDialogue(player, IsWatson(player) ? watsonInspectionDialogue : inspectionDialogue);
@@ -86,8 +86,12 @@ public class int_LibraryPainting : Lvl3InteractionDialogueBase
 
     public void DeactivatePaintingInteraction()
     {
+        if (interactable == null)
+            interactable = GetComponent<Interactable>();
+
         if (interactable != null)
         {
+            interactable.MarkCompleted();
             interactable.isInteractableActive = false;
             interactable.allowQuestionFXWhenInactive = false;
             interactable.SetQuestionFXEagleVisionState(false);
@@ -121,9 +125,10 @@ public class int_LibraryPainting : Lvl3InteractionDialogueBase
             yield return null;
         }
 
-        
+
         transform.position = new Vector3(destinationX, transform.position.y, transform.position.z);
         moveCoroutine = null;
+        DeactivatePaintingInteraction();
     }
 }
     

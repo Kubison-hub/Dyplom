@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -8,15 +10,34 @@ namespace PxP.DOCS
 {
     public class DynamicOcclusionCutoutSystem : MonoBehaviour
     {
+        private sealed class OcclusionRendererState
+        {
+            public Renderer Renderer;
+            public int[] MaterialIndices;
+            public bool IsEligible;
+            public bool HasAppliedState;
+        }
+
+        private const string LoupeSceneTextureName = "RT_LoupeScene";
+        private const string HiddenCluesTextureName = "RT_HiddenClues";
+        private const float RendererDepthTolerance = 0.05f;
+        private static readonly int DepthEnabledProperty = Shader.PropertyToID("_DOCS_Depth_Enabled");
+
         [Header("Wall material reference")]
         [Tooltip("The material(s) contained in Project folders that has to be updated")]
         [SerializeField] private Material[] m_materials;
+
+        [Header("Transparent materials")]
+        [Tooltip("Optional glass materials using the DOCS - Transparent Glass shader.")]
+        [SerializeField] private Material[] transparentMaterials;
 
         [Header("Scene objects reference")]
         [Tooltip("The target's tag\nAt Awake this Tag will be searched\nLeave empty if target is manually assigned")]
         [SerializeField] private string targetTag = "";
         [Tooltip("The Camera from which the occlusion is seen")]
         [SerializeField] private Camera m_camera;
+        [Tooltip("Cameras that should render the wall materials without the cutout, for example the loupe cameras.")]
+        [SerializeField] private Camera[] camerasIgnoringCutout;
         [Tooltip("The target behind the occluded objects\n(ex: Player behind wall)")]
         [SerializeField] public Transform m_target;
 
@@ -46,40 +67,280 @@ namespace PxP.DOCS
         Vector3 direction;
         Vector3 currentSpherePosition;
         Vector3 targetPosition;
+        private readonly List<OcclusionRendererState> occlusionRenderers = new List<OcclusionRendererState>();
+        private MaterialPropertyBlock rendererPropertyBlock;
         private float currentMaskRadius = 0.0f;
         private float targetMaskRadius = 0.0f;
         private float currentLerpTime = 0.0f;
         bool isHitting = false;
 
+        private void OnEnable()
+        {
+            RenderPipelineManager.beginCameraRendering += HandleBeginCameraRendering;
+            RenderPipelineManager.endCameraRendering += HandleEndCameraRendering;
+        }
+
         private void OnDisable()
         {
-            foreach (var mat in m_materials)
+            RenderPipelineManager.beginCameraRendering -= HandleBeginCameraRendering;
+            RenderPipelineManager.endCameraRendering -= HandleEndCameraRendering;
+
+            ApplyMaterialState(Vector3.zero, 0.0f);
+            ResetRendererEligibility();
+        }
+
+        private void HandleBeginCameraRendering(ScriptableRenderContext context, Camera renderingCamera)
+        {
+            if (!ShouldIgnoreCutout(renderingCamera)) return;
+
+            ApplyMaterialState(currentSpherePosition, 0.0f);
+        }
+
+        private void HandleEndCameraRendering(ScriptableRenderContext context, Camera renderingCamera)
+        {
+            if (!ShouldIgnoreCutout(renderingCamera)) return;
+
+            ApplyMaterialState(currentSpherePosition, currentMaskRadius);
+        }
+
+        private bool ShouldIgnoreCutout(Camera renderingCamera)
+        {
+            if (renderingCamera == null || camerasIgnoringCutout == null) return false;
+
+            foreach (Camera ignoredCamera in camerasIgnoringCutout)
+            {
+                if (ignoredCamera == renderingCamera) return true;
+            }
+
+            return false;
+        }
+
+        private void ApplyMaterialState(Vector3 position, float radiusValue)
+        {
+            ApplyMaterialState(m_materials, position, radiusValue);
+            ApplyMaterialState(transparentMaterials, position, radiusValue);
+        }
+
+        private static void ApplyMaterialState(
+            Material[] materials,
+            Vector3 position,
+            float radiusValue)
+        {
+            if (materials == null) return;
+
+            foreach (Material mat in materials)
             {
                 if (mat == null) continue;
-                mat.SetVector("_Target_Position", Vector3.zero);
-                mat.SetFloat("_Radius", 0.0f);
+                mat.SetVector("_Target_Position", position);
+                mat.SetFloat("_Radius", radiusValue);
             }
         }
 
         private void Awake()
         {
+            rendererPropertyBlock = new MaterialPropertyBlock();
+
             if (targetTag != "" && m_target == null)
                 m_target = GameObject.FindGameObjectWithTag(targetTag)?.transform;
             if (m_camera == null)
                 m_camera = Camera.main;
+            if (camerasIgnoringCutout == null || camerasIgnoringCutout.Length == 0)
+                ResolveDefaultIgnoredCameras();
+
+            ValidateMaterials(m_materials, "wall");
+            ValidateMaterials(transparentMaterials, "transparent");
+            RefreshOcclusionRenderers();
+        }
+
+        private static void ValidateMaterials(Material[] materials, string materialType)
+        {
+            if (materials == null) return;
+
+            foreach (Material material in materials)
+            {
+                if (material == null) continue;
+                if (material.HasProperty("_Target_Position") &&
+                    material.HasProperty("_DOCS_Depth_Enabled") &&
+                    material.HasProperty("_Radius"))
+                    continue;
+
+                Debug.LogWarning(
+                    $"DOCS: {materialType} material '{material.name}' does not expose the required " +
+                    "_Target_Position, _DOCS_Depth_Enabled and _Radius properties. Assign a current DOCS shader.",
+                    material);
+            }
+        }
+
+        [ContextMenu("Refresh Occlusion Renderers")]
+        public void RefreshOcclusionRenderers()
+        {
+            ResetRendererEligibility();
+            occlusionRenderers.Clear();
+
+            HashSet<Material> docsMaterials = new HashSet<Material>();
+            AddMaterials(docsMaterials, m_materials);
+            AddMaterials(docsMaterials, transparentMaterials);
+            if (docsMaterials.Count == 0) return;
+
+            Renderer[] sceneRenderers = FindObjectsByType<Renderer>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+
+            foreach (Renderer sceneRenderer in sceneRenderers)
+            {
+                if (sceneRenderer == null) continue;
+
+                int[] materialIndices = GetMatchingMaterialIndices(sceneRenderer, docsMaterials);
+                if (materialIndices.Length == 0) continue;
+
+                occlusionRenderers.Add(new OcclusionRendererState
+                {
+                    Renderer = sceneRenderer,
+                    MaterialIndices = materialIndices
+                });
+            }
+        }
+
+        private static void AddMaterials(HashSet<Material> destination, Material[] materials)
+        {
+            if (materials == null) return;
+
+            foreach (Material material in materials)
+            {
+                if (material != null) destination.Add(material);
+            }
+        }
+
+        private static int[] GetMatchingMaterialIndices(
+            Renderer sceneRenderer,
+            HashSet<Material> docsMaterials)
+        {
+            Material[] sharedMaterials = sceneRenderer.sharedMaterials;
+            List<int> matchingIndices = new List<int>();
+
+            for (int index = 0; index < sharedMaterials.Length; index++)
+            {
+                Material sharedMaterial = sharedMaterials[index];
+                if (sharedMaterial != null && docsMaterials.Contains(sharedMaterial))
+                    matchingIndices.Add(index);
+            }
+
+            return matchingIndices.ToArray();
+        }
+
+        private void UpdateRendererEligibility(Vector3 cameraPosition, Vector3 playerPosition)
+        {
+            Vector3 cameraToPlayer = playerPosition - cameraPosition;
+            float playerDepth = cameraToPlayer.magnitude;
+            if (playerDepth <= Mathf.Epsilon)
+            {
+                SetAllRendererEligibility(false);
+                return;
+            }
+
+            Vector3 depthDirection = cameraToPlayer / playerDepth;
+            float maximumDepth = Mathf.Max(0.0f, playerDepth - RendererDepthTolerance);
+
+            foreach (OcclusionRendererState state in occlusionRenderers)
+            {
+                Renderer sceneRenderer = state.Renderer;
+                if (sceneRenderer == null) continue;
+
+                Bounds bounds = sceneRenderer.bounds;
+                float centerDepth = Vector3.Dot(bounds.center - cameraPosition, depthDirection);
+                Vector3 extents = bounds.extents;
+                float projectedExtent =
+                    Mathf.Abs(depthDirection.x) * extents.x +
+                    Mathf.Abs(depthDirection.y) * extents.y +
+                    Mathf.Abs(depthDirection.z) * extents.z;
+
+                float nearestDepth = centerDepth - projectedExtent;
+                float farthestDepth = centerDepth + projectedExtent;
+                bool isEligible = farthestDepth >= 0.0f && nearestDepth <= maximumDepth;
+                ApplyRendererEligibility(state, isEligible);
+            }
+        }
+
+        private void SetAllRendererEligibility(bool isEligible)
+        {
+            foreach (OcclusionRendererState state in occlusionRenderers)
+            {
+                ApplyRendererEligibility(state, isEligible);
+            }
+        }
+
+        private void ResetRendererEligibility()
+        {
+            if (rendererPropertyBlock == null) return;
+            SetAllRendererEligibility(true);
+        }
+
+        private void ApplyRendererEligibility(OcclusionRendererState state, bool isEligible)
+        {
+            if (state.Renderer == null ||
+                state.MaterialIndices == null ||
+                (state.HasAppliedState && state.IsEligible == isEligible))
+                return;
+
+            foreach (int materialIndex in state.MaterialIndices)
+            {
+                rendererPropertyBlock.Clear();
+                state.Renderer.GetPropertyBlock(rendererPropertyBlock, materialIndex);
+                rendererPropertyBlock.SetFloat(DepthEnabledProperty, isEligible ? 1.0f : 0.0f);
+                state.Renderer.SetPropertyBlock(rendererPropertyBlock, materialIndex);
+            }
+
+            state.IsEligible = isEligible;
+            state.HasAppliedState = true;
+        }
+
+        private bool HasConfiguredMaterials()
+        {
+            return HasMaterial(m_materials) || HasMaterial(transparentMaterials);
+        }
+
+        private static bool HasMaterial(Material[] materials)
+        {
+            if (materials == null) return false;
+
+            foreach (Material material in materials)
+            {
+                if (material != null) return true;
+            }
+
+            return false;
+        }
+
+        private void ResolveDefaultIgnoredCameras()
+        {
+            Camera[] sceneCameras = FindObjectsByType<Camera>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            List<Camera> resolvedCameras = new List<Camera>();
+
+            foreach (Camera sceneCamera in sceneCameras)
+            {
+                if (sceneCamera == null || sceneCamera.targetTexture == null) continue;
+
+                string textureName = sceneCamera.targetTexture.name;
+                if (textureName == LoupeSceneTextureName || textureName == HiddenCluesTextureName)
+                    resolvedCameras.Add(sceneCamera);
+            }
+
+            camerasIgnoringCutout = resolvedCameras.ToArray();
         }
 
         void Start()
         {
-            if (m_target == null || m_camera == null || m_materials == null || m_materials.Length == 0) return;
+            if (m_target == null || m_camera == null || !HasConfiguredMaterials()) return;
 
             currentSpherePosition = m_target.position;
             currentMaskRadius = 0.0f;
+            Vector3 playerPosition = m_target.position + (Vector3.up * targetHeightCorrection);
+            UpdateRendererEligibility(m_camera.transform.position, playerPosition);
         }
 
         void Update()
         {
-            if (m_target == null || m_camera == null || m_materials == null || m_materials.Length == 0)
+            if (m_target == null || m_camera == null || !HasConfiguredMaterials())
             {
                 this.enabled = false;
                 return;
@@ -124,17 +385,13 @@ namespace PxP.DOCS
             currentSpherePosition = Vector3.Lerp(currentSpherePosition, this.targetPosition, currentLerpTime);
             currentMaskRadius = Mathf.Lerp(currentMaskRadius, targetMaskRadius, lerpSpeed);
 
-            foreach (var mat in m_materials)
-            {
-                if (mat == null) continue;
-                mat.SetVector("_Target_Position", currentSpherePosition);
-                mat.SetFloat("_Radius", currentMaskRadius);
-            }
+            UpdateRendererEligibility(m_camera.transform.position, targetPosition);
+            ApplyMaterialState(currentSpherePosition, currentMaskRadius);
         }
 
         private void OnDrawGizmosSelected()
         {
-            if (m_target == null || m_camera == null || m_materials == null || !enableGizmos) return;
+            if (m_target == null || m_camera == null || !HasConfiguredMaterials() || !enableGizmos) return;
 
             Vector3 origin = m_target.position + (Vector3.up * targetHeightCorrection);
             Vector3 dir = (m_camera.transform.position - origin).normalized;

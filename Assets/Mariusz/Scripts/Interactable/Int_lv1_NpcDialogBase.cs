@@ -138,7 +138,7 @@ public abstract class Int_lv1_NpcDialogBase : Lvl3InteractionDialogueBase
         if (QuestManager.Instance != null)
             QuestManager.Instance.OdnotujRozmowe(playerId, smartNPC.npcID);
 
-        smartNPC.BeginDialogueCameraFocus();
+        smartNPC.BeginDialogueCameraFocus(conversation);
         ConversationManager.Instance.StartConversation(conversation);
 
         if (smartNPC.noteIDToUnlock >= 0 && JournalManager.Instance != null)

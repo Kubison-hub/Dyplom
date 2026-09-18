@@ -70,7 +70,6 @@ public abstract class Lvl3ClockworkInteraction : Lvl3InteractionDialogueBase
 
     protected void SetupInteractable()
     {
-        lvl3_LayerUtility.SetOutlinedObjectsLayer(gameObject);
         Interactable = GetComponent<Interactable>();
     }
 }

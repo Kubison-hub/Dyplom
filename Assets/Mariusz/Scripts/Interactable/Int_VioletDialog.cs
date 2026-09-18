@@ -331,6 +331,41 @@ public class Int_VioletDialog : Lvl3InteractionDialogueBase
         isLibraryObserved = isVioletInRoom || CanSeeLibraryObservationVolume();
     }
 
+    public bool WouldLibraryBeObservedFrom(Vector3 position, Quaternion rotation)
+    {
+        Collider observationVolume = GetLibraryObservationVolume();
+        Transform positionTarget = GetVioletPositionTarget();
+        if (observationVolume == null || positionTarget == null)
+            return false;
+
+        if (IsInsideVolume(observationVolume, position))
+            return true;
+
+        Transform visionOrigin = eyePoint != null ? eyePoint : positionTarget;
+        Quaternion rotationDelta = rotation * Quaternion.Inverse(positionTarget.rotation);
+        Vector3 origin = position + rotationDelta * (visionOrigin.position - positionTarget.position);
+        Vector3 forward = rotationDelta * visionOrigin.forward;
+
+        Bounds bounds = observationVolume.bounds;
+        Vector3 center = bounds.center;
+        Vector3[] samplePoints =
+        {
+            center,
+            new Vector3(bounds.min.x, center.y, bounds.min.z),
+            new Vector3(bounds.min.x, center.y, bounds.max.z),
+            new Vector3(bounds.max.x, center.y, bounds.min.z),
+            new Vector3(bounds.max.x, center.y, bounds.max.z)
+        };
+
+        foreach (Vector3 point in samplePoints)
+        {
+            if (CanSeeLibraryPoint(point, origin, forward))
+                return true;
+        }
+
+        return false;
+    }
+
     private Transform GetVioletPositionTarget()
     {
         if (violetPositionTarget != null)
@@ -372,14 +407,18 @@ public class Int_VioletDialog : Lvl3InteractionDialogueBase
 
     private bool CanSeeLibraryPoint(Vector3 point)
     {
-        Vector3 origin = eyePoint.position;
+        return CanSeeLibraryPoint(point, eyePoint.position, eyePoint.forward);
+    }
+
+    private bool CanSeeLibraryPoint(Vector3 point, Vector3 origin, Vector3 forward)
+    {
         Vector3 direction = point - origin;
         float distance = direction.magnitude;
         if (distance > libraryVisionRange || distance < 0.001f)
             return false;
 
         Vector3 normalizedDirection = direction / distance;
-        if (Vector3.Angle(eyePoint.forward, normalizedDirection) > libraryFieldOfView * 0.5f)
+        if (Vector3.Angle(forward, normalizedDirection) > libraryFieldOfView * 0.5f)
             return false;
 
         RaycastHit[] hits = Physics.RaycastAll(

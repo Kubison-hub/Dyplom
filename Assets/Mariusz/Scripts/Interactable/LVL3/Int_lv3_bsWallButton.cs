@@ -53,7 +53,8 @@ public class Int_lv3_bsWallButton : Lvl3ClockworkInteraction
         interactionEnabledByPuzzle = Interactable == null || Interactable.isInteractableActive;
         CacheColliders();
         ResolveLoupeDiscoveryReferences();
-        SetQuestionFxLayer(unrevealedQuestionFxLayer);
+        questionFxRevealed = true;
+        SetQuestionFxLayer(revealedQuestionFxLayer);
         UpdateLightAvailability();
     }
 
@@ -84,6 +85,13 @@ public class Int_lv3_bsWallButton : Lvl3ClockworkInteraction
         }
 
         holder = player;
+        if (!questionFxRevealed)
+        {
+            questionFxRevealed = true;
+            loupeHoldStartedAt = -1f;
+            SetQuestionFxLayer(revealedQuestionFxLayer);
+        }
+
         buttonPressAudioSource?.Play();
         AnimateBrick(pressedLocalPosition);
         ClearPlayerInteraction(player);
@@ -202,6 +210,10 @@ public class Int_lv3_bsWallButton : Lvl3ClockworkInteraction
     private void ApplyInteractionAvailability()
     {
         bool isAvailable = interactionEnabledByPuzzle && lightAvailable;
+
+        ResolveLoupeDiscoveryReferences();
+        if (questionFxObject != null && questionFxObject.activeSelf != lightAvailable)
+            questionFxObject.SetActive(lightAvailable);
 
         if (Interactable != null)
         {

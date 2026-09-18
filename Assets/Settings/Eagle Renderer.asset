@@ -89,6 +89,7 @@ MonoBehaviour:
   m_RendererFeatures:
   - {fileID: -5342417599567584928}
   - {fileID: -5304824770688627687}
+  - {fileID: 7666774199536747131}
   m_RendererFeatureMap: 60a1fa9f7febdbb5194c692bfa7961b6
   m_UseNativeRenderPass: 0
   xrSystemData: {fileID: 0}
@@ -115,3 +116,17 @@ MonoBehaviour:
   m_DepthTextureFormat: 0
   m_AccurateGbufferNormals: 0
   m_IntermediateTextureMode: 1
+--- !u!114 &7666774199536747131
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a66e7112c3954fa3ad66bd086bbaccc6, type: 3}
+  m_Name: Eagle Vision Color Mask
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  colorMaskShader: {fileID: 4800000, guid: 591d87f732f04148a75272f66bb9e4cd, type: 3}

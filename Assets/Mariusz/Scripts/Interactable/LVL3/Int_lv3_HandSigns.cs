@@ -1,134 +1,178 @@
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 [RequireComponent(typeof(Interactable))]
 public class Int_lv3_HandSigns : Lvl3InteractionDialogueBase
 {
     [Header("Light Requirement")]
-    [Tooltip("At least one assigned lamp must be active for this clue to be available.")]
+    [Tooltip("The spline is visible while at least one assigned lamp is active.")]
     [SerializeField] private GameObject[] heldLamps;
-    [Tooltip("Spline visuals shown only while at least one lamp is active. Leave empty to use child objects whose name contains 'Spline'.")]
-    [FormerlySerializedAs("spline")]
+    [Tooltip("Spline objects controlled by the active lamp condition.")]
     [SerializeField] private GameObject[] splines;
+    [Tooltip("Additional spline displayed on the floor while at least one assigned lamp is active.")]
+    [SerializeField] private GameObject floorSpline;
+    [SerializeField, TextArea] private string darknessText = "Nic nie zobaczę w tych ciemnościach.";
+    [Tooltip("Played as Sherlock's dialogue line together with Darkness Text.")]
+    [SerializeField] private AudioClip darknessVoiceClip;
 
-    [Header("Loupe Discovery")]
-    [SerializeField] private Collider loupeCollider;
+    [Header("Loupe Hover")]
+    [Tooltip("Collider that must remain under the active loupe to dismiss QuestionFX.")]
+    [SerializeField] private Collider loupeHoverCollider;
     [SerializeField] private MagnifierGlassController magnifier;
-    [SerializeField, Min(0.1f)] private float fallbackLoupeHoldDuration = 1.5f;
+    [Tooltip("How long the loupe must remain over the hand signs.")]
+    [SerializeField, Min(0f)] private float loupeHoverDuration = 1f;
 
-    [Header("Result")]
-    [SerializeField] private DetectiveIdeaPoint ideaPoint;
-
+    private bool? lastLightState;
     private Interactable interactable;
-    private float loupeHoldStartedAt = -1f;
-    private bool discovered;
-    private bool lightAvailable;
-    private bool lightAvailabilityInitialized;
-    private readonly List<GameObject> splineObjects = new List<GameObject>();
+    private float loupeHoverStartedAt = -1f;
+    private bool questionFxDismissed;
 
-    protected override Lvl3DialogueLine[] DefaultDialogueLines => new[]
-    {
-        new Lvl3DialogueLine
-        {
-            speaker = Lvl3DialogueSpeaker.Sherlock,
-            text = "Widzisz te ślady, Watsonie? Zdradzają one...",
-            duration = 3f
-        }
-    };
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => System.Array.Empty<Lvl3DialogueLine>();
 
-    private void Reset() => SetupInteractable(InteractionType.Int_lv3_HandSigns);
-    private void OnValidate() => SetupInteractable(InteractionType.Int_lv3_HandSigns);
     private void Awake()
-    {
-        SetupInteractable(InteractionType.Int_lv3_HandSigns);
-        CacheSplineObjects();
-    }
-
-    private void Start()
     {
         interactable = GetComponent<Interactable>();
 
-        if (loupeCollider == null)
-            loupeCollider = GetComponent<Collider>();
+        if (loupeHoverCollider == null)
+            loupeHoverCollider = GetComponent<Collider>();
 
         if (magnifier == null)
             magnifier = FindFirstObjectByType<MagnifierGlassController>();
 
-        if (ideaPoint != null)
-            ideaPoint.discoveryMode = DetectiveIdeaPoint.DiscoveryMode.External;
-
-        UpdateLightAvailability();
+        ApplySplineVisibility();
     }
 
     private void Update()
     {
-        UpdateLightAvailability();
+        ApplySplineVisibility();
+        UpdateLoupeHover();
+    }
 
-        if (discovered || !lightAvailable || magnifier == null || loupeCollider == null)
+    private void UpdateLoupeHover()
+    {
+        if (questionFxDismissed)
         {
-            loupeHoldStartedAt = -1f;
+            interactable?.SetQuestionFXEagleVisionState(false);
             return;
         }
 
-        bool isLoupeOverHandSigns = magnifier.TryGetActiveLoupeHit(out RaycastHit hit) &&
-                                    IsLoupeHitOnHandSigns(hit.collider);
-
-        if (!isLoupeOverHandSigns)
+        if (!HasActiveLamp() || !HasVisibleHandSpline())
         {
-            loupeHoldStartedAt = -1f;
+            loupeHoverStartedAt = -1f;
             return;
         }
 
-        if (loupeHoldStartedAt < 0f)
-            loupeHoldStartedAt = Time.unscaledTime;
+        bool isHovering = magnifier != null &&
+                          loupeHoverCollider != null &&
+                          magnifier.TryGetActiveLoupeHit(out RaycastHit hit) &&
+                          IsLoupeHoverHit(hit.collider);
 
-        if (Time.unscaledTime - loupeHoldStartedAt >= GetLoupeHoldDuration())
-            ResolveLoupeDiscovery();
+        if (!isHovering)
+        {
+            loupeHoverStartedAt = -1f;
+            return;
+        }
+
+        if (loupeHoverStartedAt < 0f)
+            loupeHoverStartedAt = Time.unscaledTime;
+
+        if (Time.unscaledTime - loupeHoverStartedAt < loupeHoverDuration)
+            return;
+
+        questionFxDismissed = true;
+        interactable?.SetQuestionFXEagleVisionState(false);
+    }
+
+    private bool IsLoupeHoverHit(Collider hitCollider)
+    {
+        return hitCollider == loupeHoverCollider ||
+               hitCollider != null && hitCollider.transform.IsChildOf(loupeHoverCollider.transform);
+    }
+
+    private bool HasVisibleHandSpline()
+    {
+        if (splines != null)
+        {
+            foreach (GameObject spline in splines)
+            {
+                if (spline == null || !spline.activeInHierarchy)
+                    continue;
+
+                Renderer[] renderers = spline.GetComponentsInChildren<Renderer>(true);
+                foreach (Renderer splineRenderer in renderers)
+                {
+                    if (splineRenderer != null && splineRenderer.enabled)
+                        return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public void PerformInteraction(PlayerController player)
     {
-        // This clue is intentionally discovered only by holding the loupe over the hand signs.
+        if (!HasActiveLamp())
+        {
+            PlaySherlockDialogueLine(player, darknessText, darknessVoiceClip);
+            return;
+        }
+
         if (player != null)
             player.currentInteractable = null;
     }
 
-    private float GetLoupeHoldDuration()
+    private void PlaySherlockDialogueLine(PlayerController player, string text, AudioClip voiceClip)
     {
-        return DetectiveIdeaManager.Instance != null
-            ? DetectiveIdeaManager.Instance.magnifierDiscoveryDuration
-            : fallbackLoupeHoldDuration;
+        float defaultDuration = PlayerTopText.Instance != null
+            ? PlayerTopText.Instance.textTime
+            : 3f;
+        float voiceDuration = voiceClip != null ? voiceClip.length : 0f;
+
+        PlayDialogue(player, new[]
+        {
+            new Lvl3DialogueLine
+            {
+                speaker = Lvl3DialogueSpeaker.Sherlock,
+                text = text,
+                voiceClip = voiceClip,
+                duration = Mathf.Max(defaultDuration, voiceDuration)
+            }
+        });
     }
 
-    private void UpdateLightAvailability()
+    private void ApplySplineVisibility()
     {
         bool hasActiveLamp = HasActiveLamp();
-        SetSplinesActive(hasActiveLamp);
-
-        bool shouldBeAvailable = !discovered && hasActiveLamp;
-        if (lightAvailabilityInitialized && lightAvailable == shouldBeAvailable)
+        if (lastLightState == hasActiveLamp)
             return;
 
-        lightAvailabilityInitialized = true;
-        lightAvailable = shouldBeAvailable;
-        loupeHoldStartedAt = -1f;
+        lastLightState = hasActiveLamp;
 
-        if (interactable != null)
+        if (splines != null)
         {
-            interactable.isInteractableActive = shouldBeAvailable;
-
-            if (!shouldBeAvailable)
+            foreach (GameObject spline in splines)
             {
-                interactable.SetQuestionFXEagleVisionState(false);
-
-                if (interactable.interactiveShader != null)
-                    interactable.interactiveShader.SetActive(false);
+                SetSplineVisible(spline, hasActiveLamp);
             }
         }
 
-        if (loupeCollider != null)
-            loupeCollider.enabled = shouldBeAvailable;
+        SetSplineVisible(floorSpline, hasActiveLamp);
+    }
+
+    private static void SetSplineVisible(GameObject spline, bool visible)
+    {
+        if (spline == null)
+            return;
+
+        if (!spline.activeSelf)
+            spline.SetActive(true);
+
+        Renderer[] renderers = spline.GetComponentsInChildren<Renderer>(true);
+        foreach (Renderer splineRenderer in renderers)
+        {
+            if (splineRenderer != null)
+                splineRenderer.enabled = visible;
+        }
     }
 
     private bool HasActiveLamp()
@@ -143,75 +187,5 @@ public class Int_lv3_HandSigns : Lvl3InteractionDialogueBase
         }
 
         return false;
-    }
-
-    private void CacheSplineObjects()
-    {
-        splineObjects.Clear();
-
-        if (splines != null)
-        {
-            foreach (GameObject spline in splines)
-                AddSplineObject(spline);
-        }
-
-        // The current Level 3 setup keeps the visual spline as a child of this interaction.
-        // This fallback preserves that workflow when the inspector array has not been filled in.
-        if (splineObjects.Count > 0)
-            return;
-
-        foreach (Transform child in transform)
-        {
-            if (child.name.IndexOf("Spline", System.StringComparison.OrdinalIgnoreCase) >= 0)
-                AddSplineObject(child.gameObject);
-        }
-    }
-
-    private void AddSplineObject(GameObject spline)
-    {
-        if (spline != null && !splineObjects.Contains(spline))
-            splineObjects.Add(spline);
-    }
-
-    private void SetSplinesActive(bool shouldBeActive)
-    {
-        if (splineObjects.Count == 0)
-            CacheSplineObjects();
-
-        foreach (GameObject spline in splineObjects)
-        {
-            if (spline != null && spline.activeSelf != shouldBeActive)
-                spline.SetActive(shouldBeActive);
-        }
-    }
-
-    private bool IsLoupeHitOnHandSigns(Collider hitCollider)
-    {
-        return hitCollider == loupeCollider ||
-               hitCollider != null && hitCollider.transform.IsChildOf(loupeCollider.transform);
-    }
-
-    private void ResolveLoupeDiscovery()
-    {
-        if (discovered)
-            return;
-
-        discovered = true;
-        loupeHoldStartedAt = -1f;
-
-        ideaPoint?.RevealFromExternalSource();
-        PlayInteractionDialogue(null);
-
-        if (interactable != null)
-        {
-            interactable.isInteractableActive = false;
-            interactable.allowQuestionFXWhenInactive = false;
-            interactable.SetQuestionFXEagleVisionState(false);
-
-            if (interactable.interactiveShader != null)
-                interactable.interactiveShader.SetActive(false);
-        }
-
-        loupeCollider.enabled = false;
     }
 }

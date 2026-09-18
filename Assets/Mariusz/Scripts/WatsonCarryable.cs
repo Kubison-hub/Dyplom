@@ -22,8 +22,13 @@ public class WatsonCarryable : MonoBehaviour
     [SerializeField] private Vector3 dropLocalOffset = new Vector3(0f, 0f, 0.75f);
 
     [Header("Watson Grip")]
-    [Tooltip("Watson may pick up this object only when F is held and the hand cursor is visible.")]
+    [InspectorName("Require Watson Eagle Vision")]
+    [Tooltip("Watson może podnieść ten obiekt tylko podczas aktywnego Eagle Vision.")]
     [SerializeField] private bool requireWatsonGrip = true;
+
+    [Header("Watson Eagle Vision Visual")]
+    [Tooltip("Shows this object while Watson is using Eagle Vision.")]
+    [SerializeField] private bool showInWatsonEagleVision = true;
 
     [Header("Watson Hand Targets")]
     [Tooltip("Targets used by Watson's carry rig while he holds this object.")]
@@ -139,15 +144,47 @@ public class WatsonCarryable : MonoBehaviour
 
     private void Update()
     {
-        bool shouldShowVisionShader = !IsCarried && interactable != null && interactable.isInteractableActive &&
+        bool shouldShowVisionShader = showInWatsonEagleVision && !IsCarried &&
+                                      interactable != null && interactable.isInteractableActive &&
                                       EagleVisionSystem.Instance != null && EagleVisionSystem.Instance.isActive &&
-                                      SwitchCharacter.Instance != null && SwitchCharacter.Instance.activePlayerIndex == 1;
+                                      SwitchCharacter.Instance != null && SwitchCharacter.Instance.activePlayerIndex == 1 &&
+                                      !IsWorldInteractionBlocked();
 
         if (visionShaderVisible == shouldShowVisionShader)
             return;
 
         visionShaderVisible = shouldShowVisionShader;
-        interactable.SetInteractionShaderForcedVisible(visionShaderVisible);
+        SetWatsonVisionVisible(visionShaderVisible);
+    }
+
+    private void SetWatsonVisionVisible(bool visible)
+    {
+        WatsonEscortController controller = WatsonEscortController.Instance;
+        float visibility = controller != null ? controller.EagleVisionShaderVisibility : 1f;
+        float pulseSpeed = controller != null ? controller.EagleVisionShaderPulseSpeed : 1.5f;
+        Color color = controller != null ? controller.EagleVisionShaderColor : Color.green;
+        Color hoverColor = controller != null ? controller.EagleVisionShaderHoverColor : Color.cyan;
+        float colorTransitionSpeed = controller != null
+            ? controller.EagleVisionShaderColorTransitionSpeed
+            : 8f;
+        float fresnelPower = controller != null ? controller.EagleVisionShaderFresnelPower : 2f;
+        interactable?.SetInteractionShaderForcedVisible(
+            visible,
+            visibility,
+            pulseSpeed,
+            color,
+            hoverColor,
+            colorTransitionSpeed,
+            fresnelPower);
+    }
+
+    private static bool IsWorldInteractionBlocked()
+    {
+        return DialogueEditor.ConversationManager.Instance != null &&
+               DialogueEditor.ConversationManager.Instance.IsConversationActive ||
+               NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen ||
+               TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput ||
+               TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput;
     }
 
     public void PerformInteraction(PlayerController player)
@@ -190,7 +227,7 @@ public class WatsonCarryable : MonoBehaviour
             interactable.isInteractableActive = false;
             visionShaderVisible = false;
             interactable.SetInteractionShaderHover(false);
-            interactable.SetInteractionShaderForcedVisible(false);
+            SetWatsonVisionVisible(false);
             interactable.SetQuestionFXRate(0f);
         }
 
@@ -221,8 +258,8 @@ public class WatsonCarryable : MonoBehaviour
 
     private void OnDisable()
     {
-        if (interactable != null && visionShaderVisible)
-            interactable.SetInteractionShaderForcedVisible(false);
+        if (visionShaderVisible)
+            SetWatsonVisionVisible(false);
 
         visionShaderVisible = false;
 

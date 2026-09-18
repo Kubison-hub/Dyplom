@@ -10,6 +10,11 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
     [Header("Inspection Idea Point")]
     [SerializeField] private DetectiveIdeaPoint mannequinIdeaPoint;
 
+    [Header("Interaction Reaction Result")]
+    [Tooltip("Activated after both characters finish their standard NavMesh approach and turn toward the mannequin.")]
+    [SerializeField] private GameObject activateAfterBothCharactersArrive;
+    [SerializeField, Min(0.01f)] private float mannequinLookTurnDuration = 0.35f;
+
     [Header("Secret Door Trap")]
     [SerializeField] private Animator[] secretDoorAnimators;
     [SerializeField] private string secretDoorCloseTrigger = "Close";
@@ -17,14 +22,22 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
     [SerializeField] private string openedBool = "Opened";
     [SerializeField] private AudioSource[] secretDoorAudioSources;
     [SerializeField] private Collider[] collidersToEnableWhenClosed;
+    [Tooltip("Object moved out of the room hierarchy after the doors finish closing.")]
+    [SerializeField] private Transform objectToReparent;
+    [Tooltip("New parent assigned before Room To Deactivate is disabled.")]
+    [SerializeField] private Transform targetParent;
+    [Tooltip("Room disabled after every secret door animator finishes closing.")]
+    [SerializeField] private GameObject roomToDeactivate;
     [Tooltip("Optional marker the characters face when the trap doors close. Defaults to the first door animator.")]
     [SerializeField] private Transform trapDoorLookTarget;
-    [SerializeField, Min(0.01f)] private float characterTurnDuration = 0.35f;
+    [SerializeField, Min(0.01f)] private float trapDoorTurnDuration = 0.7f;
 
     [Header("Blackboard Trap Reveal")]
     [Tooltip("Blackboard covering the area after the trap doors close.")]
     [SerializeField] private GameObject blackBoardToEnableOnTrap;
     [SerializeField] private Material blackBoardFadeMaterial;
+    [Tooltip("Material assigned after the blackboard fade finishes. Leave empty to keep the fade material.")]
+    [SerializeField] private Material blackBoardTargetMaterial;
     [Tooltip("Delay after the Close trigger before the blackboard fades in.")]
     [SerializeField, Min(0f)] private float blackBoardFadeDelay = 0.35f;
     [SerializeField, Min(0.01f)] private float blackBoardFadeDuration = 1f;
@@ -47,6 +60,7 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
     private bool hasBeenExamined;
     private bool triggerTrapAfterInspectionDialogue;
     private bool revealTrapDoorIdeaAfterDialogue;
+    private Coroutine activateAfterApproachRoutine;
     public bool IsFirstInspection => !hasBeenExamined;
     public bool IsTrapTriggered => triggered;
 
@@ -74,6 +88,8 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
 
     public void PerformInteraction(PlayerController player)
     {
+        BeginActivateAfterApproach();
+
         if (hasBeenExamined)
         {
             PlayDialogue(player, secondInteractionDialogueLines);
@@ -85,6 +101,31 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
         revealBasementExitAfterInspectionDialogue = true;
         triggerTrapAfterInspectionDialogue = true;
         PlayInteractionDialogue(player);
+    }
+
+    private void BeginActivateAfterApproach()
+    {
+        if (activateAfterBothCharactersArrive == null || activateAfterBothCharactersArrive.activeSelf)
+            return;
+
+        if (activateAfterApproachRoutine != null)
+            StopCoroutine(activateAfterApproachRoutine);
+
+        activateAfterApproachRoutine = StartCoroutine(ActivateAfterBothCharactersArrive());
+    }
+
+    private IEnumerator ActivateAfterBothCharactersArrive()
+    {
+        Interactable interactable = GetComponent<Interactable>();
+        while (interactable != null && interactable.IsCompanionReactionApproachInProgress)
+            yield return null;
+
+        yield return RotateCharactersToward(transform, mannequinLookTurnDuration);
+
+        if (activateAfterBothCharactersArrive != null)
+            activateAfterBothCharactersArrive.SetActive(true);
+
+        activateAfterApproachRoutine = null;
     }
 
     public void TriggerWatsonTrap(PlayerController player)
@@ -115,6 +156,7 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
                 doorAudioSource.Play();
         }
 
+        StartCoroutine(DeactivateRoomAfterDoorsClose());
         StartCoroutine(FadeBlackBoardInAfterDoorClose());
         StartCoroutine(RotateCharactersTowardTrapDoor());
 
@@ -138,6 +180,41 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
 
         revealTrapDoorIdeaAfterDialogue = true;
         PlayDialogue(player, trapResultDialogueLines);
+    }
+
+    private IEnumerator DeactivateRoomAfterDoorsClose()
+    {
+        // Let Animator process the Close trigger before reading its new state.
+        yield return null;
+
+        bool doorsAreClosing;
+        do
+        {
+            doorsAreClosing = false;
+
+            foreach (Animator doorAnimator in secretDoorAnimators)
+            {
+                if (doorAnimator == null || !doorAnimator.isActiveAndEnabled)
+                    continue;
+
+                AnimatorStateInfo state = doorAnimator.GetCurrentAnimatorStateInfo(0);
+                if (doorAnimator.IsInTransition(0) || state.normalizedTime < 1f)
+                {
+                    doorsAreClosing = true;
+                    break;
+                }
+            }
+
+            if (doorsAreClosing)
+                yield return null;
+        }
+        while (doorsAreClosing);
+
+        if (objectToReparent != null && targetParent != null)
+            objectToReparent.SetParent(targetParent, true);
+
+        if (roomToDeactivate != null)
+            roomToDeactivate.SetActive(false);
     }
 
     private IEnumerator RotateMannequin()
@@ -200,6 +277,9 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
 
         color.a = blackBoardTargetAlpha;
         material.SetColor(colorProperty, color);
+
+        if (blackBoardTargetMaterial != null)
+            blackBoardRenderer.material = blackBoardTargetMaterial;
     }
 
     private IEnumerator RotateCharactersTowardTrapDoor()
@@ -220,6 +300,14 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
         if (lookTarget == null)
             yield break;
 
+        yield return RotateCharactersToward(lookTarget, trapDoorTurnDuration);
+    }
+
+    private static IEnumerator RotateCharactersToward(Transform lookTarget, float duration)
+    {
+        if (lookTarget == null)
+            yield break;
+
         Transform sherlock = SwitchCharacter.Instance != null
             ? SwitchCharacter.Instance.sherlockTransform
             : null;
@@ -233,10 +321,10 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
         Quaternion watsonTarget = GetLookRotation(watson, lookTarget, watsonStart);
         float elapsed = 0f;
 
-        while (elapsed < characterTurnDuration)
+        while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            float progress = Mathf.SmoothStep(0f, 1f, elapsed / characterTurnDuration);
+            float progress = Mathf.SmoothStep(0f, 1f, elapsed / duration);
 
             if (sherlock != null)
                 sherlock.rotation = Quaternion.Slerp(sherlockStart, sherlockTarget, progress);

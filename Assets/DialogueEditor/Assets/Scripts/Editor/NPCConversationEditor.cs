@@ -11,15 +11,17 @@ namespace DialogueEditor
         private static GUIStyle boldStyle;
         private static GUIStyle regularStyle;
         private SerializedProperty useAutomaticDialogueCameraProperty;
+        private SerializedProperty setCustomPresetProperty;
         private SerializedProperty automaticDialogueCameraPresetProperty;
-        private SerializedProperty automaticDialogueCameraZoomSpeedProperty;
+        private SerializedProperty automaticDialogueCameraPreRollSpeedProperty;
         private SerializedProperty dialogueUIDelayProperty;
 
         void OnEnable()
         {
             useAutomaticDialogueCameraProperty = serializedObject.FindProperty("useAutomaticDialogueCamera");
+            setCustomPresetProperty = serializedObject.FindProperty("setCustomPreset");
             automaticDialogueCameraPresetProperty = serializedObject.FindProperty("automaticDialogueCameraPreset");
-            automaticDialogueCameraZoomSpeedProperty = serializedObject.FindProperty("automaticDialogueCameraZoomSpeed");
+            automaticDialogueCameraPreRollSpeedProperty = serializedObject.FindProperty("automaticDialogueCameraPreRollSpeed");
             dialogueUIDelayProperty = serializedObject.FindProperty("dialogueUIDelay");
 
             boldStyle = new GUIStyle();
@@ -53,8 +55,10 @@ namespace DialogueEditor
             EditorGUILayout.PropertyField(useAutomaticDialogueCameraProperty);
             if (useAutomaticDialogueCameraProperty.boolValue)
             {
-                EditorGUILayout.PropertyField(automaticDialogueCameraPresetProperty);
-                EditorGUILayout.PropertyField(automaticDialogueCameraZoomSpeedProperty);
+                EditorGUILayout.PropertyField(setCustomPresetProperty);
+                if (setCustomPresetProperty.boolValue)
+                    EditorGUILayout.PropertyField(automaticDialogueCameraPresetProperty);
+                EditorGUILayout.PropertyField(automaticDialogueCameraPreRollSpeedProperty);
             }
 
             EditorGUILayout.PropertyField(dialogueUIDelayProperty);

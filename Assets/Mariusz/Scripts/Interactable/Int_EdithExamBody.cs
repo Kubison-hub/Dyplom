@@ -11,7 +11,8 @@ using UnityEngine.Video;
 using DialogueEditor;
 
 
-public class Int_EdithExamBody : Lvl3InteractionDialogueBase
+public class Int_EdithExamBody : Lvl3InteractionDialogueBase, IInteractionApproachPointProvider,
+    IPlayerInteractionAvailability
 {
     private bool interactionPerforming = false;
     private Interactable interactable;
@@ -44,6 +45,9 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     [SerializeField] private string examinationPresetName = "EdithExam";
     [SerializeField] private float examinationHorizontalAxis = -80f;
     [SerializeField, Min(0.1f)] private float examinationOrbitSpeed = 1.5f;
+    [SerializeField] private Transform examinationLookAtTarget;
+    [SerializeField, Min(0.01f)] private float examinationLookAtTransitionSpeed = 0.2f;
+    [SerializeField] private Transform examinationLookAtReturnTarget;
     [Header("Tutorial Popup")]
     [SerializeField] private bool showTutorialPopup = true;
     [SerializeField, Min(0f)] private float tutorialPopupDelay = 1f;
@@ -118,8 +122,11 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     [Header("Bullet CP Conversation")]
     [Tooltip("Conversation opened after Bullet CP Dialogue. The CP is counted only after this conversation ends.")]
     [SerializeField] private SmartNPC bulletCpSmartNpc;
-    [SerializeField, Min(0.01f)] private float bulletCpDialogueZoomTransitionSpeed = 0.2f;
     [SerializeField] private string bulletCpExamDoneParameterName = "BulletExamDone";
+    [Header("Watson Examination Vision")]
+    [SerializeField] private WatsonExaminationVisionEffect watsonExaminationVisionEffect;
+    [Tooltip("Moment uruchomienia efektu jako czesc czasu pre-rollu kamery. 0.5 oznacza polowe najazdu.")]
+    [SerializeField, Range(0f, 1f)] private float watsonExaminationVisionPreRollFraction = 0.5f;
     [Header("All CP Collected Clue")]
     [Tooltip("Index from Interactable > Clues. Set to -1 to skip adding a final clue.")]
     [SerializeField] private int allCpCollectedClueIndex = -1;
@@ -148,11 +155,14 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     private GameObject examinationZone;
     private bool isPlayerInsideExaminationZone;
     private bool isExaminationCameraActive;
+    private bool examinationLookAtActive;
     private bool tutorialPopupShown;
     private bool tutorialPopupPending;
     private Coroutine tutorialPopupCoroutine;
     private bool waitingForInitialDialogue;
     private bool initialDialogueCompleted;
+    private bool initialDialoguePlayed;
+    private bool continueBulletCpAfterInitialDialogue;
     private bool completionDialoguePending;
     private bool allCpCollectedClueAdded;
     private Coroutine completionTutorialCoroutine;
@@ -167,9 +177,12 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     private bool arthurFoundItemsObjectiveAdded;
     private PlayerController bulletCpPlayer;
     private Coroutine bulletCpConversationCoroutine;
+    private Coroutine watsonExaminationVisionStartCoroutine;
     private Int_Edith_BulletHole pendingBulletCp;
     private Coroutine automaticBulletCpStartCoroutine;
     private bool automaticBulletCpStartQueued;
+    private bool watsonBulletInvestigationStarted;
+    private Coroutine companionApproachCoroutine;
 
     public bool IsExaminationCompleted => examinationCompleted || edithIdeaRevealed;
     public bool IsExaminationActive => interactionPerforming && !examinationCompleted && !edithIdeaRevealed;
@@ -182,7 +195,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
     {
         interactable = GetComponent<Interactable>();
         interactable?.SetWatsonInteractionAllowed(true);
-        GetBulletCp()?.GetComponent<Interactable>()?.SetWatsonInteractionAllowed(true);
+        GetBulletCp()?.GetComponent<Interactable>()?.SetWatsonInteractionAllowed(false);
         FindEdithIdeaPointIfNeeded();
         if (cameraController == null)
             cameraController = FindFirstObjectByType<CameraController>();
@@ -192,6 +205,9 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
 
         if (watsonNavMesh == null && watsonGO != null)
             watsonNavMesh = watsonGO.GetComponent<NavMeshAgent>();
+
+        if (watsonExaminationVisionEffect == null)
+            watsonExaminationVisionEffect = GetComponent<WatsonExaminationVisionEffect>();
 
         if (arthurSmartNpc == null)
         {
@@ -246,15 +262,13 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         if (examinationCompleted || player == null)
             return;
 
+        RecoverInterruptedBulletExaminationIfNeeded();
 
         if (!performed)
         {
             performed = true;
-            waitingForInitialDialogue = initialExaminationDialogue != null && initialExaminationDialogue.Length > 0;
-            initialDialogueCompleted = !waitingForInitialDialogue;
-
-            if (waitingForInitialDialogue)
-                PlayDialogue(player, initialExaminationDialogue);
+            waitingForInitialDialogue = false;
+            initialDialogueCompleted = false;
         }
 
         if (intCollider != null)
@@ -273,8 +287,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         if (!interactionPerforming)
         {
             BeginExamination(player);
-            SetExaminationClueObjectsActive(true);
-            QueueAutomaticBulletCpStart(player);
+            BeginInitialExaminationSequence(player);
         }
 
         player.currentInteractable = null;
@@ -283,37 +296,194 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
 
     }
 
-    private void QueueAutomaticBulletCpStart(PlayerController player)
+    public Transform GetInteractionApproachPoint(PlayerController player, Transform defaultPoint)
     {
-        if (automaticBulletCpStartQueued || bulletExamined || GetBulletCp() == null)
+        if (IsWatson(player) && watsonPosition != null)
+            return watsonPosition;
+
+        return defaultPoint;
+    }
+
+    public bool CanPlayerInteract(PlayerController player, bool defaultAvailability)
+    {
+        if (player == null || examinationCompleted || edithIdeaRevealed)
+            return false;
+
+        if (IsWatson(player))
+            return true;
+
+        // Samo podejście do ciała nie rozpoczyna jeszcze badania. Pierwsze użycie
+        // Edith Exam musi pozostać dostępne także po wejściu Sherlocka w zasięg.
+        if (!performed)
+            return defaultAvailability;
+
+        // Sherlock zawsze może wybrać ciało z zewnątrz i podejść do punktu.
+        // Warunki CP blokują wyłącznie ponowne użycie już wewnątrz strefy badania.
+        if (!IsPlayerInsideExaminationRange(player))
+            return defaultAvailability;
+
+        Int_Edith_Ring ringCp = GetRingCp();
+        Int_Edith_Paper paperCp = GetPaperCp();
+        bool ringCollected = ringCp != null && ringCp.performed;
+        bool paperCollected = paperCp != null && paperCp.performed;
+
+        return ringCollected && paperCollected && watsonBulletInvestigationStarted;
+    }
+
+    private void BeginInitialExaminationSequence(PlayerController player)
+    {
+        Int_Edith_BulletHole bulletCp = GetBulletCp();
+        if (bulletCp == null)
             return;
+
+        if (!IsWatson(player) && AreRingAndPaperCluesCollected() && !bulletCp.performed)
+        {
+            automaticBulletCpStartQueued = true;
+            initialDialoguePlayed = true;
+            waitingForInitialDialogue = false;
+            initialDialogueCompleted = true;
+            SetExaminationClueObjectsActive(true);
+            RestartCompanionApproach(player);
+            RegisterBulletExamClue(player, bulletCp);
+            return;
+        }
+
+        if (automaticBulletCpStartQueued || bulletExamined)
+        {
+            RestartCompanionApproach(player);
+
+            if (IsWatson(player))
+                TryRestartWatsonBulletExamination(player);
+            else
+                ReplaySherlockInitialExaminationDialogue(player);
+
+            return;
+        }
 
         automaticBulletCpStartQueued = true;
         LockBulletCpWorldInput();
-        automaticBulletCpStartCoroutine = StartCoroutine(MoveExaminersAndStartBulletCp(player));
+
+        if (IsWatson(player))
+            automaticBulletCpStartCoroutine = StartCoroutine(StartFromWatson(player));
+        else
+            automaticBulletCpStartCoroutine = StartCoroutine(StartFromSherlock(player));
     }
 
-    private IEnumerator MoveExaminersAndStartBulletCp(PlayerController initiatingPlayer)
+    private bool AreRingAndPaperCluesCollected()
     {
-        PlayerController sherlock = FindPlayer(PlayerCharacter.Sherlock, sherlockGO);
+        Int_Edith_Ring ringCp = GetRingCp();
+        Int_Edith_Paper paperCp = GetPaperCp();
+        return ringCp != null && ringCp.performed &&
+               paperCp != null && paperCp.performed;
+    }
+
+    private void RestartCompanionApproach(PlayerController initiatingPlayer)
+    {
+        if (companionApproachCoroutine != null)
+            StopCoroutine(companionApproachCoroutine);
+
+        if (IsWatson(initiatingPlayer))
+        {
+            PlayerController sherlock = FindPlayer(PlayerCharacter.Sherlock, sherlockGO);
+            Transform sherlockTarget = interactable != null ? interactable.interactabePoint : null;
+            if (sherlock != null && sherlockTarget != null)
+                companionApproachCoroutine = StartCoroutine(MoveAndRotatePlayer(sherlock, sherlockTarget));
+
+            return;
+        }
+
         PlayerController watson = FindPlayer(PlayerCharacter.Watson, watsonGO);
-        Transform sherlockTarget = interactable != null ? interactable.interactabePoint : null;
-        Transform watsonTarget = watsonPosition != null ? watsonPosition : watsonExaminationPoint;
+        if (watson != null && watsonPosition != null)
+            companionApproachCoroutine = StartCoroutine(MoveAndRotatePlayer(watson, watsonPosition));
+    }
 
-        StartMoveToExaminationPoint(sherlock, sherlockTarget);
-        StartMoveToExaminationPoint(watson, watsonTarget);
+    private void TryRestartWatsonBulletExamination(PlayerController player)
+    {
+        Int_Edith_BulletHole bulletCp = GetBulletCp();
+        if (bulletCp == null || bulletCp.performed || examinationCompleted || edithIdeaRevealed ||
+            IsBulletExamInProgress)
+            return;
 
-        while (IsMovingToExaminationPoint(sherlock) || IsMovingToExaminationPoint(watson))
-            yield return null;
+        RegisterBulletExamClue(player, bulletCp);
+    }
 
-        yield return RotatePlayerToExaminationPoint(sherlock, sherlockTarget);
-        yield return RotatePlayerToExaminationPoint(watson, watsonTarget);
+    private void ReplaySherlockInitialExaminationDialogue(PlayerController player)
+    {
+        if (IsDialoguePlaying || initialExaminationDialogue == null || initialExaminationDialogue.Length == 0)
+            return;
 
-        // The introductory line can play while both characters approach. Bullet CP
-        // starts only after its text has cleared, so the two Top Texts never overlap.
+        LockBulletCpWorldInput();
+        waitingForInitialDialogue = true;
+        initialDialogueCompleted = false;
+        automaticBulletCpStartCoroutine = StartCoroutine(
+            ReplaySherlockInitialExaminationDialogueAndUnlock(player));
+    }
+
+    private IEnumerator ReplaySherlockInitialExaminationDialogueAndUnlock(PlayerController player)
+    {
+        PlayDialogue(player, initialExaminationDialogue);
         while (IsDialoguePlaying)
             yield return null;
 
+        automaticBulletCpStartCoroutine = null;
+        ReleaseBulletCpWorldInput();
+    }
+
+    private void RecoverInterruptedBulletExaminationIfNeeded()
+    {
+        bool conversationActive = ConversationManager.Instance != null &&
+                                  ConversationManager.Instance.IsConversationActive;
+        if (!IsBulletExamInProgress || conversationActive || IsDialoguePlaying)
+            return;
+
+        StopWaitingForBulletCpConversation();
+        pendingBulletCp = null;
+        bulletCpResultDialoguePlaying = false;
+        bulletExamDone = false;
+        bulletCpExamAttempted = true;
+        ReleaseBulletCpWorldInput();
+    }
+
+    private IEnumerator StartFromSherlock(PlayerController initiatingPlayer)
+    {
+        PlayerController watson = FindPlayer(PlayerCharacter.Watson, watsonGO);
+        if (watson != null && watsonPosition != null)
+            companionApproachCoroutine = StartCoroutine(MoveAndRotatePlayer(watson, watsonPosition));
+
+        if (!initialDialoguePlayed &&
+            initialExaminationDialogue != null && initialExaminationDialogue.Length > 0)
+        {
+            initialDialoguePlayed = true;
+            waitingForInitialDialogue = true;
+            PlayDialogue(initiatingPlayer, initialExaminationDialogue);
+            while (IsDialoguePlaying)
+                yield return null;
+        }
+        else
+        {
+            initialDialoguePlayed = true;
+            waitingForInitialDialogue = false;
+            initialDialogueCompleted = true;
+            SetExaminationClueObjectsActive(true);
+        }
+
+        automaticBulletCpStartCoroutine = null;
+        ReleaseBulletCpWorldInput();
+    }
+
+    private IEnumerator StartFromWatson(PlayerController initiatingPlayer)
+    {
+        watsonBulletInvestigationStarted = true;
+        initialDialoguePlayed = true;
+        waitingForInitialDialogue = false;
+        initialDialogueCompleted = true;
+
+        PlayerController sherlock = FindPlayer(PlayerCharacter.Sherlock, sherlockGO);
+        Transform sherlockTarget = interactable != null ? interactable.interactabePoint : null;
+        if (sherlock != null && sherlockTarget != null)
+            companionApproachCoroutine = StartCoroutine(MoveAndRotatePlayer(sherlock, sherlockTarget));
+
+        SetExaminationClueObjectsActive(true);
         automaticBulletCpStartCoroutine = null;
 
         Int_Edith_BulletHole bulletCp = GetBulletCp();
@@ -324,6 +494,22 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         }
 
         RegisterBulletExamClue(initiatingPlayer, bulletCp);
+        yield break;
+    }
+
+    private IEnumerator MoveAndRotatePlayer(PlayerController player, Transform target)
+    {
+        if (!StartMoveToExaminationPoint(player, target))
+            yield break;
+
+        // NavMeshAgent may not expose the newly assigned path until the next frame.
+        yield return null;
+
+        while (!HasReachedExaminationPoint(player, target))
+            yield return null;
+
+        yield return RotatePlayerToExaminationPoint(player, target);
+        companionApproachCoroutine = null;
     }
 
     private static PlayerController FindPlayer(PlayerCharacter character, GameObject fallback)
@@ -344,22 +530,45 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         return null;
     }
 
-    private static void StartMoveToExaminationPoint(PlayerController player, Transform target)
+    private static bool IsWatson(PlayerController player)
+    {
+        return player != null &&
+               (player.playerCharacter == PlayerCharacter.Watson || player.CompareTag("PlayerB"));
+    }
+
+    private static bool StartMoveToExaminationPoint(PlayerController player, Transform target)
     {
         if (player == null || target == null || player.navMeshAgent == null ||
             !player.navMeshAgent.isActiveAndEnabled || !player.navMeshAgent.isOnNavMesh)
-            return;
+            return false;
 
         if (!NavMeshWallGuard.TryGetClearPath(player.navMeshAgent, target.position, out NavMeshPath path))
         {
             Debug.LogWarning($"Int_EdithExamBody: {player.playerCharacter} cannot reach '{target.name}'.", target);
-            return;
+            return false;
         }
 
         player.CancelPendingInteraction();
         player.navMeshAgent.isStopped = false;
         player.navMeshAgent.updateRotation = true;
         player.navMeshAgent.SetPath(path);
+        return true;
+    }
+
+    private static bool HasReachedExaminationPoint(PlayerController player, Transform target)
+    {
+        if (player == null || target == null || player.navMeshAgent == null ||
+            !player.navMeshAgent.isActiveAndEnabled || !player.navMeshAgent.isOnNavMesh)
+            return true;
+
+        NavMeshAgent agent = player.navMeshAgent;
+        Vector3 offset = target.position - player.transform.position;
+        offset.y = 0f;
+        float arrivalDistance = Mathf.Max(agent.stoppingDistance + 0.05f, 0.1f);
+
+        return !agent.pathPending &&
+               offset.sqrMagnitude <= arrivalDistance * arrivalDistance &&
+               agent.velocity.sqrMagnitude <= 0.01f;
     }
 
     private static bool IsMovingToExaminationPoint(PlayerController player)
@@ -490,6 +699,21 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         bulletCpAwaitingConversation = true;
         LockBulletCpWorldInput();
 
+        if (!initialDialoguePlayed && initialExaminationDialogue != null && initialExaminationDialogue.Length > 0)
+        {
+            initialDialoguePlayed = true;
+            waitingForInitialDialogue = true;
+            initialDialogueCompleted = false;
+            continueBulletCpAfterInitialDialogue = true;
+            PlayDialogue(player, initialExaminationDialogue);
+            return;
+        }
+
+        PlayBulletCpAttemptDialogue(player);
+    }
+
+    private void PlayBulletCpAttemptDialogue(PlayerController player)
+    {
         Lvl3DialogueLine[] attemptDialogue = GetBulletCpAttemptDialogue();
         if (attemptDialogue != null && attemptDialogue.Length > 0)
             PlayDialogue(player, attemptDialogue);
@@ -685,6 +909,13 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
 
         yield return RotateWatsonToExaminationPoint(examinationPoint);
 
+        PlayerController sherlock = FindPlayer(PlayerCharacter.Sherlock, sherlockGO);
+        Transform sherlockTarget = interactable != null ? interactable.interactabePoint : null;
+        while (IsMovingToExaminationPoint(sherlock))
+            yield return null;
+
+        yield return RotatePlayerToExaminationPoint(sherlock, sherlockTarget);
+
         bulletCpConversationCoroutine = null;
         bulletCpConversationStarting = false;
 
@@ -733,20 +964,39 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
 
     private Transform GetWatsonExaminationPoint()
     {
-        return watsonPosition != null ? watsonPosition : watsonExaminationPoint;
+        return watsonExaminationPoint != null ? watsonExaminationPoint : watsonPosition;
     }
 
     private void StartBulletCpConversationAfterWatsonArrives(
         ConversationManager conversationManager,
         NPCConversation conversation)
     {
-        bulletCpSmartNpc?.BeginDialogueCameraFocusWithZoom(
-            "WatsonExam",
-            bulletCpDialogueZoomTransitionSpeed);
+        bulletCpSmartNpc?.BeginDialogueCameraFocusWithZoom(conversation, "WatsonExam");
         SetWatsonExamAnimation(true);
+        CameraController.SetManualZoomLocked(true);
         bulletCpConversationActive = true;
         ConversationManager.OnConversationEnded += HandleBulletCpConversationEnded;
         conversationManager.StartConversation(conversation);
+
+        if (watsonExaminationVisionEffect != null)
+        {
+            float cameraPreRollTime = conversation != null
+                ? conversation.AutomaticDialogueCameraPreRollTime
+                : 0f;
+            watsonExaminationVisionStartCoroutine = StartCoroutine(
+                StartWatsonExaminationVisionAfterCameraPreRoll(
+                    cameraPreRollTime * watsonExaminationVisionPreRollFraction));
+        }
+    }
+
+    private IEnumerator StartWatsonExaminationVisionAfterCameraPreRoll(float delay)
+    {
+        if (delay > 0f)
+            yield return new WaitForSecondsRealtime(delay);
+
+        watsonExaminationVisionStartCoroutine = null;
+        if (bulletCpConversationActive)
+            watsonExaminationVisionEffect?.BeginEffect();
     }
 
     private void HandleBulletCpConversationEnded()
@@ -831,7 +1081,16 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         bulletCpConversationStarting = false;
         bulletCpPlayer = null;
         bulletCpConversationCoroutine = null;
+
+        if (watsonExaminationVisionStartCoroutine != null)
+        {
+            StopCoroutine(watsonExaminationVisionStartCoroutine);
+            watsonExaminationVisionStartCoroutine = null;
+        }
+
         SetWatsonExamAnimation(false);
+        CameraController.SetManualZoomLocked(false);
+        watsonExaminationVisionEffect?.EndEffect();
     }
 
     private void SetWatsonExamAnimation(bool isExamining)
@@ -870,6 +1129,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
 
         cameraController?.StopScriptedHorizontalOrbit();
         cameraController?.SetZoomState(CameraZoomState.Medium);
+        RestoreExaminationLookAt();
         isExaminationCameraActive = false;
 
         if (examinationZone != null)
@@ -921,7 +1181,19 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         foreach (GameObject clueObject in examinationClueObjects)
         {
             if (clueObject != null)
+            {
                 clueObject.SetActive(active);
+
+                Interactable clueInteractable = clueObject.GetComponent<Interactable>();
+                if (clueInteractable != null)
+                {
+                    bool clueAlreadyPerformed = clueObject.GetComponent<Int_Edith_Ring>()?.performed == true ||
+                                                 clueObject.GetComponent<Int_Edith_Paper>()?.performed == true ||
+                                                 clueObject.GetComponent<Int_Edith_BulletHole>()?.performed == true;
+                    clueInteractable.isInteractableActive = active && !clueAlreadyPerformed;
+                    clueInteractable.SetWatsonInteractionAllowed(false);
+                }
+            }
         }
     }
 
@@ -936,6 +1208,14 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
                                   cameraController.SetZoomPreset(examinationPresetName);
         cameraController?.OrbitHorizontalAxisTo(examinationHorizontalAxis, examinationOrbitSpeed);
 
+        if (!IsWatson(examiningPlayer) && examinationLookAtTarget != null && cameraController != null)
+        {
+            cameraController.OverrideLookAtTargetSmooth(
+                examinationLookAtTarget,
+                examinationLookAtTransitionSpeed);
+            examinationLookAtActive = true;
+        }
+
         ShowExaminationTutorialsIfReady();
     }
 
@@ -944,18 +1224,43 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         if (!examinationCompleted && interactable != null)
             interactable.isInteractableActive = true;
 
-        if (!isExaminationCameraActive)
+        if (isExaminationCameraActive)
         {
-            SetExaminationGuidanceVisible(true);
-            return;
+            cameraController?.StopScriptedHorizontalOrbit();
+            cameraController?.SetZoomState(CameraZoomState.Medium);
+            isExaminationCameraActive = false;
+            CancelPendingTutorialPopup();
         }
 
-        cameraController?.StopScriptedHorizontalOrbit();
-        cameraController?.SetZoomState(CameraZoomState.Medium);
-        isExaminationCameraActive = false;
-        CancelPendingTutorialPopup();
+        RestoreExaminationLookAt();
 
         SetExaminationGuidanceVisible(true);
+
+        // Leaving the examination area closes only the current viewing session.
+        // Discovered CPs and one-shot dialogue state remain intact for the next approach.
+        interactionPerforming = false;
+        examiningPlayer = null;
+        isPlayerInsideExaminationZone = false;
+
+        if (examinationZone != null)
+        {
+            examinationZone.SetActive(false);
+            Destroy(examinationZone);
+            examinationZone = null;
+        }
+    }
+
+    private void RestoreExaminationLookAt()
+    {
+        if (!examinationLookAtActive)
+            return;
+
+        if (examinationLookAtReturnTarget != null)
+            cameraController?.ForceLookAtTarget(examinationLookAtReturnTarget);
+        else
+            cameraController?.RestoreLookAtTarget();
+
+        examinationLookAtActive = false;
     }
 
     private void ShowTutorialPopupIfNeeded()
@@ -1008,9 +1313,16 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         {
             waitingForInitialDialogue = false;
             initialDialogueCompleted = true;
+            SetExaminationClueObjectsActive(true);
 
             if (interactionPerforming && isExaminationCameraActive)
                 ShowExaminationTutorialsIfReady();
+
+            if (continueBulletCpAfterInitialDialogue)
+            {
+                continueBulletCpAfterInitialDialogue = false;
+                PlayBulletCpAttemptDialogue(bulletCpPlayer);
+            }
             return;
         }
 
@@ -1136,8 +1448,16 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         if (examiningPlayer == null)
             return false;
 
+        return IsPlayerInsideExaminationRange(examiningPlayer);
+    }
+
+    private bool IsPlayerInsideExaminationRange(PlayerController player)
+    {
+        if (player == null)
+            return false;
+
         Vector3 zoneCenter = GetExaminationZoneAnchor().TransformPoint(examinationZoneOffset);
-        return Vector3.Distance(examiningPlayer.transform.position, zoneCenter) <= examinationZoneRange;
+        return Vector3.Distance(player.transform.position, zoneCenter) <= examinationZoneRange;
     }
 
     private Transform GetExaminationZoneAnchor()
@@ -1263,6 +1583,9 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         }
 
         performed = true;
+        // Przy obecnych zasadach badanie ciala może rozpocząć wyłącznie Watson.
+        // Odtwarzamy więc również dostęp Sherlocka do późniejszego etapu Bullet CP.
+        watsonBulletInvestigationStarted = true;
         collectedExamClueCount = d.collectedExamClueCount;
         ringCpCollected = d.ringCpCollected;
         paperCpCollected = d.paperCpCollected;
@@ -1275,6 +1598,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase
         // Dialog wstepny byl juz odegrany - nie odtwarzamy go ponownie.
         waitingForInitialDialogue = false;
         initialDialogueCompleted = true;
+        initialDialoguePlayed = true;
 
         // Cialo bylo juz zbadane, wiec punkty badania musza byc widoczne.
         SetExaminationClueObjectsActive(true);

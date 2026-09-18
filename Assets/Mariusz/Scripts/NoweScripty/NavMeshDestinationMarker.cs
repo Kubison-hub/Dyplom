@@ -4,7 +4,7 @@ using UnityEngine.AI;
 public class NavMeshDestinationMarker : MonoBehaviour
 {
     private static NavMeshDestinationMarker instance;
-    private const string HiddenLayerName = "Hidden";
+    private const string HiddenLayerName = "Sherlock";
 
     [Header("Appearance")]
     [SerializeField, Min(0.1f)] private float radius = 0.38f;

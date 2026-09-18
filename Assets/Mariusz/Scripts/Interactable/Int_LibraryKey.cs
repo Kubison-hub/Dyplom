@@ -9,6 +9,11 @@ public class Int_LibraryKey : Lvl3InteractionDialogueBase
     [SerializeField] private Renderer keyRenderer;
     [SerializeField] private AudioSource pickupAudio;
 
+    [Header("Inventory")]
+    [SerializeField] private ItemType inventoryItemType = ItemType.LibraryKey;
+    [SerializeField] private Sprite inventoryIcon;
+    [SerializeField, TextArea] private string inventoryFullText = "Nie mam miejsca w ekwipunku.";
+
     [Header("Key Pickup Dialogue")]
     [SerializeField] private Lvl3DialogueLine[] keyPickupDialogue =
     {
@@ -33,6 +38,19 @@ public class Int_LibraryKey : Lvl3InteractionDialogueBase
     {
         if (performed)
             return;
+
+        if (InventoryManager.Instance == null ||
+            !InventoryManager.Instance.TryAddItem(inventoryItemType, inventoryIcon))
+        {
+            if (player != null && player.playerCharacter == PlayerCharacter.Watson)
+                PlayerTopText.Instance?.ShowWatsonTopText(inventoryFullText);
+            else
+                PlayerTopText.Instance?.ShowTopText(inventoryFullText, string.Empty);
+
+            if (player != null)
+                player.currentInteractable = null;
+            return;
+        }
 
         performed = true;
         interactable?.MarkCompleted();

@@ -43,6 +43,8 @@ public class Int_lv3_Ethel : MonoBehaviour
     [SerializeField] private string openDoorTrigger = "Open";
     [SerializeField] private string openedDoorBool = "Opened";
     [SerializeField] private AudioSource secretDoorAudioSource;
+    [Tooltip("Room content activated immediately before Ethel opens the secret door.")]
+    [SerializeField] private GameObject roomToActivate;
 
     [Header("Blackboard Reveal")]
     [Tooltip("Temporary blackboard hiding the area beyond Ethel's secret door.")]
@@ -171,6 +173,7 @@ public class Int_lv3_Ethel : MonoBehaviour
 
         string playerId = player.playerCharacter == PlayerCharacter.Watson ? "PlayerB" : "PlayerA";
         QuestManager.Instance?.OdnotujRozmowe(playerId, ethelSmartNPC.npcID);
+        ethelSmartNPC.BeginDialogueCameraFocus(conversation);
         ConversationManager.Instance.StartConversation(conversation);
 
         if (ethelSmartNPC.noteIDToUnlock >= 0)
@@ -182,6 +185,9 @@ public class Int_lv3_Ethel : MonoBehaviour
         ShowEthelText(firstInteractionText, firstInteractionAudio);
 
         yield return MoveEthelTo(firstTarget, runToFirstTarget);
+
+        if (roomToActivate != null)
+            roomToActivate.SetActive(true);
 
         if (ethelSecretDoorAnimator != null && !string.IsNullOrWhiteSpace(openDoorTrigger))
             ethelSecretDoorAnimator.SetTrigger(openDoorTrigger);
@@ -346,8 +352,6 @@ public class Int_lv3_Ethel : MonoBehaviour
 
     private void SetupInteractable()
     {
-        lvl3_LayerUtility.SetOutlinedObjectsLayer(gameObject);
-
         interactable = GetComponent<Interactable>();
         if (interactable != null)
             interactable.SetInteractionType(InteractionType.Int_lv3_Ethel);

@@ -6,6 +6,12 @@ using UnityEngine.Serialization;
 public class Int_StairsUp : MonoBehaviour
 {
 
+    public bool CanGoUpStairs
+    {
+        get => canGoUpStairs;
+        set => canGoUpStairs = value;
+    }
+
     [Header("Debug Bypass")]
     [Tooltip("When enabled, Sherlock can use the stairs immediately, ignoring the story gate and Selma validation.")]
     public bool canGoUpStairs = false;
@@ -84,7 +90,7 @@ public class Int_StairsUp : MonoBehaviour
     [SerializeField, Min(1f)] private float discoveryRotationSpeed = 220f;
     [SerializeField] private CameraController cameraController;
     [SerializeField] private string discoveryCameraPreset = "Wide";
-    [SerializeField, Min(0.01f)] private float discoveryCameraTransitionSpeed = 1f;
+    [SerializeField, Min(0f)] private float discoveryCameraTransitionDuration = 2.5f;
     [SerializeField] private AudioSource sherlockVoiceSource;
     [SerializeField] private AudioSource watsonVoiceSource;
     [SerializeField] private AudioSource selmaVoiceSource;
@@ -103,6 +109,7 @@ public class Int_StairsUp : MonoBehaviour
 
     private void Start()
     {
+        DebugController.Instance?.Register(this);
         interactable = GetComponent<Interactable>();
         SherlockGO = GameObject.Find("Sherlock");
         sherlockPlayer = SherlockGO != null
@@ -113,6 +120,12 @@ public class Int_StairsUp : MonoBehaviour
 
         RefreshSelmaStairsAwareness();
     }
+
+    private void OnDestroy()
+    {
+        DebugController.Instance?.Unregister(this);
+    }
+
     private void Update()
     {
         if (canGoUpStairs)
@@ -254,7 +267,6 @@ public class Int_StairsUp : MonoBehaviour
 
         yield return null;
 
-        level_1.SetActive(false);
         sherlockWatsonSelmaDialogToDisable?.DisableAfterStairsUp();
         blackboardToEnableOnArrival?.SetActive(true);
 
@@ -458,7 +470,7 @@ public class Int_StairsUp : MonoBehaviour
 
         yield return PlayDialogueLines(firstDiscoveryResolutionDialogueLines);
 
-        GetCameraController()?.SetZoomPreset(discoveryCameraPreset, discoveryCameraTransitionSpeed);
+        GetCameraController()?.SetZoomPreset(discoveryCameraPreset, discoveryCameraTransitionDuration);
 
         yield return PlayDialogueLines(afterDiscoveryCameraDialogueLines);
 

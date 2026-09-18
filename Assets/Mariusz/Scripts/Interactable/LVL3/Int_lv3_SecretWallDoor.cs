@@ -23,6 +23,8 @@ public class Int_lv3_SecretWallDoor : Lvl3ClockworkInteraction
     [SerializeField] private Int_lv3_bsWallButton brickTwo;
 
     [Header("Open Result")]
+    [Tooltip("Room content activated immediately before the secret door starts opening.")]
+    [SerializeField] private GameObject roomToActivate;
     [Tooltip("Colliders blocked by the closed secret wall. They are disabled once the door opens.")]
     [SerializeField] private Collider[] collidersToDisableOnOpen;
     [Tooltip("Temporary blackboard that hides this room before the secret wall opens.")]
@@ -115,6 +117,9 @@ public class Int_lv3_SecretWallDoor : Lvl3ClockworkInteraction
         IsOpened = true;
         Interactable?.MarkCompleted();
         CluesLog.Instance?.RemoveFindBasementHiddenDoorObjective();
+
+        if (roomToActivate != null)
+            roomToActivate.SetActive(true);
 
         if (doorAnimator != null && !string.IsNullOrWhiteSpace(openTrigger))
             doorAnimator.SetTrigger(openTrigger);

@@ -73,15 +73,19 @@ public class Lvl3ClockworkPuzzleController : MonoBehaviour
         if (button == null)
             return;
 
-        bool bothBricksWereHeld = leftBrickHolder != null && rightBrickHolder != null;
-
         if (button == leftBrickButton && leftBrickHolder == player)
             leftBrickHolder = null;
         else if (button == rightBrickButton && rightBrickHolder == player)
             rightBrickHolder = null;
+    }
 
-        if (bothBricksWereHeld && !IsSolved && clockSequenceRoutine == null && IsClockTimeCorrect)
+    public void NotifyBrickPressed()
+    {
+        if (leftBrickHolder != null && rightBrickHolder != null &&
+            !IsSolved && clockSequenceRoutine == null && IsClockTimeCorrect)
+        {
             clockSequenceRoutine = StartCoroutine(ClockSequence());
+        }
     }
 
     public bool TryHoldLever(Int_lv3_ClockLever requestedLever, PlayerController player)

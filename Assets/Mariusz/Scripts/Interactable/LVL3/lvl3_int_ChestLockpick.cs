@@ -59,6 +59,7 @@ public class lvl3_int_ChestLockpick : Lvl3InteractionDialogueBase, IInteractionA
 
     private LockPickMinigameController currentMinigame;
     private Coroutine openCoroutine;
+    private Coroutine blockedPlayerRotationCoroutine;
     private bool isOpen = false;
 
     protected override Lvl3DialogueLine[] DefaultDialogueLines => noAccessDialogue;
@@ -131,9 +132,7 @@ public class lvl3_int_ChestLockpick : Lvl3InteractionDialogueBase, IInteractionA
         }
 
         if (cameraController != null)
-        {
-            cameraController.SetZoomState(CameraZoomState.Narrow);
-        }
+            cameraController.SetZoomPreset("Narrow");
 
         if (ClueManager.Instance != null)
         {
@@ -201,7 +200,53 @@ public class lvl3_int_ChestLockpick : Lvl3InteractionDialogueBase, IInteractionA
         if (IsWatson(player))
             return;
 
+        if (blockedPlayerRotationCoroutine != null)
+            StopCoroutine(blockedPlayerRotationCoroutine);
+
+        blockedPlayerRotationCoroutine = StartCoroutine(PlayBlockedApproachSequence(player));
+    }
+
+    private IEnumerator PlayBlockedApproachSequence(PlayerController player)
+    {
+        if (player == null)
+        {
+            blockedPlayerRotationCoroutine = null;
+            yield break;
+        }
+
+        NavMeshAgent agent = player.navMeshAgent;
+        if (agent != null && agent.isOnNavMesh)
+        {
+            agent.ResetPath();
+            agent.updateRotation = false;
+        }
+
+        Vector3 direction = transform.position - player.transform.position;
+        direction.y = 0f;
+
+        if (direction.sqrMagnitude > 0.001f)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(direction.normalized);
+            float rotationSpeed = Mathf.Max(0.01f, player.interactionPointRotationSpeed);
+
+            while (Quaternion.Angle(player.transform.rotation, targetRotation) > 1f)
+            {
+                player.transform.rotation = Quaternion.RotateTowards(
+                    player.transform.rotation,
+                    targetRotation,
+                    rotationSpeed * Time.deltaTime);
+                yield return null;
+            }
+
+            player.transform.rotation = targetRotation;
+        }
+
+        if (agent != null)
+            agent.updateRotation = true;
+
         PlayDialogue(player, noAccessDialogue);
+        interactable?.TriggerCompanionInteractionFocus(player);
+        blockedPlayerRotationCoroutine = null;
     }
 
     private void ShowCharacterDialogue(
@@ -391,8 +436,6 @@ public class lvl3_int_ChestLockpick : Lvl3InteractionDialogueBase, IInteractionA
 
     private void SetupInteractable()
     {
-        lvl3_LayerUtility.SetOutlinedObjectsLayer(gameObject);
-
         interactable = GetComponent<Interactable>();
 
         if (interactable != null)

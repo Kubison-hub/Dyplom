@@ -10,6 +10,8 @@ public class Int_lv3_ClockSecretPassage : Lvl3ClockworkInteraction
     [SerializeField] private string openedBool = "Opened";
     [SerializeField] private AudioSource openAudioSource;
     [SerializeField] private Collider[] collidersToDisable;
+    [Tooltip("Room content activated immediately before the secret passage starts opening.")]
+    [SerializeField] private GameObject roomToActivate;
     [Tooltip("Objects to disable once the real passage opens, for example the temporary vision-passage GameObject.")]
     [SerializeField] private GameObject[] gameObjectsToDisableOnOpen;
 
@@ -69,6 +71,9 @@ public class Int_lv3_ClockSecretPassage : Lvl3ClockworkInteraction
         CluesLog.Instance?.RemoveFindBasementHiddenDoorObjective();
         openAudioSource?.Play();
 
+        if (roomToActivate != null)
+            roomToActivate.SetActive(true);
+
         if (passageAnimator != null)
         {
             passageAnimator.SetTrigger(openTrigger);
@@ -101,6 +106,9 @@ public class Int_lv3_ClockSecretPassage : Lvl3ClockworkInteraction
         Interactable?.MarkCompleted();
         CluesLog.Instance?.RemoveFindBasementHiddenDoorObjective();
         openAudioSource?.Play();
+
+        if (roomToActivate != null)
+            roomToActivate.SetActive(true);
 
         if (passageAnimator != null)
         {

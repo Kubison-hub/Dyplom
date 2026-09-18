@@ -117,7 +117,8 @@ public class PlayerController : MonoBehaviour
 
     private void UpdateInteractionShaderHover()
     {
-        if (IsWorldInputLocked)
+        if (IsWorldInputLocked ||
+            DetectiveIdeaManager.Instance != null && DetectiveIdeaManager.Instance.IsDraggingIdea())
         {
             SetHoveredInteractable(null);
             return;
@@ -245,6 +246,12 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void CancelUnreachableInteraction()
+    {
+        CancelPendingInteraction();
+        ShowUnreachableInteractionFeedback();
+    }
+
 
     public void SetMinigameMovementLocked(bool locked)
     {
@@ -274,7 +281,7 @@ public class PlayerController : MonoBehaviour
 
     public void OnLeftClick(InputAction.CallbackContext context)
     {
-        if (IsWorldInputLocked)
+        if (IsWorldInputLocked || Time.timeScale <= 0f)
             return;
 
         if (NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen ||
@@ -293,7 +300,7 @@ public class PlayerController : MonoBehaviour
 
     private void HandleLeftClick()
     {
-        if (IsWorldInputLocked)
+        if (IsWorldInputLocked || Time.timeScale <= 0f)
             return;
 
         if (NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen ||

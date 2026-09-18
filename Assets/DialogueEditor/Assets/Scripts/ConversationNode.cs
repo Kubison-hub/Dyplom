@@ -36,6 +36,9 @@ namespace DialogueEditor
         /// <summary> The body text of the node. </summary>
         public string Text;
 
+        /// <summary> Stable identifier assigned by the dialogue graph. </summary>
+        public int ID;
+
         /// <summary> The child connections this node has. </summary>
         public List<Connection> Connections;
 

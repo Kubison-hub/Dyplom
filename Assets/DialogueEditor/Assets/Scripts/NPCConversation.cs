@@ -45,18 +45,25 @@ namespace DialogueEditor
         [Header("Camera")]
         [Tooltip("When enabled, CameraController applies this conversation's zoom preset while the dialogue is active.")]
         [SerializeField] private bool useAutomaticDialogueCamera = true;
+        [Tooltip("When enabled, use the preset name below. When disabled, use one preset index below the player's current preset, stopping at index 0.")]
+        [SerializeField] private bool setCustomPreset;
         [Tooltip("Name of the CameraController zoom preset used while automatic dialogue camera is enabled.")]
         [SerializeField] private string automaticDialogueCameraPreset = "Narrow";
-        [Tooltip("Smooth speed used when the camera moves into this conversation's zoom preset.")]
-        [SerializeField, Min(0.01f)] private float automaticDialogueCameraZoomSpeed = 0.2f;
+        [FormerlySerializedAs("automaticDialogueCameraPreRollDuration")]
+        [Tooltip("Speed of the camera move before the dialogue UI appears. Higher values make the transition faster.")]
+        [SerializeField, Min(0f)] private float automaticDialogueCameraPreRollSpeed = 0.2f;
 
         [Header("Dialogue UI")]
         [Tooltip("Realtime delay before this conversation shows its dialogue and option panels.")]
         [SerializeField, Min(0f)] private float dialogueUIDelay;
 
         public bool UseAutomaticDialogueCamera => useAutomaticDialogueCamera;
+        public bool SetCustomPreset => setCustomPreset;
         public string AutomaticDialogueCameraPreset => automaticDialogueCameraPreset;
-        public float AutomaticDialogueCameraZoomSpeed => automaticDialogueCameraZoomSpeed;
+        public float AutomaticDialogueCameraPreRollSpeed => automaticDialogueCameraPreRollSpeed;
+        public float AutomaticDialogueCameraPreRollTime => automaticDialogueCameraPreRollSpeed > 0f
+            ? 1f / automaticDialogueCameraPreRollSpeed
+            : 0f;
         public float DialogueUIDelay => dialogueUIDelay;
 
         // Runtime vars
@@ -416,6 +423,7 @@ namespace DialogueEditor
         private SpeechNode CreateSpeechNode(EditableSpeechNode editableNode)
         {
             SpeechNode speech = new SpeechNode();
+            speech.ID = editableNode.ID;
             speech.Name = editableNode.Name;
             speech.Text = editableNode.Text;
             speech.AutomaticallyAdvance = editableNode.AdvanceDialogueAutomatically;
@@ -440,6 +448,7 @@ namespace DialogueEditor
         private OptionNode CreateOptionNode(EditableOptionNode editableNode)
         {
             OptionNode option = new OptionNode();
+            option.ID = editableNode.ID;
             option.Text = editableNode.Text;
             option.TMPFont = editableNode.TMPFont;
 

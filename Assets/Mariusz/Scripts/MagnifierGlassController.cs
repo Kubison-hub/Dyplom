@@ -9,8 +9,10 @@ public class MagnifierGlassController : MonoBehaviour
 
     public static bool IsScrollReservedForLoupe =>
         instance != null && instance.ShouldReserveScrollForLoupe;
+    public static bool IsRotationReservedForLoupe =>
+        instance != null && instance.ShouldReserveRotationForLoupe;
     public static bool IsWatsonGripActive =>
-        instance != null && instance.IsWatsonGripHeld();
+        WatsonEscortController.IsWatsonEagleVisionInteractionActive;
 
     [Header("References")]
     [SerializeField] private Camera hiddenCluesCamera;
@@ -112,7 +114,8 @@ public class MagnifierGlassController : MonoBehaviour
     [SerializeField] private float raycastDistance = 100f;
 
     [Header("Player Camera Look At")]
-    [SerializeField] private bool useLoupeLookAt = true;
+    [Tooltip("When enabled, the loupe may temporarily change the gameplay camera LookAt target.")]
+    [SerializeField] private bool changeLookAt = false;
     [SerializeField, Range(0f, 1f)] private float loupeLookAtRaycastInfluence = 0.12f;
     [SerializeField, Min(0.01f)] private float loupeLookAtSmoothTime = 1.2f;
 
@@ -129,6 +132,18 @@ public class MagnifierGlassController : MonoBehaviour
     [SerializeField, Min(0.31f)] private float maxLensDistanceFromHit = 1.2f;
     [SerializeField] private bool enableLoupeSizeScroll = true;
     [SerializeField, Min(0.00001f)] private float loupeSizeScrollSensitivity = 0.001f;
+
+    [Header("Loupe Orbit Rotation")]
+    [Tooltip("When enabled, right mouse drag rotates the loupe cameras around the inspected point instead of rotating the gameplay camera.")]
+    [SerializeField] private bool enableLoupeOrbitRotation = true;
+    [Tooltip("When enabled, right mouse drag also rotates the active gameplay camera through its normal camera input.")]
+    [SerializeField] private bool allowMainCameraRotationDuringLoupeOrbit;
+    [Tooltip("When enabled, the gameplay camera copies only the loupe yaw and uses its RaycastHit as the pivot while preserving its own zoom and vertical axis.")]
+    [SerializeField] private bool mainCameraUsesLoupeHitPivot;
+    [Tooltip("Maximum horizontal orbit angle relative to the view captured when orbiting begins.")]
+    [SerializeField, Range(0f, 180f)] private float loupeOrbitMaxYaw = 45f;
+    [Tooltip("Maximum vertical orbit angle relative to the view captured when orbiting begins.")]
+    [SerializeField, Range(0f, 89f)] private float loupeOrbitMaxPitch = 30f;
 
     [Header("First Sherlock Loupe Tutorial")]
     [SerializeField] private bool enableFirstUseTutorialPopup;
@@ -157,7 +172,9 @@ public class MagnifierGlassController : MonoBehaviour
     private Vector3 lastHybridLookPoint;
     private RaycastHit lastInspectionHit;
     private Transform loupeLookAtTarget;
+    private Transform mainCameraLoupeOrbitPivot;
     private CameraController loupeLookAtCameraController;
+    private CameraController mainCameraLoupeOrbitController;
     private Vector3 loupeLookAtVelocity;
     private bool resetLoupeLookAtOnNextUse = true;
     private bool wasLoupeHeld;
@@ -169,10 +186,34 @@ public class MagnifierGlassController : MonoBehaviour
     private bool resetLoupeAimTargetOnNextHit = true;
     private bool debugLoupeToggleActive;
     private bool loupeSuppressedUntilKeyRelease;
+    private bool loupeOrbitActive;
+    private bool hasLoupeOrbitOffset;
+    private bool loupeOrbitReturning;
+    private Vector3 loupeOrbitPivot;
+    private Vector3 loupeOrbitBaseDirection;
+    private Vector2 loupeOrbitMousePosition;
+    private bool useLoupeOrbitMousePositionThisFrame;
+    private Vector2 pendingLoupeOrbitInput;
+    private float loupeOrbitYaw;
+    private float loupeOrbitPitch;
+    private float loupeOrbitRotationSpeed;
+    private Vector3 loupeOrbitInspectionCameraOffset;
+    private Quaternion loupeOrbitInspectionCameraRotation;
 
     private bool ShouldReserveScrollForLoupe =>
-        isActiveAndEnabled && !IsWatsonActive() && IsLoupeHeld() &&
-        (enableLensDistanceScroll || enableLoupeSizeScroll && Input.GetKey(KeyCode.LeftAlt));
+        isActiveAndEnabled && !IsWatsonActive() && IsLoupeHeld();
+
+    private bool ShouldReserveRotationForLoupe =>
+        ShouldHandleLoupeRotation &&
+        (mainCameraUsesLoupeHitPivot || !allowMainCameraRotationDuringLoupeOrbit);
+
+    private bool ShouldHandleLoupeRotation =>
+        isActiveAndEnabled && enableLoupeOrbitRotation && !IsWatsonActive() && IsLoupeHeld();
+
+    public static bool TryConsumeCameraRotation(Vector2 input, float rotationSpeed)
+    {
+        return instance != null && instance.TryConsumeLoupeRotation(input, rotationSpeed);
+    }
 
     public bool TryGetActiveLoupeHit(out RaycastHit hit)
     {
@@ -227,6 +268,7 @@ public class MagnifierGlassController : MonoBehaviour
             TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput ||
             TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput)
         {
+            EndLoupeOrbit(true);
             UpdateSherlockLoupeAudio(false);
             SetSherlockHandLoupeVisible(false);
             ResetLoupeAimTargetSmoothing();
@@ -239,6 +281,10 @@ public class MagnifierGlassController : MonoBehaviour
 
         bool loupeHeld = IsLoupeHeld();
         bool isWatsonGrip = IsWatsonGripHeld();
+
+        if (loupeOrbitActive && (!enableLoupeOrbitRotation || !loupeHeld || isWatsonGrip))
+            EndLoupeOrbit(true);
+
         bool sherlockLoupeActive = loupeHeld && !isWatsonGrip;
         UpdateSherlockLoupeAudio(sherlockLoupeActive);
         SetSherlockHandLoupeVisible(sherlockLoupeActive);
@@ -249,6 +295,7 @@ public class MagnifierGlassController : MonoBehaviour
 
         if (isWatsonGrip)
         {
+            EndLoupeOrbit(true);
             ResetLoupeAimTargetSmoothing();
             UpdateRightHandLoupeRig(false);
             SetInspectionCamerasActive(false);
@@ -269,6 +316,7 @@ public class MagnifierGlassController : MonoBehaviour
 
         if (!loupeHeld)
         {
+            EndLoupeOrbit(true);
             hasInspectionHit = false;
             ResetLoupeAimTargetSmoothing();
             UpdateRightHandLoupeRig(false);
@@ -284,12 +332,23 @@ public class MagnifierGlassController : MonoBehaviour
             return;
         }
 
-        Vector2 mousePosition = Mouse.current.position.ReadValue();
+        if (loupeOrbitActive && !Mouse.current.rightButton.isPressed)
+            StopLoupeOrbitDrag(true);
+
+        UpdateLoupeOrbitReturn();
+
+        Vector2 mousePosition = loupeOrbitActive || useLoupeOrbitMousePositionThisFrame
+            ? loupeOrbitMousePosition
+            : Mouse.current.position.ReadValue();
+        useLoupeOrbitMousePositionThisFrame = false;
         Vector2 lensCenterScreen = mousePosition + lensCenterOffset;
 
         ApplyLoupeVisualScale();
         loupeFrame.position = mousePosition + loupeFrameOffset;
-        UpdateInspectionCameras(lensCenterScreen);
+        if (loupeOrbitActive)
+            UpdateLoupeOrbitCameras();
+        else
+            UpdateInspectionCameras(lensCenterScreen);
         UpdateRightHandLoupeRig(hasInspectionHit);
         HandleLensDistanceScroll();
         UpdateMaterial(lensCenterScreen);
@@ -362,8 +421,204 @@ public class MagnifierGlassController : MonoBehaviour
         );
     }
 
+    private bool TryConsumeLoupeRotation(Vector2 input, float rotationSpeed)
+    {
+        if (!ShouldHandleLoupeRotation)
+            return false;
+
+        loupeOrbitRotationSpeed = Mathf.Max(0f, rotationSpeed);
+
+        if (input.sqrMagnitude <= 0.0001f)
+            return ShouldReserveRotationForLoupe;
+
+        if (!loupeOrbitActive)
+        {
+            if (!hasInspectionHit)
+                return ShouldReserveRotationForLoupe;
+
+            BeginLoupeOrbit();
+        }
+
+        pendingLoupeOrbitInput += input;
+        return ShouldReserveRotationForLoupe;
+    }
+
+    private void BeginLoupeOrbit()
+    {
+        loupeOrbitPivot = lastInspectionHit.point;
+        loupeOrbitMousePosition = Mouse.current != null
+            ? Mouse.current.position.ReadValue()
+            : Vector2.zero;
+
+        Vector3 pivotToCamera;
+        if (Camera.main != null)
+            pivotToCamera = Camera.main.transform.position - loupeOrbitPivot;
+        else
+            pivotToCamera = -lastInspectionHit.normal;
+
+        if (pivotToCamera.sqrMagnitude < 0.0001f)
+            pivotToCamera = -lastInspectionHit.normal;
+        if (pivotToCamera.sqrMagnitude < 0.0001f)
+            pivotToCamera = Vector3.back;
+
+        loupeOrbitBaseDirection = pivotToCamera.normalized;
+        if (loupeSceneCamera != null)
+        {
+            loupeOrbitInspectionCameraOffset = loupeSceneCamera.transform.position - loupeOrbitPivot;
+            loupeOrbitInspectionCameraRotation = loupeSceneCamera.transform.rotation;
+        }
+        else
+        {
+            loupeOrbitInspectionCameraOffset = loupeOrbitBaseDirection * lensDistanceFromHit;
+            loupeOrbitInspectionCameraRotation = Quaternion.LookRotation(-loupeOrbitBaseDirection, Vector3.up);
+        }
+        pendingLoupeOrbitInput = Vector2.zero;
+        loupeOrbitActive = true;
+        hasLoupeOrbitOffset = true;
+        loupeOrbitReturning = false;
+        BeginMainCameraLoupeOrbitPivot();
+    }
+
+    private void UpdateLoupeOrbitCameras()
+    {
+        Vector2 input = pendingLoupeOrbitInput;
+        pendingLoupeOrbitInput = Vector2.zero;
+
+        float inputScale = loupeOrbitRotationSpeed * Time.unscaledDeltaTime;
+        loupeOrbitYaw = Mathf.Clamp(
+            loupeOrbitYaw + input.x * inputScale,
+            -loupeOrbitMaxYaw,
+            loupeOrbitMaxYaw);
+        loupeOrbitPitch = 0f;
+
+        if (mainCameraLoupeOrbitController != null)
+            mainCameraLoupeOrbitController.ApplyLoupeOrbitYaw(loupeOrbitYaw);
+
+        Quaternion yawRotation = Quaternion.AngleAxis(loupeOrbitYaw, Vector3.up);
+        Vector3 cameraPosition = loupeOrbitPivot + yawRotation * loupeOrbitInspectionCameraOffset;
+        Quaternion cameraRotation = yawRotation * loupeOrbitInspectionCameraRotation;
+
+        ApplyInspectionPose(cameraPosition, cameraRotation, GetCameraBlend());
+
+        hasInspectionHit = true;
+        UpdateLoupeAimTarget(loupeOrbitPivot + loupeAimTargetOffset);
+        if (mainCameraLoupeOrbitController == null)
+            UpdateLoupeLookAt(GetLoupeAimPosition());
+        lastHitPoint = loupeOrbitPivot;
+        lastLensCameraPosition = cameraPosition;
+        lastHybridLookPoint = loupeOrbitPivot;
+    }
+
+    private Vector3 ApplyLoupeOrbit(Vector3 baseDirection)
+    {
+        Vector3 yawDirection = Quaternion.AngleAxis(loupeOrbitYaw, Vector3.up) * baseDirection.normalized;
+        Vector3 lookDirectionAfterYaw = -yawDirection;
+        Vector3 pitchAxis = Vector3.Cross(Vector3.up, lookDirectionAfterYaw);
+        if (pitchAxis.sqrMagnitude < 0.0001f)
+            pitchAxis = Vector3.right;
+        else
+            pitchAxis.Normalize();
+
+        return (Quaternion.AngleAxis(loupeOrbitPitch, pitchAxis) * yawDirection).normalized;
+    }
+
+    private void StopLoupeOrbitDrag(bool restoreCursorPosition)
+    {
+        if (!loupeOrbitActive)
+            return;
+
+        if (restoreCursorPosition && Mouse.current != null)
+        {
+            Mouse.current.WarpCursorPosition(loupeOrbitMousePosition);
+            useLoupeOrbitMousePositionThisFrame = true;
+        }
+
+        loupeOrbitActive = false;
+        pendingLoupeOrbitInput = Vector2.zero;
+        // Releasing PPM ends the drag, but keeps the camera orientation reached
+        // during the orbit. The next normal loupe update takes over from there.
+        loupeOrbitReturning = false;
+        hasLoupeOrbitOffset = false;
+        RestoreMainCameraLoupeOrbitPivot();
+    }
+
+    private void UpdateLoupeOrbitReturn()
+    {
+        if (!loupeOrbitReturning)
+            return;
+
+        float blend = GetCameraBlend();
+        loupeOrbitYaw = Mathf.Lerp(loupeOrbitYaw, 0f, blend);
+        loupeOrbitPitch = Mathf.Lerp(loupeOrbitPitch, 0f, blend);
+
+        if (Mathf.Abs(loupeOrbitYaw) > 0.05f || Mathf.Abs(loupeOrbitPitch) > 0.05f)
+            return;
+
+        loupeOrbitYaw = 0f;
+        loupeOrbitPitch = 0f;
+        hasLoupeOrbitOffset = false;
+        loupeOrbitReturning = false;
+    }
+
+    private void EndLoupeOrbit(bool restoreCursorPosition)
+    {
+        StopLoupeOrbitDrag(restoreCursorPosition);
+        RestoreMainCameraLoupeOrbitPivot();
+        hasLoupeOrbitOffset = false;
+        loupeOrbitReturning = false;
+        useLoupeOrbitMousePositionThisFrame = false;
+        pendingLoupeOrbitInput = Vector2.zero;
+        loupeOrbitYaw = 0f;
+        loupeOrbitPitch = 0f;
+    }
+
+    private void BeginMainCameraLoupeOrbitPivot()
+    {
+        if (!changeLookAt || !mainCameraUsesLoupeHitPivot)
+            return;
+
+        CameraController cameraController = GetActiveCameraController();
+        if (cameraController == null)
+            return;
+
+        if (mainCameraLoupeOrbitPivot == null)
+        {
+            GameObject pivotObject = new GameObject("MainCameraLoupeOrbitPivot");
+            pivotObject.hideFlags = HideFlags.HideInHierarchy;
+            mainCameraLoupeOrbitPivot = pivotObject.transform;
+        }
+
+        mainCameraLoupeOrbitPivot.position = loupeOrbitPivot;
+        mainCameraLoupeOrbitController = cameraController;
+
+        Vector2 compositionScreenPosition = Vector2.zero;
+        if (Camera.main != null)
+        {
+            Vector2 lensCenterScreen = loupeOrbitMousePosition + lensCenterOffset;
+            Vector3 viewportPosition = Camera.main.ScreenToViewportPoint(lensCenterScreen);
+            compositionScreenPosition = new Vector2(
+                viewportPosition.x - 0.5f,
+                viewportPosition.y - 0.5f);
+        }
+
+        mainCameraLoupeOrbitController.BeginLoupeOrbitPivot(
+            mainCameraLoupeOrbitPivot,
+            compositionScreenPosition);
+    }
+
+    private void RestoreMainCameraLoupeOrbitPivot()
+    {
+        if (mainCameraLoupeOrbitController != null)
+            mainCameraLoupeOrbitController.RestoreLoupeOrbitPivot();
+
+        mainCameraLoupeOrbitController = null;
+    }
+
     private bool IsLoupeHeld()
     {
+        if (IsWatsonActive())
+            return false;
+
         if (DialogueEditor.ConversationManager.Instance != null &&
             DialogueEditor.ConversationManager.Instance.IsConversationActive ||
             TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput)
@@ -409,6 +664,7 @@ public class MagnifierGlassController : MonoBehaviour
 
     private void SuppressLoupeUntilKeyReleased()
     {
+        EndLoupeOrbit(true);
         debugLoupeToggleActive = false;
         loupeSuppressedUntilKeyRelease = true;
         hasInspectionHit = false;
@@ -425,7 +681,7 @@ public class MagnifierGlassController : MonoBehaviour
 
     private bool IsWatsonGripHeld()
     {
-        return IsWatsonActive() && Input.GetKey(loupeKey);
+        return false;
     }
 
     private bool IsWatsonActive()
@@ -646,7 +902,10 @@ public class MagnifierGlassController : MonoBehaviour
 
         directionToViewer.Normalize();
 
-        Vector3 lensCameraPosition = hit.point + directionToViewer * lensDistanceFromHit;
+        Vector3 lensDirection = hasLoupeOrbitOffset
+            ? ApplyLoupeOrbit(directionToViewer)
+            : directionToViewer;
+        Vector3 lensCameraPosition = hit.point + lensDirection * lensDistanceFromHit;
         Vector3 directionToHit = (hit.point - lensCameraPosition).normalized;
         Vector3 normalDirection = -hit.normal.normalized;
 
@@ -659,7 +918,9 @@ public class MagnifierGlassController : MonoBehaviour
             maxNormalTiltDegrees * Mathf.Deg2Rad,
             0f
         );
-        Vector3 viewDirection = Vector3.Slerp(directionToHit, limitedNormalDirection, normalInfluence).normalized;
+        Vector3 viewDirection = hasLoupeOrbitOffset
+            ? directionToHit
+            : Vector3.Slerp(directionToHit, limitedNormalDirection, normalInfluence).normalized;
         Vector3 up = Vector3.ProjectOnPlane(mainCamera.transform.up, viewDirection);
         if (up.sqrMagnitude < 0.001f)
             up = Vector3.ProjectOnPlane(mainCamera.transform.right, viewDirection);
@@ -733,7 +994,7 @@ public class MagnifierGlassController : MonoBehaviour
 
     private void UpdateLoupeLookAt(Vector3 hitPoint)
     {
-        if (!useLoupeLookAt)
+        if (!changeLookAt)
             return;
 
         CameraController cameraController = GetActiveCameraController();
@@ -999,6 +1260,7 @@ public class MagnifierGlassController : MonoBehaviour
 
     private void OnDisable()
     {
+        EndLoupeOrbit(true);
         debugLoupeToggleActive = false;
         wasSherlockLoupeActive = false;
         SetSherlockHandLoupeVisible(false);
@@ -1007,6 +1269,9 @@ public class MagnifierGlassController : MonoBehaviour
 
         if (loupeLookAtTarget != null)
             Destroy(loupeLookAtTarget.gameObject);
+
+        if (mainCameraLoupeOrbitPivot != null)
+            Destroy(mainCameraLoupeOrbitPivot.gameObject);
 
         if (instance == this)
             instance = null;

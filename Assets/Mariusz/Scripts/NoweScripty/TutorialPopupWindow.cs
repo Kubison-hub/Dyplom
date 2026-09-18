@@ -50,10 +50,8 @@ public class TutorialPopupWindow : MonoBehaviour
         if (Time.unscaledTime - openedAtUnscaledTime < 0.15f)
             return;
 
-        bool enter = Keyboard.current != null &&
-                     (Keyboard.current.enterKey.wasPressedThisFrame ||
-                      Keyboard.current.numpadEnterKey.wasPressedThisFrame);
-        if (enter)
+        bool tab = Keyboard.current != null && Keyboard.current.tabKey.wasPressedThisFrame;
+        if (tab)
             TutorialTimeline.Instance?.CloseGameplayTutorialPopup();
     }
 }

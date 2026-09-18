@@ -13,12 +13,8 @@ public class Int_lv3_bsWallDoor : Lvl3LoupeWallPuzzleBase
     [Tooltip("At least one of these lamps must be active to inspect or trace this wall.")]
     [SerializeField] private GameObject[] heldLamps;
     [SerializeField, TextArea] private string darknessText = "Nic nie zobaczę w tych ciemnościach.";
-    [Tooltip("Played through Sherlock Inspection Audio Source together with Darkness Text.")]
+    [Tooltip("Played as Sherlock's dialogue line together with Darkness Text.")]
     [SerializeField] private AudioClip darknessVoiceClip;
-
-    [Header("Camera")]
-    [Tooltip("Optional. If empty, the active character's CameraController is used.")]
-    [SerializeField] private CameraController cameraController;
 
     [Header("Watson On Puzzle Solved")]
     [SerializeField, Min(0f)] private float watsonApproachDistance = 2f;
@@ -27,13 +23,12 @@ public class Int_lv3_bsWallDoor : Lvl3LoupeWallPuzzleBase
     [SerializeField] private DetectiveIdeaPoint secretDoorIdeaPoint;
 
     [Header("Inspection Dialogue")]
-    [SerializeField] private AudioSource sherlockInspectionAudioSource;
     [SerializeField] private AudioClip sherlockInspectionVoiceClip;
     [SerializeField, TextArea] private string sherlockInspectionText = "Przyjrzyjmy się bliżej tej ścianie.";
 
     protected override InteractionType PuzzleInteractionType => InteractionType.Int_lv3_bsWallDoor;
-    protected override bool CanTraceLoupePattern => HasActiveLamp();
-    protected override bool ShouldShowLoupePattern => HasActiveLamp();
+    protected override bool CanTraceLoupePattern => HasActiveLamp() && IsSherlockActive();
+    protected override bool ShouldShowLoupePattern => HasActiveLamp() && IsSherlockActive();
     protected override bool ShowPatternOnlyInEagleVision => true;
     protected override bool RotateWatsonOnSolved => true;
     protected override float WatsonApproachDistanceOnSolved => watsonApproachDistance;
@@ -42,7 +37,6 @@ public class Int_lv3_bsWallDoor : Lvl3LoupeWallPuzzleBase
 
     protected override void OnPuzzleSolved()
     {
-        GetCameraController()?.SetZoomState(CameraZoomState.Medium);
         secretDoorIdeaPoint?.RevealFromExternalSource();
     }
 
@@ -68,31 +62,21 @@ public class Int_lv3_bsWallDoor : Lvl3LoupeWallPuzzleBase
     {
         if (!HasActiveLamp())
         {
-            ShowTopTextForPlayer(player, darknessText);
-
-            if (sherlockInspectionAudioSource != null && darknessVoiceClip != null)
-                sherlockInspectionAudioSource.PlayOneShot(darknessVoiceClip);
-
-            if (player != null)
-                player.currentInteractable = null;
+            PlaySherlockDialogueLine(player, darknessText, darknessVoiceClip);
             return;
         }
 
-        GetCameraController()?.SetZoomState(CameraZoomState.Narrow);
         if (puzzleDoor && !basementExitObjectiveQueued)
         {
             basementExitObjectiveQueued = true;
             StartCoroutine(AddBasementExitObjectiveAfterInspection());
         }
 
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText(sherlockInspectionText, string.Empty);
-
-        if (sherlockInspectionAudioSource != null && sherlockInspectionVoiceClip != null)
-            sherlockInspectionAudioSource.PlayOneShot(sherlockInspectionVoiceClip);
-
-        if (player != null)
-            player.currentInteractable = null;
+        PlaySherlockDialogueLine(
+            player,
+            sherlockInspectionText,
+            sherlockInspectionVoiceClip,
+            puzzleDoorDialogueDuration);
     }
 
     private IEnumerator AddBasementExitObjectiveAfterInspection()
@@ -121,33 +105,33 @@ public class Int_lv3_bsWallDoor : Lvl3LoupeWallPuzzleBase
         return false;
     }
 
-    private CameraController GetCameraController()
+    private static bool IsSherlockActive()
     {
-        if (cameraController != null)
-            return cameraController;
-
-        if (SwitchCharacter.Instance == null || SwitchCharacter.Instance.playersCamera == null)
-            return null;
-
-        int activePlayerIndex = SwitchCharacter.Instance.activePlayerIndex;
-        if (activePlayerIndex < 0 || activePlayerIndex >= SwitchCharacter.Instance.playersCamera.Length)
-            return null;
-
-        var activeCamera = SwitchCharacter.Instance.playersCamera[activePlayerIndex];
-        return activeCamera != null ? activeCamera.GetComponent<CameraController>() : null;
+        return SwitchCharacter.Instance == null || SwitchCharacter.Instance.activePlayerIndex == 0;
     }
 
-    private static void ShowTopTextForPlayer(PlayerController player, string text)
+    private void PlaySherlockDialogueLine(
+        PlayerController player,
+        string text,
+        AudioClip voiceClip,
+        float minimumDuration = 0f)
     {
-        if (PlayerTopText.Instance == null)
-            return;
+        float defaultDuration = PlayerTopText.Instance != null
+            ? PlayerTopText.Instance.textTime
+            : 3f;
+        float voiceDuration = voiceClip != null ? voiceClip.length : 0f;
+        float duration = Mathf.Max(minimumDuration, voiceDuration, defaultDuration);
 
-        bool isWatson = player != null &&
-                        (player.playerCharacter == PlayerCharacter.Watson || player.CompareTag("PlayerB"));
-        if (isWatson)
-            PlayerTopText.Instance.ShowWatsonTopText(text);
-        else
-            PlayerTopText.Instance.ShowTopText(text, string.Empty);
+        PlayDialogue(player, new[]
+        {
+            new Lvl3DialogueLine
+            {
+                speaker = Lvl3DialogueSpeaker.Sherlock,
+                text = text,
+                voiceClip = voiceClip,
+                duration = duration
+            }
+        });
     }
 
     private void Reset() => SetupPuzzle();

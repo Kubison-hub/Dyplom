@@ -16,6 +16,16 @@ public class WatsonEscortInfluencePoint : MonoBehaviour
     [SerializeField, Min(0.01f)] private float falloff = 1f;
     [SerializeField] private bool isActive = true;
 
+    public bool ContainsPosition(Vector3 position)
+    {
+        if (!isActive)
+            return false;
+
+        Vector2 point = new Vector2(transform.position.x, transform.position.z);
+        Vector2 testedPosition = new Vector2(position.x, position.z);
+        return Vector2.Distance(point, testedPosition) <= range;
+    }
+
     public bool TryGetInfluence(Vector3 position, out Vector3 direction, out float weight)
     {
         direction = influenceMode == InfluenceMode.LookAtPoint

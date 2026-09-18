@@ -508,5 +508,7 @@ public enum ItemType
     Lalka,
     WoodBlockLevel1,
     WoodBlockLevel2,
-    SmallBox
+    SmallBox,
+    GramophoneRecord,
+    LibraryKey
 }

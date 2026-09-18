@@ -27,8 +27,6 @@ public class Int_lv3_ExitDoor : MonoBehaviour
 
     private void SetupInteractable()
     {
-        lvl3_LayerUtility.SetOutlinedObjectsLayer(gameObject);
-
         interactable = GetComponent<Interactable>();
         if (interactable != null)
         {

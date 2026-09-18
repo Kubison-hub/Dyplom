@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3259984105345310762}
   - component: {fileID: 845812232307788547}
   - component: {fileID: 3949173122681432395}
-  m_Layer: 7
+  m_Layer: 16
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -263,6 +263,7 @@ MonoBehaviour:
   carryLocalEulerAngles: {x: 0, y: 0, z: 0.75}
   dropLocalOffset: {x: 0, y: 0, z: 0.75}
   requireWatsonGrip: 1
+  showInWatsonEagleVision: 1
   leftHandTarget: {fileID: 621847168622410702}
   rightHandTarget: {fileID: 3315186886965344941}
   movementSpeedMultiplier: 0.3
@@ -290,7 +291,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06082a455667b474fa5c9d90a6ee4fec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  saveId: 292079a1a16040f6aff60ffa68be0896
+  isCompleted: 0
   isInteractableActive: 1
+  allowWatsonInteraction: 0
   interactionType: 81
   interactabePoint: {fileID: 0}
   useOccupiedPointFallback: 1
@@ -301,6 +305,7 @@ MonoBehaviour:
   watsonApproachDistance: 0
   watsonApproachMode: 0
   watsonApproachSide: 1
+  watsonSpecificApproachPoint: {fileID: 0}
   watsonApproachSpeedMultiplier: 1
   watsonApproachRotationSpeedMultiplier: 1
   rotationReactionDelay: 0
@@ -309,6 +314,7 @@ MonoBehaviour:
   sherlockApproachDistance: 0
   sherlockApproachMode: 0
   sherlockApproachSide: 1
+  sherlockSpecificApproachPoint: {fileID: 0}
   sherlockApproachSpeedMultiplier: 1
   sherlockApproachRotationSpeedMultiplier: 1
   sherlockRotationReactionDelay: 0
@@ -320,6 +326,8 @@ MonoBehaviour:
   interactionShaderVisibility: 1
   interactionShaderPulseSpeed: 1.5
   clues: []
+  databaseNotes: []
+  addDatabaseNotesAutomatically: 1
   questionVFX: {fileID: 0}
   interactionVFX: {fileID: 0}
   fxVisibleOnStart: 0
@@ -367,10 +375,12 @@ MonoBehaviour:
   dialogueLines:
   - speaker: 0
     text: "Ci\u0119\u017Cka drewniana skrzynia."
-    voiceClip: {fileID: 0}
+    voiceClip: {fileID: 8300000, guid: 8b6e9a786a4330944a88db783c2801ef, type: 3}
     duration: 2.5
   sherlockVoiceSource: {fileID: 0}
   watsonVoiceSource: {fileID: 0}
+  selmaVoiceSource: {fileID: 0}
+  violetVoiceSource: {fileID: 0}
 --- !u!82 &7001005587348963607
 AudioSource:
   m_ObjectHideFlags: 0
@@ -638,7 +648,7 @@ GameObject:
   - component: {fileID: 5106175901892757068}
   - component: {fileID: 4939221811219930774}
   - component: {fileID: 6116834152573675702}
-  m_Layer: 7
+  m_Layer: 16
   m_Name: Cube.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -848,7 +858,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5113929048928935421
 Transform:
   m_ObjectHideFlags: 0

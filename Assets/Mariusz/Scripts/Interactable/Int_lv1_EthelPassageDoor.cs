@@ -25,6 +25,10 @@ public class Int_lv1_EthelPassageDoor : Lvl3InteractionDialogueBase
         }
     };
 
+    [Header("After Gramophone Dialogue")]
+    [SerializeField] private Int_GramophoneController gramophoneController;
+    [SerializeField] private Lvl3DialogueLine[] afterGramophoneDialogueLines;
+
     [Header("Stairs Progress")]
     [SerializeField] private Int_StairsUp stairsUp;
 
@@ -47,6 +51,9 @@ public class Int_lv1_EthelPassageDoor : Lvl3InteractionDialogueBase
 
         if (stairsUp == null)
             stairsUp = FindFirstObjectByType<Int_StairsUp>();
+
+        if (gramophoneController == null)
+            gramophoneController = FindFirstObjectByType<Int_GramophoneController>();
     }
 
     public void PerformInteraction(PlayerController player)
@@ -57,12 +64,22 @@ public class Int_lv1_EthelPassageDoor : Lvl3InteractionDialogueBase
             GetComponent<Interactable>()?.MarkCompleted();
             ActivateStairsGoal();
             CluesLog.Instance?.SetFindEthelUpstairsObjective();
-            PlayDialogue(player, firstPassageDialogueLines);
+            PlayDialogue(player, GetAvailableDialogue(firstPassageDialogueLines));
             ActivateNextInteractions();
             return;
         }
 
-        PlayDialogue(player, repeatedPassageDialogueLines);
+        PlayDialogue(player, GetAvailableDialogue(repeatedPassageDialogueLines));
+    }
+
+    private Lvl3DialogueLine[] GetAvailableDialogue(Lvl3DialogueLine[] fallback)
+    {
+        bool gramophoneDialogueCompleted = gramophoneController != null &&
+                                           gramophoneController.ConversationCompleted;
+        return gramophoneDialogueCompleted && afterGramophoneDialogueLines != null &&
+               afterGramophoneDialogueLines.Length > 0
+            ? afterGramophoneDialogueLines
+            : fallback;
     }
 
     private void ActivateStairsGoal()

@@ -23,10 +23,17 @@ public class Int_lv3_Clock : Lvl3ClockworkInteraction
     [SerializeField] private AudioClip firstInteractionAudio;
     [SerializeField] private DetectiveIdeaPoint brickClockIdeaPoint;
 
+    [Header("Basement Idea Puzzle Requirement")]
+    [Tooltip("Clock hands can be adjusted only after this deduction puzzle is solved. Falls back to the scene instance when empty.")]
+    [SerializeField] private BasementIdeaPointPuzzle basementIdeaPointPuzzle;
+    [SerializeField, TextArea] private string puzzleRequiredText =
+        "Najpierw muszę zrozumieć powiązanie zegara z pozostałymi mechanizmami.";
+    [SerializeField] private AudioClip puzzleRequiredAudio;
+
     [Header("First Interaction Camera")]
     [Tooltip("Optional. If empty, uses the currently active character camera.")]
     [SerializeField] private CameraController cameraController;
-    [SerializeField, Min(0.01f)] private float narrowTransitionSmoothSpeed = 0.5f;
+    [SerializeField, Min(0f)] private float narrowTransitionDuration = 2.5f;
 
     [Header("Feedback")]
     [SerializeField] private AudioSource tickAudioSource;
@@ -73,14 +80,25 @@ public class Int_lv3_Clock : Lvl3ClockworkInteraction
         if (!hasBeenExamined)
         {
             hasBeenExamined = true;
-            GetCameraController()?.SetZoomPreset("Narrow", narrowTransitionSmoothSpeed);
+            GetCameraController()?.SetZoomPreset("Narrow", narrowTransitionDuration);
             ShowTopText(firstInteractionText);
 
             AudioSource voiceSource = GetVoiceSource(Lvl3DialogueSpeaker.Sherlock);
             if (voiceSource != null && firstInteractionAudio != null)
                 voiceSource.PlayOneShot(firstInteractionAudio);
 
-            brickClockIdeaPoint?.RevealFromExternalSource();
+            StartCoroutine(RevealIdeaPointAfterFirstDialogue());
+
+            return;
+        }
+
+        if (!IsBasementIdeaPuzzleSolved())
+        {
+            ShowTopText(puzzleRequiredText);
+
+            AudioSource voiceSource = GetVoiceSource(Lvl3DialogueSpeaker.Sherlock);
+            if (voiceSource != null && puzzleRequiredAudio != null)
+                voiceSource.PlayOneShot(puzzleRequiredAudio);
 
             return;
         }
@@ -92,6 +110,26 @@ public class Int_lv3_Clock : Lvl3ClockworkInteraction
         }
 
         StartCoroutine(TurnClockForward());
+    }
+
+    private IEnumerator RevealIdeaPointAfterFirstDialogue()
+    {
+        float dialogueDuration = firstInteractionAudio != null
+            ? firstInteractionAudio.length
+            : PlayerTopText.Instance != null ? PlayerTopText.Instance.textTime : 3f;
+
+        if (dialogueDuration > 0f)
+            yield return new WaitForSeconds(dialogueDuration);
+
+        brickClockIdeaPoint?.RevealFromExternalSource();
+    }
+
+    private bool IsBasementIdeaPuzzleSolved()
+    {
+        BasementIdeaPointPuzzle puzzle = basementIdeaPointPuzzle != null
+            ? basementIdeaPointPuzzle
+            : BasementIdeaPointPuzzle.Instance;
+        return puzzle != null && puzzle.IsSolved;
     }
 
     private IEnumerator TurnClockForward()

@@ -44,6 +44,12 @@ public class Int_lv3_Ethel_2 : MonoBehaviour
     [SerializeField] private string openDoorTrigger = "Open";
     [SerializeField] private string openedDoorBool = "Opened";
     [SerializeField] private AudioSource secretDoorAudioSource;
+    [Tooltip("Room content activated immediately before Ethel opens the secret door.")]
+    [SerializeField] private GameObject roomToActivate;
+    [Tooltip("Object reparented immediately before Ethel opens the secret door.")]
+    [SerializeField] private Transform objectToReparent;
+    [Tooltip("New parent assigned to Object To Reparent before the door animation starts.")]
+    [SerializeField] private Transform targetParent;
 
     [Header("Blackboard Reveal")]
     [Tooltip("Temporary blackboard hiding the area beyond Ethel's secret door.")]
@@ -61,6 +67,8 @@ public class Int_lv3_Ethel_2 : MonoBehaviour
     [Header("Disable On Completed")]
     [Tooltip("Whole GameObjects disabled after Ethel completes this sequence.")]
     [SerializeField] private GameObject[] disableGameObjects;
+    [Tooltip("Visual-only GameObjects disabled at the very end, after Ethel reaches Second Target.")]
+    [SerializeField] private GameObject[] visualObjectsToDisableAfterSequence;
 
     [Header("Inactive Player Movement")]
     [Tooltip("Sherlock moves here when Watson started Ethel's conversation.")]
@@ -197,6 +205,7 @@ public class Int_lv3_Ethel_2 : MonoBehaviour
 
         string playerId = player.playerCharacter == PlayerCharacter.Watson ? "PlayerB" : "PlayerA";
         QuestManager.Instance?.OdnotujRozmowe(playerId, ethelSmartNPC.npcID);
+        ethelSmartNPC.BeginDialogueCameraFocus(conversation);
         ConversationManager.Instance.StartConversation(conversation);
 
         if (ethelSmartNPC.noteIDToUnlock >= 0)
@@ -208,6 +217,12 @@ public class Int_lv3_Ethel_2 : MonoBehaviour
         ShowEthelText(firstInteractionText, firstInteractionAudio);
 
         yield return MoveEthelTo(firstTarget, runToFirstTarget);
+
+        if (roomToActivate != null)
+            roomToActivate.SetActive(true);
+
+        if (objectToReparent != null && targetParent != null)
+            objectToReparent.SetParent(targetParent, true);
 
         if (ethelSecretDoorAnimator != null && !string.IsNullOrWhiteSpace(openDoorTrigger))
             ethelSecretDoorAnimator.SetTrigger(openDoorTrigger);
@@ -232,6 +247,7 @@ public class Int_lv3_Ethel_2 : MonoBehaviour
             exit.canExit = true;
         }
 
+        DisableVisualObjectsAfterSequence();
         interactable?.MarkCompleted();
         alternativeInteraction?.GetComponent<Interactable>()?.MarkCompleted();
 
@@ -243,6 +259,18 @@ public class Int_lv3_Ethel_2 : MonoBehaviour
             return;
 
         foreach (GameObject target in disableGameObjects)
+        {
+            if (target != null)
+                target.SetActive(false);
+        }
+    }
+
+    private void DisableVisualObjectsAfterSequence()
+    {
+        if (visualObjectsToDisableAfterSequence == null)
+            return;
+
+        foreach (GameObject target in visualObjectsToDisableAfterSequence)
         {
             if (target != null)
                 target.SetActive(false);
@@ -408,8 +436,6 @@ public class Int_lv3_Ethel_2 : MonoBehaviour
 
     private void SetupInteractable()
     {
-        lvl3_LayerUtility.SetOutlinedObjectsLayer(gameObject);
-
         interactable = GetComponent<Interactable>();
         if (interactable != null)
             interactable.SetInteractionType(InteractionType.Int_lv3_Ethel_2);

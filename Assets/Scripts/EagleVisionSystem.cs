@@ -22,6 +22,31 @@ public class EagleVisionSystem : MonoBehaviour
     public KeyCode visionHoldKey = KeyCode.LeftShift;
     public KeyCode magnifierHoldKey = KeyCode.F;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource eagleVisionAudioSource;
+    [SerializeField] private AudioClip eagleVisionEnterClip;
+    [SerializeField] private AudioClip eagleVisionExitClip;
+
+    [Header("Debug")]
+    [Tooltip("Włącza lub wyłącza stale aktywne Vision Eye.")]
+    [SerializeField] private KeyCode debugVisionToggleKey = KeyCode.H;
+
+    [Header("Color Mask")]
+    [Tooltip("Nasycenie obrazu wewnatrz ringu. 0 oznacza naturalny kolor, wartosci ujemne go wyciszaja.")]
+    [SerializeField, Range(-100f, 100f)] private float insideSaturation = -35f;
+    [SerializeField, Range(-2f, 2f)] private float insideBrightness = 0f;
+    [SerializeField, Range(-100f, 100f)] private float insideContrast = 0f;
+    [SerializeField, ColorUsage(true, true)] private Color insideTint = Color.white;
+
+    [Tooltip("Nasycenie obrazu poza ringiem. -100 oznacza pelne odbarwienie.")]
+    [SerializeField, Range(-100f, 100f)] private float outsideSaturation = -100f;
+    [SerializeField, Range(-2f, 2f)] private float outsideBrightness = 0f;
+    [SerializeField, Range(-100f, 100f)] private float outsideContrast = 0f;
+    [SerializeField, ColorUsage(true, true)] private Color outsideTint = Color.white;
+
+    [SerializeField, Min(0.001f)] private float colorBoundarySoftness = 0.2f;
+    [SerializeField, ColorUsage(true, true)] private Color colorBoundaryTint = new Color(0.05f, 0.8f, 0.4f, 0.12f);
+
     [Header("First Vision Eye Tutorial")]
     [SerializeField] private bool showFirstVisionEyeTutorial = true;
     [SerializeField, Min(0f)] private float firstVisionEyeTutorialDelay = 1.5f;
@@ -33,12 +58,16 @@ public class EagleVisionSystem : MonoBehaviour
     private UniversalAdditionalCameraData cameraData; // Komponent kamery URP
 
     public EagleVisionScanner eagleVisionScanner;
-    public WatsonEagleVisionScanner watsonEagleVisionScanner;
 
     private float forcedActiveUntil;
     private bool firstVisionEyeTutorialShown;
     private bool firstVisionEyeTutorialForcesActive;
     private Coroutine firstVisionEyeTutorialCoroutine;
+    private bool debugVisionLockedOn;
+    private bool manualVisionAudioSessionActive;
+    private ColorAdjustments eagleVisionColorAdjustments;
+    private float originalEagleVisionSaturation;
+    private bool saturationOverrideNeutralized;
 
     public static EagleVisionSystem Instance;
     void Start()
@@ -57,6 +86,8 @@ public class EagleVisionSystem : MonoBehaviour
             Debug.LogError("Nie znaleziono MainCamera!");
         }
 
+        NeutralizeVolumeSaturation();
+
 
 
     }
@@ -70,33 +101,63 @@ public class EagleVisionSystem : MonoBehaviour
         bool visionInputBlocked = tutorialBlocksVisionInput || dialogueBlocksVisionInput;
 
         if (dialogueBlocksVisionInput)
+        {
             forcedActiveUntil = 0f;
+            debugVisionLockedOn = false;
+            firstVisionEyeTutorialForcesActive = false;
+        }
 
+        bool ideaSequenceForcesVision = !dialogueBlocksVisionInput && IsIdeaSequenceActive();
         bool puzzleForcesVision =
             !dialogueBlocksVisionInput &&
             ((TutorialTimeline.Instance != null && TutorialTimeline.Instance.KeepsEagleVisionActive) ||
              (BasementIdeaPointPuzzle.Instance != null && BasementIdeaPointPuzzle.Instance.KeepsEagleVisionActive));
+        bool gameplayForcesVision = puzzleForcesVision || ideaSequenceForcesVision;
+
+        if (gameplayForcesVision)
+            debugVisionLockedOn = false;
+        else if (Input.GetKeyDown(debugVisionToggleKey))
+        {
+            debugVisionLockedOn = !debugVisionLockedOn;
+            Debug.Log("Debug Vision Eye: " + (debugVisionLockedOn ? "WLACZONE" : "WYLACZONE"), this);
+        }
+
         bool magnifierActivatesVision = !visionInputBlocked &&
                                         Input.GetKey(magnifierHoldKey) &&
                                         !IsWatsonActive();
-        bool watsonEscortActivatesVision = !visionInputBlocked &&
-                                            IsWatsonActive() &&
-                                            Input.GetKey(magnifierHoldKey) &&
-                                            WatsonEscortController.Instance != null &&
-                                            WatsonEscortController.Instance.IsEscorting;
         bool manuallyActivatedVision = !visionInputBlocked &&
+                                       !gameplayForcesVision &&
                                        !IsWatsonActive() &&
                                        Input.GetKeyDown(visionHoldKey);
-        bool shouldBeActive = (!visionInputBlocked && Input.GetKey(visionHoldKey)) ||
+        bool manualVisionHeld = !visionInputBlocked &&
+                                !gameplayForcesVision &&
+                                !IsWatsonActive() &&
+                                Input.GetKey(visionHoldKey);
+        bool manualVisionRequested = !visionInputBlocked &&
+                                     !gameplayForcesVision &&
+                                     Input.GetKey(visionHoldKey);
+        bool shouldBeActive = manualVisionRequested ||
                                magnifierActivatesVision ||
-                               watsonEscortActivatesVision ||
-                               puzzleForcesVision ||
-                               (!dialogueBlocksVisionInput && IsIdeaSequenceActive()) ||
+                               gameplayForcesVision ||
                                firstVisionEyeTutorialForcesActive ||
+                               debugVisionLockedOn ||
                                (!dialogueBlocksVisionInput && Time.unscaledTime < forcedActiveUntil);
         if (isActive != shouldBeActive)
         {
             isActive = shouldBeActive;
+            if (isActive)
+            {
+                manualVisionAudioSessionActive = manualVisionRequested;
+                if (manualVisionAudioSessionActive)
+                    PlayEagleVisionTransitionAudio(true);
+            }
+            else
+            {
+                if (manualVisionAudioSessionActive)
+                    PlayEagleVisionTransitionAudio(false);
+
+                manualVisionAudioSessionActive = false;
+            }
             //SwitchRenderer();
             Scan();
         }
@@ -109,6 +170,9 @@ public class EagleVisionSystem : MonoBehaviour
 
         SyncSherlockScannerState();
 
+        if (eagleVisionScanner != null)
+            eagleVisionScanner.SetManualScanRingActive(manualVisionHeld || debugVisionLockedOn);
+
         // 3. P?ynne przej?cie Volume (zostaje bez zmian, bo reaguje na isActive)
         float targetWeight = isActive ? 1f : 0f;
         if (eagleVisionVolume != null)
@@ -117,6 +181,17 @@ public class EagleVisionSystem : MonoBehaviour
             float blend = 1f - Mathf.Exp(-Mathf.Max(0.01f, speed) * Time.unscaledDeltaTime);
             eagleVisionVolume.weight = Mathf.Lerp(eagleVisionVolume.weight, targetWeight, blend);
         }
+
+        UpdateColorMaskShaderGlobals(manualVisionHeld || debugVisionLockedOn);
+    }
+
+    private void PlayEagleVisionTransitionAudio(bool entering)
+    {
+        AudioClip clip = entering ? eagleVisionEnterClip : eagleVisionExitClip;
+        if (eagleVisionAudioSource == null || clip == null)
+            return;
+
+        eagleVisionAudioSource.PlayOneShot(clip);
     }
     private bool IsWatsonActive()
     {
@@ -125,7 +200,7 @@ public class EagleVisionSystem : MonoBehaviour
 
     public bool IsMagnifierHeld()
     {
-        return isActive && Input.GetKey(magnifierHoldKey);
+        return isActive && !IsWatsonActive() && Input.GetKey(magnifierHoldKey);
     }
 
     public void RefreshScan()
@@ -136,6 +211,52 @@ public class EagleVisionSystem : MonoBehaviour
     public void HoldVisionFor(float duration)
     {
         forcedActiveUntil = Mathf.Max(forcedActiveUntil, Time.unscaledTime + Mathf.Max(0f, duration));
+    }
+
+    private void NeutralizeVolumeSaturation()
+    {
+        if (eagleVisionVolume == null || eagleVisionVolume.profile == null ||
+            !eagleVisionVolume.profile.TryGet(out eagleVisionColorAdjustments))
+            return;
+
+        originalEagleVisionSaturation = eagleVisionColorAdjustments.saturation.value;
+        eagleVisionColorAdjustments.saturation.value = 0f;
+        saturationOverrideNeutralized = true;
+    }
+
+    private void UpdateColorMaskShaderGlobals(bool colorRingActive)
+    {
+        float strength = eagleVisionVolume != null ? eagleVisionVolume.weight : isActive ? 1f : 0f;
+        Vector3 center = eagleVisionScanner != null
+            ? eagleVisionScanner.QuestionFxScanOrigin
+            : transform.position;
+        float scanRadius = eagleVisionScanner != null
+            ? eagleVisionScanner.CurrentQuestionFxScanRadius
+            : 0f;
+
+        Shader.SetGlobalVector("_EagleVisionScanCenter", center);
+        Shader.SetGlobalFloat("_EagleVisionScanRadius", scanRadius);
+        Shader.SetGlobalFloat("_EagleVisionColorMaskEnabled", colorRingActive ? 1f : 0f);
+        Shader.SetGlobalFloat("_EagleVisionColorMaskStrength", strength);
+        Shader.SetGlobalFloat("_EagleVisionInsideSaturation", insideSaturation);
+        Shader.SetGlobalFloat("_EagleVisionInsideBrightness", insideBrightness);
+        Shader.SetGlobalFloat("_EagleVisionInsideContrast", insideContrast);
+        Shader.SetGlobalColor("_EagleVisionInsideTint", insideTint);
+        Shader.SetGlobalFloat("_EagleVisionOutsideSaturation", outsideSaturation);
+        Shader.SetGlobalFloat("_EagleVisionOutsideBrightness", outsideBrightness);
+        Shader.SetGlobalFloat("_EagleVisionOutsideContrast", outsideContrast);
+        Shader.SetGlobalColor("_EagleVisionOutsideTint", outsideTint);
+        Shader.SetGlobalFloat("_EagleVisionBoundarySoftness", colorBoundarySoftness);
+        Shader.SetGlobalColor("_EagleVisionBoundaryTint", colorBoundaryTint);
+    }
+
+    private void OnDestroy()
+    {
+        Shader.SetGlobalFloat("_EagleVisionColorMaskStrength", 0f);
+        Shader.SetGlobalFloat("_EagleVisionColorMaskEnabled", 0f);
+
+        if (saturationOverrideNeutralized && eagleVisionColorAdjustments != null)
+            eagleVisionColorAdjustments.saturation.value = originalEagleVisionSaturation;
     }
 
     private IEnumerator ShowFirstVisionEyeTutorialAfterDelay()
@@ -216,23 +337,10 @@ public class EagleVisionSystem : MonoBehaviour
 
     void Scan()
     {
-        if (SwitchCharacter.Instance.activePlayerIndex == 0)
-        {
-            if (watsonEagleVisionScanner != null)
-            {
-                watsonEagleVisionScanner.ScanWatson(false);
-            }
-            eagleVisionScanner.ScanSherlock(isActive);
-        }
-        else
-        {
-            eagleVisionScanner.ScanSherlock(false);
-            if (watsonEagleVisionScanner != null)
-            {
-                watsonEagleVisionScanner.ScanWatson(isActive);
-            }
+        if (eagleVisionScanner == null || SwitchCharacter.Instance == null)
+            return;
 
-        }
+        eagleVisionScanner.ScanSherlock(isActive && SwitchCharacter.Instance.activePlayerIndex == 0);
 
     }
 

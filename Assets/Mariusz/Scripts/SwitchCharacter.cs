@@ -20,7 +20,7 @@ public class SwitchCharacter : MonoBehaviour
 
     public static SwitchCharacter Instance;
 
-    public bool canSwitchOnStart = false;
+    public bool canSwitchOnStart = true;
 
     public Transform sherlockTransform;
     public Transform watsonTransform;

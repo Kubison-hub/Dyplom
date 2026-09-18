@@ -21,7 +21,7 @@ public class EmptyWall : Lvl3InteractionDialogueBase
     [Header("Wall Examination Zone")]
     [SerializeField, Min(0.1f)] private float playerZoneRange = 3f;
     [SerializeField] private Vector3 playerZoneOffset;
-    [SerializeField, Min(0.1f)] private float wallExamZoomSmoothSpeed = 2.5f;
+    [SerializeField, Min(0f)] private float wallExamZoomTransitionDuration = 0.45f;
     [Header("Wall Examination Orbit")]
     [SerializeField] private bool orbitToWallExamAxis = true;
     [SerializeField] private float wallExamHorizontalAxis = 178f;
@@ -108,7 +108,7 @@ public class EmptyWall : Lvl3InteractionDialogueBase
 
         isPlayerInsideZone = true;
         isWallExamCameraActive = cameraController != null &&
-                                  cameraController.SetZoomPreset(wallExamPresetName, wallExamZoomSmoothSpeed);
+                                  cameraController.SetZoomPreset(wallExamPresetName, wallExamZoomTransitionDuration);
         StartWallExamOrbit();
         SetWallInteractionShaderVisible(false);
         ShowTutorialPopupIfNeeded();
@@ -162,7 +162,7 @@ public class EmptyWall : Lvl3InteractionDialogueBase
         if (isPlayerInsideZone)
         {
             isWallExamCameraActive = cameraController != null &&
-                                      cameraController.SetZoomPreset(wallExamPresetName, wallExamZoomSmoothSpeed);
+                                      cameraController.SetZoomPreset(wallExamPresetName, wallExamZoomTransitionDuration);
             StartWallExamOrbit();
             SetWallInteractionShaderVisible(false);
             ShowTutorialPopupIfNeeded();

@@ -202,6 +202,8 @@ public class WatsonCompanionController : MonoBehaviour
         if (interactionTarget == null)
             return;
 
+        WatsonEscortController.Instance?.ForceFarewell();
+
         focusTarget = interactionTarget;
         StopIdleRoutine();
         focusLookRotationMultiplier = Mathf.Max(0.01f, rotationSpeedMultiplier);

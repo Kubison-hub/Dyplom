@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Serialization;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Interactable))]
@@ -49,8 +50,10 @@ public class WatsonEscortNPC : MonoBehaviour
     [SerializeField] private AudioSource selmaVoiceSource;
     [SerializeField] private AudioSource violetVoiceSource;
 
-    [Header("Vision Eye")]
-    [SerializeField] private bool showInteractionShaderInWatsonVision = true;
+    [Header("Watson Eagle Vision Visual")]
+    [Tooltip("Shows this NPC's Watson-specific visual while Watson is using Eagle Vision.")]
+    [FormerlySerializedAs("showInteractionShaderInWatsonVision")]
+    [SerializeField] private bool showInWatsonEagleVision = true;
 
     [Header("Placement Preview")]
     [Tooltip("Optional prefab shown in the center of the NavMesh ring while Watson chooses this NPC's destination. When empty, the Interactable shader object is cloned.")]
@@ -61,6 +64,8 @@ public class WatsonEscortNPC : MonoBehaviour
     [Header("Destination Validation")]
     [Tooltip("When assigned, Watson cannot place this NPC inside this volume. Use this for Violet's library area.")]
     [SerializeField] private Collider forbiddenDestinationVolume;
+    [Tooltip("Additional volumes in which this NPC cannot be placed. Trigger BoxColliders on Ignore Raycast are recommended.")]
+    [SerializeField] private Collider[] additionalForbiddenDestinationVolumes;
     [Tooltip("Distance outside the forbidden volume over which the preview changes smoothly from invalid to valid.")]
     [SerializeField, Min(0.01f)] private float destinationValidationColorBlendDistance = 1f;
     [Tooltip("Optional Violet dialogue that becomes available and starts automatically after the first valid escort destination.")]
@@ -71,6 +76,16 @@ public class WatsonEscortNPC : MonoBehaviour
     [SerializeField] private WatsonEscortInfluencePoint[] influencePoints;
     [SerializeField] private bool useGlobalInfluencePointsWhenListEmpty = true;
 
+    [Header("Violet Influence Arrival")]
+    [Tooltip("When this NPC reaches the range of this influence point, Sherlock plays the configured line once.")]
+    [SerializeField] private WatsonEscortInfluencePoint violetInfluencePoint;
+    [SerializeField] private Lvl3DialogueLine violetInfluenceArrivalDialogue = new Lvl3DialogueLine
+    {
+        speaker = Lvl3DialogueSpeaker.Sherlock,
+        text = "Teraz mam szansę dostać się na górę",
+        duration = 2.5f
+    };
+
     private Interactable interactable;
     private bool visionShaderVisible;
     private Coroutine dialogueCoroutine;
@@ -79,6 +94,7 @@ public class WatsonEscortNPC : MonoBehaviour
     private bool isWalkingAnimationActive;
     private bool successfulEscortDialogueStarted;
     private bool sherlockAfterEscortDialoguePlayed;
+    private bool violetInfluenceArrivalDialoguePlayed;
 
     public NavMeshAgent Agent => navMeshAgent;
     public bool IsReadyForEscort { get; private set; }
@@ -92,7 +108,9 @@ public class WatsonEscortNPC : MonoBehaviour
     public float SherlockActiveFarewellDelay => sherlockActiveFarewellDelay;
     public float EscortRangeOverride => escortRangeOverride;
     public Int_SelmaDialog LinkedSelmaDialogue => linkedSelmaDialogue;
-    public bool UsesDestinationValidation => forbiddenDestinationVolume != null;
+    public bool UsesDestinationValidation => forbiddenDestinationVolume != null ||
+                                             additionalForbiddenDestinationVolumes != null &&
+                                             Array.Exists(additionalForbiddenDestinationVolumes, volume => volume != null);
     public bool WillStartDialogueAfterValidEscort => !successfulEscortDialogueStarted &&
                                                      violetDialogueAfterEscort != null &&
                                                      violetDialogueAfterEscort.WillAutomaticallyStartAfterEscort;
@@ -116,15 +134,17 @@ public class WatsonEscortNPC : MonoBehaviour
 
     private void Update()
     {
-        bool shouldShowShader = showInteractionShaderInWatsonVision &&
+        bool shouldShowShader = showInWatsonEagleVision &&
                                 !IsReadyForEscort &&
-                                MagnifierGlassController.IsWatsonGripActive &&
-                                SwitchCharacter.Instance != null && SwitchCharacter.Instance.activePlayerIndex == 1;
+                                interactable != null && interactable.isInteractableActive &&
+                                EagleVisionSystem.Instance != null && EagleVisionSystem.Instance.isActive &&
+                                SwitchCharacter.Instance != null && SwitchCharacter.Instance.activePlayerIndex == 1 &&
+                                !IsWorldInteractionBlocked();
 
         if (visionShaderVisible != shouldShowShader)
         {
             visionShaderVisible = shouldShowShader;
-            interactable?.SetInteractionShaderForcedVisible(visionShaderVisible);
+            SetWatsonVisionVisible(visionShaderVisible);
         }
 
         if (animator == null)
@@ -135,8 +155,38 @@ public class WatsonEscortNPC : MonoBehaviour
 
     private void OnDisable()
     {
-        interactable?.SetInteractionShaderForcedVisible(false);
+        SetWatsonVisionVisible(false);
         visionShaderVisible = false;
+    }
+
+    private void SetWatsonVisionVisible(bool visible)
+    {
+        WatsonEscortController controller = WatsonEscortController.Instance;
+        float visibility = controller != null ? controller.EagleVisionShaderVisibility : 1f;
+        float pulseSpeed = controller != null ? controller.EagleVisionShaderPulseSpeed : 1.5f;
+        Color color = controller != null ? controller.EagleVisionShaderColor : Color.green;
+        Color hoverColor = controller != null ? controller.EagleVisionShaderHoverColor : Color.cyan;
+        float colorTransitionSpeed = controller != null
+            ? controller.EagleVisionShaderColorTransitionSpeed
+            : 8f;
+        float fresnelPower = controller != null ? controller.EagleVisionShaderFresnelPower : 2f;
+        interactable?.SetInteractionShaderForcedVisible(
+            visible,
+            visibility,
+            pulseSpeed,
+            color,
+            hoverColor,
+            colorTransitionSpeed,
+            fresnelPower);
+    }
+
+    private static bool IsWorldInteractionBlocked()
+    {
+        return DialogueEditor.ConversationManager.Instance != null &&
+               DialogueEditor.ConversationManager.Instance.IsConversationActive ||
+               NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen ||
+               TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput ||
+               TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput;
     }
 
     public bool CanBeEscortedBy(PlayerController player)
@@ -144,7 +194,7 @@ public class WatsonEscortNPC : MonoBehaviour
         return isActiveAndEnabled &&
                player != null &&
                player.playerCharacter == PlayerCharacter.Watson &&
-               MagnifierGlassController.IsWatsonGripActive;
+               WatsonEscortController.IsWatsonEagleVisionInteractionActive;
     }
 
     public Vector3 GetWatsonApproachPoint(Vector3 watsonPosition)
@@ -168,21 +218,78 @@ public class WatsonEscortNPC : MonoBehaviour
 
     public bool IsEscortDestinationAllowed(Vector3 destination)
     {
-        if (forbiddenDestinationVolume == null)
-            return true;
-
-        Vector3 closestPoint = forbiddenDestinationVolume.ClosestPoint(destination);
-        return (closestPoint - destination).sqrMagnitude > 0.0001f;
+        return IsEscortDestinationAllowed(destination, transform.rotation);
     }
 
-    public float GetDestinationValidationColorAmount(Vector3 destination)
+    public bool IsEscortDestinationAllowed(Vector3 destination, Quaternion destinationRotation)
     {
-        if (forbiddenDestinationVolume == null)
+        if (IsInsideForbiddenDestinationVolume(destination))
+            return false;
+
+        return violetDialogueAfterEscort == null ||
+               !violetDialogueAfterEscort.WouldLibraryBeObservedFrom(destination, destinationRotation);
+    }
+
+    public float GetDestinationValidationColorAmount(Vector3 destination, Quaternion destinationRotation)
+    {
+        if (violetDialogueAfterEscort != null &&
+            violetDialogueAfterEscort.WouldLibraryBeObservedFrom(destination, destinationRotation))
+            return 0f;
+
+        if (!UsesDestinationValidation)
             return 1f;
 
-        Vector3 closestPoint = forbiddenDestinationVolume.ClosestPoint(destination);
-        float distanceOutsideVolume = Vector3.Distance(destination, closestPoint);
+        float distanceOutsideVolume = GetDistanceFromForbiddenDestinationVolumes(destination);
         return Mathf.Clamp01(distanceOutsideVolume / destinationValidationColorBlendDistance);
+    }
+
+    private bool IsInsideForbiddenDestinationVolume(Vector3 destination)
+    {
+        if (IsInsideVolume(forbiddenDestinationVolume, destination))
+            return true;
+
+        if (additionalForbiddenDestinationVolumes == null)
+            return false;
+
+        foreach (Collider volume in additionalForbiddenDestinationVolumes)
+        {
+            if (IsInsideVolume(volume, destination))
+                return true;
+        }
+
+        return false;
+    }
+
+    private float GetDistanceFromForbiddenDestinationVolumes(Vector3 destination)
+    {
+        float closestDistance = float.PositiveInfinity;
+        UpdateClosestVolumeDistance(forbiddenDestinationVolume, destination, ref closestDistance);
+
+        if (additionalForbiddenDestinationVolumes != null)
+        {
+            foreach (Collider volume in additionalForbiddenDestinationVolumes)
+                UpdateClosestVolumeDistance(volume, destination, ref closestDistance);
+        }
+
+        return float.IsPositiveInfinity(closestDistance) ? destinationValidationColorBlendDistance : closestDistance;
+    }
+
+    private static bool IsInsideVolume(Collider volume, Vector3 position)
+    {
+        return volume != null && (volume.ClosestPoint(position) - position).sqrMagnitude <= 0.0001f;
+    }
+
+    private static void UpdateClosestVolumeDistance(
+        Collider volume,
+        Vector3 position,
+        ref float closestDistance)
+    {
+        if (volume == null)
+            return;
+
+        float distance = Vector3.Distance(position, volume.ClosestPoint(position));
+        if (distance < closestDistance)
+            closestDistance = distance;
     }
 
     public bool NotifyValidEscortDestinationReached(PlayerController watson, bool switchToSherlockAfterDialogue = true)
@@ -317,6 +424,19 @@ public class WatsonEscortNPC : MonoBehaviour
     public void PlayDestinationDialogue()
     {
         StartRandomDialogue(destinationDialogueLines);
+    }
+
+    public bool TryPlayVioletInfluenceArrivalDialogue()
+    {
+        if (violetInfluenceArrivalDialoguePlayed || violetInfluencePoint == null ||
+            !violetInfluencePoint.ContainsPosition(transform.position))
+        {
+            return false;
+        }
+
+        violetInfluenceArrivalDialoguePlayed = true;
+        StartRandomDialogue(new[] { violetInfluenceArrivalDialogue });
+        return true;
     }
 
     public void PlayFarewellDialogue()

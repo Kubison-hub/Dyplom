@@ -28,7 +28,7 @@ public class Int_lv1_SecretDoor : Lvl3InteractionDialogueBase
     [Header("Tutorial Camera")]
     [SerializeField] private CameraController cameraController;
     [SerializeField] private string tutorialCameraPresetName = "Wide";
-    [SerializeField, Min(0.1f)] private float cameraTransitionSpeed = 2.5f;
+    [SerializeField, Min(0f)] private float cameraTransitionDuration = 2.5f;
     [SerializeField, Min(0f)] private float cameraSettleDelay = 0.75f;
     [SerializeField] private bool returnToPreviousCameraAfterTutorial = true;
 
@@ -103,7 +103,7 @@ public class Int_lv1_SecretDoor : Lvl3InteractionDialogueBase
             yield return new WaitForSecondsRealtime(tutorialDelay);
 
         bool cameraChanged = cameraController != null &&
-                             cameraController.SetZoomPreset(tutorialCameraPresetName, cameraTransitionSpeed);
+                             cameraController.SetZoomPreset(tutorialCameraPresetName, cameraTransitionDuration);
 
         if (cameraChanged && cameraSettleDelay > 0f)
             yield return new WaitForSecondsRealtime(cameraSettleDelay);
@@ -126,7 +126,7 @@ public class Int_lv1_SecretDoor : Lvl3InteractionDialogueBase
         SetFootprintSplinesActive(true);
 
         if (cameraChanged && returnToPreviousCameraAfterTutorial)
-            cameraController.ReturnToPreviousZoomState(cameraTransitionSpeed);
+            cameraController.ReturnToPreviousZoomState(cameraTransitionDuration);
 
         EnableRepeatableInteraction();
     }

@@ -99,7 +99,7 @@ public class Int_Globus : Lvl3InteractionDialogueBase, IVioletRoomInteractionGat
             firstInteraction = false;
 
             if (cameraController != null)
-                cameraController.SetZoomState(CameraZoomState.Narrow);
+                cameraController.SetZoomIndex(Mathf.Max(0, cameraController.CurrentZoomIndex - 1));
 
             if (interactable != null)
                 interactable.isInteractableActive = true;
@@ -250,8 +250,12 @@ public class Int_Globus : Lvl3InteractionDialogueBase, IVioletRoomInteractionGat
     {
         isSpinning = false;
 
+        if (interactable == null)
+            interactable = GetComponent<Interactable>();
+
         if (interactable != null)
         {
+            interactable.MarkCompleted();
             interactable.isInteractableActive = false;
             interactable.allowQuestionFXWhenInactive = false;
             interactable.SetQuestionFXEagleVisionState(false);

@@ -18,8 +18,19 @@ public class EagleVisionScanner : MonoBehaviour
     [Header("QuestionFX Scan Wave")]
     [SerializeField] private string outlinedObjectsLayerName = "Outlined Objects";
     [SerializeField, Min(0.1f)] private float questionFxScanRange = 4f;
-    [SerializeField, Min(0.01f)] private float questionFxScanExpansionSpeed = 1.5f;
+    [Tooltip("Bazowa predkosc rozszerzania skanu i ringu w metrach na sekunde.")]
+    [SerializeField, Min(0.01f)] private float scannerSpeed = 15f;
+    [Tooltip("Przebieg promienia w czasie: os X to czas 0-1, os Y to procent zasiegu 0-1.")]
+    [SerializeField] private AnimationCurve scannerSpeedCurve = AnimationCurve.Linear(0f, 1f, 1f, 1f);
     [SerializeField] private bool drawQuestionFxScanGizmo = true;
+
+    [Header("Manual Scan Range Ring")]
+    [SerializeField] private LineRenderer scanRangeRing;
+    [SerializeField] private Material scanRangeRingMaterial;
+    [SerializeField] private Color scanRangeRingColor = new Color(0.25f, 1f, 0.45f, 0.8f);
+    [SerializeField, Min(0.001f)] private float scanRangeRingWidth = 0.04f;
+    [SerializeField, Range(16, 128)] private int scanRangeRingSegments = 64;
+    [SerializeField] private float scanRangeRingHeight = 0.03f;
 
     private ParticleSystem scannerPS;
     private SphereCollider scannerCollider;
@@ -27,12 +38,16 @@ public class EagleVisionScanner : MonoBehaviour
     private readonly HashSet<Interactable> scannedInteractables = new HashSet<Interactable>();
     private int outlinedObjectsLayer;
     private float currentQuestionFxScanRadius;
+    private float questionFxScanProgress;
+    private bool manualScanRingActive;
+    private Material runtimeScanRangeRingMaterial;
 
     public float duration = 5;
     public float size = 30;
-    public float scannerSpeed = 15;
 
     public bool isScanning = false;
+    public float CurrentQuestionFxScanRadius => currentQuestionFxScanRadius;
+    public Vector3 QuestionFxScanOrigin => GetQuestionFxScanOrigin();
     private float timer = 0f;
 
     public bool footPrints;
@@ -70,6 +85,8 @@ public class EagleVisionScanner : MonoBehaviour
         outlinedObjectsLayer = LayerMask.NameToLayer(outlinedObjectsLayerName);
         if (outlinedObjectsLayer < 0)
             Debug.LogWarning("EagleVisionScanner: Layer '" + outlinedObjectsLayerName + "' was not found.", this);
+
+        InitializeScanRangeRing();
     }
 
     private void Update()
@@ -79,6 +96,8 @@ public class EagleVisionScanner : MonoBehaviour
 
         if (isScanning)
             ExpandQuestionFxScanWave();
+
+        UpdateScanRangeRing();
     }
 
 
@@ -122,9 +141,22 @@ public class EagleVisionScanner : MonoBehaviour
 
             foreach (var footprint in footprintsSplines)
                 footprint.SetActive(false);
+
+            SetManualScanRingActive(false);
         }
 
         Debug.Log($"Scanner State: {isActive}");
+    }
+
+    public void SetManualScanRingActive(bool isActive)
+    {
+        manualScanRingActive = isActive && isScanning;
+
+        if (scanRangeRing != null && !manualScanRingActive)
+        {
+            scanRangeRing.enabled = false;
+            scanRangeRing.positionCount = 0;
+        }
     }
 
     private void UpdateTooltipDialogueVisibility()
@@ -173,16 +205,28 @@ public class EagleVisionScanner : MonoBehaviour
     private void ResetQuestionFxScanWave()
     {
         currentQuestionFxScanRadius = 0f;
+        questionFxScanProgress = 0f;
         scannedInteractables.Clear();
         scannerCollider.radius = 0f;
     }
 
     private void ExpandQuestionFxScanWave()
     {
-        currentQuestionFxScanRadius = Mathf.MoveTowards(
-            currentQuestionFxScanRadius,
-            questionFxScanRange,
-            questionFxScanExpansionSpeed * Time.unscaledDeltaTime);
+        float progressSpeed = questionFxScanRange > 0f
+            ? scannerSpeed / questionFxScanRange
+            : 1f;
+        questionFxScanProgress = Mathf.MoveTowards(
+            questionFxScanProgress,
+            1f,
+            progressSpeed * Time.unscaledDeltaTime);
+
+        float easedProgress = scannerSpeedCurve != null && scannerSpeedCurve.length > 0
+            ? Mathf.Clamp01(scannerSpeedCurve.Evaluate(questionFxScanProgress))
+            : questionFxScanProgress;
+        currentQuestionFxScanRadius = questionFxScanRange * easedProgress;
+
+        if (questionFxScanProgress >= 1f)
+            currentQuestionFxScanRadius = questionFxScanRange;
 
         scannerCollider.radius = currentQuestionFxScanRadius;
 
@@ -214,6 +258,102 @@ public class EagleVisionScanner : MonoBehaviour
 
             interactable.SetQuestionFXEagleVisionState(true);
         }
+    }
+
+    private void InitializeScanRangeRing()
+    {
+        if (scanRangeRing == null)
+        {
+            GameObject ringObject = new GameObject("Sherlock Scan Range Ring");
+            ringObject.transform.SetParent(transform, false);
+            scanRangeRing = ringObject.AddComponent<LineRenderer>();
+        }
+
+        int sherlockLayer = LayerMask.NameToLayer("Sherlock");
+        if (sherlockLayer >= 0)
+            scanRangeRing.gameObject.layer = sherlockLayer;
+        else
+            Debug.LogWarning("EagleVisionScanner: Layer 'Sherlock' was not found for the scan range ring.", this);
+
+        scanRangeRing.useWorldSpace = true;
+        scanRangeRing.loop = true;
+        scanRangeRing.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        scanRangeRing.receiveShadows = false;
+        scanRangeRing.textureMode = LineTextureMode.Stretch;
+        scanRangeRing.alignment = LineAlignment.View;
+
+        if (scanRangeRingMaterial != null)
+        {
+            scanRangeRing.material = scanRangeRingMaterial;
+        }
+        else if (scanRangeRing.sharedMaterial == null)
+        {
+            Material ringMaterialResource = Resources.Load<Material>("EagleVisionScanRing");
+            if (ringMaterialResource != null)
+            {
+                scanRangeRing.material = ringMaterialResource;
+            }
+            else
+            {
+                Shader ringShader = Shader.Find("Mariusz/Eagle Vision Scan Ring");
+                if (ringShader == null)
+                    ringShader = Shader.Find("Sprites/Default");
+                if (ringShader != null)
+                {
+                    runtimeScanRangeRingMaterial = new Material(ringShader)
+                    {
+                        name = "Sherlock Scan Range Ring (Runtime)"
+                    };
+                    scanRangeRing.material = runtimeScanRangeRingMaterial;
+                }
+            }
+        }
+
+        scanRangeRing.enabled = false;
+        scanRangeRing.positionCount = 0;
+    }
+
+    private void UpdateScanRangeRing()
+    {
+        if (scanRangeRing == null || !manualScanRingActive || !isScanning)
+            return;
+
+        int segmentCount = Mathf.Max(16, scanRangeRingSegments);
+        float ringRadius = Mathf.Max(0f, currentQuestionFxScanRadius);
+        Vector3 center = playerTransform != null ? playerTransform.position : transform.position;
+        center.y += scanRangeRingHeight;
+
+        scanRangeRing.enabled = true;
+        scanRangeRing.loop = true;
+        scanRangeRing.positionCount = segmentCount;
+        scanRangeRing.startWidth = scanRangeRingWidth;
+        scanRangeRing.endWidth = scanRangeRingWidth;
+        scanRangeRing.startColor = scanRangeRingColor;
+        scanRangeRing.endColor = scanRangeRingColor;
+
+        for (int index = 0; index < segmentCount; index++)
+        {
+            float angle = index * Mathf.PI * 2f / segmentCount;
+            Vector3 point = center + new Vector3(Mathf.Cos(angle) * ringRadius, 0f, Mathf.Sin(angle) * ringRadius);
+            scanRangeRing.SetPosition(index, point);
+        }
+    }
+
+    private void OnDisable()
+    {
+        manualScanRingActive = false;
+
+        if (scanRangeRing != null)
+        {
+            scanRangeRing.enabled = false;
+            scanRangeRing.positionCount = 0;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (runtimeScanRangeRingMaterial != null)
+            Destroy(runtimeScanRangeRingMaterial);
     }
 
     private bool UsesOutlinedObjectsLayer(Collider hit, Interactable interactable)

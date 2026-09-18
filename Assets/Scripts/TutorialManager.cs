@@ -24,8 +24,9 @@ public class TutorialManager : MonoBehaviour
     // Zbiór ID tutoriali, które już były (HashSet jest szybki, ale nie zapisuje się w JSON)
     private HashSet<string> pokazaneTutoriale = new HashSet<string>();
 
-    public bool BlocksWorldInput => isTutorialActive || blockWorldInputUntilMouseRelease;
-    private bool blockWorldInputUntilMouseRelease;
+    public bool BlocksWorldInput => isTutorialActive || blockWorldInputUntilTutorialKeyRelease;
+    private bool blockWorldInputUntilTutorialKeyRelease;
+    private Coroutine releaseTutorialInputCoroutine;
     private bool activeTutorialPlaysAudio = true;
 
 
@@ -46,15 +47,18 @@ public class TutorialManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (releaseTutorialInputCoroutine != null)
+            StopCoroutine(releaseTutorialInputCoroutine);
+
         GameplayTimePause.Resume(this);
     }
 
     private void Update()
     {
-        // Tutorial panels are dismissed only with Enter, so a world click cannot close them.
+        // Tutorial panels are dismissed only with Tab, so a world click cannot close them.
         if (isTutorialActive)
         {
-            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+            if (Input.GetKeyDown(KeyCode.Tab))
             {
                 ZamknijTutorial();
             }
@@ -116,7 +120,24 @@ public class TutorialManager : MonoBehaviour
         activeTutorialPlaysAudio = true;
         GameplayTimePause.Resume(this);
 
-        blockWorldInputUntilMouseRelease = false;
+        blockWorldInputUntilTutorialKeyRelease = true;
+
+        if (releaseTutorialInputCoroutine != null)
+            StopCoroutine(releaseTutorialInputCoroutine);
+
+        releaseTutorialInputCoroutine = StartCoroutine(ReleaseTutorialInputAfterTabRelease());
+    }
+
+    private IEnumerator ReleaseTutorialInputAfterTabRelease()
+    {
+        // Keep the closing Tab consumed for the rest of this frame.
+        yield return null;
+
+        while (Input.GetKey(KeyCode.Tab))
+            yield return null;
+
+        blockWorldInputUntilTutorialKeyRelease = false;
+        releaseTutorialInputCoroutine = null;
     }
     private void PlayTutorialSound(AudioClip clip)
     {

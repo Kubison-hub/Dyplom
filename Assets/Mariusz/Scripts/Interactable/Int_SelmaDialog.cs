@@ -32,7 +32,7 @@ public class Int_SelmaDialog : Lvl3InteractionDialogueBase
     [SerializeField] private Transform selmaDialogueMovePosition;
     [SerializeField, Min(0.05f)] private float selmaDestinationSampleRadius = 1f;
     [SerializeField, Min(0.01f)] private float watsonCameraTransitionSpeed = 0.2f;
-    [SerializeField, Min(0.01f)] private float selmaDepartureCameraTransitionSpeed = 0.2f;
+    [SerializeField, Min(0f)] private float selmaDepartureCameraTransitionDuration = 2.5f;
     [SerializeField, Min(1f)] private float selmaDestinationRotationSpeed = 85f;
     [SerializeField, Min(0f)] private float sherlockFaceStartDelay = 0.35f;
     [SerializeField, Min(0f)] private float watsonFaceStartDelay = 0.2f;
@@ -164,7 +164,7 @@ public class Int_SelmaDialog : Lvl3InteractionDialogueBase
 
         string playerId = player.playerCharacter == PlayerCharacter.Watson ? "PlayerB" : "PlayerA";
         QuestManager.Instance?.OdnotujRozmowe(playerId, smartNPC.npcID);
-        smartNPC.BeginDialogueCameraFocus();
+        smartNPC.BeginDialogueCameraFocus(conversation);
         ConversationManager.Instance.StartConversation(conversation);
 
         if (smartNPC.noteIDToUnlock >= 0)
@@ -361,7 +361,7 @@ public class Int_SelmaDialog : Lvl3InteractionDialogueBase
             return;
 
         activeCamera.SetDialogueReturnZoomPreset("Medium");
-        activeCamera.SetZoomPreset("Medium", selmaDepartureCameraTransitionSpeed);
+        activeCamera.SetZoomPreset("Medium", selmaDepartureCameraTransitionDuration);
     }
 
 

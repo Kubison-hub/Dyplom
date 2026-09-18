@@ -188,7 +188,8 @@ public class MouseTooltipManager : MonoBehaviour
                DialogueEditor.ConversationManager.Instance.IsConversationActive ||
                NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen ||
                TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput ||
-               TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput;
+               TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput ||
+               DetectiveIdeaManager.Instance != null && DetectiveIdeaManager.Instance.IsDraggingIdea();
     }
 
     private bool IsBlockedByWall(Collider hitCollider)

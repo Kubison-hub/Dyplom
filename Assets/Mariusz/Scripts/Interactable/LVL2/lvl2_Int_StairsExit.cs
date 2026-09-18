@@ -92,12 +92,21 @@ public class lvl2_Int_StairsExit : Lvl3InteractionDialogueBase
     {
         performed = true;
         Debug.Log(interactable.name + ", interaction Performed");
-        TryExit(player);
+        ExitToGroundFloor(player);
 
         if (player != null)
             player.currentInteractable = null;
     }
 
+    public void ExitToGroundFloor(PlayerController player)
+    {
+        if (player == null)
+            return;
+
+        StartCoroutine(GoDownStairs(player));
+    }
+
+    [System.Obsolete("Archived Level 2 stairs lock. Use ExitToGroundFloor instead.")]
     public void TryExit(PlayerController player)
     {
         if (canExitByStairs)

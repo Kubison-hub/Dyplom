@@ -31,6 +31,8 @@ namespace DialogueEditor
 
         public static ConversationStartEvent OnConversationStarted;
         public static ConversationEndEvent OnConversationEnded;
+        public static ConversationStartEvent OnConversationUIWillShow;
+        public static ConversationEndEvent OnConversationUIHidden;
 
         // User-Facing options
         // Drawn by custom inspector
@@ -41,6 +43,8 @@ namespace DialogueEditor
         public Sprite OptionImage;
         public bool OptionImageSliced;
         public bool AllowMouseInteraction;
+        [Range(0f, 1f)] public float UsedOptionAlpha = 0.6f;
+        [Range(0f, 1f)] public float UsedSelectedOptionAlpha = 0.82f;
 
         // Non-User facing 
         // Not exposed via custom inspector
@@ -82,10 +86,13 @@ namespace DialogueEditor
         private SpeechNode m_currentSpeech;
         private OptionNode m_selectedOption;
         private Coroutine m_delayedDialogueUICoroutine;
+        private bool m_hasConversationLifecycle;
 
         // Selection options
         private List<UIConversationButton> m_uiOptions;
         private int m_currentSelectedIndex;
+        private readonly Dictionary<NPCConversation, HashSet<int>> m_usedOptions =
+            new Dictionary<NPCConversation, HashSet<int>>();
 
 
         //--------------------------------------
@@ -174,16 +181,21 @@ namespace DialogueEditor
             }
 
             inConversation = true;
+            m_hasConversationLifecycle = true;
             ActiveConversationSource = conversation;
             m_conversation = conversation.Deserialize();
             if (OnConversationStarted != null)
                 OnConversationStarted.Invoke();
 
             m_currentSpeech = m_conversation.Root;
-            if (conversation.DialogueUIDelay > 0f)
+            float preRollDuration = conversation.UseAutomaticDialogueCamera
+                ? conversation.AutomaticDialogueCameraPreRollTime
+                : 0f;
+            float dialogueUIWait = Mathf.Max(conversation.DialogueUIDelay, preRollDuration);
+            if (dialogueUIWait > 0f)
             {
                 SetState(eState.WaitingForDialogueUI);
-                m_delayedDialogueUICoroutine = StartCoroutine(ShowDialogueUIAfterDelay(conversation.DialogueUIDelay));
+                m_delayedDialogueUICoroutine = StartCoroutine(ShowDialogueUIAfterDelay(dialogueUIWait));
                 return;
             }
 
@@ -203,6 +215,7 @@ namespace DialogueEditor
 
         private void BeginDialogueUI()
         {
+            OnConversationUIWillShow?.Invoke();
             TurnOnUI();
             SetState(eState.TransitioningDialogueBoxOn);
         }
@@ -662,6 +675,7 @@ namespace DialogueEditor
         public void OptionSelected(OptionNode option)
         {
             m_selectedOption = option;
+            MarkOptionAsUsed(option);
             DoParamAction(option);
             if (option.Event != null)
                 option.Event.Invoke();
@@ -744,6 +758,13 @@ namespace DialogueEditor
             DialoguePanel.gameObject.SetActive(false);
             OptionsPanel.gameObject.SetActive(false);
             SetState(eState.Off);
+            ActiveConversationSource = null;
+
+            if (m_hasConversationLifecycle)
+            {
+                m_hasConversationLifecycle = false;
+                OnConversationUIHidden?.Invoke();
+            }
 #if UNITY_EDITOR
             // Debug.Log("[ConversationManager]: Conversation UI off.");
 #endif
@@ -761,6 +782,10 @@ namespace DialogueEditor
                     {
                         UIConversationButton uiOption = CreateButton();
                         uiOption.SetupButton(UIConversationButton.eButtonType.Option, connection.OptionNode);
+                        uiOption.SetUsedVisual(
+                            IsOptionUsed(connection.OptionNode),
+                            UsedOptionAlpha,
+                            UsedSelectedOptionAlpha);
                     }
                 }
             }
@@ -852,6 +877,27 @@ namespace DialogueEditor
             UIConversationButton button = GameObject.Instantiate(ButtonPrefab, OptionsPanel);
             m_uiOptions.Add(button);
             return button;
+        }
+
+        private bool IsOptionUsed(OptionNode option)
+        {
+            return option != null && ActiveConversationSource != null &&
+                   m_usedOptions.TryGetValue(ActiveConversationSource, out HashSet<int> usedNodeIds) &&
+                   usedNodeIds.Contains(option.ID);
+        }
+
+        private void MarkOptionAsUsed(OptionNode option)
+        {
+            if (option == null || ActiveConversationSource == null)
+                return;
+
+            if (!m_usedOptions.TryGetValue(ActiveConversationSource, out HashSet<int> usedNodeIds))
+            {
+                usedNodeIds = new HashSet<int>();
+                m_usedOptions.Add(ActiveConversationSource, usedNodeIds);
+            }
+
+            usedNodeIds.Add(option.ID);
         }
 
         private bool ConditionsMet(Connection connection)

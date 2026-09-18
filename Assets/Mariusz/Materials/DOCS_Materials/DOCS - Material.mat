@@ -70,6 +70,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Normal_Map:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_1acab49ef78743e88966040098c4e081_Texture_1_Texture2D:
         m_Texture: {fileID: 2800000, guid: 86a189d1b84d02a4cb78b7cf201ac803, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -93,12 +97,14 @@ Material:
     m_Ints: []
     m_Floats:
     - _BOOLEAN: 0
+    - _DOCS_Depth_Enabled: 1
     - _Edge: 4
     - _Emission: 0
     - _Metalness: 0
+    - _Normal_Strength: 1
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _Radius: 7e-44
+    - _Radius: 0
     - _Smoothness: 0
     m_Colors:
     - _Base_Colour: {r: 0.4528302, g: 0.4528302, b: 0.4528302, a: 0}
@@ -106,6 +112,6 @@ Material:
     - _MaskEdges: {r: -0.2, g: 0.6, b: 0, a: 0}
     - _PlayerPosition: {r: 0, g: 0, b: 0, a: 0}
     - _TargetPosition: {r: 0, g: 0, b: 0, a: 0}
-    - _Target_Position: {r: -10.738139, g: 0.8385542, b: -4.05892, a: 0}
+    - _Target_Position: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

@@ -27,6 +27,12 @@ namespace DialogueEditor
         [SerializeField] private TMPro.TextMeshProUGUI TextMesh = null;
         [SerializeField] private Image OptionBackgroundImage = null;
         private RectTransform m_rect;
+        private CanvasGroup m_canvasGroup;
+        private float m_transitionAlpha = 1f;
+        private float m_usedAlpha = 1f;
+        private float m_usedSelectedAlpha = 1f;
+        private bool m_isUsed;
+        private bool m_isSelected;
 
         // Node data
         private eButtonType m_buttonType;
@@ -46,6 +52,9 @@ namespace DialogueEditor
         private void Awake()
         {
             m_rect = GetComponent<RectTransform>();
+            m_canvasGroup = GetComponent<CanvasGroup>();
+            if (m_canvasGroup == null)
+                m_canvasGroup = gameObject.AddComponent<CanvasGroup>();
         }
 
         private void Update()
@@ -132,7 +141,17 @@ namespace DialogueEditor
                 m_hoverState = eHoverState.animatingOn;
             else
                 m_hoverState = eHoverState.animatingOff;
+            m_isSelected = selected;
+            RefreshVisualAlpha();
             m_hoverT = 0f;
+        }
+
+        public void SetUsedVisual(bool isUsed, float usedAlpha, float selectedUsedAlpha)
+        {
+            m_isUsed = isUsed;
+            m_usedAlpha = Mathf.Clamp01(usedAlpha);
+            m_usedSelectedAlpha = Mathf.Clamp01(selectedUsedAlpha);
+            RefreshVisualAlpha();
         }
 
         public void SetImage(Sprite sprite, bool sliced)
@@ -163,12 +182,19 @@ namespace DialogueEditor
 
         public void SetAlpha(float a)
         {
-            Color c_image = OptionBackgroundImage.color;
-            Color c_text = TextMesh.color;
-            c_image.a = a;
-            c_text.a = a;
-            OptionBackgroundImage.color = c_image;
-            TextMesh.color = c_text;
+            m_transitionAlpha = Mathf.Clamp01(a);
+            RefreshVisualAlpha();
+        }
+
+        private void RefreshVisualAlpha()
+        {
+            if (m_canvasGroup == null)
+                return;
+
+            float stateAlpha = !m_isUsed
+                ? 1f
+                : m_isSelected ? m_usedSelectedAlpha : m_usedAlpha;
+            m_canvasGroup.alpha = m_transitionAlpha * stateAlpha;
         }
 
         public void SetupButton(eButtonType buttonType, ConversationNode node, TMPro.TMP_FontAsset continueFont = null, TMPro.TMP_FontAsset endFont = null)

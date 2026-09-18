@@ -67,10 +67,14 @@ PrefabInstance:
     - target: {fileID: -7637071835904574202, guid: 5085bfcd4c918f642a4560a1d8bfc00a, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 09477f72d886d1f4f8be0f7dceaa0048, type: 2}
+      objectReference: {fileID: 2100000, guid: 9eeb33ca55d8bf946a612f61420c9a4a, type: 2}
     - target: {fileID: 919132149155446097, guid: 5085bfcd4c918f642a4560a1d8bfc00a, type: 3}
       propertyPath: m_Name
-      value: untitled
+      value: VioletEscortShader
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 5085bfcd4c918f642a4560a1d8bfc00a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: 5085bfcd4c918f642a4560a1d8bfc00a, type: 3}
       propertyPath: m_Controller
@@ -79,5 +83,31 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5085bfcd4c918f642a4560a1d8bfc00a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -6586660466422109328}
   m_SourcePrefab: {fileID: 100100000, guid: 5085bfcd4c918f642a4560a1d8bfc00a, type: 3}
+--- !u!1 &408721782398141750 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 5085bfcd4c918f642a4560a1d8bfc00a, type: 3}
+  m_PrefabInstance: {fileID: 679335021496203367}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &-6586660466422109328
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 408721782398141750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3682c1a406991a64581c961c2b8648a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fadeInDuration: 0.15
+  fadeOutDuration: 0.25
+  visibleAlpha: 1
+  pulseSpeed: 1.5
+  visibilityProperty: _Visibility
+  pulseSpeedProperty: _PulseSpeed

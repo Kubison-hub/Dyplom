@@ -20,6 +20,7 @@ public class Int_lv3_Keyhole : Lvl3ClockworkInteraction
     [SerializeField] private Transform watsonPosition;
     [SerializeField, Min(0.05f)] private float watsonArrivalDistance = 0.15f;
     [SerializeField, Min(0.1f)] private float watsonNavMeshSampleRadius = 1f;
+    [SerializeField, Min(1f)] private float watsonFinalRotationSpeed = 220f;
 
     [Header("Inserted Key Visual")]
     [Tooltip("A key object kept inactive until the player uses the correct key.")]
@@ -192,8 +193,23 @@ public class Int_lv3_Keyhole : Lvl3ClockworkInteraction
                agent.remainingDistance > Mathf.Max(watsonArrivalDistance, agent.stoppingDistance))
             yield return null;
 
+        agent.isStopped = true;
         agent.ResetPath();
-        watson.transform.rotation = watsonPosition.rotation;
+        agent.velocity = Vector3.zero;
+
+        Quaternion targetRotation = watsonPosition.rotation;
+        while (Quaternion.Angle(watson.transform.rotation, targetRotation) > 0.5f)
+        {
+            agent.updateRotation = false;
+            watson.transform.rotation = Quaternion.RotateTowards(
+                watson.transform.rotation,
+                targetRotation,
+                watsonFinalRotationSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        watson.transform.rotation = targetRotation;
+        agent.updateRotation = true;
     }
 
     private static PlayerController GetWatsonPlayer()

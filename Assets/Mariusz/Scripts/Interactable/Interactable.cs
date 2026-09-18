@@ -123,6 +123,9 @@ public class Interactable : MonoBehaviour
     private bool watsonCarryGripAuthorized;
     private bool interactionShaderHovered;
     private bool interactionShaderForcedVisible;
+    private Color forcedInteractionShaderColor;
+    private Color forcedInteractionShaderHoverColor;
+    private float forcedInteractionShaderColorTransitionSpeed;
     private Coroutine sherlockInteractionFocusCoroutine;
     private bool sherlockReactionApproachInProgress;
 
@@ -207,7 +210,17 @@ public class Interactable : MonoBehaviour
         if (fader == null)
             return;
 
-        fader.Configure(interactionShaderVisibility, interactionShaderPulseSpeed);
+        if (interactionShaderForcedVisible)
+        {
+            Color targetColor = isHovered
+                ? forcedInteractionShaderHoverColor
+                : forcedInteractionShaderColor;
+            fader.SetFresnelColorTarget(targetColor, forcedInteractionShaderColorTransitionSpeed);
+        }
+        else
+        {
+            fader.Configure(interactionShaderVisibility, interactionShaderPulseSpeed);
+        }
 
         if (isHovered || interactionShaderForcedVisible)
             fader.FadeIn();
@@ -217,7 +230,13 @@ public class Interactable : MonoBehaviour
 
     public bool CanPlayerInteract(PlayerController player)
     {
-        return isInteractableActive && CanPlayerUseInteraction(player);
+        bool defaultAvailability = isInteractableActive && CanPlayerUseInteraction(player);
+        IPlayerInteractionAvailability availabilityOverride =
+            GetComponent(typeof(IPlayerInteractionAvailability)) as IPlayerInteractionAvailability;
+
+        return availabilityOverride != null
+            ? availabilityOverride.CanPlayerInteract(player, defaultAvailability)
+            : defaultAvailability;
     }
 
     public void SetWatsonInteractionAllowed(bool isAllowed)
@@ -226,13 +245,67 @@ public class Interactable : MonoBehaviour
     }
     public void SetInteractionShaderForcedVisible(bool isVisible)
     {
+        SetInteractionShaderForcedVisible(isVisible, interactionShaderVisibility, interactionShaderPulseSpeed);
+    }
+
+    public void SetInteractionShaderForcedVisible(bool isVisible, float visibility, float pulseSpeed)
+    {
+        SetInteractionShaderForcedVisible(isVisible, visibility, pulseSpeed, Color.white, 1f, false);
+    }
+
+    public void SetInteractionShaderForcedVisible(
+        bool isVisible,
+        float visibility,
+        float pulseSpeed,
+        Color fresnelColor,
+        float fresnelPower)
+    {
+        SetInteractionShaderForcedVisible(isVisible, visibility, pulseSpeed, fresnelColor, fresnelPower, true);
+    }
+
+    public void SetInteractionShaderForcedVisible(
+        bool isVisible,
+        float visibility,
+        float pulseSpeed,
+        Color fresnelColor,
+        Color hoverFresnelColor,
+        float colorTransitionSpeed,
+        float fresnelPower)
+    {
+        forcedInteractionShaderColor = fresnelColor;
+        forcedInteractionShaderHoverColor = hoverFresnelColor;
+        forcedInteractionShaderColorTransitionSpeed = Mathf.Max(0.01f, colorTransitionSpeed);
+
+        SetInteractionShaderForcedVisible(isVisible, visibility, pulseSpeed, fresnelColor, fresnelPower, true);
+
+        if (isVisible && interactionShaderFader != null)
+        {
+            interactionShaderFader.SetFresnelColorTarget(
+                interactionShaderHovered ? hoverFresnelColor : fresnelColor,
+                forcedInteractionShaderColorTransitionSpeed);
+        }
+    }
+
+    private void SetInteractionShaderForcedVisible(
+        bool isVisible,
+        float visibility,
+        float pulseSpeed,
+        Color fresnelColor,
+        float fresnelPower,
+        bool overrideFresnel)
+    {
         interactionShaderForcedVisible = isVisible;
 
         InteractionShaderFader fader = EnsureInteractionShaderFader();
         if (fader == null)
             return;
 
-        fader.Configure(interactionShaderVisibility, interactionShaderPulseSpeed);
+        if (isVisible && overrideFresnel)
+            fader.Configure(visibility, pulseSpeed, fresnelColor, fresnelPower);
+        else
+            fader.Configure(
+                isVisible ? visibility : interactionShaderVisibility,
+                isVisible ? pulseSpeed : interactionShaderPulseSpeed);
 
         if (isVisible || interactionShaderHovered)
             fader.FadeIn();
@@ -274,9 +347,7 @@ public class Interactable : MonoBehaviour
             return;
         }
 
-        if (!isInteractableActive) return;
-
-        if (!CanPlayerUseInteraction(player)) return;
+        if (!CanPlayerInteract(player)) return;
 
         Int_lv1_SherlockWatsonSelmaDialog sherlockWatsonSelmaDialog =
             GetComponent<Int_lv1_SherlockWatsonSelmaDialog>();
@@ -348,7 +419,7 @@ public class Interactable : MonoBehaviour
         if (watsonCarryable != null &&
             player.playerCharacter == PlayerCharacter.Watson &&
             watsonCarryable.RequiresWatsonGrip &&
-            MagnifierGlassController.IsWatsonGripActive)
+            WatsonEscortController.IsWatsonEagleVisionInteractionActive)
         {
             watsonCarryGripAuthorized = true;
         }
@@ -356,19 +427,23 @@ public class Interactable : MonoBehaviour
         player.currentInteractable = this;
         player.ClearAutoInteractionApproachPoint();
 
-        lvl3_int_Lamp levelThreeLamp = GetComponent<lvl3_int_Lamp>();
         Int_lv3_Doll levelThreeDoll = GetComponent<Int_lv3_Doll>();
         bool useNearestNavMeshApproach =
-            levelThreeLamp != null && levelThreeLamp.UseNearestNavMeshApproach ||
             levelThreeDoll != null && levelThreeDoll.UseNearestNavMeshApproach;
 
-        if (!useNearestNavMeshApproach && interactabePoint != null)
+        Transform selectedInteractionPoint = interactabePoint;
+        IInteractionApproachPointProvider approachPointProvider =
+            GetComponent(typeof(IInteractionApproachPointProvider)) as IInteractionApproachPointProvider;
+        if (approachPointProvider != null)
+            selectedInteractionPoint = approachPointProvider.GetInteractionApproachPoint(player, interactabePoint);
+
+        if (!useNearestNavMeshApproach && selectedInteractionPoint != null)
         {
-            player.currentInteractionPoint = interactabePoint;
+            player.currentInteractionPoint = selectedInteractionPoint;
 
             if (useOccupiedPointFallback &&
-                IsInteractionPointOccupied(player) &&
-                TryGetFreeInteractionPoint(player, out Vector3 fallbackPoint))
+                IsInteractionPointOccupied(player, selectedInteractionPoint) &&
+                TryGetFreeInteractionPoint(player, selectedInteractionPoint, out Vector3 fallbackPoint))
             {
                 player.currentInteractionPoint = null;
                 player.SetAutoInteractionApproachPoint(fallbackPoint);
@@ -398,8 +473,17 @@ public class Interactable : MonoBehaviour
                 return;
             }
 
-            if (interactabePoint == null && TryGetWatsonCarryApproachPoint(player, out Vector3 approachPoint))
+            if (interactabePoint == null)
+            {
+                if (!TryGetWatsonCarryApproachPoint(player, out Vector3 approachPoint))
+                {
+                    watsonCarryGripAuthorized = false;
+                    player.CancelUnreachableInteraction();
+                    return;
+                }
+
                 player.SetAutoInteractionApproachPoint(approachPoint);
+            }
         }
 
         if (watsonSwitchTutorial != null &&
@@ -615,9 +699,8 @@ public class Interactable : MonoBehaviour
             }
         }
 
-        if (!isInteractableActive) return;
-
-        if (!CanPlayerUseInteraction(player)) return;
+        bool usesCustomEdithExamApproach = GetComponent<Int_EdithExamBody>() != null;
+        if (!usesCustomEdithExamApproach && !CanPlayerInteract(player)) return;
 
         Int_StairsUp stairsUp = GetComponent<Int_StairsUp>();
         if (stairsUp != null && stairsUp.RedirectWhenSelmaGuardsStairs(player))
@@ -625,7 +708,8 @@ public class Interactable : MonoBehaviour
 
 // The bsWallDoor calls Watson only after its loupe pattern is solved.
         // Sherlock may still react when Watson is the active player.
-        if (GetComponent<Int_lv3_bsWallDoor>() == null || IsWatsonPlayer(player))
+        if (!usesCustomEdithExamApproach &&
+            (GetComponent<Int_lv3_bsWallDoor>() == null || IsWatsonPlayer(player)))
             UpdateCompanionInteractionFocus(player);
 
         lvl3_int_Lamp lvl3Lamp = GetComponent<lvl3_int_Lamp>();
@@ -1066,19 +1150,6 @@ public class Interactable : MonoBehaviour
                 Debug.LogError("Interaction is null");
         }
 
-        if (interactionType == InteractionType.WatsonScan)
-        {
-            Int2_WatsonScan interaction = GetComponent<Int2_WatsonScan>();
-            if (interaction != null)
-            {
-                if (SwitchCharacter.Instance.activePlayerIndex == 1)
-                    interaction.PerformInteraction(player);
-            }
-
-            else
-                Debug.LogError("WatsonScan is null");
-        }
-
         //--------------------   LVL  1  NEW ---------------------------------------------------------------------------
 
         if (interactionType == InteractionType.Int_Edith_Paper)
@@ -1464,6 +1535,51 @@ public class Interactable : MonoBehaviour
                 Debug.LogError("Int_lv1_SherlockWatsonSelmaDialog is null");
         }
 
+        if (interactionType == InteractionType.Int_SherlockWatsonDialog)
+        {
+            Int_SherlockWatsonDialog interaction = GetComponent<Int_SherlockWatsonDialog>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("Int_SherlockWatsonDialog is null");
+        }
+
+        if (interactionType == InteractionType.Int_Gramophone)
+        {
+            Int_Gramophone interaction = GetComponent<Int_Gramophone>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("Int_Gramophone is null");
+        }
+
+        if (interactionType == InteractionType.Int_GramophoneRecord)
+        {
+            Int_GramophoneRecord interaction = GetComponent<Int_GramophoneRecord>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("Int_GramophoneRecord is null");
+        }
+
+        if (interactionType == InteractionType.Int_GramophoneController)
+        {
+            Int_GramophoneController interaction = GetComponent<Int_GramophoneController>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("Int_GramophoneController is null");
+        }
+
+        if (interactionType == InteractionType.Int_FakeRecord)
+        {
+            Int_FakeRecord interaction = GetComponent<Int_FakeRecord>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("Int_FakeRecord is null");
+        }
+
         if (interactionType == InteractionType.Int_lv3_Ethel)
         {
             Int_lv3_Ethel interaction = GetComponent<Int_lv3_Ethel>();
@@ -1594,6 +1710,15 @@ public class Interactable : MonoBehaviour
                 Debug.LogError("Int_lv3_HeavyBox is null");
         }
 
+        if (interactionType == InteractionType.Int_lv1_SelmaPortrait)
+        {
+            Int_lv1_SelmaPortrait interaction = GetComponent<Int_lv1_SelmaPortrait>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("Int_lv1_SelmaPortrait is null");
+        }
+
         if (addDatabaseNotesAutomatically)
             AddAllDatabaseNotes();
 
@@ -1604,9 +1729,9 @@ public class Interactable : MonoBehaviour
 
 
 
-    private bool IsInteractionPointOccupied(PlayerController player)
+    private bool IsInteractionPointOccupied(PlayerController player, Transform selectedInteractionPoint)
     {
-        if (interactabePoint == null)
+        if (selectedInteractionPoint == null)
             return false;
 
         foreach (PlayerController otherPlayer in FindObjectsByType<PlayerController>(FindObjectsSortMode.None))
@@ -1614,11 +1739,11 @@ public class Interactable : MonoBehaviour
             if (otherPlayer == null || otherPlayer == player || !otherPlayer.gameObject.activeInHierarchy)
                 continue;
 
-            if (HorizontalDistance(otherPlayer.transform.position, interactabePoint.position) <= interactionPointOccupiedRadius)
+            if (HorizontalDistance(otherPlayer.transform.position, selectedInteractionPoint.position) <= interactionPointOccupiedRadius)
                 return true;
 
             bool isWalkingToThisPoint = otherPlayer.currentInteractable == this &&
-                                        otherPlayer.currentInteractionPoint == interactabePoint &&
+                                        otherPlayer.currentInteractionPoint == selectedInteractionPoint &&
                                         otherPlayer.navMeshAgent != null &&
                                         otherPlayer.navMeshAgent.hasPath;
             if (isWalkingToThisPoint)
@@ -1628,23 +1753,26 @@ public class Interactable : MonoBehaviour
         return false;
     }
 
-    private bool TryGetFreeInteractionPoint(PlayerController player, out Vector3 fallbackPoint)
+    private bool TryGetFreeInteractionPoint(
+        PlayerController player,
+        Transform selectedInteractionPoint,
+        out Vector3 fallbackPoint)
     {
-        fallbackPoint = interactabePoint != null ? interactabePoint.position : transform.position;
-        if (interactabePoint == null || player == null || player.navMeshAgent == null)
+        fallbackPoint = selectedInteractionPoint != null ? selectedInteractionPoint.position : transform.position;
+        if (selectedInteractionPoint == null || player == null || player.navMeshAgent == null)
             return false;
 
         Vector3[] directions =
         {
-            interactabePoint.right,
-            -interactabePoint.right,
-            interactabePoint.forward,
-            -interactabePoint.forward
+            -selectedInteractionPoint.right,
+            selectedInteractionPoint.right,
+            selectedInteractionPoint.forward,
+            -selectedInteractionPoint.forward
         };
 
         foreach (Vector3 direction in directions)
         {
-            Vector3 candidate = interactabePoint.position + direction * interactionPointFallbackOffset;
+            Vector3 candidate = selectedInteractionPoint.position + direction * interactionPointFallbackOffset;
             if (!NavMesh.SamplePosition(candidate, out NavMeshHit navMeshHit, interactionPointNavMeshSampleRadius, NavMesh.AllAreas))
                 continue;
 
@@ -1763,6 +1891,10 @@ public class Interactable : MonoBehaviour
         if (player == null)
             return false;
 
+        Int_Gramophone gramophone = GetComponent<Int_Gramophone>();
+        if (gramophone != null)
+            return gramophone.CanPlayerUse(player);
+
         // These Level 3 inspection interactions are available to both characters.
         if (GetComponent<Int_lv3_Manequine>() != null ||
             GetComponent<Int_lv3_ControlUnit>() != null)
@@ -1840,6 +1972,11 @@ public class Interactable : MonoBehaviour
                interactionType == InteractionType.WatsonDialogViolet ||
                interactionType == InteractionType.WatsonDialogViolet_2;
     }
+    public void TriggerCompanionInteractionFocus(PlayerController player)
+    {
+        UpdateCompanionInteractionFocus(player);
+    }
+
     private void UpdateCompanionInteractionFocus(PlayerController player)
     {
         if (player == null)
@@ -2245,7 +2382,7 @@ public enum InteractionType
     WatsonDialogSherlock,
     WatsonDialogViolet,
     WatsonDialogViolet_2,
-    WatsonScan,
+    LegacyWatsonScan,
 
     // LVL1 - NEW
 
@@ -2341,5 +2478,11 @@ public enum InteractionType
     Int_lv1_WoodBlockButton,
     Int_lv2_WoodBlockButton,
     Int_lv2_WoodBrickWall,
-    Int_lv2_WoodBrickWallButton
+    Int_lv2_WoodBrickWallButton,
+    Int_lv1_SelmaPortrait,
+    Int_SherlockWatsonDialog,
+    Int_Gramophone,
+    Int_GramophoneRecord,
+    Int_GramophoneController,
+    Int_FakeRecord
 }

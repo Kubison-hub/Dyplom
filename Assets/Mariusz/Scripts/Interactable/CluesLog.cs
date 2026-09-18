@@ -80,6 +80,7 @@ public class CluesLog : MonoBehaviour
     [Header("Journal Update Notice")]
     [SerializeField] private TextMeshProUGUI noteUpdateLogText;
     [SerializeField] private string storyDescriptionUpdateNotice = "Dziennik został zaktualizowany.";
+    [SerializeField, Min(0f)] private float noteUpdateStartDelay = 0.2f;
     [SerializeField, Min(0.01f)] private float noteUpdateFadeDuration = 0.25f;
     [SerializeField, Min(0f)] private float noteUpdateVisibleDuration = 3f;
 
@@ -984,18 +985,21 @@ public class CluesLog : MonoBehaviour
         if (!string.IsNullOrWhiteSpace(message))
             noteUpdateLogText.text = message;
 
-        if (playAudio && storyDescriptionAudioSource != null && storyDescriptionChangedClip != null)
-            storyDescriptionAudioSource.PlayOneShot(storyDescriptionChangedClip);
-
         if (noteUpdateFadeCoroutine != null)
             StopCoroutine(noteUpdateFadeCoroutine);
 
         SetJournalUpdateNoticeAlpha(0f);
-        noteUpdateFadeCoroutine = StartCoroutine(FadeJournalUpdateNotice());
+        noteUpdateFadeCoroutine = StartCoroutine(FadeJournalUpdateNotice(playAudio));
     }
 
-    private IEnumerator FadeJournalUpdateNotice()
+    private IEnumerator FadeJournalUpdateNotice(bool playAudio)
     {
+        if (noteUpdateStartDelay > 0f)
+            yield return new WaitForSecondsRealtime(noteUpdateStartDelay);
+
+        if (playAudio && storyDescriptionAudioSource != null && storyDescriptionChangedClip != null)
+            storyDescriptionAudioSource.PlayOneShot(storyDescriptionChangedClip);
+
         yield return FadeJournalUpdateNoticeAlpha(0f, 1f);
 
         if (noteUpdateVisibleDuration > 0f)

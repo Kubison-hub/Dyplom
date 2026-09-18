@@ -39,6 +39,7 @@ public abstract class Lvl3InteractionDialogueBase : MonoBehaviour
     private string activeWatsonText;
     private string activeSelmaText;
     private string activeVioletText;
+    private AudioSource activeVoiceSource;
 
     protected abstract Lvl3DialogueLine[] DefaultDialogueLines { get; }
     protected virtual void OnDialogueSequenceCompleted(Lvl3DialogueLine[] lines) { }
@@ -54,8 +55,6 @@ public abstract class Lvl3InteractionDialogueBase : MonoBehaviour
 
     protected void SetupInteractable(InteractionType interactionType)
     {
-        lvl3_LayerUtility.SetOutlinedObjectsLayer(gameObject);
-
         Interactable interactable = GetComponent<Interactable>();
         if (interactable != null)
             interactable.SetInteractionType(interactionType);
@@ -111,6 +110,7 @@ public abstract class Lvl3InteractionDialogueBase : MonoBehaviour
     {
         if (lines == null)
         {
+            activeVoiceSource = null;
             dialogueCoroutine = null;
             if (activeDialogueOwner == this)
                 activeDialogueOwner = null;
@@ -164,6 +164,11 @@ public abstract class Lvl3InteractionDialogueBase : MonoBehaviour
         if (dialogueCoroutine != null)
             StopCoroutine(dialogueCoroutine);
 
+        if (activeVoiceSource != null)
+            activeVoiceSource.Stop();
+
+        activeVoiceSource = null;
+        activeVoiceSource = null;
         dialogueCoroutine = null;
         PlayerTopText.Instance?.ClearTopTextIfMatches(activeSherlockText, activeWatsonText);
         PlayerTopText.Instance?.ClearSelmaTopTextIfMatches(activeSelmaText);
@@ -199,6 +204,7 @@ public abstract class Lvl3InteractionDialogueBase : MonoBehaviour
 
         source.Stop();
         source.PlayOneShot(line.voiceClip);
+        activeVoiceSource = source;
     }
 
     protected AudioSource GetVoiceSource(Lvl3DialogueSpeaker speaker)

@@ -26,6 +26,9 @@ public class int_Globus_Button : MonoBehaviour, IVioletRoomInteractionGate
     private void Start()
     {
         interactable = GetComponent<Interactable>();
+
+        if (globe == null)
+            globe = FindFirstObjectByType<Int_Globus>();
     }
 
     public void SetButtonAvailable(bool available)
@@ -56,6 +59,9 @@ public class int_Globus_Button : MonoBehaviour, IVioletRoomInteractionGate
 
         if (painting != null)
             painting.PushPainting();
+
+        if (globe == null)
+            globe = FindFirstObjectByType<Int_Globus>();
 
         globe?.DeactivateGlobeInteraction();
 

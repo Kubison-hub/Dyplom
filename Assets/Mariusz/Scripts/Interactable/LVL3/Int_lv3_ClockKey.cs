@@ -28,7 +28,6 @@ public class Int_lv3_ClockKey : Lvl3ClockworkInteraction
     public GameObject[] nextInteractionGameObjects;
 
     private bool collected;
-    private Coroutine pickupDialogueCoroutine;
 
     protected override void Awake()
     {
@@ -57,17 +56,33 @@ public class Int_lv3_ClockKey : Lvl3ClockworkInteraction
         if (collected)
             return;
 
-        if (InventoryManager.Instance == null || !InventoryManager.Instance.TryAddItem(ItemType.Wahadlo, inventoryIcon))
+        if (!HasInventorySpace())
         {
             ShowNoSpaceText(player);
             return;
         }
 
         collected = true;
-        GetComponent<Interactable>()?.MarkCompleted();
+        GameObject target = objectToHide != null ? objectToHide : gameObject;
+        SetPickupPresentationVisible(target, false);
+
+        if (InventoryManager.Instance == null ||
+            !InventoryManager.Instance.TryAddItem(ItemType.Wahadlo, inventoryIcon))
+        {
+            SetPickupPresentationVisible(target, true);
+            collected = false;
+            ShowNoSpaceText(player);
+            return;
+        }
 
         if (pickupAudioSource != null && pickupAudioClip != null)
             pickupAudioSource.PlayOneShot(pickupAudioClip);
+
+        if (Interactable != null)
+        {
+            Interactable.isInteractableActive = false;
+            Interactable.MarkCompleted();
+        }
 
         foreach (GameObject nextInteraction in nextInteractionGameObjects)
         {
@@ -75,10 +90,23 @@ public class Int_lv3_ClockKey : Lvl3ClockworkInteraction
                 nextInteraction.SetActive(true);
         }
 
-        if (Interactable != null)
-            Interactable.isInteractableActive = false;
+        StartCoroutine(PlayDialogueAfterPickupAudio(player));
+    }
 
-        pickupDialogueCoroutine = StartCoroutine(PlayPickupDialogueThenHide());
+    private IEnumerator PlayDialogueAfterPickupAudio(PlayerController player)
+    {
+        if (pickupAudioSource != null && pickupAudioClip != null)
+        {
+            float pitch = Mathf.Abs(pickupAudioSource.pitch);
+            float playbackDuration = pitch > 0.01f
+                ? pickupAudioClip.length / pitch
+                : pickupAudioClip.length;
+
+            if (playbackDuration > 0f)
+                yield return new WaitForSecondsRealtime(playbackDuration);
+        }
+
+        PlayDialogue(player, pickupDialogueLines);
     }
 
     private void SetupInteractionType()
@@ -90,55 +118,38 @@ public class Int_lv3_ClockKey : Lvl3ClockworkInteraction
             interactable.SetInteractionType(InteractionType.Int_lv3_ClockKey);
     }
 
-    private IEnumerator PlayPickupDialogueThenHide()
+    protected override void OnDialogueSequenceCompleted(Lvl3DialogueLine[] lines)
     {
-        foreach (Lvl3DialogueLine line in pickupDialogueLines)
-        {
-            string sherlockText = line.speaker == Lvl3DialogueSpeaker.Sherlock ? line.text : string.Empty;
-            string watsonText = line.speaker == Lvl3DialogueSpeaker.Watson ? line.text : string.Empty;
-            string selmaText = line.speaker == Lvl3DialogueSpeaker.Selma ? line.text : string.Empty;
-            string violetText = line.speaker == Lvl3DialogueSpeaker.Violet ? line.text : string.Empty;
+        if (!collected || lines != pickupDialogueLines)
+            return;
 
-            PlayerTopText.Instance?.ShowTopTextPersistent(sherlockText, watsonText);
-            PlayerTopText.Instance?.ShowSelmaTopTextPersistent(selmaText);
-            PlayerTopText.Instance?.ShowVioletTopTextPersistent(violetText);
-            PlayDialogueVoice(line);
-
-            float duration = line.duration > 0f
-                ? line.duration
-                : PlayerTopText.Instance != null ? PlayerTopText.Instance.textTime : 3f;
-            yield return new WaitForSeconds(duration);
-
-            PlayerTopText.Instance?.ClearTopTextIfMatches(sherlockText, watsonText);
-            PlayerTopText.Instance?.ClearSelmaTopTextIfMatches(selmaText);
-            PlayerTopText.Instance?.ClearVioletTopTextIfMatches(violetText);
-        }
-
-        pickupDialogueCoroutine = null;
         GameObject target = objectToHide != null ? objectToHide : gameObject;
         target.SetActive(false);
     }
 
-    private static void PlayDialogueVoice(Lvl3DialogueLine line)
+    private static void SetPickupPresentationVisible(GameObject target, bool visible)
     {
-        if (line.voiceClip == null)
+        if (target == null)
             return;
 
-        DialogueAudioRegistry registry = DialogueAudioRegistry.Instance;
-        AudioSource source = line.speaker switch
+        foreach (Renderer targetRenderer in target.GetComponentsInChildren<Renderer>(true))
         {
-            Lvl3DialogueSpeaker.Sherlock => registry != null ? registry.SherlockVoiceSource : null,
-            Lvl3DialogueSpeaker.Watson => registry != null ? registry.WatsonVoiceSource : null,
-            Lvl3DialogueSpeaker.Selma => registry != null ? registry.SelmaVoiceSource : null,
-            Lvl3DialogueSpeaker.Violet => registry != null ? registry.VioletVoiceSource : null,
-            _ => null
-        };
+            if (targetRenderer != null)
+                targetRenderer.enabled = visible;
+        }
 
-        if (source == null)
-            return;
+        foreach (Collider targetCollider in target.GetComponentsInChildren<Collider>(true))
+        {
+            if (targetCollider != null)
+                targetCollider.enabled = visible;
+        }
+    }
 
-        source.Stop();
-        source.PlayOneShot(line.voiceClip);
+    private static bool HasInventorySpace()
+    {
+        InventoryManager inventory = InventoryManager.Instance;
+        return inventory != null &&
+               (inventory.items.Contains(ItemType.Wahadlo) || inventory.items.Count < inventory.maxSlots);
     }
 
     private void EnsurePickupDialogueLines()

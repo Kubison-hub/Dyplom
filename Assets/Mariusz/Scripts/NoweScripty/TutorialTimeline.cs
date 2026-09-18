@@ -15,6 +15,11 @@ public class TutorialTimeline : MonoBehaviour
 {
     public static TutorialTimeline Instance { get; private set; }
     public static bool LockpickTutorialShown { get; private set; }
+    public bool RunOpeningConversationSequence
+    {
+        get => runOpeningConversationSequence;
+        set => runOpeningConversationSequence = value;
+    }
     public bool BlocksWorldInput => activeTutorialPopup != null || releasePopupInputCoroutine != null;
     public bool KeepsEagleVisionActive =>
         currentStage == TutorialStage.WaitingForIdeaLineTutorialClose ||
@@ -57,13 +62,16 @@ public class TutorialTimeline : MonoBehaviour
     [SerializeField] private NPCConversation openingConversation;
     [Tooltip("Optional SmartNPC whose dialogue camera target is used during the opening conversation.")]
     [SerializeField] private SmartNPC openingConversationNpc;
+    [Tooltip("Selma interaction used to move her away before the opening notebook tutorial.")]
+    [SerializeField] private Int_SelmaDialog openingSelmaDialog;
+    [SerializeField] private bool openingConversationAndNotebook;
     [Tooltip("When disabled, the opening dialogue changes only the zoom and leaves the current camera LookAt unchanged.")]
     [SerializeField] private bool focusCameraOnOpeningConversation;
     [Tooltip("Name of the CameraController zoom preset used before the opening dialogue.")]
     [SerializeField] private string openingConversationPreDialogueZoomPreset = "Medium";
     [Tooltip("Name of the CameraController zoom preset used after the opening dialogue ends.")]
     [SerializeField] private string openingConversationCompleteZoomPreset = "Wide";
-    [SerializeField, Min(0.01f)] private float openingConversationZoomTransitionSpeed = 0.2f;
+    [SerializeField, Min(0f)] private float openingConversationZoomTransitionDuration = 0.2f;
     [Tooltip("LookAt target used by SmartNPC when the opening conversation ends. Leave empty for the normal camera return.")]
     [SerializeField] private Transform openingConversationReturnCameraTarget;
     [Tooltip("Speed of the smooth LookAt return after the first notebook is closed.")]
@@ -171,6 +179,8 @@ public class TutorialTimeline : MonoBehaviour
 
     private void Start()
     {
+        DebugController.Instance?.Register(this);
+
         // Start runs after every Awake, so both CameraControllers have their
         // Cinemachine references before the initial cinematic target is cleared.
         ForceOpeningCameraTarget();
@@ -178,6 +188,7 @@ public class TutorialTimeline : MonoBehaviour
 
     private void OnDestroy()
     {
+        DebugController.Instance?.Unregister(this);
         GameplayTimePause.Resume(this);
 
         if (Instance == this)
@@ -303,7 +314,7 @@ public class TutorialTimeline : MonoBehaviour
             if (focusCameraOnOpeningConversation)
             {
                 openingConversationNpc?.SetDialogueCameraReturnTarget(openingConversationReturnCameraTarget);
-                openingConversationNpc?.BeginDialogueCameraFocus();
+                openingConversationNpc?.BeginDialogueCameraFocus(openingConversation);
             }
 
             conversationManager.StartConversation(openingConversation);
@@ -319,6 +330,20 @@ public class TutorialTimeline : MonoBehaviour
                 yield return null;
 
             SetActiveTutorialCameraZoom(openingConversationCompleteZoomPreset);
+        }
+
+        if (!openingConversationAndNotebook)
+        {
+            Int_SelmaDialog selmaDialog = openingSelmaDialog != null
+                ? openingSelmaDialog
+                : FindFirstObjectByType<Int_SelmaDialog>();
+
+            if (selmaDialog != null)
+                selmaDialog.ReturnCameraAndMoveSelmaToPosition();
+            else
+                Debug.LogWarning("TutorialTimeline: Opening Selma Dialog is not assigned.", this);
+
+            openingConversationAndNotebook = true;
         }
 
         PlayerController.SetWorldInputLocked(true);
@@ -355,7 +380,7 @@ public class TutorialTimeline : MonoBehaviour
         while (notebookManager != null && notebookManager.IsNotebookOpen)
             yield return null;
 
-        SetActiveTutorialCameraZoom(openingSequenceCompleteZoomPreset, openingConversationZoomTransitionSpeed);
+        SetActiveTutorialCameraZoom(openingSequenceCompleteZoomPreset, openingConversationZoomTransitionDuration);
         BeginFirstWorldClickStage();
         StartFocusTutorialPopupCountdown();
         LogIdeaLineTutorial("Opening conversation and notebook tutorial completed. Waiting for the first world click.");
@@ -517,9 +542,7 @@ public class TutorialTimeline : MonoBehaviour
 
     private static bool WasPopupCloseRequestedThisFrame()
     {
-        return Keyboard.current != null &&
-               (Keyboard.current.enterKey.wasPressedThisFrame ||
-                Keyboard.current.numpadEnterKey.wasPressedThisFrame);
+        return Keyboard.current != null && Keyboard.current.tabKey.wasPressedThisFrame;
     }
 
     private IEnumerator ReleasePopupInputAfterMouseRelease()
@@ -886,7 +909,7 @@ public class TutorialTimeline : MonoBehaviour
             EagleVisionSystem.Instance.HoldVisionFor(eagleVisionHoldRefreshDuration);
     }
 
-    private void SetCameraZoom(CameraZoomState zoomState, float transitionSmoothSpeed = -1f)
+    private void SetCameraZoom(CameraZoomState zoomState, float transitionDuration = -1f)
     {
         if (tutorialCameras == null)
             return;
@@ -894,18 +917,18 @@ public class TutorialTimeline : MonoBehaviour
         foreach (CameraController cameraController in tutorialCameras)
         {
             if (cameraController != null)
-                cameraController.SetZoomIndex((int)zoomState, transitionSmoothSpeed);
+                cameraController.SetZoomIndex((int)zoomState, transitionDuration);
         }
     }
 
-    private void SetCameraZoom(string presetName, float transitionSmoothSpeed = -1f)
+    private void SetCameraZoom(string presetName, float transitionDuration = -1f)
     {
         if (tutorialCameras == null || string.IsNullOrWhiteSpace(presetName))
             return;
 
         foreach (CameraController cameraController in tutorialCameras)
         {
-            if (cameraController != null && !cameraController.SetZoomPreset(presetName, transitionSmoothSpeed))
+            if (cameraController != null && !cameraController.SetZoomPreset(presetName, transitionDuration))
                 Debug.LogWarning($"TutorialTimeline: Camera preset '{presetName}' was not found on {cameraController.name}.", cameraController);
         }
     }
@@ -967,10 +990,10 @@ public class TutorialTimeline : MonoBehaviour
         return null;
     }
 
-    private void SetActiveTutorialCameraZoom(string presetName, float transitionSmoothSpeed = -1f)
+    private void SetActiveTutorialCameraZoom(string presetName, float transitionDuration = -1f)
     {
         CameraController activeCamera = GetActiveTutorialCamera();
-        if (activeCamera != null && !activeCamera.SetZoomPreset(presetName, transitionSmoothSpeed))
+        if (activeCamera != null && !activeCamera.SetZoomPreset(presetName, transitionDuration))
             Debug.LogWarning($"TutorialTimeline: Camera preset '{presetName}' was not found on {activeCamera.name}.", activeCamera);
     }
 

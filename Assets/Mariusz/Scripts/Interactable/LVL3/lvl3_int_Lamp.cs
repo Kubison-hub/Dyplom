@@ -7,11 +7,6 @@ public class lvl3_int_Lamp : Lvl3InteractionDialogueBase
 
     public bool performed = false;
 
-    [Header("Approach")]
-    [Tooltip("Ignore the Interactable Point and approach the lamp from the closest reachable NavMesh position.")]
-    [SerializeField] private bool useNearestNavMeshApproach = true;
-    public bool UseNearestNavMeshApproach => useNearestNavMeshApproach;
-
     [Header("Held Lamp")]
     [Tooltip("Separate inactive GameObject containing the held lamp model and its Point Light.")]
     [SerializeField] private GameObject heldLamp;
@@ -22,6 +17,7 @@ public class lvl3_int_Lamp : Lvl3InteractionDialogueBase
     [SerializeField] private Vector3 heldLampLocalPosition;
     [SerializeField] private Vector3 heldLampLocalEulerAngles;
     [SerializeField, TextArea] private string alreadyHoldingLampText = "Nie mogę nieść dwóch lamp.";
+    [SerializeField, TextArea] private string carryingObjectFailureText = "Nie mogę wziąć lampy, kiedy coś już niosę.";
 
     [Header("Lamp Audio")]
     [Tooltip("Use an AudioSource on the persistent held-lamp object or its holder, not on this pickup object.")]
@@ -58,6 +54,15 @@ public class lvl3_int_Lamp : Lvl3InteractionDialogueBase
     {
         if (performed)
         {
+            player.currentInteractable = null;
+            return;
+        }
+
+        if (IsWatson(player) &&
+            WatsonCarryController.Instance != null &&
+            WatsonCarryController.Instance.IsCarrying)
+        {
+            ShowTopTextForPlayer(player, carryingObjectFailureText);
             player.currentInteractable = null;
             return;
         }
@@ -124,9 +129,7 @@ public class lvl3_int_Lamp : Lvl3InteractionDialogueBase
 
     private Transform GetLampHolder(PlayerController player)
     {
-        bool isWatson = player != null &&
-                        (player.playerCharacter == PlayerCharacter.Watson || player.CompareTag("PlayerB"));
-        return isWatson && watsonLampHolder != null ? watsonLampHolder : lampHolder;
+        return IsWatson(player) && watsonLampHolder != null ? watsonLampHolder : lampHolder;
     }
 
     public void PlayPickupAudio()
@@ -170,18 +173,20 @@ public class lvl3_int_Lamp : Lvl3InteractionDialogueBase
         if (PlayerTopText.Instance == null)
             return;
 
-        bool isWatson = player != null &&
-                        (player.playerCharacter == PlayerCharacter.Watson || player.CompareTag("PlayerB"));
-        if (isWatson)
+        if (IsWatson(player))
             PlayerTopText.Instance.ShowWatsonTopText(text);
         else
             PlayerTopText.Instance.ShowTopText(text, string.Empty);
     }
 
+    private static bool IsWatson(PlayerController player)
+    {
+        return player != null &&
+               (player.playerCharacter == PlayerCharacter.Watson || player.CompareTag("PlayerB"));
+    }
+
     private void SetupInteractable()
     {
-        lvl3_LayerUtility.SetOutlinedObjectsLayer(gameObject);
-
         interactable = GetComponent<Interactable>();
 
         if (interactable != null)

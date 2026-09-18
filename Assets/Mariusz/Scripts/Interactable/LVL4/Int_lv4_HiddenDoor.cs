@@ -105,7 +105,10 @@ public class Int_lv4_HiddenDoor : Lvl3InteractionDialogueBase
         if (loupeRevealed)
             return;
 
-        if (Keyboard.current == null || !Keyboard.current.fKey.isPressed || !IsLoupeOverDoor())
+        bool sherlockIsActive = SwitchCharacter.Instance != null &&
+                                SwitchCharacter.Instance.activePlayerIndex == 0;
+        if (!sherlockIsActive || Keyboard.current == null ||
+            !Keyboard.current.fKey.isPressed || !IsLoupeOverDoor())
         {
             loupeHoldTimer = 0f;
             return;

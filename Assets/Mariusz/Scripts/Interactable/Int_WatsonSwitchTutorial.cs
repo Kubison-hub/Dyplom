@@ -20,7 +20,7 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
 
     [Header("Camera")]
     [SerializeField] private CameraController cameraController;
-    [SerializeField, Min(0.01f)] private float cameraPresetTransitionSpeed = 0.35f;
+    [SerializeField, Min(0f)] private float cameraPresetTransitionDuration = 2.5f;
 
     [Header("Immediate Watson Reaction")]
     [SerializeField, Min(1f)] private float watsonTurnSpeed = 360f;
@@ -186,7 +186,9 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
         yield return FinishWatsonFacingPlayer(player);
 
         if (cameraController != null)
-            cameraController.SetZoomIndex((int)CameraZoomState.Narrow, cameraPresetTransitionSpeed);
+            cameraController.SetZoomIndex(
+                Mathf.Max(0, cameraController.CurrentZoomIndex - 1),
+                cameraPresetTransitionDuration);
 
         SwitchCharacter switchCharacter = SwitchCharacter.Instance;
         if (switchCharacter != null)

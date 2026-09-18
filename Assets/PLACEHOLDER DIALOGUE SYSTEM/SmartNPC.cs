@@ -11,17 +11,16 @@ public class SmartNPC : MonoBehaviour
     public int npcID = 1;
 
     [Header("Dziennik (Notatki)")]
-    [Tooltip("Numer notatki w JournalManager, która ma siê odkryæ po rozmowie. Wpisz -1 jeœli ten NPC nie daje notatki.")]
-    public int noteIDToUnlock = -1; // <--- NOWOŒÆ
+    [Tooltip("Numer notatki w JournalManager, ktÃ³ra ma siÄ™ odkryÄ‡ po rozmowie. Wpisz -1 jeÅ›li ten NPC nie daje notatki.")]
+    public int noteIDToUnlock = -1; // <--- NOWOÅšÄ†
 
-    [Header("Przypisz pliki dialogów")]
+    [Header("Przypisz pliki dialogÃ³w")]
     public NPCConversation rozmowaDlaPostaciA; // Sherlock
     public NPCConversation rozmowaDlaPostaciB; // Watson
 
     [Header("Dialogue Camera")]
     [Tooltip("Point the camera looks at during this NPC conversation. Falls back to the NPC root when empty.")]
     [SerializeField] private Transform dialogueCameraTarget;
-    [SerializeField, Min(0.01f)] private float dialogueCameraTargetTransitionSpeed = 0.2f;
     [SerializeField, Min(0.01f)] private float dialogueCameraRestoreTransitionSpeed = 3f;
 
     private bool czyPostacA_W_Zasiegu = false;
@@ -99,36 +98,36 @@ public class SmartNPC : MonoBehaviour
         // --- Interakcja dla Sherlocka (PlayerA) ---
         if (czyPostacA_W_Zasiegu && CzyToAktywnyGracz(obiektGraczaA))
         {
-            Debug.Log($"NPC {npcID}: Rozmawiam z Postaci¹ A");
+            Debug.Log($"NPC {npcID}: Rozmawiam z PostaciÄ… A");
 
             if (QuestManager.Instance != null)
             {
                 QuestManager.Instance.OdnotujRozmowe("PlayerA", npcID);
             }
 
-            BeginDialogueCameraFocus();
+            BeginDialogueCameraFocus(rozmowaDlaPostaciA);
             ConversationManager.Instance.StartConversation(rozmowaDlaPostaciA);
             dialogRozpoczety = true;
         }
         // --- Interakcja dla Watsona (PlayerB) ---
         else if (czyPostacB_W_Zasiegu && CzyToAktywnyGracz(obiektGraczaB))
         {
-            Debug.Log($"NPC {npcID}: Rozmawiam z Postaci¹ B");
+            Debug.Log($"NPC {npcID}: Rozmawiam z PostaciÄ… B");
 
             if (QuestManager.Instance != null)
             {
                 QuestManager.Instance.OdnotujRozmowe("PlayerB", npcID);
             }
 
-            BeginDialogueCameraFocus();
+            BeginDialogueCameraFocus(rozmowaDlaPostaciB);
             ConversationManager.Instance.StartConversation(rozmowaDlaPostaciB);
             dialogRozpoczety = true;
         }
 
-        // --- OBS£UGA DZIENNIKA (Wspólna dla obu graczy) ---
+        // --- OBSÅUGA DZIENNIKA (WspÃ³lna dla obu graczy) ---
         if (dialogRozpoczety)
         {
-            // Jeœli przypisano poprawny ID notatki (ró¿ny od -1)
+            // JeÅ›li przypisano poprawny ID notatki (rÃ³Å¼ny od -1)
             if (noteIDToUnlock >= 0 && JournalManager.Instance != null)
             {
                 JournalManager.Instance.UnlockNote(noteIDToUnlock);
@@ -148,6 +147,14 @@ public class SmartNPC : MonoBehaviour
 
     public void BeginDialogueCameraFocus()
     {
+        BeginDialogueCameraFocus(null);
+    }
+
+    public void BeginDialogueCameraFocus(NPCConversation conversation)
+    {
+        if (conversation != null && !conversation.UseAutomaticDialogueCamera)
+            return;
+
         Transform target = dialogueCameraTarget != null ? dialogueCameraTarget : transform;
         CameraController activeCameraController = GetActiveCameraController();
         if (target == null || activeCameraController == null)
@@ -157,24 +164,43 @@ public class SmartNPC : MonoBehaviour
             RestoreDialogueCameraFocus();
 
         dialogueCameraController = activeCameraController;
-        dialogueCameraController.OverrideLookAtTargetSmooth(target, dialogueCameraTargetTransitionSpeed);
+        float preRollDuration = conversation != null
+            ? conversation.AutomaticDialogueCameraPreRollTime
+            : 0.35f;
+        dialogueCameraController.BeginDialogueLookAt(target, preRollDuration);
 
         if (!dialogueCameraFocusActive)
         {
-            ConversationManager.OnConversationEnded += RestoreDialogueCameraFocus;
+            ConversationManager.OnConversationUIHidden += RestoreDialogueCameraFocus;
             dialogueCameraFocusActive = true;
         }
     }
 
-    public void BeginDialogueCameraFocusWithZoom(string zoomPresetName, float zoomTransitionSpeed)
+    public void BeginDialogueCameraFocusWithZoom(NPCConversation conversation, string zoomPresetName)
     {
-        BeginDialogueCameraFocus();
+        BeginDialogueCameraFocus(conversation);
 
         if (!string.IsNullOrWhiteSpace(zoomPresetName))
-            dialogueCameraController?.BeginDialogueZoomPreset(zoomPresetName, zoomTransitionSpeed);
+        {
+            float preRollDuration = conversation != null
+                ? conversation.AutomaticDialogueCameraPreRollTime
+                : 0.35f;
+            dialogueCameraController?.BeginDialogueZoomPreset(zoomPresetName, preRollDuration);
+        }
     }
+
+    public void BeginDialogueCameraFocusWithZoom(string zoomPresetName, float preRollDuration)
+    {
+        BeginDialogueCameraFocus();
+        if (!string.IsNullOrWhiteSpace(zoomPresetName))
+            dialogueCameraController?.BeginDialogueZoomPreset(zoomPresetName, preRollDuration);
+    }
+
     public void EndDialogueCameraFocus()
     {
+        if (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
+            return;
+
         RestoreDialogueCameraFocus();
     }
 
@@ -186,9 +212,9 @@ public class SmartNPC : MonoBehaviour
     private void RestoreDialogueCameraFocus()
     {
         if (dialogueCameraFocusActive)
-            ConversationManager.OnConversationEnded -= RestoreDialogueCameraFocus;
+            ConversationManager.OnConversationUIHidden -= RestoreDialogueCameraFocus;
 
-        dialogueCameraController?.ReturnLookAtToTargetSmooth(
+        dialogueCameraController?.RestoreDialogueLookAt(
             dialogueCameraReturnTarget,
             dialogueCameraRestoreTransitionSpeed);
         dialogueCameraController = null;

@@ -8,19 +8,18 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: "\u015Awiat\u0142o"
-  m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: ef2c963da0fe97844b84f67ae15c2964, type: 3}
   m_Parent: {fileID: 2100000, guid: 9fa760a0107968b4d92b62dec3c01b76, type: 2}
   m_ModifiedSerializedProperties: 18
-  m_ValidKeywords:
+  m_ValidKeywords: []
+  m_InvalidKeywords:
   - _EMISSION
   - _NORMALMAP
-  m_InvalidKeywords: []
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
-  stringTagMap:
-    RenderType: Opaque
+  stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
   m_LockedProperties: 
@@ -48,13 +47,17 @@ Material:
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _Metallic: 0
+    - _Radius: 0
     - _Smoothness: 0.5
     - _Surface: 0
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Base_Colour: {r: 1, g: 0.7933507, b: 0.25471687, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 7.6050987, g: 4.834369, b: 1.0403204, a: 1}
+    - _Emissive_Colour: {r: 0, g: 0, b: 0, a: 1}
+    - _Target_Position: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &2821418683221146916

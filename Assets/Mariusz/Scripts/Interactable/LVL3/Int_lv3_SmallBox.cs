@@ -3,6 +3,8 @@ using UnityEngine;
 [RequireComponent(typeof(Interactable))]
 public class Int_lv3_SmallBox : Lvl3InteractionDialogueBase
 {
+    private Interactable interactable;
+
     [Header("Sherlock Dialogue Lines")]
     [SerializeField] private Lvl3DialogueLine[] firstDialogueLines;
     [SerializeField] private Lvl3DialogueLine[] secondDialogueLines;
@@ -56,7 +58,12 @@ public class Int_lv3_SmallBox : Lvl3InteractionDialogueBase
         }
 
         interactionCount = 2;
+        interactable?.AddAllDatabaseNotes();
         CluesLog.Instance?.RegisterBasementEvidence("SmallBox");
+
+        if (isWatson && PlayerTopText.Instance != null && PlayerTopText.Instance.watsonTopText != null)
+            PlayerTopText.Instance.watsonTopText.text = string.Empty;
+
         PlayDialogue(player, isWatson ? watsonSecondDialogueLines : secondDialogueLines);
 
         if (pickupAudioSource != null && pickupAudioClip != null)
@@ -76,6 +83,9 @@ public class Int_lv3_SmallBox : Lvl3InteractionDialogueBase
     private void Setup()
     {
         SetupInteractable(InteractionType.Int_lv3_SmallBox);
+        interactable = GetComponent<Interactable>();
+        if (interactable != null)
+            interactable.addDatabaseNotesAutomatically = false;
 
         if (firstDialogueLines == null || firstDialogueLines.Length == 0)
         {
@@ -124,7 +134,6 @@ public class Int_lv3_SmallBox : Lvl3InteractionDialogueBase
                 interactionCollider.enabled = false;
         }
 
-        Interactable interactable = GetComponent<Interactable>();
         if (interactable == null)
             return;
 

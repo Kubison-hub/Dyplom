@@ -23,6 +23,8 @@ public class Int_lv3_ClockBrickButton : Lvl3ClockworkInteraction
             brick = transform;
         releasedLocalPosition = brick.localPosition;
         pressedLocalPosition = releasedLocalPosition + pressedLocalOffset;
+
+        InitializeQuestionFX();
     }
 
     private void Update()
@@ -55,6 +57,7 @@ public class Int_lv3_ClockBrickButton : Lvl3ClockworkInteraction
         brickAudioSource?.Play();
         AnimateBrick(pressedLocalPosition);
         ClearPlayerInteraction(player);
+        puzzleController.NotifyBrickPressed();
     }
 
     public void ForceRelease(bool notifyController, bool playReleaseAudio = false)
@@ -74,8 +77,39 @@ public class Int_lv3_ClockBrickButton : Lvl3ClockworkInteraction
 
     public void SetInteractionEnabled(bool isEnabled)
     {
-        if (Interactable != null)
-            Interactable.isInteractableActive = isEnabled;
+        if (Interactable == null)
+            return;
+
+        Interactable.isInteractableActive = isEnabled;
+
+        if (isEnabled)
+        {
+            InitializeQuestionFX();
+            return;
+        }
+
+        Interactable.SetQuestionFXEagleVisionState(false);
+        if (Interactable.questionVFX != null)
+            Interactable.questionVFX.gameObject.SetActive(false);
+    }
+
+    private void InitializeQuestionFX()
+    {
+        if (Interactable == null)
+            return;
+
+        if (Interactable.questionVFX == null)
+        {
+            Transform questionFxTransform = transform.Find("QuestionFX");
+            if (questionFxTransform != null)
+                Interactable.questionVFX = questionFxTransform.GetComponent<UnityEngine.VFX.VisualEffect>();
+        }
+
+        if (Interactable.questionVFX == null)
+            return;
+
+        Interactable.questionVFX.gameObject.SetActive(true);
+        Interactable.SetQuestionFXRate(0f);
     }
 
     private Transform GetHoldPoint()

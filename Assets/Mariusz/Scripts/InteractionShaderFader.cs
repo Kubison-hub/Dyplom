@@ -10,6 +10,8 @@ public sealed class InteractionShaderFader : MonoBehaviour
     [SerializeField, Min(0f)] private float pulseSpeed = 1.5f;
     [SerializeField] private string visibilityProperty = "_Visibility";
     [SerializeField] private string pulseSpeedProperty = "_PulseSpeed";
+    [SerializeField] private string fresnelColorProperty = "_FresnelColor";
+    [SerializeField] private string fresnelPowerProperty = "_FresnelPower";
 
     private struct RendererMaterialTarget
     {
@@ -22,6 +24,12 @@ public sealed class InteractionShaderFader : MonoBehaviour
     private float currentAlpha;
     private float targetAlpha;
     private bool hideAfterFade;
+    private bool overrideFresnel;
+    private bool fresnelColorInitialized;
+    private Color fresnelColor;
+    private Color targetFresnelColor;
+    private float fresnelColorTransitionSpeed = 8f;
+    private float fresnelPower;
 
     private void Awake()
     {
@@ -39,8 +47,19 @@ public sealed class InteractionShaderFader : MonoBehaviour
 
     private void Update()
     {
+        bool fresnelColorChanged = false;
+        if (overrideFresnel && !Approximately(fresnelColor, targetFresnelColor))
+        {
+            float blend = 1f - Mathf.Exp(-fresnelColorTransitionSpeed * Time.unscaledDeltaTime);
+            fresnelColor = Color.Lerp(fresnelColor, targetFresnelColor, blend);
+            fresnelColorChanged = true;
+        }
+
         if (Mathf.Approximately(currentAlpha, targetAlpha))
         {
+            if (fresnelColorChanged)
+                ApplyAlpha(currentAlpha);
+
             if (hideAfterFade && targetAlpha <= 0f)
                 gameObject.SetActive(false);
 
@@ -82,9 +101,47 @@ public sealed class InteractionShaderFader : MonoBehaviour
     {
         visibleAlpha = Mathf.Clamp01(newVisibleAlpha);
         pulseSpeed = Mathf.Max(0f, newPulseSpeed);
+        overrideFresnel = false;
 
         if (gameObject.activeSelf)
             ApplyAlpha(currentAlpha);
+    }
+
+    public void Configure(float newVisibleAlpha, float newPulseSpeed, Color newFresnelColor, float newFresnelPower)
+    {
+        visibleAlpha = Mathf.Clamp01(newVisibleAlpha);
+        pulseSpeed = Mathf.Max(0f, newPulseSpeed);
+        fresnelColor = newFresnelColor;
+        targetFresnelColor = newFresnelColor;
+        fresnelColorInitialized = true;
+        fresnelPower = Mathf.Max(0.01f, newFresnelPower);
+        overrideFresnel = true;
+
+        if (gameObject.activeSelf)
+            ApplyAlpha(currentAlpha);
+    }
+
+    public void SetFresnelColorTarget(Color newFresnelColor, float transitionSpeed)
+    {
+        if (!overrideFresnel)
+            return;
+
+        if (!fresnelColorInitialized)
+        {
+            fresnelColor = newFresnelColor;
+            fresnelColorInitialized = true;
+        }
+
+        targetFresnelColor = newFresnelColor;
+        fresnelColorTransitionSpeed = Mathf.Max(0.01f, transitionSpeed);
+    }
+
+    private static bool Approximately(Color a, Color b)
+    {
+        return Mathf.Abs(a.r - b.r) < 0.001f &&
+               Mathf.Abs(a.g - b.g) < 0.001f &&
+               Mathf.Abs(a.b - b.b) < 0.001f &&
+               Mathf.Abs(a.a - b.a) < 0.001f;
     }
 
     private void CacheRenderers()
@@ -150,6 +207,12 @@ public sealed class InteractionShaderFader : MonoBehaviour
             Material material = renderer.sharedMaterials[target.materialIndex];
             if (material != null && material.HasProperty(pulseSpeedProperty))
                 propertyBlock.SetFloat(pulseSpeedProperty, pulseSpeed);
+
+            if (overrideFresnel && material != null && material.HasProperty(fresnelColorProperty))
+                propertyBlock.SetColor(fresnelColorProperty, fresnelColor);
+
+            if (overrideFresnel && material != null && material.HasProperty(fresnelPowerProperty))
+                propertyBlock.SetFloat(fresnelPowerProperty, fresnelPower);
 
             renderer.SetPropertyBlock(propertyBlock, target.materialIndex);
         }

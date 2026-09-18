@@ -1,76 +1,46 @@
 using UnityEngine;
 
+[System.Obsolete("Legacy scanner kept only for compatibility with archived scenes.")]
 public class WatsonEagleVisionScanner : MonoBehaviour
 {
     public static WatsonEagleVisionScanner Instance;
 
     public Transform playerTransform;
     public GameObject watsonScanRangeIndicator;
+    public bool isScanning;
+    public Transform movePoint;
 
-    public bool isScanning = false;
     private Collider scanCollider;
 
-    public Transform movePoint;
-    private void Start()
+    private void Awake()
     {
         Instance = this;
+        if (watsonScanRangeIndicator != null)
+            watsonScanRangeIndicator.SetActive(false);
 
-        watsonScanRangeIndicator.SetActive(false);
         scanCollider = GetComponent<Collider>();
-        scanCollider.enabled = false;
-
-        if (movePoint == null)
-            Debug.LogError("MovePoint is null");
+        if (scanCollider != null)
+            scanCollider.enabled = false;
     }
 
-    public void ScanWatson(bool isActive)
+    public void ScanWatson(bool active)
     {
-        isScanning = isActive;
-
-        if (isActive)
-        {
-            watsonScanRangeIndicator.SetActive(true);
-            scanCollider.enabled = true;
-        }
-        else
-        {
-            watsonScanRangeIndicator.SetActive(false);
-            scanCollider.enabled = false;
-            Debug.Log("Exit");
-        }
+        isScanning = active;
+        if (watsonScanRangeIndicator != null)
+            watsonScanRangeIndicator.SetActive(active);
+        if (scanCollider != null)
+            scanCollider.enabled = active;
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("WatsonScan"))
-        {
-            Int2_WatsonScan watsonScan = other.GetComponent<Int2_WatsonScan>();
-            if (watsonScan != null)
-            {
-                watsonScan.canInteract = true;
-            }
-            else
-            {
-                Debug.LogError("WatsonScan is Null");
-            }
-                
-        }
-       
+        if (other.CompareTag("WatsonScan") && other.TryGetComponent(out Int2_WatsonScan watsonScan))
+            watsonScan.canInteract = true;
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (!other.CompareTag("WatsonScan"))
-            return;
-
-        Int2_WatsonScan watsonScan = other.GetComponent<Int2_WatsonScan>();
-        if (watsonScan != null)
-        {
+        if (other.CompareTag("WatsonScan") && other.TryGetComponent(out Int2_WatsonScan watsonScan))
             watsonScan.canInteract = false;
-        }
-        else
-        {
-            Debug.LogError("WatsonScan is Null");
-        }
     }
 }

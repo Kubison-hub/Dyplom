@@ -6,15 +6,28 @@ using UnityEngine;
 using Debug = UnityEngine.Debug;
 using UnityEngine.InputSystem;
 using Unity.Cinemachine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 public class CameraController : MonoBehaviour
 {
+    public static bool IsManualZoomLocked { get; private set; }
+
+    public static void SetManualZoomLocked(bool locked)
+    {
+        IsManualZoomLocked = locked;
+    }
+
     [Header("Debug")]
     [SerializeField] private string currentZoomState;
     [SerializeField] private int currentZoomIndex;
+    [Tooltip("In Play Mode, applies the currently selected preset every frame so its Radius and Height values can be tuned live.")]
+    [SerializeField] private bool livePresetPreview;
+    public int CurrentZoomIndex => targetZoomIndex;
 
     private CinemachineCamera cineCamera;
     private CinemachineOrbitalFollow orbitalFollow;
+    private CinemachineRotationComposer rotationComposer;
 
     [Header("Rotation")]
     [SerializeField] private float rotationSpeed = 120f;
@@ -27,6 +40,7 @@ public class CameraController : MonoBehaviour
     private float targetRotationInput;
     private float currentRotationInput;
     private float rotationInputVelocity;
+    private bool tutorialCameraInputBlocked;
     private float defaultRotationSpeed;
     private float lastManualCameraInputTime;
     private bool autoRotationSuppressedByManualInput;
@@ -41,12 +55,20 @@ public class CameraController : MonoBehaviour
 
     [Header("Dialogue Camera")]
     [SerializeField] private string dialogueZoomPresetName = "Narrow";
-    [SerializeField, Min(0.1f)] private float dialogueZoomTransitionSpeed = 1f;
+    [SerializeField, Min(0f)] private float dialogueZoomReturnDuration = 0.45f;
+    [SerializeField, Min(0.1f)] private float dialogueLookAtReturnSpeed = 1f;
     [SerializeField, Min(0.01f)] private float dialogueRotationFadeInDuration = 0.2f;
     [SerializeField, Min(0.01f)] private float dialogueRotationFadeOutDuration = 0.8f;
 
     [Header("Zoom")]
-    [SerializeField] private float zoomSmoothSpeed = 8f;
+    [SerializeField, Min(0f)] private float zoomTransitionDuration = 0.45f;
+    [SerializeField] private AnimationCurve zoomTransitionCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
+
+    [Header("Depth Of Field")]
+    [Tooltip("Dedicated global Volume containing only the Depth Of Field override.")]
+    [SerializeField] private Volume depthOfFieldVolume;
+    [SerializeField, Min(0f)] private float depthOfFieldFadeDuration = 0.3f;
+    [SerializeField] private AnimationCurve depthOfFieldFadeCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
     [SerializeField]
     private ZoomPreset[] zoomPresets =
@@ -67,7 +89,33 @@ public class CameraController : MonoBehaviour
 
     private int targetZoomIndex;
     private int previousZoomIndex = -1;
-    private float activeZoomSmoothSpeed;
+    private bool zoomTransitionActive;
+    private float zoomTransitionElapsed;
+    private float activeZoomTransitionDuration;
+    private int zoomTransitionTargetIndex = -1;
+    private ZoomPreset zoomTransitionStart;
+    private DepthOfField depthOfField;
+    private bool depthOfFieldTransitionActive;
+    private float depthOfFieldTransitionElapsed;
+    private float depthOfFieldTransitionStartStrength;
+    private float depthOfFieldTargetStrength;
+    private float depthOfFieldConfiguredStart;
+    private float depthOfFieldConfiguredEnd;
+    private float depthOfFieldConfiguredMaxRadius;
+    private float depthOfFieldProfileStart;
+    private float depthOfFieldProfileEnd;
+    private float depthOfFieldProfileMaxRadius;
+    private bool depthOfFieldSettingsTransitionActive;
+    private float depthOfFieldSettingsTransitionElapsed;
+    private float depthOfFieldSettingsStartStart;
+    private float depthOfFieldSettingsStartEnd;
+    private float depthOfFieldSettingsStartMaxRadius;
+    private float depthOfFieldSettingsTargetStart;
+    private float depthOfFieldSettingsTargetEnd;
+    private float depthOfFieldSettingsTargetMaxRadius;
+    private bool depthOfFieldTargetInitialized;
+    private bool depthOfFieldWarningLogged;
+    private bool wasActiveGameplayCameraForDepthOfField;
     private Transform overriddenFollowTarget;
     private Transform overriddenLookAtTarget;
     private bool hasTargetOverride;
@@ -83,11 +131,34 @@ public class CameraController : MonoBehaviour
     private int dialoguePreviousZoomIndex = -1;
     private bool dialogueZoomWasOverridden;
     private float dialogueAutoRotationWeight;
+    private bool dialogueZoomPreRollActive;
+    private float dialogueZoomPreRollElapsed;
+    private float dialogueZoomPreRollDuration;
+    private int dialogueZoomPreRollTargetIndex = -1;
+    private ZoomPreset dialogueZoomPreRollStart;
+    private Transform dialogueLookAtProxy;
+    private Vector3 dialogueLookAtStartPosition;
+    private Vector3 dialogueLookAtTargetPosition;
+    private float dialogueLookAtPreRollElapsed;
+    private float dialogueLookAtPreRollDuration;
+    private bool dialogueLookAtPreRollActive;
+    private bool dialogueLookAtManagedExternally;
+    private bool dialogueLookAtGenericAnchor;
+    private bool hasLoupeOrbitFollowOverride;
+    private float loupeOrbitGameplayStartHorizontalAxis;
+    private float loupeOrbitLockedVerticalAxis;
+    private float loupeOrbitAppliedYaw;
+    private Vector3 loupeOrbitPivotPosition;
+    private Vector3 loupeOrbitMainCameraOffset;
+    private Quaternion loupeOrbitMainCameraRotation;
+    private bool loupeOrbitOrbitalFollowWasEnabled;
+    private bool loupeOrbitRotationComposerWasEnabled;
 
     private void Awake()
     {
         cineCamera = GetComponent<CinemachineCamera>();
         orbitalFollow = cineCamera.GetComponentInChildren<CinemachineOrbitalFollow>();
+        rotationComposer = cineCamera.GetComponentInChildren<CinemachineRotationComposer>();
         defaultRotationSpeed = rotationSpeed;
 
         if (orbitalFollow == null)
@@ -98,19 +169,62 @@ public class CameraController : MonoBehaviour
         }
 
         targetZoomIndex = Mathf.Clamp(startZoomIndex, 0, zoomPresets.Length - 1);
-        activeZoomSmoothSpeed = zoomSmoothSpeed;
         ApplyZoomPresetImmediate(zoomPresets[targetZoomIndex]);
+        ResolveDepthOfField();
         lastManualCameraInputTime = Time.unscaledTime;
+    }
+
+    private void OnEnable()
+    {
+        ConversationManager.OnConversationStarted += HandleConversationStarted;
+        ConversationManager.OnConversationUIWillShow += HandleConversationUIWillShow;
+        ConversationManager.OnConversationUIHidden += HandleConversationUIHidden;
+    }
+
+    private void OnDisable()
+    {
+        ConversationManager.OnConversationStarted -= HandleConversationStarted;
+        ConversationManager.OnConversationUIWillShow -= HandleConversationUIWillShow;
+        ConversationManager.OnConversationUIHidden -= HandleConversationUIHidden;
     }
 
     private void Update()
     {
+        if (IsTutorialBlockingCamera())
+        {
+            if (!tutorialCameraInputBlocked)
+            {
+                tutorialCameraInputBlocked = true;
+                targetRotationInput = 0f;
+                currentRotationInput = 0f;
+                rotationInputVelocity = 0f;
+            }
+
+            UpdateDebugZoomState();
+            return;
+        }
+
+        tutorialCameraInputBlocked = false;
         dialogueJustEndedThisFrame = false;
+        UpdateDialogueLookAtPreRoll();
         UpdateSmoothLookAtTarget();
         UpdateDialogueAutoRotation();
         StopAutomaticRotationOnPlayerClick();
-        SmoothZoomToPreset(zoomPresets[targetZoomIndex]);
+        if (!hasLoupeOrbitFollowOverride)
+        {
+            if (dialogueZoomPreRollActive)
+                UpdateDialogueZoomPreRoll();
+            else
+                UpdateZoomTransition();
+
+            if (livePresetPreview && zoomPresets != null && zoomPresets.Length > 0)
+            {
+                int previewIndex = Mathf.Clamp(targetZoomIndex, 0, zoomPresets.Length - 1);
+                ApplyZoomPresetImmediate(zoomPresets[previewIndex]);
+            }
+        }
         SmoothRotate();
+        UpdateDepthOfFieldForActiveCamera();
         UpdateDebugZoomState();
     }
 
@@ -119,7 +233,16 @@ public class CameraController : MonoBehaviour
         if (!context.performed || orbitalFollow == null)
             return;
 
+        if (IsTutorialBlockingCamera())
+            return;
+
+        if (IsManualZoomLocked)
+            return;
+
         if (MagnifierGlassController.IsScrollReservedForLoupe)
+            return;
+
+        if (SafeCodeDrumMinigame.IsPointerOverActiveBoard)
             return;
 
         float scrollDelta = context.ReadValue<Vector2>().y;
@@ -127,21 +250,26 @@ public class CameraController : MonoBehaviour
         if (Mathf.Abs(scrollDelta) < 0.01f)
             return;
 
-        int direction = scrollDelta > 0 ? 1 : -1;
+        int direction = scrollDelta > 0 ? -1 : 1;
 
         GetManualZoomRange(out int minZoomIndex, out int maxZoomIndex);
 
-        // Scripted presets (for example WallExam) must stay under script control.
-        if (targetZoomIndex < minZoomIndex || targetZoomIndex > maxZoomIndex)
+        bool dialogueAllowsManualZoom = dialogAutoRotateActive;
+        if (dialogueAllowsManualZoom)
+            dialogueZoomPreRollActive = false;
+
+        if (!dialogueAllowsManualZoom &&
+            (targetZoomIndex < minZoomIndex || targetZoomIndex > maxZoomIndex))
             return;
 
-        targetZoomIndex = Mathf.Clamp(
-            targetZoomIndex + direction,
+        int manualStartIndex = Mathf.Clamp(targetZoomIndex, minZoomIndex, maxZoomIndex);
+
+        int requestedZoomIndex = Mathf.Clamp(
+            manualStartIndex + direction,
             minZoomIndex,
             maxZoomIndex
         );
-
-        UpdateDebugZoomState();
+        SetZoomIndex(requestedZoomIndex);
 
     }
 
@@ -150,7 +278,31 @@ public class CameraController : MonoBehaviour
         if (orbitalFollow == null)
             return;
 
+        if (IsTutorialBlockingCamera())
+        {
+            targetRotationInput = 0f;
+            currentRotationInput = 0f;
+            rotationInputVelocity = 0f;
+            return;
+        }
+
         Vector2 value = context.ReadValue<Vector2>();
+
+        if (IsActiveGameplayCamera() &&
+            MagnifierGlassController.TryConsumeCameraRotation(value, rotationSpeed))
+        {
+            targetRotationInput = 0f;
+            currentRotationInput = 0f;
+            rotationInputVelocity = 0f;
+
+            if (value.sqrMagnitude > 0.0001f)
+            {
+                StopScriptedHorizontalOrbit();
+                RegisterManualCameraInput();
+            }
+
+            return;
+        }
 
         targetRotationInput = value.x;
 
@@ -170,6 +322,15 @@ public class CameraController : MonoBehaviour
 
     private void SmoothRotate()
     {
+        if (IsActiveGameplayCamera() &&
+            MagnifierGlassController.IsRotationReservedForLoupe)
+        {
+            targetRotationInput = 0f;
+            currentRotationInput = 0f;
+            rotationInputVelocity = 0f;
+            return;
+        }
+
         if (horizontalRotationLocked)
         {
             orbitalFollow.HorizontalAxis.Value = lockedHorizontalRotation;
@@ -318,22 +479,9 @@ public class CameraController : MonoBehaviour
             if (!dialogAutoRotateActive)
             {
                 NPCConversation conversation = ConversationManager.Instance.ActiveConversationSource;
-                bool useAutomaticDialogueCamera = conversation == null || conversation.UseAutomaticDialogueCamera;
-
-                dialogueZoomWasOverridden = useAutomaticDialogueCamera;
-                if (useAutomaticDialogueCamera)
-                {
-                    dialoguePreviousZoomIndex = targetZoomIndex;
-                    string presetName = conversation != null && !string.IsNullOrWhiteSpace(conversation.AutomaticDialogueCameraPreset)
-                        ? conversation.AutomaticDialogueCameraPreset
-                        : dialogueZoomPresetName;
-                    float zoomSpeed = conversation != null
-                        ? conversation.AutomaticDialogueCameraZoomSpeed
-                        : dialogueZoomTransitionSpeed;
-                    SetZoomPreset(presetName, zoomSpeed);
-                }
-                autoRotateCamera = false;
-                dialogAutoRotationSuppressedByManualInput = false;
+                TryBeginDialogueCamera(conversation);
+                if (!dialogAutoRotateActive)
+                    return;
             }
 
             dialogAutoRotateActive = true;
@@ -352,7 +500,7 @@ public class CameraController : MonoBehaviour
             autoRotateCamera = false;
 
             if (dialogueZoomWasOverridden && dialoguePreviousZoomIndex >= 0)
-                SetZoomIndex(dialoguePreviousZoomIndex, dialogueZoomTransitionSpeed);
+                SetZoomIndex(dialoguePreviousZoomIndex, dialogueZoomReturnDuration);
 
             dialoguePreviousZoomIndex = -1;
             dialogueZoomWasOverridden = false;
@@ -361,26 +509,176 @@ public class CameraController : MonoBehaviour
         dialogueAutoRotationWeight = 0f;
     }
 
-    private void SmoothZoomToPreset(ZoomPreset preset)
+    private void HandleConversationStarted()
     {
-        float t = 1f - Mathf.Exp(-activeZoomSmoothSpeed * Time.deltaTime);
+        NPCConversation conversation = ConversationManager.Instance != null
+            ? ConversationManager.Instance.ActiveConversationSource
+            : null;
+        TryBeginDialogueCamera(conversation);
+    }
 
-        var top = orbitalFollow.Orbits.Top;
-        var center = orbitalFollow.Orbits.Center;
-        var bottom = orbitalFollow.Orbits.Bottom;
+    private void TryBeginDialogueCamera(NPCConversation conversation)
+    {
+        if (dialogAutoRotateActive || !IsActiveGameplayCamera())
+            return;
 
-        top.Radius = Mathf.Lerp(top.Radius, preset.topRadius, t);
-        top.Height = Mathf.Lerp(top.Height, preset.topHeight, t);
+        bool useAutomaticDialogueCamera = conversation == null || conversation.UseAutomaticDialogueCamera;
+        dialogueZoomWasOverridden = useAutomaticDialogueCamera;
+        if (useAutomaticDialogueCamera)
+        {
+            dialoguePreviousZoomIndex = targetZoomIndex;
+            float preRollDuration = conversation != null
+                ? conversation.AutomaticDialogueCameraPreRollTime
+                : 0.35f;
 
-        center.Radius = Mathf.Lerp(center.Radius, preset.centerRadius, t);
-        center.Height = Mathf.Lerp(center.Height, preset.centerHeight, t);
+            if (conversation != null && !conversation.SetCustomPreset)
+            {
+                StartDialogueZoomPreRoll(Mathf.Max(0, targetZoomIndex - 1), preRollDuration);
+            }
+            else
+            {
+                string presetName = conversation != null && !string.IsNullOrWhiteSpace(conversation.AutomaticDialogueCameraPreset)
+                    ? conversation.AutomaticDialogueCameraPreset
+                    : dialogueZoomPresetName;
+                StartDialogueZoomPreRoll(presetName, preRollDuration);
+            }
+        }
 
-        bottom.Radius = Mathf.Lerp(bottom.Radius, preset.bottomRadius, t);
-        bottom.Height = Mathf.Lerp(bottom.Height, preset.bottomHeight, t);
+        autoRotateCamera = false;
+        StopScriptedHorizontalOrbit();
+        dialogAutoRotationSuppressedByManualInput = false;
+        dialogAutoRotateActive = true;
+    }
 
-        orbitalFollow.Orbits.Top = top;
-        orbitalFollow.Orbits.Center = center;
-        orbitalFollow.Orbits.Bottom = bottom;
+    private bool IsActiveGameplayCamera()
+    {
+        SwitchCharacter switchCharacter = SwitchCharacter.Instance;
+        if (switchCharacter != null && switchCharacter.playersCamera != null)
+        {
+            int activeIndex = switchCharacter.activePlayerIndex;
+            if (activeIndex >= 0 && activeIndex < switchCharacter.playersCamera.Length)
+                return switchCharacter.playersCamera[activeIndex] == cineCamera;
+        }
+
+        return cineCamera != null && cineCamera.isActiveAndEnabled;
+    }
+
+    private void StartDialogueZoomPreRoll(string presetName, float duration)
+    {
+        if (!TryGetZoomPresetIndex(presetName, out int presetIndex))
+            return;
+
+        StartDialogueZoomPreRoll(presetIndex, duration);
+    }
+
+    private void StartDialogueZoomPreRoll(int presetIndex, float duration)
+    {
+        if (zoomPresets == null || zoomPresets.Length == 0)
+            return;
+
+        presetIndex = Mathf.Clamp(presetIndex, 0, zoomPresets.Length - 1);
+
+        dialogueZoomPreRollStart = CaptureCurrentZoomPreset();
+        zoomTransitionActive = false;
+        zoomTransitionTargetIndex = -1;
+        dialogueZoomPreRollTargetIndex = presetIndex;
+        targetZoomIndex = presetIndex;
+        dialogueZoomPreRollElapsed = 0f;
+        dialogueZoomPreRollDuration = Mathf.Max(0f, duration);
+        dialogueZoomPreRollActive = dialogueZoomPreRollDuration > 0f;
+
+        if (!dialogueZoomPreRollActive)
+            CompleteDialogueZoomPreRoll();
+
+        UpdateDebugZoomState();
+    }
+
+    private void UpdateDialogueZoomPreRoll()
+    {
+        if (!dialogueZoomPreRollActive || dialogueZoomPreRollTargetIndex < 0)
+            return;
+
+        dialogueZoomPreRollElapsed += Time.unscaledDeltaTime;
+        float normalizedTime = Mathf.Clamp01(dialogueZoomPreRollElapsed / dialogueZoomPreRollDuration);
+        ApplyZoomPresetInterpolated(
+            dialogueZoomPreRollStart,
+            zoomPresets[dialogueZoomPreRollTargetIndex],
+            Mathf.SmoothStep(0f, 1f, normalizedTime));
+
+        if (normalizedTime >= 1f)
+            CompleteDialogueZoomPreRoll();
+    }
+
+    private void CompleteDialogueZoomPreRoll()
+    {
+        if (dialogueZoomPreRollTargetIndex >= 0 && dialogueZoomPreRollTargetIndex < zoomPresets.Length)
+            ApplyZoomPresetImmediate(zoomPresets[dialogueZoomPreRollTargetIndex]);
+
+        dialogueZoomPreRollActive = false;
+        dialogueZoomPreRollTargetIndex = -1;
+    }
+
+    private void StartZoomTransition(int presetIndex, float duration)
+    {
+        zoomTransitionStart = CaptureCurrentZoomPreset();
+        zoomTransitionTargetIndex = presetIndex;
+        zoomTransitionElapsed = 0f;
+        activeZoomTransitionDuration = duration >= 0f ? duration : zoomTransitionDuration;
+        zoomTransitionActive = activeZoomTransitionDuration > 0f;
+        dialogueZoomPreRollActive = false;
+        dialogueZoomPreRollTargetIndex = -1;
+
+        if (!zoomTransitionActive)
+            CompleteZoomTransition();
+    }
+
+    private static bool IsTutorialBlockingCamera()
+    {
+        return (TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput) ||
+               (TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput);
+    }
+
+    private void UpdateZoomTransition()
+    {
+        if (!zoomTransitionActive || zoomTransitionTargetIndex < 0 ||
+            zoomTransitionTargetIndex >= zoomPresets.Length)
+            return;
+
+        zoomTransitionElapsed += Time.unscaledDeltaTime;
+        float normalizedTime = Mathf.Clamp01(zoomTransitionElapsed / activeZoomTransitionDuration);
+        float easedTime = EvaluateNormalizedZoomTransitionCurve(normalizedTime);
+        ApplyZoomPresetInterpolated(
+            zoomTransitionStart,
+            zoomPresets[zoomTransitionTargetIndex],
+            easedTime);
+
+        if (normalizedTime >= 1f)
+            CompleteZoomTransition();
+    }
+
+    private float EvaluateNormalizedZoomTransitionCurve(float normalizedTime)
+    {
+        if (zoomTransitionCurve == null || zoomTransitionCurve.length == 0)
+            return Mathf.SmoothStep(0f, 1f, normalizedTime);
+
+        float curveStart = zoomTransitionCurve.Evaluate(0f);
+        float curveEnd = zoomTransitionCurve.Evaluate(1f);
+        if (Mathf.Approximately(curveStart, curveEnd))
+            return Mathf.SmoothStep(0f, 1f, normalizedTime);
+
+        return Mathf.Clamp01(Mathf.InverseLerp(
+            curveStart,
+            curveEnd,
+            zoomTransitionCurve.Evaluate(normalizedTime)));
+    }
+
+    private void CompleteZoomTransition()
+    {
+        if (zoomTransitionTargetIndex >= 0 && zoomTransitionTargetIndex < zoomPresets.Length)
+            ApplyZoomPresetImmediate(zoomPresets[zoomTransitionTargetIndex]);
+
+        zoomTransitionActive = false;
+        zoomTransitionTargetIndex = -1;
     }
 
     private void ApplyZoomPresetImmediate(ZoomPreset preset)
@@ -403,6 +701,332 @@ public class CameraController : MonoBehaviour
         orbitalFollow.Orbits.Bottom = bottom;
     }
 
+    private ZoomPreset CaptureCurrentZoomPreset()
+    {
+        return new ZoomPreset(
+            "Dialogue Pre-Roll Start",
+            orbitalFollow.Orbits.Top.Radius,
+            orbitalFollow.Orbits.Top.Height,
+            orbitalFollow.Orbits.Center.Radius,
+            orbitalFollow.Orbits.Center.Height,
+            orbitalFollow.Orbits.Bottom.Radius,
+            orbitalFollow.Orbits.Bottom.Height);
+    }
+
+    private void ApplyZoomPresetInterpolated(ZoomPreset from, ZoomPreset to, float t)
+    {
+        ApplyZoomPresetImmediate(new ZoomPreset(
+            to.name,
+            Mathf.Lerp(from.topRadius, to.topRadius, t),
+            Mathf.Lerp(from.topHeight, to.topHeight, t),
+            Mathf.Lerp(from.centerRadius, to.centerRadius, t),
+            Mathf.Lerp(from.centerHeight, to.centerHeight, t),
+            Mathf.Lerp(from.bottomRadius, to.bottomRadius, t),
+            Mathf.Lerp(from.bottomHeight, to.bottomHeight, t)));
+    }
+
+    private void ResolveDepthOfField()
+    {
+        if (TryGetDepthOfField(depthOfFieldVolume, out depthOfField))
+        {
+            depthOfFieldProfileStart = depthOfField.gaussianStart.value;
+            depthOfFieldProfileEnd = Mathf.Max(
+                depthOfFieldProfileStart + 0.01f,
+                depthOfField.gaussianEnd.value);
+            depthOfFieldProfileMaxRadius = depthOfField.gaussianMaxRadius.value;
+            depthOfFieldConfiguredStart = depthOfFieldProfileStart;
+            depthOfFieldConfiguredEnd = depthOfFieldProfileEnd;
+            depthOfFieldConfiguredMaxRadius = depthOfFieldProfileMaxRadius;
+            return;
+        }
+
+        depthOfField = null;
+        if (!depthOfFieldWarningLogged)
+        {
+            Debug.LogWarning(
+                $"{name}: Assign a dedicated global Volume with a Depth Of Field override.",
+                this);
+            depthOfFieldWarningLogged = true;
+        }
+    }
+
+    private static bool TryGetDepthOfField(Volume volume, out DepthOfField result)
+    {
+        result = null;
+        return volume != null && volume.profile != null && volume.profile.TryGet(out result);
+    }
+
+    private void UpdateDepthOfFieldForActiveCamera()
+    {
+        bool isActiveGameplayCamera = IsActiveGameplayCamera();
+        if (!isActiveGameplayCamera)
+        {
+            wasActiveGameplayCameraForDepthOfField = false;
+            return;
+        }
+
+        if (!wasActiveGameplayCameraForDepthOfField)
+        {
+            depthOfFieldTransitionActive = false;
+            depthOfFieldSettingsTransitionActive = false;
+            depthOfFieldTargetInitialized = false;
+            wasActiveGameplayCameraForDepthOfField = true;
+        }
+
+        if (depthOfField == null)
+            ResolveDepthOfField();
+
+        if (depthOfField == null || zoomPresets == null || zoomPresets.Length == 0)
+            return;
+
+        int presetIndex = Mathf.Clamp(targetZoomIndex, 0, zoomPresets.Length - 1);
+        ZoomPreset selectedPreset = zoomPresets[presetIndex];
+        bool cameraHasReachedPreset = !zoomTransitionActive && !dialogueZoomPreRollActive;
+        bool presetWantsDepthOfField = selectedPreset.enableDepthOfField;
+        float currentStrength = GetCurrentDepthOfFieldStrength();
+
+        if (presetWantsDepthOfField && currentStrength > 0.0001f)
+        {
+            BeginDepthOfFieldSettingsTransitionIfNeeded(selectedPreset);
+            UpdateDepthOfFieldSettingsTransition(currentStrength);
+        }
+        else if (presetWantsDepthOfField && cameraHasReachedPreset &&
+                 !DepthOfFieldSettingsMatch(selectedPreset))
+        {
+            ApplyDepthOfFieldPresetSettings(selectedPreset);
+        }
+        else if (!presetWantsDepthOfField)
+        {
+            depthOfFieldSettingsTransitionActive = false;
+        }
+
+        bool canShowDepthOfField = presetWantsDepthOfField &&
+                                   (currentStrength > 0.0001f || cameraHasReachedPreset);
+        float requestedStrength = canShowDepthOfField ? 1f : 0f;
+
+        depthOfField.active = true;
+        depthOfField.mode.Override(DepthOfFieldMode.Gaussian);
+        depthOfField.gaussianStart.Override(depthOfFieldConfiguredStart);
+        depthOfField.gaussianEnd.overrideState = true;
+        depthOfField.gaussianMaxRadius.Override(depthOfFieldConfiguredMaxRadius);
+
+        if (!depthOfFieldTargetInitialized && depthOfFieldVolume.weight <= 0.0001f)
+            ApplyDepthOfFieldStrength(0f);
+
+        depthOfFieldVolume.weight = 1f;
+
+        bool targetChanged = !depthOfFieldTargetInitialized ||
+                             !Mathf.Approximately(depthOfFieldTargetStrength, requestedStrength);
+        bool strengthWasChangedExternally = !depthOfFieldTransitionActive &&
+                                            !Mathf.Approximately(
+                                                currentStrength,
+                                                requestedStrength);
+        if (targetChanged || strengthWasChangedExternally)
+            BeginDepthOfFieldTransition(requestedStrength);
+
+        UpdateDepthOfFieldTransition();
+    }
+
+    private void BeginDepthOfFieldTransition(float targetStrength)
+    {
+        depthOfFieldTargetInitialized = true;
+        depthOfFieldTargetStrength = Mathf.Clamp01(targetStrength);
+        depthOfFieldTransitionStartStrength = GetCurrentDepthOfFieldStrength();
+        depthOfFieldTransitionElapsed = 0f;
+        depthOfFieldTransitionActive = depthOfFieldFadeDuration > 0f &&
+                                       !Mathf.Approximately(
+                                           depthOfFieldTransitionStartStrength,
+                                           depthOfFieldTargetStrength);
+
+        if (!depthOfFieldTransitionActive && depthOfField != null)
+            ApplyDepthOfFieldStrength(depthOfFieldTargetStrength);
+    }
+
+    private void UpdateDepthOfFieldTransition()
+    {
+        if (!depthOfFieldTransitionActive || depthOfField == null)
+            return;
+
+        depthOfFieldTransitionElapsed += Time.unscaledDeltaTime;
+        float normalizedTime = Mathf.Clamp01(
+            depthOfFieldTransitionElapsed / depthOfFieldFadeDuration);
+        float easedTime = EvaluateNormalizedCurve(depthOfFieldFadeCurve, normalizedTime);
+        float strength = Mathf.Lerp(
+            depthOfFieldTransitionStartStrength,
+            depthOfFieldTargetStrength,
+            easedTime);
+        ApplyDepthOfFieldStrength(strength);
+
+        if (normalizedTime < 1f)
+            return;
+
+        ApplyDepthOfFieldStrength(depthOfFieldTargetStrength);
+        depthOfFieldTransitionActive = false;
+    }
+
+    private float GetCurrentDepthOfFieldStrength()
+    {
+        if (depthOfField == null)
+            return 0f;
+
+        float configuredRange = Mathf.Max(
+            0.01f,
+            depthOfFieldConfiguredEnd - depthOfFieldConfiguredStart);
+        float currentRange = Mathf.Max(
+            configuredRange,
+            depthOfField.gaussianEnd.value - depthOfFieldConfiguredStart);
+        if (currentRange >= configuredRange * 9999f)
+            return 0f;
+
+        return Mathf.Clamp01(configuredRange / currentRange);
+    }
+
+    private void ApplyDepthOfFieldStrength(float strength)
+    {
+        if (depthOfField == null)
+            return;
+
+        float configuredRange = Mathf.Max(
+            0.01f,
+            depthOfFieldConfiguredEnd - depthOfFieldConfiguredStart);
+        float safeStrength = Mathf.Max(0.0001f, Mathf.Clamp01(strength));
+        depthOfField.gaussianEnd.value = depthOfFieldConfiguredStart +
+                                         configuredRange / safeStrength;
+    }
+
+    private bool DepthOfFieldSettingsMatch(ZoomPreset preset)
+    {
+        GetDepthOfFieldPresetSettings(
+            preset,
+            out float start,
+            out float end,
+            out float maxRadius);
+        return Mathf.Approximately(depthOfFieldConfiguredStart, start) &&
+               Mathf.Approximately(depthOfFieldConfiguredEnd, end) &&
+               Mathf.Approximately(depthOfFieldConfiguredMaxRadius, maxRadius);
+    }
+
+    private void ApplyDepthOfFieldPresetSettings(ZoomPreset preset)
+    {
+        GetDepthOfFieldPresetSettings(
+            preset,
+            out depthOfFieldConfiguredStart,
+            out depthOfFieldConfiguredEnd,
+            out depthOfFieldConfiguredMaxRadius);
+
+        depthOfField.gaussianStart.Override(depthOfFieldConfiguredStart);
+        depthOfField.gaussianMaxRadius.Override(depthOfFieldConfiguredMaxRadius);
+        ApplyDepthOfFieldStrength(0f);
+    }
+
+    private void BeginDepthOfFieldSettingsTransitionIfNeeded(ZoomPreset preset)
+    {
+        GetDepthOfFieldPresetSettings(
+            preset,
+            out float targetStart,
+            out float targetEnd,
+            out float targetMaxRadius);
+
+        bool targetIsCurrentTransitionTarget = depthOfFieldSettingsTransitionActive &&
+                                               Mathf.Approximately(depthOfFieldSettingsTargetStart, targetStart) &&
+                                               Mathf.Approximately(depthOfFieldSettingsTargetEnd, targetEnd) &&
+                                               Mathf.Approximately(depthOfFieldSettingsTargetMaxRadius, targetMaxRadius);
+        if (targetIsCurrentTransitionTarget ||
+            !depthOfFieldSettingsTransitionActive &&
+            Mathf.Approximately(depthOfFieldConfiguredStart, targetStart) &&
+            Mathf.Approximately(depthOfFieldConfiguredEnd, targetEnd) &&
+            Mathf.Approximately(depthOfFieldConfiguredMaxRadius, targetMaxRadius))
+        {
+            return;
+        }
+
+        depthOfFieldSettingsStartStart = depthOfFieldConfiguredStart;
+        depthOfFieldSettingsStartEnd = depthOfFieldConfiguredEnd;
+        depthOfFieldSettingsStartMaxRadius = depthOfFieldConfiguredMaxRadius;
+        depthOfFieldSettingsTargetStart = targetStart;
+        depthOfFieldSettingsTargetEnd = targetEnd;
+        depthOfFieldSettingsTargetMaxRadius = targetMaxRadius;
+        depthOfFieldSettingsTransitionElapsed = 0f;
+        depthOfFieldSettingsTransitionActive = depthOfFieldFadeDuration > 0f;
+
+        if (!depthOfFieldSettingsTransitionActive)
+        {
+            depthOfFieldConfiguredStart = targetStart;
+            depthOfFieldConfiguredEnd = targetEnd;
+            depthOfFieldConfiguredMaxRadius = targetMaxRadius;
+        }
+    }
+
+    private void UpdateDepthOfFieldSettingsTransition(float currentStrength)
+    {
+        if (!depthOfFieldSettingsTransitionActive || depthOfField == null)
+            return;
+
+        depthOfFieldSettingsTransitionElapsed += Time.unscaledDeltaTime;
+        float normalizedTime = Mathf.Clamp01(
+            depthOfFieldSettingsTransitionElapsed / depthOfFieldFadeDuration);
+        float easedTime = EvaluateNormalizedCurve(depthOfFieldFadeCurve, normalizedTime);
+
+        depthOfFieldConfiguredStart = Mathf.Lerp(
+            depthOfFieldSettingsStartStart,
+            depthOfFieldSettingsTargetStart,
+            easedTime);
+        depthOfFieldConfiguredEnd = Mathf.Lerp(
+            depthOfFieldSettingsStartEnd,
+            depthOfFieldSettingsTargetEnd,
+            easedTime);
+        depthOfFieldConfiguredMaxRadius = Mathf.Lerp(
+            depthOfFieldSettingsStartMaxRadius,
+            depthOfFieldSettingsTargetMaxRadius,
+            easedTime);
+
+        depthOfField.gaussianStart.Override(depthOfFieldConfiguredStart);
+        depthOfField.gaussianMaxRadius.Override(depthOfFieldConfiguredMaxRadius);
+        ApplyDepthOfFieldStrength(currentStrength);
+
+        if (normalizedTime < 1f)
+            return;
+
+        depthOfFieldConfiguredStart = depthOfFieldSettingsTargetStart;
+        depthOfFieldConfiguredEnd = depthOfFieldSettingsTargetEnd;
+        depthOfFieldConfiguredMaxRadius = depthOfFieldSettingsTargetMaxRadius;
+        depthOfFieldSettingsTransitionActive = false;
+    }
+
+    private void GetDepthOfFieldPresetSettings(
+        ZoomPreset preset,
+        out float start,
+        out float end,
+        out float maxRadius)
+    {
+        bool hasValidPresetRange = preset.depthOfFieldEnd > preset.depthOfFieldStart;
+        start = hasValidPresetRange
+            ? Mathf.Max(0f, preset.depthOfFieldStart)
+            : depthOfFieldProfileStart;
+        end = hasValidPresetRange
+            ? Mathf.Max(start + 0.01f, preset.depthOfFieldEnd)
+            : depthOfFieldProfileEnd;
+        maxRadius = preset.depthOfFieldMaxRadius >= 0.5f
+            ? Mathf.Clamp(preset.depthOfFieldMaxRadius, 0.5f, 1.5f)
+            : depthOfFieldProfileMaxRadius;
+    }
+
+    private static float EvaluateNormalizedCurve(AnimationCurve curve, float normalizedTime)
+    {
+        if (curve == null || curve.length == 0)
+            return Mathf.SmoothStep(0f, 1f, normalizedTime);
+
+        float curveStart = curve.Evaluate(0f);
+        float curveEnd = curve.Evaluate(1f);
+        if (Mathf.Approximately(curveStart, curveEnd))
+            return Mathf.SmoothStep(0f, 1f, normalizedTime);
+
+        return Mathf.Clamp01(Mathf.InverseLerp(
+            curveStart,
+            curveEnd,
+            curve.Evaluate(normalizedTime)));
+    }
+
     [Serializable]
     private struct ZoomPreset
     {
@@ -416,6 +1040,11 @@ public class CameraController : MonoBehaviour
 
         public float bottomRadius;
         public float bottomHeight;
+        [InspectorName("Depth Of Field")]
+        public bool enableDepthOfField;
+        [Min(0f)] public float depthOfFieldStart;
+        [Min(0f)] public float depthOfFieldEnd;
+        [Range(0.5f, 1.5f)] public float depthOfFieldMaxRadius;
 
         public ZoomPreset(
             string name,
@@ -424,7 +1053,11 @@ public class CameraController : MonoBehaviour
             float centerRadius,
             float centerHeight,
             float bottomRadius,
-            float bottomHeight)
+            float bottomHeight,
+            bool enableDepthOfField = false,
+            float depthOfFieldStart = 10f,
+            float depthOfFieldEnd = 30f,
+            float depthOfFieldMaxRadius = 1f)
         {
             this.name = name;
 
@@ -436,6 +1069,10 @@ public class CameraController : MonoBehaviour
 
             this.bottomRadius = bottomRadius;
             this.bottomHeight = bottomHeight;
+            this.enableDepthOfField = enableDepthOfField;
+            this.depthOfFieldStart = depthOfFieldStart;
+            this.depthOfFieldEnd = depthOfFieldEnd;
+            this.depthOfFieldMaxRadius = depthOfFieldMaxRadius;
         }
     }
 
@@ -444,7 +1081,7 @@ public class CameraController : MonoBehaviour
         SetZoomIndex((int)state);
     }
 
-    public bool SetZoomPreset(string presetName, float transitionSmoothSpeed = -1f)
+    public bool SetZoomPreset(string presetName, float transitionDuration = -1f)
     {
         if (zoomPresets == null || zoomPresets.Length == 0 || string.IsNullOrWhiteSpace(presetName))
             return false;
@@ -453,7 +1090,7 @@ public class CameraController : MonoBehaviour
         {
             if (string.Equals(zoomPresets[i].name, presetName, StringComparison.OrdinalIgnoreCase))
             {
-                SetZoomIndex(i, transitionSmoothSpeed);
+                SetZoomIndex(i, transitionDuration);
                 return true;
             }
         }
@@ -462,7 +1099,7 @@ public class CameraController : MonoBehaviour
         return false;
     }
 
-    public bool BeginDialogueZoomPreset(string presetName, float transitionSmoothSpeed)
+    public bool BeginDialogueZoomPreset(string presetName, float preRollDuration)
     {
         if (!dialogAutoRotateActive)
         {
@@ -472,7 +1109,31 @@ public class CameraController : MonoBehaviour
             dialogAutoRotationSuppressedByManualInput = false;
         }
 
-        return SetZoomPreset(presetName, transitionSmoothSpeed);
+        dialogueZoomWasOverridden = true;
+        if (!TryGetZoomPresetIndex(presetName, out _))
+            return false;
+
+        StartDialogueZoomPreRoll(presetName, preRollDuration);
+        return true;
+    }
+
+    private bool TryGetZoomPresetIndex(string presetName, out int presetIndex)
+    {
+        presetIndex = -1;
+        if (zoomPresets == null || zoomPresets.Length == 0 || string.IsNullOrWhiteSpace(presetName))
+            return false;
+
+        for (int i = 0; i < zoomPresets.Length; i++)
+        {
+            if (!string.Equals(zoomPresets[i].name, presetName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            presetIndex = i;
+            return true;
+        }
+
+        Debug.LogWarning($"{name}: Zoom preset '{presetName}' was not found.");
+        return false;
     }
 
     public bool SetDialogueReturnZoomPreset(string presetName)
@@ -535,6 +1196,66 @@ public class CameraController : MonoBehaviour
         return transform.position;
     }
 
+    public void BeginLoupeOrbitPivot(Transform pivot, Vector2 screenPosition)
+    {
+        if (cineCamera == null || pivot == null || !IsActiveGameplayCamera())
+            return;
+
+        if (!hasLoupeOrbitFollowOverride)
+        {
+            Vector3 cameraPosition = Camera.main != null
+                ? Camera.main.transform.position
+                : cineCamera.State.GetFinalPosition();
+            Quaternion cameraRotation = Camera.main != null
+                ? Camera.main.transform.rotation
+                : cineCamera.State.GetFinalOrientation();
+
+            loupeOrbitGameplayStartHorizontalAxis = orbitalFollow.HorizontalAxis.Value;
+            loupeOrbitLockedVerticalAxis = orbitalFollow.VerticalAxis.Value;
+            loupeOrbitAppliedYaw = 0f;
+            loupeOrbitPivotPosition = pivot.position;
+            loupeOrbitMainCameraOffset = cameraPosition - loupeOrbitPivotPosition;
+            loupeOrbitMainCameraRotation = cameraRotation;
+            loupeOrbitOrbitalFollowWasEnabled = orbitalFollow.enabled;
+            loupeOrbitRotationComposerWasEnabled = rotationComposer != null && rotationComposer.enabled;
+            hasLoupeOrbitFollowOverride = true;
+
+            orbitalFollow.enabled = false;
+            if (rotationComposer != null)
+                rotationComposer.enabled = false;
+
+            cineCamera.ForceCameraPosition(cameraPosition, cameraRotation);
+        }
+    }
+
+    public void ApplyLoupeOrbitYaw(float yaw)
+    {
+        if (orbitalFollow == null || !hasLoupeOrbitFollowOverride)
+            return;
+
+        loupeOrbitAppliedYaw = yaw;
+        Quaternion yawRotation = Quaternion.AngleAxis(yaw, Vector3.up);
+        Vector3 rotatedOffset = yawRotation * loupeOrbitMainCameraOffset;
+        Vector3 cameraPosition = loupeOrbitPivotPosition + rotatedOffset;
+        Quaternion cameraRotation = yawRotation * loupeOrbitMainCameraRotation;
+        cineCamera.ForceCameraPosition(cameraPosition, cameraRotation);
+    }
+
+    public void RestoreLoupeOrbitPivot()
+    {
+        if (cineCamera == null || !hasLoupeOrbitFollowOverride)
+            return;
+
+        orbitalFollow.enabled = loupeOrbitOrbitalFollowWasEnabled;
+        if (rotationComposer != null)
+            rotationComposer.enabled = loupeOrbitRotationComposerWasEnabled;
+
+        orbitalFollow.HorizontalAxis.Value = loupeOrbitGameplayStartHorizontalAxis + loupeOrbitAppliedYaw;
+        orbitalFollow.VerticalAxis.Value = loupeOrbitLockedVerticalAxis;
+
+        hasLoupeOrbitFollowOverride = false;
+    }
+
     public void OverrideLookAtTarget(Transform target)
     {
         if (cineCamera == null || target == null)
@@ -572,6 +1293,126 @@ public class CameraController : MonoBehaviour
         cineCamera.LookAt = smoothLookAtProxy;
     }
 
+    public void BeginDialogueLookAt(Transform target, float preRollDuration)
+    {
+        if (cineCamera == null || target == null || !IsActiveGameplayCamera())
+            return;
+
+        if (!hasLookAtOverride)
+        {
+            lookAtTargetBeforeOverride = cineCamera.LookAt;
+            hasLookAtOverride = true;
+        }
+
+        EnsureDialogueLookAtProxy();
+        dialogueLookAtStartPosition = cineCamera.LookAt != null
+            ? cineCamera.LookAt.position
+            : target.position;
+        dialogueLookAtTargetPosition = target.position;
+        dialogueLookAtPreRollElapsed = 0f;
+        dialogueLookAtPreRollDuration = Mathf.Max(0f, preRollDuration);
+        dialogueLookAtPreRollActive = dialogueLookAtPreRollDuration > 0f;
+        dialogueLookAtManagedExternally = true;
+        dialogueLookAtGenericAnchor = false;
+        dialogueLookAtProxy.position = dialogueLookAtStartPosition;
+        cineCamera.LookAt = dialogueLookAtProxy;
+
+        if (!dialogueLookAtPreRollActive)
+            CompleteDialogueLookAtPreRoll();
+    }
+
+    public void RestoreDialogueLookAt(Transform target, float transitionSpeed)
+    {
+        dialogueLookAtPreRollActive = false;
+        dialogueLookAtManagedExternally = false;
+        dialogueLookAtGenericAnchor = false;
+        ReturnLookAtToTargetSmooth(target, transitionSpeed);
+    }
+
+    private void EnsureDialogueLookAtProxy()
+    {
+        if (dialogueLookAtProxy != null)
+            return;
+
+        GameObject proxy = new GameObject($"{name}_DialogueLookAtTarget");
+        proxy.hideFlags = HideFlags.HideInHierarchy;
+        dialogueLookAtProxy = proxy.transform;
+    }
+
+    private void UpdateDialogueLookAtPreRoll()
+    {
+        if (!dialogueLookAtPreRollActive || dialogueLookAtProxy == null || cineCamera == null ||
+            cineCamera.LookAt != dialogueLookAtProxy)
+            return;
+
+        dialogueLookAtPreRollElapsed += Time.unscaledDeltaTime;
+        float normalizedTime = Mathf.Clamp01(dialogueLookAtPreRollElapsed / dialogueLookAtPreRollDuration);
+        dialogueLookAtProxy.position = Vector3.Lerp(
+            dialogueLookAtStartPosition,
+            dialogueLookAtTargetPosition,
+            Mathf.SmoothStep(0f, 1f, normalizedTime));
+
+        if (normalizedTime >= 1f)
+            CompleteDialogueLookAtPreRoll();
+    }
+
+    private void CompleteDialogueLookAtPreRoll()
+    {
+        if (dialogueLookAtProxy != null)
+        {
+            dialogueLookAtProxy.position = dialogueLookAtTargetPosition;
+            cineCamera.LookAt = dialogueLookAtProxy;
+        }
+
+        dialogueLookAtPreRollActive = false;
+    }
+
+    private void HandleConversationUIWillShow()
+    {
+        if (!IsActiveGameplayCamera())
+            return;
+
+        NPCConversation conversation = ConversationManager.Instance != null
+            ? ConversationManager.Instance.ActiveConversationSource
+            : null;
+        if (conversation != null && !conversation.UseAutomaticDialogueCamera)
+            return;
+
+        if (dialogueZoomPreRollActive)
+            CompleteDialogueZoomPreRoll();
+
+        if (dialogueLookAtPreRollActive)
+        {
+            CompleteDialogueLookAtPreRoll();
+            return;
+        }
+
+        if (dialogueLookAtManagedExternally || dialogueLookAtGenericAnchor || cineCamera == null)
+            return;
+
+        if (!hasLookAtOverride)
+        {
+            lookAtTargetBeforeOverride = cineCamera.LookAt;
+            hasLookAtOverride = true;
+        }
+
+        EnsureDialogueLookAtProxy();
+        dialogueLookAtProxy.position = cineCamera.LookAt != null
+            ? cineCamera.LookAt.position
+            : transform.position;
+        cineCamera.LookAt = dialogueLookAtProxy;
+        dialogueLookAtGenericAnchor = true;
+    }
+
+    private void HandleConversationUIHidden()
+    {
+        if (!dialogueLookAtGenericAnchor)
+            return;
+
+        dialogueLookAtGenericAnchor = false;
+        RestoreLookAtTargetSmooth(dialogueLookAtReturnSpeed);
+    }
+
     public void RestoreLookAtTarget()
     {
         if (cineCamera == null || !hasLookAtOverride)
@@ -606,6 +1447,23 @@ public class CameraController : MonoBehaviour
         smoothLookAtTransitionSpeed = Mathf.Max(0.01f, transitionSpeed);
         restoringSmoothLookAtTarget = true;
         cineCamera.LookAt = smoothLookAtProxy;
+    }
+
+    public void RestoreLookAtTargetSmoothAndAttach(float transitionSpeed, float snapDistance)
+    {
+        if (cineCamera == null || !hasLookAtOverride)
+            return;
+
+        if (lookAtTargetBeforeOverride == null)
+        {
+            RestoreLookAtTarget();
+            return;
+        }
+
+        ReturnLookAtToTargetSmoothAndAttach(
+            lookAtTargetBeforeOverride,
+            transitionSpeed,
+            snapDistance);
     }
 
     public void ReturnLookAtToTargetSmooth(Transform target, float transitionSpeed)
@@ -702,26 +1560,24 @@ public class CameraController : MonoBehaviour
         }
     }
 
-    public void SetZoomIndex(int index, float transitionSmoothSpeed = -1f)
+    public void SetZoomIndex(int index, float transitionDuration = -1f)
     {
         if (zoomPresets == null || zoomPresets.Length == 0)
             return;
-
-        activeZoomSmoothSpeed = transitionSmoothSpeed > 0f
-            ? transitionSmoothSpeed
-            : zoomSmoothSpeed;
 
         int clampedIndex = Mathf.Clamp(index, 0, zoomPresets.Length - 1);
 
         if (clampedIndex == targetZoomIndex)
             return;
 
-        previousZoomIndex = targetZoomIndex;
+        if (clampedIndex != targetZoomIndex)
+            previousZoomIndex = targetZoomIndex;
         targetZoomIndex = clampedIndex;
+        StartZoomTransition(targetZoomIndex, transitionDuration);
 
         UpdateDebugZoomState();
     }
-    public void ReturnToPreviousZoomState(float transitionSmoothSpeed = -1f)
+    public void ReturnToPreviousZoomState(float transitionDuration = -1f)
     {
         if (previousZoomIndex < 0)
             return;
@@ -730,9 +1586,7 @@ public class CameraController : MonoBehaviour
 
         previousZoomIndex = targetZoomIndex;
         targetZoomIndex = indexToReturn;
-        activeZoomSmoothSpeed = transitionSmoothSpeed > 0f
-            ? transitionSmoothSpeed
-            : zoomSmoothSpeed;
+        StartZoomTransition(targetZoomIndex, transitionDuration);
 
         UpdateDebugZoomState();
     }
@@ -740,6 +1594,13 @@ public class CameraController : MonoBehaviour
     private void GetManualZoomRange(out int minZoomIndex, out int maxZoomIndex)
     {
         int lastPresetIndex = Mathf.Max(0, zoomPresets.Length - 1);
+        if (livePresetPreview)
+        {
+            minZoomIndex = 0;
+            maxZoomIndex = lastPresetIndex;
+            return;
+        }
+
         minZoomIndex = Mathf.Clamp(manualZoomMinIndex, 0, lastPresetIndex);
         maxZoomIndex = Mathf.Clamp(manualZoomMaxIndex, minZoomIndex, lastPresetIndex);
     }

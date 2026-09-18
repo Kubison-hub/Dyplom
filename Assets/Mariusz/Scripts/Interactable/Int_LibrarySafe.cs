@@ -47,6 +47,7 @@ public class Int_LibrarySafe : Lvl3InteractionDialogueBase
     private SafeCodeDrumMinigame currentMinigame;
     private PlayerController interactingPlayer;
     private bool hasKey;
+    private bool keyInserted;
     private bool isOpen;
 
     protected override Lvl3DialogueLine[] DefaultDialogueLines => keyAcceptedDialogue;
@@ -82,7 +83,9 @@ public class Int_LibrarySafe : Lvl3InteractionDialogueBase
         if (isOpen || currentMinigame != null)
             return;
 
-        if (!hasKey)
+        bool keyInInventory = InventoryManager.Instance != null &&
+                              InventoryManager.Instance.items.Contains(ItemType.LibraryKey);
+        if (!keyInserted && !hasKey && !keyInInventory)
         {
             PlayDialogue(player, missingKeyDialogue);
             return;
@@ -94,8 +97,21 @@ public class Int_LibrarySafe : Lvl3InteractionDialogueBase
             return;
         }
 
+        if (!keyInserted)
+        {
+            if (InventoryManager.Instance == null ||
+                !InventoryManager.Instance.TryRemoveItem(ItemType.LibraryKey))
+            {
+                PlayDialogue(player, missingKeyDialogue);
+                return;
+            }
+
+            keyInserted = true;
+            hasKey = false;
+        }
+
         if (cameraController != null)
-            cameraController.SetZoomState(CameraZoomState.Narrow);
+            cameraController.SetZoomIndex(Mathf.Max(0, cameraController.CurrentZoomIndex - 1));
 
         PlayDialogue(player, keyAcceptedDialogue);
 

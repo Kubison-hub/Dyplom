@@ -35,6 +35,22 @@ public class WatsonEscortController : MonoBehaviour
     [SerializeField, Min(0.01f)] private float placementNavMeshSampleRadius = 1f;
     [SerializeField] private Vector3 placementPreviewOffset = Vector3.zero;
 
+    [Header("Watson Eagle Vision Visual")]
+    [Tooltip("Widoczność zwykłego Interactive Shader podczas Eagle Vision Watsona.")]
+    [SerializeField, Range(0f, 1f)] private float eagleVisionShaderVisibility = 1f;
+    [Tooltip("Szybkość pulsowania zwykłego Interactive Shader podczas Eagle Vision Watsona.")]
+    [SerializeField, Min(0f)] private float eagleVisionShaderPulseSpeed = 1.5f;
+    [Tooltip("Kolor Fresnela zwykłego Interactive Shader podczas Eagle Vision Watsona.")]
+    [ColorUsage(true, true)]
+    [SerializeField] private Color eagleVisionShaderColor = new Color(0f, 2.6f, 0.2f, 1f);
+    [Tooltip("Kolor Fresnela po najechaniu kursorem podczas Eagle Vision Watsona.")]
+    [ColorUsage(true, true)]
+    [SerializeField] private Color eagleVisionShaderHoverColor = new Color(0.2f, 1.4f, 2.6f, 1f);
+    [Tooltip("Szybkość płynnej zmiany koloru po najechaniu i zjechaniu kursorem.")]
+    [SerializeField, Min(0.01f)] private float eagleVisionShaderColorTransitionSpeed = 8f;
+    [Tooltip("Siła Fresnela zwykłego Interactive Shader podczas Eagle Vision Watsona.")]
+    [SerializeField, Min(0.01f)] private float eagleVisionShaderFresnelPower = 2f;
+
     [Header("Escort Range")]
     [SerializeField, Min(0.1f)] private float maxEscortRange = 8f;
     [Tooltip("Optional filter. When set, only materials using this shader receive the preview visibility change.")]
@@ -74,8 +90,20 @@ public class WatsonEscortController : MonoBehaviour
     private WatsonEscortNPC pendingEscortDialogueNpc;
     private Coroutine pendingEscortDialogueRoutine;
     private Coroutine sherlockAfterEscortDialogueRoutine;
+    private Coroutine forceFarewellRoutine;
 
     public bool IsEscorting => escortedNpc != null;
+    public static bool IsWatsonEagleVisionInteractionActive =>
+        SwitchCharacter.Instance != null &&
+        SwitchCharacter.Instance.activePlayerIndex == 1 &&
+        EagleVisionSystem.Instance != null &&
+        EagleVisionSystem.Instance.isActive;
+    public float EagleVisionShaderVisibility => eagleVisionShaderVisibility;
+    public float EagleVisionShaderPulseSpeed => eagleVisionShaderPulseSpeed;
+    public Color EagleVisionShaderColor => eagleVisionShaderColor;
+    public Color EagleVisionShaderHoverColor => eagleVisionShaderHoverColor;
+    public float EagleVisionShaderColorTransitionSpeed => eagleVisionShaderColorTransitionSpeed;
+    public float EagleVisionShaderFresnelPower => eagleVisionShaderFresnelPower;
 
     private float ActiveEscortRange => escortedNpc != null && escortedNpc.EscortRangeOverride > 0f
         ? escortedNpc.EscortRangeOverride
@@ -120,8 +148,7 @@ public class WatsonEscortController : MonoBehaviour
 
         TryStartPendingEscortDialogue();
 
-        bool watsonGripActive = MagnifierGlassController.IsWatsonGripActive;
-        if (!watsonGripActive)
+        if (!IsWatsonEagleVisionInteractionActive)
         {
             if (isPlacingDestination)
                 CancelPlacementPreview();
@@ -192,7 +219,24 @@ public class WatsonEscortController : MonoBehaviour
 
     public void ForceFarewell()
     {
-        if (escortedNpc != null)
+        if (escortedNpc == null || forceFarewellRoutine != null)
+            return;
+
+        forceFarewellRoutine = StartCoroutine(ForceFarewellAfterActiveDialogue(escortedNpc));
+    }
+
+    private IEnumerator ForceFarewellAfterActiveDialogue(WatsonEscortNPC npc)
+    {
+        // The interaction starts its DialogueLine later in the same frame.
+        yield return null;
+
+        while (escortedNpc == npc && Lvl3InteractionDialogueBase.IsAnyDialoguePlaying)
+        {
+            yield return null;
+        }
+
+        forceFarewellRoutine = null;
+        if (escortedNpc == npc)
             DismissEscort(true);
     }
 
@@ -201,7 +245,7 @@ public class WatsonEscortController : MonoBehaviour
         if (player != watson || escortedNpc == null)
             return false;
 
-        if (!MagnifierGlassController.IsWatsonGripActive)
+        if (!IsWatsonEagleVisionInteractionActive)
         {
             DismissEscort(true);
             return false;
@@ -222,7 +266,7 @@ public class WatsonEscortController : MonoBehaviour
     public bool TryBeginPlacementFromPointer(PlayerController player)
     {
         if (player != watson || escortedNpc == null || escortRoutine != null ||
-            !MagnifierGlassController.IsWatsonGripActive)
+            !IsWatsonEagleVisionInteractionActive)
             return false;
 
         if (!isPlacingDestination)
@@ -268,7 +312,7 @@ public class WatsonEscortController : MonoBehaviour
 
         watsonAgent.ResetPath();
         UpdateEscortRangeOrigin();
-        if (MagnifierGlassController.IsWatsonGripActive)
+        if (IsWatsonEagleVisionInteractionActive)
             BeginPlacementPreview();
 
         isApproachingNpc = false;
@@ -304,14 +348,6 @@ public class WatsonEscortController : MonoBehaviour
             yield break;
         }
 
-        bool destinationAllowsDialogue = escortedNpc.IsEscortDestinationAllowed(safeNpcDestination);
-        if (destinationAllowsDialogue && escortedNpc.WillStartDialogueAfterValidEscort &&
-            sherlockAfterEscortDialogueRoutine == null)
-        {
-            sherlockAfterEscortDialogueRoutine = StartCoroutine(
-                PlaySherlockAfterEscortDialogueAfterDelay(escortedNpc));
-        }
-
         formationRotation = GetInfluencedRotation(
             safeNpcDestination,
             formationRotation * Vector3.forward,
@@ -342,6 +378,15 @@ public class WatsonEscortController : MonoBehaviour
         Quaternion watsonFacesNpc = Quaternion.LookRotation(-npcToWatson, Vector3.up);
         Quaternion npcFinalRotation = Quaternion.Slerp(npcFacesWatson, formationRotation, finalInfluenceAmount);
         Quaternion watsonFinalRotation = Quaternion.Slerp(watsonFacesNpc, formationRotation, finalInfluenceAmount);
+        bool destinationAllowsDialogue = escortedNpc.IsEscortDestinationAllowed(
+            safeNpcDestination,
+            npcFinalRotation);
+        if (destinationAllowsDialogue && escortedNpc.WillStartDialogueAfterValidEscort &&
+            sherlockAfterEscortDialogueRoutine == null)
+        {
+            sherlockAfterEscortDialogueRoutine = StartCoroutine(
+                PlaySherlockAfterEscortDialogueAfterDelay(escortedNpc));
+        }
 
         defaultWatsonSpeed = watsonAgent.speed;
         float npcSpeed = escortedNpc.MovementSpeed > 0f ? escortedNpc.MovementSpeed : defaultWatsonSpeed;
@@ -424,6 +469,8 @@ public class WatsonEscortController : MonoBehaviour
             escortedNpc.RestoreMovementSpeed();
             yield return FacePair(watsonFinalRotation, npcFinalRotation);
             yield return escortedNpc.WaitForDialogueToFinish();
+            if (escortedNpc.TryPlayVioletInfluenceArrivalDialogue())
+                yield return escortedNpc.WaitForDialogueToFinish();
             if (destinationAllowsDialogue && escortedNpc.WillStartDialogueAfterValidEscort)
                 pendingEscortDialogueNpc = escortedNpc;
         }
@@ -751,9 +798,10 @@ public class WatsonEscortController : MonoBehaviour
 
         placementRotation = GetInfluencedRotation(placementDestination, GetPlacementFallbackDirection(), out _);
         isPlacementWithinRange = IsWithinEscortRange(placementDestination);
-        isPlacementDestinationAllowed = escortedNpc == null || escortedNpc.IsEscortDestinationAllowed(placementDestination);
+        isPlacementDestinationAllowed = escortedNpc == null ||
+                                        escortedNpc.IsEscortDestinationAllowed(placementDestination, placementRotation);
         float destinationValidationColorAmount = escortedNpc != null
-            ? escortedNpc.GetDestinationValidationColorAmount(placementDestination)
+            ? escortedNpc.GetDestinationValidationColorAmount(placementDestination, placementRotation)
             : 1f;
         float visibilityMultiplier = GetRangeVisibilityMultiplier(placementDestination);
         placementPreviewVisibilityMultiplier = visibilityMultiplier;
@@ -879,6 +927,11 @@ public class WatsonEscortController : MonoBehaviour
 
         placementPreview = Instantiate(prefab);
         placementPreview.name = $"{prefab.name}_EscortPreview";
+        int hiddenLayer = LayerMask.NameToLayer("Hidden");
+        if (hiddenLayer >= 0)
+            SetLayerRecursively(placementPreview.transform, hiddenLayer);
+        else
+            Debug.LogWarning("WatsonEscortController: layer 'Hidden' does not exist.", this);
         placementPreview.SetActive(true);
         foreach (Collider previewCollider in placementPreview.GetComponentsInChildren<Collider>(true))
             previewCollider.enabled = false;
@@ -886,6 +939,13 @@ public class WatsonEscortController : MonoBehaviour
         // The preview controls its own visibility so a copied interaction fader cannot overwrite it.
         foreach (InteractionShaderFader previewFader in placementPreview.GetComponentsInChildren<InteractionShaderFader>(true))
             previewFader.enabled = false;
+    }
+
+    private static void SetLayerRecursively(Transform root, int layer)
+    {
+        root.gameObject.layer = layer;
+        for (int childIndex = 0; childIndex < root.childCount; childIndex++)
+            SetLayerRecursively(root.GetChild(childIndex), layer);
     }
 
     private void CancelPlacementPreview()
