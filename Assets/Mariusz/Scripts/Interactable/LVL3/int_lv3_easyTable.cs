@@ -6,13 +6,11 @@ using UnityEngine.Serialization;
 [RequireComponent(typeof(Interactable))]
 public class int_lv3_easyTable : Lvl3InteractionDialogueBase
 {
-    [Header("Table Figure Points")]
-    [SerializeField] private Transform greenFigurePoint;
-    [SerializeField] private GameObject greenFigurePrefab;
-    [SerializeField] private Transform redFigurePoint;
-    [SerializeField] private GameObject redFigurePrefab;
-    [SerializeField] private Transform blueFigurePoint;
-    [SerializeField] private GameObject blueFigurePrefab;
+    [Header("Table Figure")]
+    [SerializeField] private ItemType requiredItem = ItemType.Zielona;
+    [FormerlySerializedAs("greenFigurePrefab")]
+    [FormerlySerializedAs("greenFigureVisual")]
+    [SerializeField] private GameObject figureVisual;
 
     [Header("Placed Figure Animation")]
     [SerializeField, Min(0.05f)] private float placedFigureAnimationDuration = 0.45f;
@@ -42,6 +40,7 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
 
     [Header("Quest Cleanup")]
     [SerializeField] private Interactable[] interactablesToDeactivateOnCompletion;
+    [SerializeField] private WatsonEscortNPC watsonEscortNpcToDisable;
 
     [Header("Wall Door")]
     [FormerlySerializedAs("secretDoorPrefab")]
@@ -59,12 +58,21 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
     [SerializeField] private bool keepWorldPositionWhenReparenting = true;
 
     [Header("Table Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] loupeHoverDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Hmm, w stole wyraźnie brakuje elementu mechanizmu.",
+            duration = 3f
+        }
+    };
     [SerializeField] private Lvl3DialogueLine[] firstInteractionDialogue =
     {
         new Lvl3DialogueLine
         {
             speaker = Lvl3DialogueSpeaker.Sherlock,
-            text = "Ten stół jest częścią mechanizmu. Brakuje kilku elementów.",
+            text = "Ten stół jest częścią mechanizmu. Brakuje elementu.",
             duration = 3f
         }
     };
@@ -93,11 +101,15 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
     [SerializeField] private int completedPuzzleNoteIndex = 1;
     [SerializeField] private int completedPuzzleAdditionalNoteIndex = 2;
 
+    [Header("Loupe Hover")]
+    [SerializeField] private MagnifierGlassController magnifier;
+    [SerializeField] private Collider loupeHoverCollider;
+    [SerializeField, Min(0f)] private float loupeHoverDuration = 1.5f;
+    [SerializeField] private SherlockWatsonHintConditions sherlockWatsonHintConditions;
+
     private Interactable interactable;
     private Collider interactionCollider;
-    private bool greenFigurePlaced;
-    private bool redFigurePlaced;
-    private bool blueFigurePlaced;
+    private bool figurePlaced;
     private bool completed;
     private Coroutine backgroundBoxFadeCoroutine;
     private readonly System.Collections.Generic.List<Transform> placedFigures =
@@ -107,6 +119,8 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
     private MaterialPropertyBlock backgroundPropertyBlock;
     private bool prePuzzleNoteAdded;
     private bool firstInteractionPerformed;
+    private bool loupeHoverDiscovered;
+    private float loupeHoverStartedAt = -1f;
     public bool Opened { get; private set; }
 
     protected override Lvl3DialogueLine[] DefaultDialogueLines => missingFiguresDialogue;
@@ -123,10 +137,56 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
     {
         interactable = GetComponent<Interactable>();
         interactionCollider = GetComponent<Collider>();
+        if (loupeHoverCollider == null)
+            loupeHoverCollider = interactionCollider;
+
+        if (magnifier == null)
+            magnifier = FindFirstObjectByType<MagnifierGlassController>();
+
+        if (sherlockWatsonHintConditions == null)
+        {
+            sherlockWatsonHintConditions = FindFirstObjectByType<SherlockWatsonHintConditions>(
+                FindObjectsInactive.Include);
+        }
+
         backgroundPropertyBlock = new MaterialPropertyBlock();
         CacheBackgroundMaterialTargets();
         interactable.SetInteractionType(InteractionType.int_lv3_easyTable);
         interactable.addDatabaseNotesAutomatically = false;
+    }
+
+    private void Update()
+    {
+        if (loupeHoverDiscovered || completed || magnifier == null || loupeHoverCollider == null)
+            return;
+
+        if (!magnifier.TryGetActiveLoupeHit(out RaycastHit hit) || !IsLoupeHoverHit(hit.collider))
+        {
+            loupeHoverStartedAt = -1f;
+            return;
+        }
+
+        if (loupeHoverStartedAt < 0f)
+            loupeHoverStartedAt = Time.unscaledTime;
+
+        if (Time.unscaledTime - loupeHoverStartedAt < loupeHoverDuration)
+            return;
+
+        loupeHoverDiscovered = true;
+        sherlockWatsonHintConditions?.MarkTableHover();
+
+        if (loupeHoverDialogue != null && loupeHoverDialogue.Length > 0)
+            PlayDialogue(null, loupeHoverDialogue);
+    }
+
+    private bool IsLoupeHoverHit(Collider hitCollider)
+    {
+        if (hitCollider == null || loupeHoverCollider == null)
+            return false;
+
+        return hitCollider == loupeHoverCollider ||
+               hitCollider.transform.IsChildOf(loupeHoverCollider.transform) ||
+               loupeHoverCollider.transform.IsChildOf(hitCollider.transform);
     }
 
     public void PerformInteraction(PlayerController player)
@@ -150,29 +210,11 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
 
         bool placedAnyFigure = false;
         if (InventoryManager.Instance != null)
-        {
-            placedAnyFigure |= TryPlaceFigure(
-                ItemType.Zielona,
-                greenFigurePoint,
-                greenFigurePrefab,
-                ref greenFigurePlaced);
-
-            placedAnyFigure |= TryPlaceFigure(
-                ItemType.Czerwona,
-                redFigurePoint,
-                redFigurePrefab,
-                ref redFigurePlaced);
-
-            placedAnyFigure |= TryPlaceFigure(
-                ItemType.Niebieska,
-                blueFigurePoint,
-                blueFigurePrefab,
-                ref blueFigurePlaced);
-        }
+            placedAnyFigure = TryPlaceRequiredFigure();
 
         if (placedAnyFigure)
         {
-            if (AllFiguresPlaced())
+            if (IsRequiredFigurePlaced())
             {
                 completed = true;
                 GetComponent<Interactable>()?.MarkCompleted();
@@ -207,27 +249,31 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
 
     private bool TryPlaceFigure(
         ItemType itemType,
-        Transform point,
-        GameObject figurePrefab,
+        GameObject figureVisual,
         ref bool placed)
     {
         if (placed || InventoryManager.Instance == null || !InventoryManager.Instance.items.Contains(itemType))
             return false;
 
-        if (point == null || figurePrefab == null)
+        if (figureVisual == null)
         {
-            Debug.LogWarning($"{name}: Missing point or prefab for {itemType} figure.", this);
+            Debug.LogWarning($"{name}: Missing table visual for {itemType} figure.", this);
             return false;
         }
 
         if (!InventoryManager.Instance.TryRemoveItem(itemType))
             return false;
 
-        GameObject placedFigure = Instantiate(figurePrefab, point.position, point.rotation, point);
-        DisablePlacedFigureInteraction(placedFigure);
-        placedFigures.Add(placedFigure.transform);
+        figureVisual.SetActive(true);
+        DisablePlacedFigureInteraction(figureVisual);
+        placedFigures.Add(figureVisual.transform);
         placed = true;
         return true;
+    }
+
+    private bool TryPlaceRequiredFigure()
+    {
+        return TryPlaceFigure(requiredItem, figureVisual, ref figurePlaced);
     }
 
     private IEnumerator AnimatePlacedFigure(Transform placedFigure, float duration)
@@ -279,14 +325,12 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
         if (InventoryManager.Instance == null)
             return false;
 
-        return !greenFigurePlaced && InventoryManager.Instance.items.Contains(ItemType.Zielona) ||
-               !redFigurePlaced && InventoryManager.Instance.items.Contains(ItemType.Czerwona) ||
-               !blueFigurePlaced && InventoryManager.Instance.items.Contains(ItemType.Niebieska);
+        return !figurePlaced && InventoryManager.Instance.items.Contains(requiredItem);
     }
 
-    private bool AllFiguresPlaced()
+    private bool IsRequiredFigurePlaced()
     {
-        return greenFigurePlaced && redFigurePlaced && blueFigurePlaced;
+        return figurePlaced;
     }
 
     private IEnumerator CompleteInteractionSequence()
@@ -307,7 +351,9 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
         RevealCompletedRoom();
         ReparentObjectBeforeDoorOpens();
         OpenSecretDoor();
+        DisableWatsonEscortNpc();
         CluesLog.Instance?.CompleteSecretDoorOpeningPuzzle();
+        sherlockWatsonHintConditions?.MarkEasyTableComplete();
         PlayDialogue(null, completionDialogue);
         AddCompletedPuzzleNotebookNote();
         StartCoroutine(RotateCharactersAfterDoorOpens());
@@ -528,6 +574,18 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
             foreach (Collider oldQuestCollider in oldQuestInteractable.GetComponentsInChildren<Collider>(true))
                 oldQuestCollider.enabled = false;
         }
+    }
+
+    private void DisableWatsonEscortNpc()
+    {
+        if (watsonEscortNpcToDisable == null)
+            return;
+
+        WatsonEscortController escortController = WatsonEscortController.Instance;
+        if (escortController != null && escortController.IsEscortingNpc(watsonEscortNpcToDisable))
+            escortController.ForceFarewell();
+
+        watsonEscortNpcToDisable.enabled = false;
     }
 
     private void CacheBackgroundMaterialTargets()

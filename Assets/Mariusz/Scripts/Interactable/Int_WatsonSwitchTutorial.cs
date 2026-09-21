@@ -17,6 +17,10 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
     [SerializeField, Min(0)] private int watsonPlayerIndex = 1;
     [SerializeField] private GameObject questionMarkToHide;
     [SerializeField] private GameObject deactivateOnTutorialComplete;
+    [SerializeField] private Collider tutorialCollider;
+
+    [Header("Watson Escort Unlock")]
+    [SerializeField] private WatsonEscortNPC watsonEscortNpcToActivate;
 
     [Header("Camera")]
     [SerializeField] private CameraController cameraController;
@@ -87,10 +91,19 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
     private Coroutine delayedWatsonTurnCoroutine;
     private bool watsonTurnPending;
 
+    private void OnEnable()
+    {
+        if (watsonEscortNpcToActivate != null)
+            watsonEscortNpcToActivate.enabled = true;
+    }
+
     private void Awake()
     {
         interactable = GetComponent<Interactable>();
         interactable.SetInteractionType(InteractionType.Int_WatsonSwitchTutorial);
+
+        if (tutorialCollider == null)
+            tutorialCollider = GetComponent<Collider>();
 
         if (deactivateOnTutorialComplete == null)
             deactivateOnTutorialComplete = gameObject;
@@ -193,6 +206,9 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
         SwitchCharacter switchCharacter = SwitchCharacter.Instance;
         if (switchCharacter != null)
             switchCharacter.canSwitch = false;
+
+        if (tutorialCollider != null)
+            tutorialCollider.enabled = false;
 
         yield return PlayDialogueLines(openingDialogueLines);
 

@@ -686,7 +686,8 @@ public class NotebookManager : MonoBehaviour
         SetObservationFactsVisible(true);
         ClearObservationFacts();
 
-        for (int i = allNotes.Count - 1; i >= 0; i--)
+        // allNotes stores newest notes first, so new observation facts appear at the top.
+        for (int i = 0; i < allNotes.Count; i++)
         {
             NoteData note = allNotes[i];
             if (!IsGroupedObservationNote(note) || note.observation != observation)
@@ -765,6 +766,7 @@ public class NotebookManager : MonoBehaviour
             case NotebookObservation.SekretnePrzejscie: return "Sekretne przejście";
             case NotebookObservation.UkrytePrzejscie: return "Ukryte przejście";
             case NotebookObservation.PulapkaWPiwnicy: return "Pułapka w piwnicy";
+            case NotebookObservation.Biblioteka: return "Biblioteka";
             default: return string.Empty;
         }
     }
@@ -801,8 +803,8 @@ public class NotebookManager : MonoBehaviour
         SetPeopleFactsVisible(true);
         ClearPersonFacts();
 
-        // allNotes stores newest notes first; profiles read naturally from oldest fact to newest.
-        for (int i = allNotes.Count - 1; i >= 0; i--)
+        // allNotes stores newest notes first, so new person facts appear at the top.
+        for (int i = 0; i < allNotes.Count; i++)
         {
             NoteData note = allNotes[i];
             if (!IsPersonNote(note) || note.person != person)

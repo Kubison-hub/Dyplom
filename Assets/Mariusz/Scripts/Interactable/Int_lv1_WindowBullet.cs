@@ -30,7 +30,7 @@ public class Int_lv1_WindowBullet : Lvl3InteractionDialogueBase
 
     [Header("Camera")]
     [SerializeField] private CameraController cameraController;
-    [SerializeField] private string examinationPresetName = "WindowExam";
+    private const string ExaminationPresetName = "Narrow";
 
     private Interactable interactable;
     private Collider interactionCollider;
@@ -58,7 +58,7 @@ public class Int_lv1_WindowBullet : Lvl3InteractionDialogueBase
             windowBulletIdeaPoint.discoveryMode = DetectiveIdeaPoint.DiscoveryMode.External;
 
         if (clueToFind != null)
-            clueToFind.SetActive(false);
+            clueToFind.SetActive(true);
     }
 
     private void Update()
@@ -109,9 +109,6 @@ public class Int_lv1_WindowBullet : Lvl3InteractionDialogueBase
         if (interactionCollider != null)
             interactionCollider.enabled = false;
 
-        if (clueToFind != null)
-            clueToFind.SetActive(true);
-
         CreateExaminationZone();
         isInsideExaminationZone = IsPlayerInsideExaminationZone();
         if (isInsideExaminationZone)
@@ -121,7 +118,7 @@ public class Int_lv1_WindowBullet : Lvl3InteractionDialogueBase
 
     public void RegisterWindowClue()
     {
-        if (!isExamining || completed)
+        if (completed)
             return;
 
         clueFound = true;
@@ -159,7 +156,7 @@ public class Int_lv1_WindowBullet : Lvl3InteractionDialogueBase
         if (cameraController == null)
             return;
 
-        isCameraInExaminationMode = cameraController.SetZoomPreset(examinationPresetName);
+        isCameraInExaminationMode = cameraController.SetZoomPreset(ExaminationPresetName);
     }
 
     private void ResumeInteractionAfterExit()
@@ -178,9 +175,6 @@ public class Int_lv1_WindowBullet : Lvl3InteractionDialogueBase
             Destroy(examinationZone);
             examinationZone = null;
         }
-
-        if (clueToFind != null)
-            clueToFind.SetActive(false);
 
         if (interactable != null)
         {

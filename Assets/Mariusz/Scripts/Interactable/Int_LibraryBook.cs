@@ -160,6 +160,9 @@ public class Int_LibraryBook : Lvl3InteractionDialogueBase, IVioletRoomInteracti
             return;
 
         firstVioletGateTriggered = true;
+        FindFirstObjectByType<SherlockWatsonHintConditions>(FindObjectsInactive.Include)
+            ?.MarkLibraryGateOpened();
+
         if (activateOnFirstVioletGate != null)
             activateOnFirstVioletGate.SetActive(true);
     }

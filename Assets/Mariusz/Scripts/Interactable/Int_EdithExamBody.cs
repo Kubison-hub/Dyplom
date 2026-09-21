@@ -186,6 +186,8 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase, IInteractionApproa
 
     public bool IsExaminationCompleted => examinationCompleted || edithIdeaRevealed;
     public bool IsExaminationActive => interactionPerforming && !examinationCompleted && !edithIdeaRevealed;
+    public bool AreExaminationCluesUnlocked => performed && initialDialogueCompleted &&
+                                                !examinationCompleted && !edithIdeaRevealed;
     public bool IsBulletExamInProgress => bulletCpAwaitingConversation || bulletCpConversationStarting ||
                                            bulletCpConversationActive || bulletCpResultDialoguePlaying;
     protected override Lvl3DialogueLine[] DefaultDialogueLines => initialExaminationDialogue;
@@ -743,8 +745,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase, IInteractionApproa
         AddAllCpCollectedClue();
         completionDialoguePending = true;
         edithIdeaRevealed = true;
-        FindEdithIdeaPointIfNeeded();
-        edithIdeaPoint?.RevealFromExternalSource();
+        RevealEdithIdeaPoint();
 
         // Keep this component enabled while the final CP dialogue is playing.
         // Disabling it here would stop its dialogue coroutine and cut the audio off.
@@ -1041,6 +1042,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase, IInteractionApproa
         if (examDone)
         {
             pendingBulletCp?.CompleteSuccessfulExamination();
+            RevealEdithIdeaPoint();
             CompleteExamClueRegistration(true);
         }
         else
@@ -1489,6 +1491,12 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase, IInteractionApproa
         Debug.LogWarning("Int_EdithExamBody: IdeaPoint_Edith was not found.");
     }
 
+    private void RevealEdithIdeaPoint()
+    {
+        FindEdithIdeaPointIfNeeded();
+        edithIdeaPoint?.RevealFromExternalSource();
+    }
+
 
 
     private void PerformWatsonAction()
@@ -1636,7 +1644,10 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase, IInteractionApproa
         }
 
         if (d.bulletPerformed)
+        {
             WylaczZebranyPunkt(GetBulletCp() != null ? GetBulletCp().gameObject : null);
+            RevealEdithIdeaPoint();
+        }
 
         // Panel zadan dostaje licznik z prawdziwego stanu.
         CluesLog.Instance?.SetLadyEdithBodyProgress(collectedExamClueCount, requiredCluesToRevealIdea);

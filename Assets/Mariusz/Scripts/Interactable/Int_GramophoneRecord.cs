@@ -36,8 +36,6 @@ public sealed class Int_GramophoneRecord : Lvl3InteractionDialogueBase
     };
 
     [Header("Inventory Pickup")]
-    [Tooltip("Controller whose completed conversation unlocks collection of the record.")]
-    [SerializeField] private Int_GramophoneController gramophoneController;
     [SerializeField] private ItemType inventoryItemType = ItemType.GramophoneRecord;
     [SerializeField] private Sprite inventoryIcon;
     [Tooltip("Visible record object hidden after a successful pickup. Leave empty to hide this whole interaction.")]
@@ -82,8 +80,7 @@ public sealed class Int_GramophoneRecord : Lvl3InteractionDialogueBase
         }
 
         bool isWatson = IsWatson(player);
-        if (gramophoneController != null && gramophoneController.CanCollect &&
-            (cluePointDiscovered || isWatson))
+        if (cluePointDiscovered || isWatson)
         {
             CollectRecord(player);
             return;

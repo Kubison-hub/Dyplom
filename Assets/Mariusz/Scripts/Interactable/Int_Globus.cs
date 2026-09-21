@@ -191,6 +191,9 @@ public class Int_Globus : Lvl3InteractionDialogueBase, IVioletRoomInteractionGat
             return;
 
         firstVioletGateTriggered = true;
+        FindFirstObjectByType<SherlockWatsonHintConditions>(FindObjectsInactive.Include)
+            ?.MarkLibraryGateOpened();
+
         if (activateOnFirstVioletGate != null)
             activateOnFirstVioletGate.SetActive(true);
     }

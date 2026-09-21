@@ -79,6 +79,9 @@ public class Int_lv1_LibraryBooks : Lvl3InteractionDialogueBase, IVioletRoomInte
 
         performed = true;
 
+        if (cameraController != null)
+            cameraController.SetZoomIndex(Mathf.Max(0, cameraController.CurrentZoomIndex - 1));
+
         StartCoroutine(PlayBookshelfDialogueAfterDelay(player));
 
         if (interactable != null)
@@ -175,6 +178,9 @@ public class Int_lv1_LibraryBooks : Lvl3InteractionDialogueBase, IVioletRoomInte
             return;
 
         firstVioletGateTriggered = true;
+        FindFirstObjectByType<SherlockWatsonHintConditions>(FindObjectsInactive.Include)
+            ?.MarkLibraryGateOpened();
+
         if (activateOnFirstVioletGate != null)
             activateOnFirstVioletGate.SetActive(true);
     }

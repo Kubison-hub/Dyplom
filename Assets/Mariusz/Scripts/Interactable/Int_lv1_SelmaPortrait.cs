@@ -24,9 +24,13 @@ public class Int_lv1_SelmaPortrait : Lvl3InteractionDialogueBase
 
     public void PerformInteraction(PlayerController player)
     {
-        Lvl3DialogueLine selectedLine = IsWatson(player)
+        bool isWatson = IsWatson(player);
+        Lvl3DialogueLine selectedLine = isWatson
             ? watsonDialogueLine
             : sherlockDialogueLine;
+
+        if (!isWatson)
+            GetComponent<Interactable>()?.AddAllDatabaseNotes();
 
         PlayDialogue(player, new[] { selectedLine });
     }
@@ -54,7 +58,12 @@ public class Int_lv1_SelmaPortrait : Lvl3InteractionDialogueBase
     private void Setup()
     {
         SetupInteractable(InteractionType.Int_lv1_SelmaPortrait);
-        GetComponent<Interactable>()?.SetWatsonInteractionAllowed(true);
+        Interactable interactable = GetComponent<Interactable>();
+        if (interactable == null)
+            return;
+
+        interactable.SetWatsonInteractionAllowed(true);
+        interactable.addDatabaseNotesAutomatically = false;
     }
 
     private static bool IsWatson(PlayerController player)

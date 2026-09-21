@@ -350,6 +350,8 @@ public class PlayerController : MonoBehaviour
         
         if (Physics.Raycast(ray, out RaycastHit groundHit, 100f, groundMask))
         {
+            DetectiveIdeaManager.Instance?.EndPuzzleInteractionSession();
+
             if (TutorialTimeline.Instance != null)
                 TutorialTimeline.Instance.NotifyIdeaPuzzleGroundClick();
 

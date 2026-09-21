@@ -91,6 +91,15 @@ public class TutorialTimeline : MonoBehaviour
     [Tooltip("Play tutorial panel opening and closing sounds for the notebook tutorial.")]
     [SerializeField] private bool notebookTutorialPanelPlayAudio = true;
 
+    [Header("Sherlock And Watson Dialogue Tutorial")]
+    [Tooltip("Enabled after the first notebook is closed and disabled after the dialogue tutorial panel closes.")]
+    [SerializeField] private GameObject watsonQuestionMarkAnchor;
+    [SerializeField, TextArea] private string sherlockWatsonDialogueTutorialText =
+        "Sherlock może omawiać z Watsonem przebieg śledztwa. Gdy nie wiesz, co zrobić dalej, porozmawiaj z nim, aby wspólnie uporządkować fakty i odnaleźć kolejny trop.";
+    [SerializeField] private string sherlockWatsonDialogueTutorialId = "SherlockWatsonDialogueTutorial";
+    [SerializeField] private bool sherlockWatsonDialogueTutorialPlayAudio = true;
+    [SerializeField, Min(0f)] private float sherlockWatsonDialogueDelayAfterTutorial = 0.5f;
+
     [Header("Tutorial Popup Audio")]
     [SerializeField] private AudioSource tutorialPopupAudioSource;
     [SerializeField] private AudioClip tutorialPopupOpenAudio;
@@ -116,7 +125,8 @@ public class TutorialTimeline : MonoBehaviour
     [SerializeField, Min(1f)] private float rotationSpeed = 360f;
     [SerializeField, Min(0.05f)] private float eagleVisionHoldRefreshDuration = 0.25f;
     [SerializeField] private float ideaLineTutorialHorizontalAxis = 161.2f;
-    [SerializeField, Min(0.1f)] private float ideaLineTutorialOrbitSpeed = 2.5f;
+    [SerializeField, Min(0.1f)] private float ideaLineTutorialOrbitSpeed = 24f;
+    [SerializeField, HideInInspector] private bool migratedIdeaLineTutorialOrbitSpeedTo24;
     [SerializeField, Min(0.01f)] private float ideaLineTutorialOrbitTolerance = 0.5f;
     [SerializeField, Min(0f)] private float cameraSettleDuration = 5f;
     [SerializeField] private string ideaLineTutorialId = "IdeaLinePuzzleTutorial";
@@ -158,9 +168,25 @@ public class TutorialTimeline : MonoBehaviour
     private bool activePopupReturnsToPreviousStage;
     private TutorialStage popupReturnStage;
     private Coroutine moveWatsonToIdeaLineTutorialCoroutine;
+    private bool sherlockWatsonDialogueTutorialStarted;
+
+    private void OnValidate()
+    {
+        if (migratedIdeaLineTutorialOrbitSpeedTo24)
+            return;
+
+        ideaLineTutorialOrbitSpeed = 24f;
+        migratedIdeaLineTutorialOrbitSpeedTo24 = true;
+    }
 
     private void Awake()
     {
+        if (!migratedIdeaLineTutorialOrbitSpeedTo24)
+        {
+            ideaLineTutorialOrbitSpeed = 24f;
+            migratedIdeaLineTutorialOrbitSpeedTo24 = true;
+        }
+
         if (Instance == null)
             Instance = this;
         else
@@ -168,6 +194,9 @@ public class TutorialTimeline : MonoBehaviour
 
         if (tutorialObjectivePanel != null)
             tutorialObjectivePanel.gameObject.SetActive(false);
+
+        if (watsonQuestionMarkAnchor != null)
+            watsonQuestionMarkAnchor.SetActive(false);
 
         // Prevent one-frame world input and hover feedback before the opening tutorial starts.
         PlayerController.SetWorldInputLocked(true);
@@ -380,10 +409,39 @@ public class TutorialTimeline : MonoBehaviour
         while (notebookManager != null && notebookManager.IsNotebookOpen)
             yield return null;
 
+        if (!sherlockWatsonDialogueTutorialStarted && watsonQuestionMarkAnchor != null)
+            watsonQuestionMarkAnchor.SetActive(true);
+
         SetActiveTutorialCameraZoom(openingSequenceCompleteZoomPreset, openingConversationZoomTransitionDuration);
         BeginFirstWorldClickStage();
         StartFocusTutorialPopupCountdown();
         LogIdeaLineTutorial("Opening conversation and notebook tutorial completed. Waiting for the first world click.");
+    }
+
+    public IEnumerator PrepareFirstSherlockWatsonDialogue()
+    {
+        if (sherlockWatsonDialogueTutorialStarted)
+            yield break;
+
+        sherlockWatsonDialogueTutorialStarted = true;
+
+        TutorialManager tutorialManager = TutorialManager.Instance;
+        if (tutorialManager != null && !string.IsNullOrWhiteSpace(sherlockWatsonDialogueTutorialText))
+        {
+            tutorialManager.PokazTutorial(
+                sherlockWatsonDialogueTutorialText,
+                sherlockWatsonDialogueTutorialId,
+                sherlockWatsonDialogueTutorialPlayAudio);
+
+            while (tutorialManager.BlocksWorldInput)
+                yield return null;
+        }
+
+        if (watsonQuestionMarkAnchor != null)
+            watsonQuestionMarkAnchor.SetActive(false);
+
+        if (sherlockWatsonDialogueDelayAfterTutorial > 0f)
+            yield return new WaitForSecondsRealtime(sherlockWatsonDialogueDelayAfterTutorial);
     }
 
     public void NotifyWorldClick()
@@ -612,7 +670,7 @@ public class TutorialTimeline : MonoBehaviour
         CancelConflictingWatsonCompletionMovements();
         StartWatsonMoveToIdeaLineTutorialPosition();
         KeepEagleVisionForced();
-        SetCameraZoom(CameraZoomState.Wide);
+        SetCameraZoom(CameraZoomState.Top);
         SetCameraHorizontalOrbit(ideaLineTutorialHorizontalAxis, ideaLineTutorialOrbitSpeed);
         onIdeaLinePuzzleTutorialStarted?.Invoke();
 

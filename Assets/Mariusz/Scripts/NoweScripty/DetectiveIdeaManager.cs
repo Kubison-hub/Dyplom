@@ -58,7 +58,7 @@ public class DetectiveIdeaManager : MonoBehaviour
     [SerializeField] private AudioClip puzzleCompleteClip;
 
     [Header("Player Camera Look At")]
-    [SerializeField] private bool useSequenceLookAt = true;
+    [SerializeField] private bool useSequenceLookAt = false;
     [SerializeField, Range(0f, 1f)] private float sequenceLookAtLineInfluence = 0.85f;
     [SerializeField, Min(0.01f)] private float sequenceLookAtSmoothTime = 0.25f;
     [SerializeField, Min(0f)] private float sequenceLookAtMaxDistanceFromPlayer = 3f;
@@ -96,6 +96,9 @@ public class DetectiveIdeaManager : MonoBehaviour
     private bool connectionsEnabled = true;
     private bool puzzleCompletionEnabled = true;
     private bool consumeNextEmptyVisionClick;
+    private bool ideaPuzzleSessionActive;
+
+    public bool KeepsEagleVisionActive => dragSource != null || ideaPuzzleSessionActive;
     private Vector3 headRigTargetVelocity;
     private bool resetHeadRigTargetOnNextDrag = true;
     private AudioSource runtimeIdeaPointDiscoveryAudioSource;
@@ -283,6 +286,11 @@ public class DetectiveIdeaManager : MonoBehaviour
         return dragSource != null;
     }
 
+    public void EndPuzzleInteractionSession()
+    {
+        ideaPuzzleSessionActive = false;
+    }
+
     private bool TryConsumeEmptyVisionClick()
     {
         if (OnEmptyVisionClick == null)
@@ -321,6 +329,7 @@ public class DetectiveIdeaManager : MonoBehaviour
         consumeNextEmptyVisionClick = false;
         connectionsEnabled = enableConnections;
         puzzleCompletionEnabled = enablePuzzleCompletion;
+        ideaPuzzleSessionActive = false;
         wasDetectiveVisionActive = false;
         detectiveVisionActivatedAt = Time.unscaledTime;
     }
@@ -354,6 +363,7 @@ public class DetectiveIdeaManager : MonoBehaviour
     /// </summary>
     public void ClearForNonSherlock()
     {
+        ideaPuzzleSessionActive = false;
         wasDetectiveVisionActive = false;
         consumeNextEmptyVisionClick = false;
         ClearHover();
@@ -423,6 +433,7 @@ public class DetectiveIdeaManager : MonoBehaviour
     {
         PlayPuzzleSound(grabIdeaPointClip);
 
+        ideaPuzzleSessionActive = true;
         dragSource = point;
         dragSource.MarkDiscovered();
         dragSource.SetVisible(true);
@@ -932,6 +943,7 @@ public class DetectiveIdeaManager : MonoBehaviour
     private void CompletePuzzle()
     {
         puzzleCompleted = true;
+        ideaPuzzleSessionActive = false;
         Debug.Log("SUCCES");
         PlayPuzzleSound(puzzleCompleteClip);
 

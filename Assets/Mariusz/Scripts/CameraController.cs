@@ -24,6 +24,7 @@ public class CameraController : MonoBehaviour
     [Tooltip("In Play Mode, applies the currently selected preset every frame so its Radius and Height values can be tuned live.")]
     [SerializeField] private bool livePresetPreview;
     public int CurrentZoomIndex => targetZoomIndex;
+    public bool IsCurrentGameplayCamera => IsActiveGameplayCamera();
 
     private CinemachineCamera cineCamera;
     private CinemachineOrbitalFollow orbitalFollow;
@@ -635,7 +636,9 @@ public class CameraController : MonoBehaviour
     private static bool IsTutorialBlockingCamera()
     {
         return (TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput) ||
-               (TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput);
+               (TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput) ||
+               (NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen) ||
+               Mathf.Approximately(Time.timeScale, 0f);
     }
 
     private void UpdateZoomTransition()
@@ -1677,8 +1680,9 @@ public class CameraController : MonoBehaviour
 
 public enum CameraZoomState
 {
-    Top,
-    Wide,
+    Narrow,
     Medium,
-    Narrow
+    Wide,
+    Top,
+    Total
 }

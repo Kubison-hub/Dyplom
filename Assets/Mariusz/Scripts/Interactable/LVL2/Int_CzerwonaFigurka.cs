@@ -4,6 +4,7 @@ public class Int_CzerwonaFigurka : Lvl3InteractionDialogueBase
 {
     public ItemType itemType;
     public GameObject spline;
+    private Interactable interactable;
     private bool collected;
     [SerializeField] private Sprite inventoryIcon;
 
@@ -24,6 +25,14 @@ public class Int_CzerwonaFigurka : Lvl3InteractionDialogueBase
 
     private bool destroyAfterDialogue;
     protected override Lvl3DialogueLine[] DefaultDialogueLines => pickupDialogue;
+
+    private void Awake()
+    {
+        interactable = GetComponent<Interactable>();
+        if (interactable != null)
+            interactable.addDatabaseNotesAutomatically = false;
+    }
+
     public void PerformInteraction(PlayerController player)
     {
         if (collected)
@@ -36,7 +45,7 @@ public class Int_CzerwonaFigurka : Lvl3InteractionDialogueBase
         }
 
         collected = true;
-        GetComponent<Interactable>()?.MarkCompleted();
+        interactable?.MarkCompleted();
 
         // Zapis: bez tego figurka wroci na podloge po wczytaniu gry,
         // mimo ze bedzie juz w ekwipunku.
@@ -44,6 +53,16 @@ public class Int_CzerwonaFigurka : Lvl3InteractionDialogueBase
             SaveLoadManager.Instance.MarkCollected(gameObject);
 
         CluesLog.Instance?.RegisterTableMechanismElement(ItemType.Czerwona);
+        SherlockWatsonHintConditions hintConditions =
+            FindFirstObjectByType<SherlockWatsonHintConditions>(FindObjectsInactive.Include);
+        hintConditions?.MarkMagicBallFound();
+
+        bool tableHoverDiscovered = hintConditions != null && hintConditions.IsTableHoverDiscovered;
+        int noteIndex = tableHoverDiscovered ? 2 : 0;
+        int additionalNoteIndex = tableHoverDiscovered ? 3 : 1;
+        interactable?.AddNote(noteIndex);
+        interactable?.AddNote(additionalNoteIndex);
+
         if (spline != null)
             spline.SetActive(false);
 

@@ -31,6 +31,7 @@ public enum NotebookObservation
     SekretnePrzejscie,
     UkrytePrzejscie,
     PulapkaWPiwnicy,
+    Biblioteka,
 }
 
 [CreateAssetMenu(fileName = "Nowa Notatka", menuName = "Notatnik/Notatka")]

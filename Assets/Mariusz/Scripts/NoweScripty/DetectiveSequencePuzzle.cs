@@ -61,7 +61,10 @@ public class DetectiveSequencePuzzle : MonoBehaviour
 
     [Header("Notebook Note On Solved")]
     [SerializeField] private Interactable solvedNotebookNoteSource;
+    [Tooltip("Primary Database Notes index preserved for existing scene setups.")]
     [SerializeField] private int solvedNotebookNoteIndex = -1;
+    [Tooltip("Additional Database Notes indices added together with the primary entry.")]
+    [SerializeField] private int[] additionalSolvedNotebookNoteIndices = { 3 };
 
     public UnityEvent onSolved;
 
@@ -301,7 +304,13 @@ public class DetectiveSequencePuzzle : MonoBehaviour
             clueSource.AddClue(clueIndex);
 
         if (completeCrimeSceneObjectiveOnSolved)
+        {
             CluesLog.Instance?.CompleteCrimeSceneInvestigation();
+
+            SherlockWatsonHintConditions hintConditions =
+                FindFirstObjectByType<SherlockWatsonHintConditions>(FindObjectsInactive.Include);
+            hintConditions?.MarkIdeaPuzzleComplete();
+        }
 
         if (solvedDialogue != null && solvedDialogue.Length > 0)
             StartCoroutine(PlaySolvedDialogue());
@@ -358,11 +367,22 @@ public class DetectiveSequencePuzzle : MonoBehaviour
 
     private void AddSolvedNotebookNote()
     {
-        if (solvedNotebookNoteAdded || solvedNotebookNoteSource == null || solvedNotebookNoteIndex < 0)
+        if (solvedNotebookNoteAdded || solvedNotebookNoteSource == null)
             return;
 
         solvedNotebookNoteAdded = true;
-        solvedNotebookNoteSource.AddNote(solvedNotebookNoteIndex);
+
+        if (solvedNotebookNoteIndex >= 0)
+            solvedNotebookNoteSource.AddNote(solvedNotebookNoteIndex);
+
+        if (additionalSolvedNotebookNoteIndices == null)
+            return;
+
+        foreach (int noteIndex in additionalSolvedNotebookNoteIndices)
+        {
+            if (noteIndex >= 0 && noteIndex != solvedNotebookNoteIndex)
+                solvedNotebookNoteSource.AddNote(noteIndex);
+        }
     }
 
     private void PlaySolvedVoice(Lvl3DialogueLine line)

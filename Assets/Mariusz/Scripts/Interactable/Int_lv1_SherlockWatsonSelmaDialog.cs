@@ -49,8 +49,11 @@ public class Int_lv1_SherlockWatsonSelmaDialog : Lvl3InteractionDialogueBase
 
     protected override void OnDialogueSequenceCompleted(Lvl3DialogueLine[] lines)
     {
-        if (lines == openingDialogueLines)
-            interactable?.MarkCompleted();
+        if (lines != openingDialogueLines)
+            return;
+
+        interactable?.MarkCompleted();
+        gameObject.SetActive(false);
     }
 
     public void DisableAfterStairsUp()

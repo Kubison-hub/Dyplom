@@ -356,6 +356,9 @@ public class Interactable : MonoBehaviour
         Int_WatsonSwitchTutorial watsonSwitchTutorial = GetComponent<Int_WatsonSwitchTutorial>();
         watsonSwitchTutorial?.NotifyInteractionSelected(player);
 
+        Int_SherlockWatsonDialog sherlockWatsonDialog = GetComponent<Int_SherlockWatsonDialog>();
+        sherlockWatsonDialog?.NotifyInteractionSelected(player);
+
         Int_SelmaDialog selmaDialogue = GetComponent<Int_SelmaDialog>();
         bool clickedSelmaDialogueMarker = selmaDialogue != null;
 
@@ -424,6 +427,11 @@ public class Interactable : MonoBehaviour
             watsonCarryGripAuthorized = true;
         }
 
+        // Selecting a new interaction transfers ownership of Watson's movement.
+        // Do not let a previous reaction keep rotating him toward its old target
+        // while a custom interaction (for example Edith's examination) moves him.
+        WatsonCompanionController.Instance?.ClearInteractionFocus();
+
         player.currentInteractable = this;
         player.ClearAutoInteractionApproachPoint();
 
@@ -490,6 +498,13 @@ public class Interactable : MonoBehaviour
             watsonSwitchTutorial.RequiresWatsonReactionBeforeApproach(player))
         {
             watsonSwitchTutorial.MovePlayerAfterWatsonReaction(player);
+            return;
+        }
+
+        if (sherlockWatsonDialog != null &&
+            sherlockWatsonDialog.RequiresCompanionApproach(player))
+        {
+            sherlockWatsonDialog.MovePlayerAfterCompanionReaction(player);
             return;
         }
 

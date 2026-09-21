@@ -104,6 +104,14 @@ public class WatsonCompanionController : MonoBehaviour
     {
         if (IsWatsonControlledByPlayer())
         {
+            // A companion reaction belongs only to the inactive Watson. Do not leave
+            // its target or delayed rotation alive after the player takes control.
+            if (focusTarget != null || isWaitingForReactionRotation ||
+                isWaitingForFocusApproach || isMovingToFocusPosition)
+            {
+                ClearInteractionFocus();
+            }
+
             SetThinking(false);
             RestoreAgentRotation();
             return;
@@ -236,6 +244,7 @@ public class WatsonCompanionController : MonoBehaviour
         focusLookRotationMultiplier = 1f;
         focusApproachSpeedMultiplier = 1f;
         focusApproachRotationSpeedMultiplier = 1f;
+        RestoreAgentRotation();
         nextRoutineDecisionTime = Time.time + routineDecisionInterval;
     }
 

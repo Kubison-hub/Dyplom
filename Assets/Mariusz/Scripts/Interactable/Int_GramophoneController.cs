@@ -50,6 +50,12 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase
     [Tooltip("Local Z-axis rotation speed after starting the mechanism.")]
     [SerializeField] private float recordRotationSpeed = 18f;
 
+    [Header("Record Audio")]
+    [Tooltip("Dedicated source used for the sound played by the inserted record.")]
+    [SerializeField] private AudioSource recordAudioSource;
+    [SerializeField] private AudioClip recordAudioClip;
+    [SerializeField] private bool loopRecordAudio = true;
+
     [Header("Progress After Conversation")]
     [SerializeField] private Int_StairsUp stairsUp;
     [Tooltip("Escort components enabled after the gramophone conversation, for example Selma.")]
@@ -224,11 +230,23 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase
         if (gramophoneAnimator != null)
             gramophoneAnimator.SetTrigger(PlayGramTrigger);
 
+        PlayRecordAudio();
         StartCoroutine(RotateInsertedRecord());
         StartCoroutine(MoveCharactersToGramophoneAfterDelay());
         CompleteInteraction();
         CompleteInteractable(gramophoneInteractable);
         Debug.Log("URUCHOMIENIE MECHANIZMU", this);
+    }
+
+    private void PlayRecordAudio()
+    {
+        if (recordAudioSource == null || recordAudioClip == null)
+            return;
+
+        recordAudioSource.Stop();
+        recordAudioSource.clip = recordAudioClip;
+        recordAudioSource.loop = loopRecordAudio;
+        recordAudioSource.Play();
     }
 
     private void SetActiveCameraWidePreset()

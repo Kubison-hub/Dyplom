@@ -296,7 +296,8 @@ public class EagleVisionSystem : MonoBehaviour
 
     private bool IsIdeaSequenceActive()
     {
-        return DetectiveIdeaManager.Instance != null && DetectiveIdeaManager.Instance.IsDraggingIdea();
+        return DetectiveIdeaManager.Instance != null &&
+               DetectiveIdeaManager.Instance.KeepsEagleVisionActive;
     }
 
     // Keeps Sherlock's scan wave aligned with Eagle Vision even if a character switch

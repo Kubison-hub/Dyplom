@@ -338,6 +338,7 @@ public class Int_lv1_HidenWallMask : Lvl3InteractionDialogueBase
             return;
 
         solved = true;
+        completionCameraController?.SetZoomState(completionZoomState);
         interactable?.MarkCompleted();
         PlayDialogue(null, completionDialogue);
 
@@ -349,7 +350,6 @@ public class Int_lv1_HidenWallMask : Lvl3InteractionDialogueBase
 
         interactable.AddAllDatabaseNotes();
         ideaPoint?.RevealFromExternalSource();
-        completionCameraController?.SetZoomState(completionZoomState);
 
         // The pattern has been fully examined, so it should no longer advertise itself in Eagle Vision.
         interactable.isInteractableActive = false;
