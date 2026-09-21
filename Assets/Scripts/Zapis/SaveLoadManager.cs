@@ -6,9 +6,16 @@ using Unity.Cinemachine;
 
 using Debug = UnityEngine.Debug;
 using Application = UnityEngine.Application;
+using Component = UnityEngine.Component;
+using Random = UnityEngine.Random;
 
 public class SaveLoadManager : MonoBehaviour
 {
+    // Wersja formatu zapisu. Podnies o 1 po kazdej zmianie struktury GameData.
+    // Pliki z inna wersja sa ignorowane - lepiej zaczac od nowa niz wczytac
+    // polowe danych i dostac czarny ekran.
+    public const int WERSJA_ZAPISU = 3;
+
     public static SaveLoadManager Instance;
 
     // ID przedmiotow podniesionych w tej sesji/scenie.
@@ -95,6 +102,7 @@ public class SaveLoadManager : MonoBehaviour
         Debug.Log(">>> SaveGame() ZOSTALO WYWOLANE <<<");
 
         GameData data = new GameData();
+        data.saveVersion = WERSJA_ZAPISU;
 
         if (QuestManager.Instance != null)
         {
@@ -235,6 +243,21 @@ public class SaveLoadManager : MonoBehaviour
         try
         {
             string json = JsonUtility.ToJson(data, true);
+
+            // Kopia zapasowa poprzedniego zapisu - gdyby nowy wyszedl wadliwy,
+            // jest do czego wrocic bez zaczynania gry od poczatku.
+            if (File.Exists(path))
+            {
+                try
+                {
+                    File.Copy(path, path + ".bak", true);
+                }
+                catch (System.Exception kopia)
+                {
+                    Debug.LogWarning("SaveGame: nie udalo sie zrobic kopii zapasowej: " + kopia.Message);
+                }
+            }
+
             File.WriteAllText(path, json);
             Debug.Log("Gra zapisana w: " + path +
                       " (eq: " + (data.itemsInInventory != null ? data.itemsInInventory.Count : 0) +
@@ -306,18 +329,27 @@ public class SaveLoadManager : MonoBehaviour
 
         if (data == null)
         {
-            Debug.LogError("LoadGame: plik zapisu jest uszkodzony lub pusty.");
+            Debug.LogError("LoadGame: plik zapisu jest uszkodzony lub pusty. Pomijam wczytywanie.");
+            return;
+        }
+
+        if (data.saveVersion != WERSJA_ZAPISU)
+        {
+            Debug.LogWarning("LoadGame: plik zapisu pochodzi z wersji " + data.saveVersion +
+                             ", a gra uzywa wersji " + WERSJA_ZAPISU + ". " +
+                             "Pomijam wczytywanie, zeby nie uszkodzic sceny - gra startuje od poczatku. " +
+                             "Zrob nowy zapis, zeby nadpisac stary plik.");
             return;
         }
 
         // --- Aktywne grupy poziomow: MUSZA byc pierwsze ---
         // Reszta (pozycje, NPC, przedmioty) odnosi sie do obiektow wewnatrz
         // tych grup. Na wylaczonej grupie nic nie da sie odnalezc.
-        PrzywrocGrupyPoziomow(data.levelGroups);
+        Krok("poziomy", () => PrzywrocGrupyPoziomow(data.levelGroups));
 
         // --- Stan zagadek: flagi, pozycje, animatory ---
         // Po wlaczeniu grup, zeby objac takze obiekty dopiero co odsloniete.
-        PrzywrocStanZagadek(data);
+        Krok("stan zagadek", () => PrzywrocStanZagadek(data));
 
         // --- Tutoriale ---
         // SpawnHiddenItems() ponizej pokazuje tutorial o przedmiotach do znalezienia.
@@ -354,46 +386,46 @@ public class SaveLoadManager : MonoBehaviour
         }
 
         // --- Ekwipunek (z pelna diagnostyka) ---
-        PrzywrocEkwipunek(data.itemsInInventory);
+        Krok("ekwipunek", () => PrzywrocEkwipunek(data.itemsInInventory));
 
         // --- Usuwamy ze sceny przedmioty juz podniesione ---
         // Po SpawnHiddenItems, zeby objac takze przedmioty dopiero co odsloniete.
-        UsunPodniesionePrzedmioty(data.pickedUpItemIDs);
+        Krok("podniesione przedmioty", () => UsunPodniesionePrzedmioty(data.pickedUpItemIDs));
 
         // --- Ukonczone interakcje ---
-        PrzywrocUkonczoneInterakcje(data.completedInteractionIDs);
+        Krok("ukonczone interakcje", () => PrzywrocUkonczoneInterakcje(data.completedInteractionIDs));
 
         // --- Pozycje NPC ---
-        PrzywrocNpc(data.npcs);
+        Krok("NPC", () => PrzywrocNpc(data.npcs));
 
         // --- Odkryte punkty sledztwa ---
         // MUSI byc przed CluesLog: panel przelicza licznik "Zbadaj pomieszczenie"
         // po stanie punktow, wiec bez tego pierwsze nowe odkrycie zerowaloby licznik.
-        PrzywrocOdkrytePunkty(data.discoveredIdeaPointIDs);
+        Krok("punkty sledztwa", () => PrzywrocOdkrytePunkty(data.discoveredIdeaPointIDs));
 
         // --- Badanie ciala Lady Edith ---
         // Przed CluesLog: skrypt sam wypycha licznik do panelu.
         Int_EdithExamBody edithExam = FindFirstObjectByType<Int_EdithExamBody>(FindObjectsInactive.Include);
         if (edithExam != null)
-            edithExam.RestoreSaveState(data.edithExam);
+            Krok("badanie ciala", () => edithExam.RestoreSaveState(data.edithExam));
         else
             Debug.LogWarning("LoadGame: nie znaleziono Int_EdithExamBody - badanie ciala nie zostanie przywrocone.");
 
         // --- Panel zadan (lista celow) ---
         if (CluesLog.Instance != null)
-            CluesLog.Instance.RestoreSaveState(data.questLog);
+            Krok("panel zadan", () => CluesLog.Instance.RestoreSaveState(data.questLog));
         else
             Debug.LogWarning("LoadGame: brak CluesLog.Instance - postep celow nie zostanie przywrocony.");
 
         // --- Etap samouczka: na koncu, zeby nic go pozniej nie nadpisalo ---
         if (TutorialTimeline.Instance != null)
-            TutorialTimeline.Instance.RestoreSaveStage(data.tutorialStage);
+            Krok("samouczek", () => TutorialTimeline.Instance.RestoreSaveStage(data.tutorialStage));
         else
             Debug.LogWarning("LoadGame: brak TutorialTimeline.Instance - sekwencja startowa poleci od nowa.");
 
         // --- Notatnik ---
         if (NotebookManager.Instance != null)
-            NotebookManager.Instance.RestoreNotes(data.notebookNotes, data.notebookUnreadNotes);
+            Krok("notatnik", () => NotebookManager.Instance.RestoreNotes(data.notebookNotes, data.notebookUnreadNotes));
         else
             Debug.LogWarning("LoadGame: brak NotebookManager.Instance - notatki nie zostana przywrocone.");
 
@@ -408,8 +440,8 @@ public class SaveLoadManager : MonoBehaviour
         // co moglo ruszac kamera (dialogi, punkty sledztwa, panel zadan).
         if (SwitchCharacter.Instance != null)
         {
-            PrzywrocCeleKamer(data.cameraLookAtIDs);
-            SwitchCharacter.Instance.RestoreActivePlayer(data.activePlayerIndex);
+            Krok("cele kamer", () => PrzywrocCeleKamer(data.cameraLookAtIDs));
+            Krok("aktywna postac", () => SwitchCharacter.Instance.RestoreActivePlayer(data.activePlayerIndex));
         }
         else
         {
@@ -696,6 +728,73 @@ public class SaveLoadManager : MonoBehaviour
         return BuildObjectID(go) + "|" + typ.Name + "|" + pole;
     }
 
+    private static string KluczKomponentu(GameObject go, Component komponent, int indeks)
+    {
+        return BuildObjectID(go) + "|#" + indeks + "|" + komponent.GetType().Name + "|enabled";
+    }
+
+    // Renderer i Collider nie dziedzicza po Behaviour, wiec obsluga jest osobna.
+    private static bool SprobujOdczytacWlaczenie(Component komponent, out bool wlaczony)
+    {
+        wlaczony = true;
+
+        if (komponent == null)
+            return false;
+
+        Renderer renderer = komponent as Renderer;
+        if (renderer != null)
+        {
+            wlaczony = renderer.enabled;
+            return true;
+        }
+
+        Collider collider = komponent as Collider;
+        if (collider != null)
+        {
+            wlaczony = collider.enabled;
+            return true;
+        }
+
+        // Behaviour to m.in. Light, MonoBehaviour, Animator.
+        Behaviour behaviour = komponent as Behaviour;
+        if (behaviour != null)
+        {
+            wlaczony = behaviour.enabled;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool SprobujUstawicWlaczenie(Component komponent, bool wlaczony)
+    {
+        if (komponent == null)
+            return false;
+
+        Renderer renderer = komponent as Renderer;
+        if (renderer != null)
+        {
+            renderer.enabled = wlaczony;
+            return true;
+        }
+
+        Collider collider = komponent as Collider;
+        if (collider != null)
+        {
+            collider.enabled = wlaczony;
+            return true;
+        }
+
+        Behaviour behaviour = komponent as Behaviour;
+        if (behaviour != null)
+        {
+            behaviour.enabled = wlaczony;
+            return true;
+        }
+
+        return false;
+    }
+
     private void ZbierzStanZagadek(GameData data)
     {
         data.levelFlags = new List<ScriptFlagSaveData>();
@@ -726,7 +825,26 @@ public class SaveLoadManager : MonoBehaviour
             if (animator != null && animator.runtimeAnimatorController != null)
                 data.levelAnimators.Add(ZbierzAnimator(t.gameObject, animator));
 
-            // 3. Flagi bool w skryptach - 'performed', 'isOpen', 'canOpen'.
+            // 3. Wlaczenie komponentow - MeshRenderer, Light, Collider.
+            //    Czesc rzeczy (np. czarne plyty zakrywajace pokoje, kolidery
+            //    zagadek) jest gaszona przez wylaczenie komponentu, a nie
+            //    calego obiektu - samo activeSelf tego nie zlapie.
+            Component[] komponenty = t.GetComponents<Component>();
+
+            for (int i = 0; i < komponenty.Length; i++)
+            {
+                bool wlaczony;
+
+                if (!SprobujOdczytacWlaczenie(komponenty[i], out wlaczony))
+                    continue;
+
+                ScriptFlagSaveData wpis = new ScriptFlagSaveData();
+                wpis.key = KluczKomponentu(t.gameObject, komponenty[i], i);
+                wpis.value = wlaczony;
+                data.levelFlags.Add(wpis);
+            }
+
+            // 4. Flagi bool w skryptach - 'performed', 'isOpen', 'canOpen'.
             foreach (MonoBehaviour mb in t.GetComponents<MonoBehaviour>())
             {
                 if (mb == null)
@@ -818,10 +936,12 @@ public class SaveLoadManager : MonoBehaviour
 
         int pozycje = PrzywrocPozycjeObiektow(data.levelTransforms, poSciezce);
         int flagi = PrzywrocFlagiSkryptow(data.levelFlags, poSciezce);
+        int komponenty = PrzywrocWlaczenieKomponentow(data.levelFlags, poSciezce);
         int animatory = PrzywrocAnimatory(data.levelAnimators, poSciezce);
 
         Debug.Log("LoadGame: stan zagadek przywrocony (pozycji: " + pozycje +
-                  ", flag: " + flagi + ", animatorow: " + animatory + ").");
+                  ", flag: " + flagi + ", komponentow: " + komponenty +
+                  ", animatorow: " + animatory + ").");
     }
 
     private static int PrzywrocPozycjeObiektow(
@@ -891,6 +1011,48 @@ public class SaveLoadManager : MonoBehaviour
                     {
                     }
                 }
+            }
+        }
+
+        return licznik;
+    }
+
+    private static int PrzywrocWlaczenieKomponentow(
+        List<ScriptFlagSaveData> zapisane, Dictionary<string, Transform> poSciezce)
+    {
+        if (zapisane == null)
+            return 0;
+
+        Dictionary<string, bool> mapa = new Dictionary<string, bool>();
+        foreach (ScriptFlagSaveData wpis in zapisane)
+        {
+            if (wpis != null && !string.IsNullOrEmpty(wpis.key) && wpis.key.EndsWith("|enabled"))
+                mapa[wpis.key] = wpis.value;
+        }
+
+        if (mapa.Count == 0)
+            return 0;
+
+        int licznik = 0;
+
+        foreach (Transform t in poSciezce.Values)
+        {
+            if (t == null)
+                continue;
+
+            Component[] komponenty = t.GetComponents<Component>();
+
+            for (int i = 0; i < komponenty.Length; i++)
+            {
+                if (komponenty[i] == null)
+                    continue;
+
+                bool wlaczony;
+                if (!mapa.TryGetValue(KluczKomponentu(t.gameObject, komponenty[i], i), out wlaczony))
+                    continue;
+
+                if (SprobujUstawicWlaczenie(komponenty[i], wlaczony))
+                    licznik++;
             }
         }
 
@@ -1159,6 +1321,22 @@ public class SaveLoadManager : MonoBehaviour
         {
             Debug.LogWarning("LoadGame: nie znaleziono czesci punktow. Zapisane ID: " +
                              string.Join(" | ", zapisaneID));
+        }
+    }
+
+    // Uruchamia jeden etap wczytywania tak, zeby jego blad nie przerwal reszty.
+    // Bez tego pojedynczy wyjatek (np. w cudzym skrypcie) zostawia scene
+    // w polowie wczytana - czyli zwykle z czarnym ekranem.
+    private static void Krok(string nazwa, System.Action akcja)
+    {
+        try
+        {
+            akcja();
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("LoadGame: etap '" + nazwa + "' nie powiodl sie: " + e.Message +
+                           " Wczytywanie jest kontynuowane.");
         }
     }
 

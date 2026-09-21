@@ -4,6 +4,11 @@ using UnityEngine;
 [System.Serializable]
 public class GameData
 {
+    // --- Wersja formatu zapisu ---
+    // Podnies SaveLoadManager.WERSJA_ZAPISU po kazdej zmianie struktury tej klasy.
+    // Pliki z inna wersja sa ignorowane zamiast psuc wczytywanie.
+    public int saveVersion;
+
     // --- Pozycje Graczy ---
     public Vector3 sherlockPosition;
     public Vector3 watsonPosition;
