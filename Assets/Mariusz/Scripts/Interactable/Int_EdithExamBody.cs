@@ -738,6 +738,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase, IInteractionApproa
     {
         collectedExamClueCount++;
         CluesLog.Instance?.SetLadyEdithBodyProgress(collectedExamClueCount, requiredCluesToRevealIdea);
+        TryMarkSherlockWatsonEdithExamComplete();
 
         if (collectedExamClueCount < requiredCluesToRevealIdea)
             return;
@@ -1651,6 +1652,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase, IInteractionApproa
 
         // Panel zadan dostaje licznik z prawdziwego stanu.
         CluesLog.Instance?.SetLadyEdithBodyProgress(collectedExamClueCount, requiredCluesToRevealIdea);
+        TryMarkSherlockWatsonEdithExamComplete();
 
         Debug.Log("Int_EdithExamBody: przywrocono badanie ciala (" + collectedExamClueCount +
                   "/" + requiredCluesToRevealIdea + ").");
@@ -1707,5 +1709,22 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase, IInteractionApproa
     private Int_Edith_BulletHole GetBulletCp()
     {
         return GetComponentInChildren<Int_Edith_BulletHole>(true);
+    }
+
+    private void TryMarkSherlockWatsonEdithExamComplete()
+    {
+        Int_Edith_Ring ringCp = GetRingCp();
+        Int_Edith_Paper paperCp = GetPaperCp();
+        Int_Edith_BulletHole bulletCp = GetBulletCp();
+
+        if (ringCp == null || !ringCp.performed ||
+            paperCp == null || !paperCp.performed ||
+            bulletCp == null || !bulletCp.performed)
+        {
+            return;
+        }
+
+        FindFirstObjectByType<SherlockWatsonHintConditions>(FindObjectsInactive.Include)
+            ?.MarkEdithExamComplete();
     }
 }

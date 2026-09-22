@@ -20,6 +20,7 @@ public sealed class SherlockWatsonHintConditions : MonoBehaviour
     [SerializeField] private string ringFoundParameterName = "RingFound";
     [SerializeField] private string paperFoundParameterName = "PaperFound";
     [SerializeField] private string bulletWoundFoundParameterName = "BulletWoundFound";
+    [SerializeField] private string edithExamParameterName = "EdithExam";
 
     [Header("Act I IdeaPoint Parameters")]
     [SerializeField] private string ideaPointParameterName = "IdeaPoint";
@@ -40,6 +41,7 @@ public sealed class SherlockWatsonHintConditions : MonoBehaviour
     [SerializeField] private bool ringFound;
     [SerializeField] private bool paperFound;
     [SerializeField] private bool bulletWoundFound;
+    [SerializeField] private bool edithExam;
 
     [Header("Act I IdeaPoint Progress")]
     [SerializeField] private bool ideaPointFound;
@@ -71,6 +73,11 @@ public sealed class SherlockWatsonHintConditions : MonoBehaviour
 
     [Header("Optional Notebook Notes")]
     [SerializeField] private List<NoteData> notes = new List<NoteData>();
+
+    [Header("Notebook Note Audio")]
+    [Tooltip("Audio played when a note with the matching Notes index is added from the Sherlock-Watson dialogue.")]
+    [SerializeField] private AudioSource noteAudioSource;
+    [SerializeField] private List<AudioClip> noteAudioClips = new List<AudioClip>();
 
     private void Reset()
     {
@@ -121,6 +128,15 @@ public sealed class SherlockWatsonHintConditions : MonoBehaviour
     {
         bulletWoundFound = true;
         ApplyConditionToBothConversations(bulletWoundFoundParameterName, true);
+    }
+
+    public void MarkEdithExamComplete()
+    {
+        if (edithExam)
+            return;
+
+        edithExam = true;
+        ApplyConditionToBothConversations(edithExamParameterName, true);
     }
 
     public void MarkLightsFound()
@@ -217,6 +233,7 @@ public sealed class SherlockWatsonHintConditions : MonoBehaviour
         ApplyConditionToBothConversations(ringFoundParameterName, ringFound);
         ApplyConditionToBothConversations(paperFoundParameterName, paperFound);
         ApplyConditionToBothConversations(bulletWoundFoundParameterName, bulletWoundFound);
+        ApplyConditionToBothConversations(edithExamParameterName, edithExam);
         ApplyConditionToBothConversations(ideaPointParameterName, ideaPointFound);
         ApplyConditionToBothConversations(lightsParameterName, lightsFound);
         ApplyConditionToBothConversations(movingTableParameterName, movingTableFound);
@@ -277,6 +294,25 @@ public sealed class SherlockWatsonHintConditions : MonoBehaviour
         }
 
         NotebookManager.Instance.AddNote(note, showUpdateNotification);
+        PlayNoteAudio(noteIndex);
+    }
+
+    private void PlayNoteAudio(int noteIndex)
+    {
+        if (noteAudioSource == null || noteAudioClips == null ||
+            noteIndex < 0 || noteIndex >= noteAudioClips.Count)
+        {
+            return;
+        }
+
+        AudioClip clip = noteAudioClips[noteIndex];
+        if (clip == null)
+            return;
+
+        noteAudioSource.Stop();
+        noteAudioSource.clip = clip;
+        noteAudioSource.loop = false;
+        noteAudioSource.Play();
     }
 
     private void ApplyConditionToBothConversations(string parameterName, bool value)

@@ -124,6 +124,13 @@ public class CluesLog : MonoBehaviour
     [SerializeField] private DetectiveIdeaPoint[] roomIdeaPoints;
     [SerializeField, Min(1)] private int requiredEdithBodyClues = 3;
 
+    [Header("First IdeaPoint Tutorial")]
+    [SerializeField] private bool showFirstIdeaPointTutorial = true;
+    [SerializeField] private string firstIdeaPointTutorialTitle = "Punkty dedukcji";
+    [SerializeField, TextArea(3, 6)] private string firstIdeaPointTutorialText =
+        "Odkryte ślady tworzą punkty dedukcji. Zbadaj miejsce zbrodni i odnajdź wszystkie punkty, aby połączyć fakty oraz odtworzyć przebieg wydarzeń.";
+    [SerializeField] private bool playFirstIdeaPointTutorialAudio = true;
+
     [Header("Basement IdeaPoint Progress")]
     [Tooltip("Assign the four IdeaPoints used by the basement sequence.")]
     [SerializeField] private DetectiveIdeaPoint[] basementIdeaPoints;
@@ -141,6 +148,8 @@ public class CluesLog : MonoBehaviour
     private bool blueTableMechanismElementCollected;
     private int collectedEdithBodyClues;
     private int discoveredRoomIdeaPoints;
+    private bool firstIdeaPointTutorialShown;
+    private bool firstIdeaPointTutorialPending;
     private int discoveredBasementIdeaPoints;
     private bool basementIdeaPointSearchCompleted;
     private bool connectionsCompleted;
@@ -1232,9 +1241,33 @@ public class CluesLog : MonoBehaviour
         }
     }
 
-    private void HandleRoomIdeaPointDiscovered(DetectiveIdeaPoint _)
+    private void HandleRoomIdeaPointDiscovered(DetectiveIdeaPoint discoveredPoint)
     {
         RefreshRoomIdeaPointProgress();
+
+        if (showFirstIdeaPointTutorial && !firstIdeaPointTutorialShown &&
+            !firstIdeaPointTutorialPending && discoveredPoint != null)
+        {
+            firstIdeaPointTutorialPending = true;
+            StartCoroutine(ShowFirstIdeaPointTutorialAfterReveal(discoveredPoint));
+        }
+    }
+
+    private IEnumerator ShowFirstIdeaPointTutorialAfterReveal(DetectiveIdeaPoint discoveredPoint)
+    {
+        while (discoveredPoint != null && discoveredPoint.IsDiscoveryRevealActive)
+            yield return null;
+
+        firstIdeaPointTutorialPending = false;
+
+        if (firstIdeaPointTutorialShown || TutorialTimeline.Instance == null)
+            yield break;
+
+        firstIdeaPointTutorialShown = TutorialTimeline.Instance.ShowGameplayTutorialPopup(
+            firstIdeaPointTutorialTitle,
+            firstIdeaPointTutorialText,
+            null,
+            playFirstIdeaPointTutorialAudio);
     }
 
     private void SubscribeToBasementIdeaPoints()

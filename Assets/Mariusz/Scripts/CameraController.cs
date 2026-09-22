@@ -57,7 +57,7 @@ public class CameraController : MonoBehaviour
     [Header("Dialogue Camera")]
     [SerializeField] private string dialogueZoomPresetName = "Narrow";
     [SerializeField, Min(0f)] private float dialogueZoomReturnDuration = 0.45f;
-    [SerializeField, Min(0.1f)] private float dialogueLookAtReturnSpeed = 1f;
+    [SerializeField, Min(0.01f)] private float dialogueLookAtReturnSpeed = 1f;
     [SerializeField, Min(0.01f)] private float dialogueRotationFadeInDuration = 0.2f;
     [SerializeField, Min(0.01f)] private float dialogueRotationFadeOutDuration = 0.8f;
 
@@ -124,8 +124,10 @@ public class CameraController : MonoBehaviour
     private bool hasLookAtOverride;
     private Transform smoothLookAtProxy;
     private Transform smoothLookAtDestination;
+    private Vector3 smoothLookAtStartPosition;
     private Vector3 smoothLookAtDestinationPosition;
-    private float smoothLookAtTransitionSpeed;
+    private float smoothLookAtTransitionDuration;
+    private float smoothLookAtTransitionElapsed;
     private bool smoothLookAtUsesAnchoredDestination;
     private float smoothLookAtAnchorSnapDistance;
     private bool restoringSmoothLookAtTarget;
@@ -1285,15 +1287,23 @@ public class CameraController : MonoBehaviour
         }
 
         EnsureSmoothLookAtProxy();
-        smoothLookAtProxy.position = cineCamera.LookAt != null
+        smoothLookAtStartPosition = cineCamera.LookAt != null
             ? cineCamera.LookAt.position
             : target.position;
+        smoothLookAtProxy.position = smoothLookAtStartPosition;
         smoothLookAtDestination = target;
         smoothLookAtDestinationPosition = target.position;
         smoothLookAtUsesAnchoredDestination = false;
-        smoothLookAtTransitionSpeed = Mathf.Max(0.01f, transitionSpeed);
+        smoothLookAtTransitionDuration = CalculateLookAtTransitionDuration(
+            smoothLookAtStartPosition,
+            smoothLookAtDestinationPosition,
+            transitionSpeed);
+        smoothLookAtTransitionElapsed = 0f;
         restoringSmoothLookAtTarget = false;
         cineCamera.LookAt = smoothLookAtProxy;
+
+        if (smoothLookAtTransitionDuration <= 0f)
+            CompleteSmoothLookAtTransition();
     }
 
     public void BeginDialogueLookAt(Transform target, float preRollDuration)
@@ -1441,15 +1451,23 @@ public class CameraController : MonoBehaviour
         }
 
         EnsureSmoothLookAtProxy();
-        smoothLookAtProxy.position = cineCamera.LookAt != null
+        smoothLookAtStartPosition = cineCamera.LookAt != null
             ? cineCamera.LookAt.position
             : lookAtTargetBeforeOverride.position;
+        smoothLookAtProxy.position = smoothLookAtStartPosition;
         smoothLookAtDestination = lookAtTargetBeforeOverride;
         smoothLookAtDestinationPosition = lookAtTargetBeforeOverride.position;
         smoothLookAtUsesAnchoredDestination = false;
-        smoothLookAtTransitionSpeed = Mathf.Max(0.01f, transitionSpeed);
+        smoothLookAtTransitionDuration = CalculateLookAtTransitionDuration(
+            smoothLookAtStartPosition,
+            smoothLookAtDestinationPosition,
+            transitionSpeed);
+        smoothLookAtTransitionElapsed = 0f;
         restoringSmoothLookAtTarget = true;
         cineCamera.LookAt = smoothLookAtProxy;
+
+        if (smoothLookAtTransitionDuration <= 0f)
+            CompleteSmoothLookAtTransition();
     }
 
     public void RestoreLookAtTargetSmoothAndAttach(float transitionSpeed, float snapDistance)
@@ -1481,15 +1499,23 @@ public class CameraController : MonoBehaviour
             return;
 
         EnsureSmoothLookAtProxy();
-        smoothLookAtProxy.position = cineCamera.LookAt != null
+        smoothLookAtStartPosition = cineCamera.LookAt != null
             ? cineCamera.LookAt.position
             : target.position;
+        smoothLookAtProxy.position = smoothLookAtStartPosition;
         smoothLookAtDestination = target;
         smoothLookAtDestinationPosition = target.position;
         smoothLookAtUsesAnchoredDestination = false;
-        smoothLookAtTransitionSpeed = Mathf.Max(0.01f, transitionSpeed);
+        smoothLookAtTransitionDuration = CalculateLookAtTransitionDuration(
+            smoothLookAtStartPosition,
+            smoothLookAtDestinationPosition,
+            transitionSpeed);
+        smoothLookAtTransitionElapsed = 0f;
         restoringSmoothLookAtTarget = true;
         cineCamera.LookAt = smoothLookAtProxy;
+
+        if (smoothLookAtTransitionDuration <= 0f)
+            CompleteSmoothLookAtTransition();
     }
 
     // Used only by scripted sequences that must finish at a stable point before
@@ -1506,16 +1532,24 @@ public class CameraController : MonoBehaviour
             return;
 
         EnsureSmoothLookAtProxy();
-        smoothLookAtProxy.position = cineCamera.LookAt != null
+        smoothLookAtStartPosition = cineCamera.LookAt != null
             ? cineCamera.LookAt.position
             : target.position;
+        smoothLookAtProxy.position = smoothLookAtStartPosition;
         smoothLookAtDestination = target;
         smoothLookAtDestinationPosition = target.position;
         smoothLookAtUsesAnchoredDestination = true;
         smoothLookAtAnchorSnapDistance = Mathf.Max(0.01f, snapDistance);
-        smoothLookAtTransitionSpeed = Mathf.Max(0.01f, transitionSpeed);
+        smoothLookAtTransitionDuration = CalculateLookAtTransitionDuration(
+            smoothLookAtStartPosition,
+            smoothLookAtDestinationPosition,
+            transitionSpeed);
+        smoothLookAtTransitionElapsed = 0f;
         restoringSmoothLookAtTarget = true;
         cineCamera.LookAt = smoothLookAtProxy;
+
+        if (smoothLookAtTransitionDuration <= 0f)
+            CompleteSmoothLookAtTransition();
     }
 
     private void EnsureSmoothLookAtProxy()
@@ -1528,28 +1562,53 @@ public class CameraController : MonoBehaviour
         smoothLookAtProxy = proxy.transform;
     }
 
+    private static float CalculateLookAtTransitionDuration(
+        Vector3 startPosition,
+        Vector3 destinationPosition,
+        float transitionSpeed)
+    {
+        float distance = Vector3.Distance(startPosition, destinationPosition);
+        return distance <= Mathf.Epsilon
+            ? 0f
+            : distance / Mathf.Max(0.01f, transitionSpeed);
+    }
+
     private void UpdateSmoothLookAtTarget()
     {
         if (smoothLookAtProxy == null || smoothLookAtDestination == null || cineCamera == null ||
             cineCamera.LookAt != smoothLookAtProxy)
             return;
 
-        float blend = 1f - Mathf.Exp(-smoothLookAtTransitionSpeed * Time.deltaTime);
+        smoothLookAtTransitionElapsed = Mathf.Min(
+            smoothLookAtTransitionElapsed + Time.unscaledDeltaTime,
+            smoothLookAtTransitionDuration);
+        float normalizedTime = smoothLookAtTransitionDuration > 0f
+            ? smoothLookAtTransitionElapsed / smoothLookAtTransitionDuration
+            : 1f;
+        float blend = Mathf.SmoothStep(0f, 1f, normalizedTime);
         Vector3 destinationPosition = smoothLookAtUsesAnchoredDestination
             ? smoothLookAtDestinationPosition
             : smoothLookAtDestination.position;
-        float snapDistance = smoothLookAtUsesAnchoredDestination
-            ? smoothLookAtAnchorSnapDistance
-            : 0.01f;
 
         smoothLookAtProxy.position = Vector3.Lerp(
-            smoothLookAtProxy.position,
+            smoothLookAtStartPosition,
             destinationPosition,
             blend);
 
-        float snapDistanceSquared = snapDistance * snapDistance;
-        if ((smoothLookAtProxy.position - destinationPosition).sqrMagnitude > snapDistanceSquared)
+        if (normalizedTime < 1f)
             return;
+
+        CompleteSmoothLookAtTransition();
+    }
+
+    private void CompleteSmoothLookAtTransition()
+    {
+        if (smoothLookAtDestination == null || cineCamera == null)
+            return;
+
+        Vector3 destinationPosition = smoothLookAtUsesAnchoredDestination
+            ? smoothLookAtDestinationPosition
+            : smoothLookAtDestination.position;
 
         smoothLookAtProxy.position = destinationPosition;
         cineCamera.LookAt = smoothLookAtDestination;

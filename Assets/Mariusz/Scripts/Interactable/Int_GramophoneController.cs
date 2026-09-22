@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(Interactable))]
-public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase
+public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase, IInteractionApproachPointProvider
 {
     [Header("Character Introduction Lines")]
     [SerializeField] private Lvl3DialogueLine sherlockIntroductionLine = new Lvl3DialogueLine
@@ -85,6 +85,10 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase
     [Tooltip("Conversation started after Violet, Sherlock and Watson reach their gramophone points.")]
     [SerializeField] private SmartNPC afterMovementSmartNpc;
 
+    [Header("After Movement Conversation Intro Audio")]
+    [SerializeField] private AudioSource afterMovementIntroAudioSource;
+    [SerializeField] private AudioClip afterMovementIntroAudioClip;
+
     [Header("Door Closing At Dialogue Start")]
     [SerializeField] private Animator doorAnimator;
 
@@ -94,7 +98,7 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase
     private static readonly int PlayGramTrigger = Animator.StringToHash("PlayGram");
 
     [Header("Two Character Approach")]
-    [Tooltip("Exact destination used by whichever character is currently the companion.")]
+    [Tooltip("Exact destination always used by Watson. Sherlock always uses Interactable > Interaction Point.")]
     [SerializeField] private Transform reactionPoint;
     [SerializeField, Min(0.1f)] private float arrivalTolerance = 0.65f;
     [SerializeField, Min(0.01f)] private float finalRotationDuration = 0.35f;
@@ -115,6 +119,13 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase
     public bool ConversationCompleted => conversationCompleted;
 
     protected override InteractionType RequiredInteractionType => InteractionType.Int_GramophoneController;
+
+    public Transform GetInteractionApproachPoint(PlayerController player, Transform defaultPoint)
+    {
+        return IsWatson(player) && reactionPoint != null
+            ? reactionPoint
+            : defaultPoint;
+    }
 
     protected override void Start()
     {
@@ -360,6 +371,9 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase
             doorAnimator.SetTrigger(DoorCloseTrigger);
         }
 
+        if (afterMovementIntroAudioSource != null && afterMovementIntroAudioClip != null)
+            afterMovementIntroAudioSource.PlayOneShot(afterMovementIntroAudioClip);
+
         afterMovementSmartNpc.BeginDialogueCameraFocus(conversation);
         DialogueEditor.ConversationManager.Instance.StartConversation(conversation);
 
@@ -516,8 +530,8 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase
         while (interactable != null && interactable.IsCompanionReactionApproachInProgress)
             yield return null;
 
-        PlayerController companion = FindOtherCharacter(activePlayer);
-        if (!CharactersReachedTheirPoints(activePlayer, companion, reactionPoint))
+        ResolveDetectives();
+        if (!CharactersReachedTheirPoints())
         {
             Debug.LogWarning($"{name}: gramophone controller dialogue cancelled because both characters did not reach their points.", this);
             ClearPlayerInteraction(activePlayer);
@@ -525,7 +539,7 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase
             yield break;
         }
 
-        yield return RotateCharactersToPoints(activePlayer, companion, reactionPoint);
+        yield return RotateCharactersToPoints();
 
         while (IsDialoguePlaying)
             yield return null;
@@ -540,45 +554,39 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase
         base.PerformInteraction(activePlayer);
     }
 
-    private bool CharactersReachedTheirPoints(
-        PlayerController activePlayer,
-        PlayerController companion,
-        Transform reactionPoint)
+    private bool CharactersReachedTheirPoints()
     {
-        if (activePlayer == null || companion == null || interactable == null ||
+        if (sherlock == null || watson == null || interactable == null ||
             interactable.interactabePoint == null || reactionPoint == null)
             return false;
 
-        return HorizontalDistance(activePlayer.transform.position, interactable.interactabePoint.position) <= arrivalTolerance &&
-               HorizontalDistance(companion.transform.position, reactionPoint.position) <= arrivalTolerance;
+        return HorizontalDistance(sherlock.transform.position, interactable.interactabePoint.position) <= arrivalTolerance &&
+               HorizontalDistance(watson.transform.position, reactionPoint.position) <= arrivalTolerance;
     }
 
-    private IEnumerator RotateCharactersToPoints(
-        PlayerController activePlayer,
-        PlayerController companion,
-        Transform reactionPoint)
+    private IEnumerator RotateCharactersToPoints()
     {
-        if (activePlayer == null || companion == null || interactable == null ||
+        if (sherlock == null || watson == null || interactable == null ||
             interactable.interactabePoint == null || reactionPoint == null)
             yield break;
 
-        Quaternion activeStartRotation = activePlayer.transform.rotation;
-        Quaternion companionStartRotation = companion.transform.rotation;
-        Quaternion activeTargetRotation = Quaternion.Euler(0f, interactable.interactabePoint.eulerAngles.y, 0f);
-        Quaternion companionTargetRotation = Quaternion.Euler(0f, reactionPoint.eulerAngles.y, 0f);
+        Quaternion sherlockStartRotation = sherlock.transform.rotation;
+        Quaternion watsonStartRotation = watson.transform.rotation;
+        Quaternion sherlockTargetRotation = Quaternion.Euler(0f, interactable.interactabePoint.eulerAngles.y, 0f);
+        Quaternion watsonTargetRotation = Quaternion.Euler(0f, reactionPoint.eulerAngles.y, 0f);
         float elapsed = 0f;
 
         while (elapsed < finalRotationDuration)
         {
             elapsed += Time.deltaTime;
             float progress = Mathf.Clamp01(elapsed / finalRotationDuration);
-            activePlayer.transform.rotation = Quaternion.Slerp(activeStartRotation, activeTargetRotation, progress);
-            companion.transform.rotation = Quaternion.Slerp(companionStartRotation, companionTargetRotation, progress);
+            sherlock.transform.rotation = Quaternion.Slerp(sherlockStartRotation, sherlockTargetRotation, progress);
+            watson.transform.rotation = Quaternion.Slerp(watsonStartRotation, watsonTargetRotation, progress);
             yield return null;
         }
 
-        activePlayer.transform.rotation = activeTargetRotation;
-        companion.transform.rotation = companionTargetRotation;
+        sherlock.transform.rotation = sherlockTargetRotation;
+        watson.transform.rotation = watsonTargetRotation;
     }
 
     private void ConfigureCompanionApproach()
@@ -592,7 +600,7 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase
         interactable.watsonSpecificApproachPoint = reactionPoint;
         interactable.rotateSherlockToInteraction = true;
         interactable.sherlockApproachMode = CompanionApproachMode.SpecificTransform;
-        interactable.sherlockSpecificApproachPoint = reactionPoint;
+        interactable.sherlockSpecificApproachPoint = interactable.interactabePoint;
     }
 
     private void CompleteInteraction()
@@ -620,21 +628,6 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase
             if (interactionCollider != null)
                 interactionCollider.enabled = false;
         }
-    }
-
-    private static PlayerController FindOtherCharacter(PlayerController activePlayer)
-    {
-        if (activePlayer == null)
-            return null;
-
-        foreach (PlayerController candidate in FindObjectsByType<PlayerController>(FindObjectsSortMode.None))
-        {
-            if (candidate != null && candidate != activePlayer &&
-                candidate.playerCharacter != activePlayer.playerCharacter)
-                return candidate;
-        }
-
-        return null;
     }
 
     private static float HorizontalDistance(Vector3 first, Vector3 second)

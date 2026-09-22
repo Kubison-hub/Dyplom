@@ -381,6 +381,12 @@ public class WatsonEscortController : MonoBehaviour
         bool destinationAllowsDialogue = escortedNpc.IsEscortDestinationAllowed(
             safeNpcDestination,
             npcFinalRotation);
+        if (!destinationAllowsDialogue)
+        {
+            escortRoutine = null;
+            yield break;
+        }
+
         if (destinationAllowsDialogue && escortedNpc.WillStartDialogueAfterValidEscort &&
             sherlockAfterEscortDialogueRoutine == null)
         {
@@ -851,7 +857,7 @@ public class WatsonEscortController : MonoBehaviour
 
     private void CommitPlacementPreview()
     {
-        if (!isPlacingDestination || !isPlacementWithinRange)
+        if (!isPlacingDestination || !isPlacementWithinRange || !isPlacementDestinationAllowed)
             return;
 
         Vector3 destination = placementDestination;

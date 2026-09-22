@@ -92,12 +92,13 @@ public sealed class Int_GramophoneRecord : Lvl3InteractionDialogueBase
             return;
         }
 
-        PlayDialogue(player, isWatson ? watsonLines : sherlockLines);
+        UnlockCluePoint();
+        PlayDialogue(player, sherlockLines);
     }
 
-    protected override void OnDialogueSequenceCompleted(Lvl3DialogueLine[] lines)
+    private void UnlockCluePoint()
     {
-        if (!ReferenceEquals(lines, sherlockLines) || cluePointUnlocked || cluePointDiscovered)
+        if (cluePointUnlocked || cluePointDiscovered)
             return;
 
         cluePointUnlocked = true;
