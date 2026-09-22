@@ -60,6 +60,10 @@ public class GameData
     public List<TransformSaveData> levelTransforms;
     public List<AnimatorSaveData> levelAnimators;
 
+    // Rozwiazane zagadki sekwencyjne (DetectiveSequencePuzzle).
+    // IsSolved jest wlasciwoscia, wiec zapisujemy je osobno, a nie przez flagi.
+    public List<string> solvedSequencePuzzles;
+
     // --- Cele kamer postaci (LookAt) ---
     // Scena startuje z kamera wycelowana w Selme (seans), a przesuwa ja dopiero
     // dialog otwierajacy. Po wczytaniu ten dialog nie leci, wiec cel trzeba zapisac.
@@ -190,6 +194,7 @@ public class ScriptFlagSaveData
 public class TransformSaveData
 {
     public string objectId;
+    public string parentId;   // zagadki potrafia przepinac obiekty pod innego rodzica
     public Vector3 localPosition;
     public Vector3 localEuler;
 }

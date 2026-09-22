@@ -14,7 +14,7 @@ public class SaveLoadManager : MonoBehaviour
     // Wersja formatu zapisu. Podnies o 1 po kazdej zmianie struktury GameData.
     // Pliki z inna wersja sa ignorowane - lepiej zaczac od nowa niz wczytac
     // polowe danych i dostac czarny ekran.
-    public const int WERSJA_ZAPISU = 3;
+    public const int WERSJA_ZAPISU = 4;
 
     public static SaveLoadManager Instance;
 
@@ -40,11 +40,24 @@ public class SaveLoadManager : MonoBehaviour
         if (PlayerPrefs.GetInt("LoadGameOnStart", 0) == 1)
         {
             Debug.Log("SaveLoadManager: flaga LoadGameOnStart = 1, wczytuje zapis.");
-            LoadGame();
+            StartCoroutine(WczytajPoStartachInnychSkryptow());
 
             PlayerPrefs.SetInt("LoadGameOnStart", 0);
             PlayerPrefs.Save();
         }
+    }
+
+    // Unity nie gwarantuje kolejnosci Start() miedzy skryptami. Gdy wczytywalismy
+    // od razu w Start(), skrypty uruchomione po nas (np. system odkrywania
+    // pomieszczen) nadpisywaly przywrocony stan - stad czarne plyty na terenie,
+    // ktory byl juz odkryty, i dzwiek "odkrycia" przy wczytaniu.
+    // Czekamy dwie klatki: po nich wszystkie Start() i pierwsze Update() sa za nami.
+    private System.Collections.IEnumerator WczytajPoStartachInnychSkryptow()
+    {
+        yield return null;
+        yield return null;
+
+        LoadGame();
     }
 
     // ---------------------------------------------------------------
@@ -816,6 +829,7 @@ public class SaveLoadManager : MonoBehaviour
             // 1. Pozycja i obrot - lapie przesuniete sciany, przyciski, dzwignie.
             TransformSaveData trans = new TransformSaveData();
             trans.objectId = BuildObjectID(t.gameObject);
+            trans.parentId = t.parent != null ? BuildObjectID(t.parent.gameObject) : "";
             trans.localPosition = t.localPosition;
             trans.localEuler = t.localEulerAngles;
             data.levelTransforms.Add(trans);
@@ -871,6 +885,17 @@ public class SaveLoadManager : MonoBehaviour
                 }
             }
         }
+
+        data.solvedSequencePuzzles = new List<string>();
+
+        foreach (DetectiveSequencePuzzle zagadka in FindObjectsByType<DetectiveSequencePuzzle>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (zagadka != null && zagadka.IsSolved)
+                data.solvedSequencePuzzles.Add(BuildObjectID(zagadka.gameObject));
+        }
+
+        Debug.Log("SaveGame: rozwiazanych zagadek sekwencyjnych: " + data.solvedSequencePuzzles.Count);
 
         Debug.Log("SaveGame: stan zagadek - flag: " + data.levelFlags.Count +
                   ", pozycji: " + data.levelTransforms.Count +
@@ -934,14 +959,74 @@ public class SaveLoadManager : MonoBehaviour
                 poSciezce[BuildObjectID(t.gameObject)] = t;
         }
 
+        // Zagadki potrafia przepinac obiekty pod innego rodzica - odtwarzamy to
+        // PRZED pozycjami, inaczej localPosition odnosilaby sie do zlego rodzica.
+        PrzywrocRodzicow(data.levelTransforms, poSciezce);
+
         int pozycje = PrzywrocPozycjeObiektow(data.levelTransforms, poSciezce);
         int flagi = PrzywrocFlagiSkryptow(data.levelFlags, poSciezce);
         int komponenty = PrzywrocWlaczenieKomponentow(data.levelFlags, poSciezce);
         int animatory = PrzywrocAnimatory(data.levelAnimators, poSciezce);
 
+        PrzywrocRozwiazaneZagadki(data.solvedSequencePuzzles);
+
         Debug.Log("LoadGame: stan zagadek przywrocony (pozycji: " + pozycje +
                   ", flag: " + flagi + ", komponentow: " + komponenty +
                   ", animatorow: " + animatory + ").");
+    }
+
+    private static void PrzywrocRodzicow(
+        List<TransformSaveData> zapisane, Dictionary<string, Transform> poSciezce)
+    {
+        if (zapisane == null)
+            return;
+
+        int przepiete = 0;
+
+        foreach (TransformSaveData dane in zapisane)
+        {
+            if (dane == null || string.IsNullOrEmpty(dane.parentId))
+                continue;
+
+            Transform obiekt;
+            if (!poSciezce.TryGetValue(dane.objectId, out obiekt) || obiekt == null)
+                continue;
+
+            Transform rodzic;
+            if (!poSciezce.TryGetValue(dane.parentId, out rodzic) || rodzic == null)
+                continue;
+
+            if (obiekt.parent == rodzic)
+                continue;
+
+            obiekt.SetParent(rodzic, false);
+            przepiete++;
+        }
+
+        if (przepiete > 0)
+            Debug.Log("LoadGame: przepieto " + przepiete + " obiektow pod zapisanych rodzicow.");
+    }
+
+    private void PrzywrocRozwiazaneZagadki(List<string> zapisane)
+    {
+        if (zapisane == null || zapisane.Count == 0)
+            return;
+
+        HashSet<string> rozwiazane = new HashSet<string>(zapisane);
+        int licznik = 0;
+
+        foreach (DetectiveSequencePuzzle zagadka in FindObjectsByType<DetectiveSequencePuzzle>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (zagadka == null || !rozwiazane.Contains(BuildObjectID(zagadka.gameObject)))
+                continue;
+
+            zagadka.RestoreSolvedState();
+            licznik++;
+        }
+
+        Debug.Log("LoadGame: przywrocono " + licznik + " z " + zapisane.Count +
+                  " rozwiazanych zagadek sekwencyjnych.");
     }
 
     private static int PrzywrocPozycjeObiektow(

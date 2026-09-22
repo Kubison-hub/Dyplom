@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+// Alias chroni przed 'using System.Diagnostics;' dopisywanym przez Visual Studio (CS0104).
+using Debug = UnityEngine.Debug;
 using UnityEngine.Events;
 
 public class DetectiveSequencePuzzle : MonoBehaviour
@@ -30,7 +33,8 @@ public class DetectiveSequencePuzzle : MonoBehaviour
     [TextArea] public string wrongDescription = "To nie uklada sie w logiczny ciag.";
 
     [Header("Solved Dialogue")]
-    [SerializeField] private Lvl3DialogueLine[] solvedDialogue =
+    [SerializeField]
+    private Lvl3DialogueLine[] solvedDialogue =
     {
         new Lvl3DialogueLine
         {
@@ -422,5 +426,44 @@ public class DetectiveSequencePuzzle : MonoBehaviour
 
         string sherlockText = string.IsNullOrWhiteSpace(description) ? title : description;
         PlayerTopText.Instance.ShowTopText(sherlockText, "");
+    }
+
+    // ---------------------------------------------------------------
+    // SYSTEM ZAPISU
+    // ---------------------------------------------------------------
+
+    // Przywraca zagadke jako rozwiazana, BEZ odtwarzania dialogow, notatek
+    // i poszlak - te sa przywracane osobno przez SaveLoadManager.
+    // Wykonujemy tylko skutki wizualne: przepiecie obiektu i wlaczenie
+    // lub wylaczenie wskazanych obiektow.
+    public void RestoreSolvedState()
+    {
+        if (IsSolved)
+            return;
+
+        IsSolved = true;
+        solvedNotebookNoteAdded = true;
+
+        ReparentBeforeSolvedActions();
+
+        if (activateOnSolved != null)
+        {
+            foreach (GameObject target in activateOnSolved)
+            {
+                if (target != null)
+                    target.SetActive(true);
+            }
+        }
+
+        if (deactivateOnSolved != null)
+        {
+            foreach (GameObject target in deactivateOnSolved)
+            {
+                if (target != null)
+                    target.SetActive(false);
+            }
+        }
+
+        Debug.Log("DetectiveSequencePuzzle: przywrocono rozwiazana zagadke '" + name + "'.", this);
     }
 }
