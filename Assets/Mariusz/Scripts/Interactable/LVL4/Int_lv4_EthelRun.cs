@@ -11,6 +11,7 @@ public class Int_lv4_EthelRun : MonoBehaviour
     [SerializeField] private Transform ethel;
     [SerializeField] private NavMeshAgent ethelAgent;
     [SerializeField] private Animator ethelAnimator;
+    [SerializeField] private Transform firstMarker;
     [SerializeField] private Transform secondMarker;
     [SerializeField, Min(0.05f)] private float arrivalDistance = 0.15f;
     [SerializeField, Min(0.1f)] private float runningSpeed = 3.5f;
@@ -28,8 +29,12 @@ public class Int_lv4_EthelRun : MonoBehaviour
     [SerializeField] private AudioClip ethelVoiceClip;
     [SerializeField, Min(0.1f)] private float textDuration = 2f;
     [SerializeField] private GameObject triggerToActivate;
+    [SerializeField] private Animator doorAnimator;
+    [SerializeField, Min(0f)] private float doorOpenWaitDuration = 1.5f;
 
     private bool sequenceStarted;
+    private bool reachedMarker;
+    private static readonly int DoorOpenTrigger = Animator.StringToHash("Open");
 
     private void Awake()
     {
@@ -75,17 +80,28 @@ public class Int_lv4_EthelRun : MonoBehaviour
         if (ethelVoiceSource != null && ethelVoiceClip != null)
             ethelVoiceSource.PlayOneShot(ethelVoiceClip);
 
+        yield return MoveEthelTo(firstMarker);
+        if (!reachedMarker)
+            yield break;
+
         if (triggerToActivate != null)
             triggerToActivate.SetActive(true);
+
+        if (doorAnimator != null)
+            doorAnimator.SetTrigger(DoorOpenTrigger);
+
+        if (doorOpenWaitDuration > 0f)
+            yield return new WaitForSeconds(doorOpenWaitDuration);
 
         yield return MoveEthelTo(secondMarker);
     }
 
     private IEnumerator MoveEthelTo(Transform marker)
     {
+        reachedMarker = false;
         if (ethel == null || ethelAgent == null || marker == null)
         {
-            Debug.LogWarning($"{name}: assign Ethel, Ethel Agent and the final movement marker.", this);
+            Debug.LogWarning($"{name}: assign Ethel, Ethel Agent and both movement markers.", this);
             yield break;
         }
 
@@ -119,6 +135,7 @@ public class Int_lv4_EthelRun : MonoBehaviour
         ethelAgent.isStopped = true;
         ethel.transform.rotation = marker.rotation;
         SetRunningAnimation(false);
+        reachedMarker = true;
     }
 
     private void SetRunningAnimation(bool isRunning)

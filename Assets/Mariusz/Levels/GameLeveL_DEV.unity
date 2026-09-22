@@ -5691,15 +5691,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3695948668258928922, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.35
+      value: 0.11799964
       objectReference: {fileID: 0}
     - target: {fileID: 3695948668258928922, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.17
+      value: 0.31400007
       objectReference: {fileID: 0}
     - target: {fileID: 3695948668258928922, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.71
+      value: -0.8259997
       objectReference: {fileID: 0}
     - target: {fileID: 3695948668258928922, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: m_LocalRotation.w
@@ -11321,7 +11321,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 750037391586525417, guid: a272cf83217e6c144a765e2b1ca1563b, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 2147483647
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1254348671603515708, guid: a272cf83217e6c144a765e2b1ca1563b, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
@@ -16498,7 +16498,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -299.69922, y: 18.999207}
+  m_AnchoredPosition: {x: -299.69922, y: 18.999268}
   m_SizeDelta: {x: 496.5, y: 770.1}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &100555588
@@ -48622,7 +48622,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.20918424, y: 0.7427101, z: -0.2696787, w: 0.57610506}
-  m_LocalPosition: {x: -21.98629, y: 9.923546, z: -0.13506413}
+  m_LocalPosition: {x: -21.38629, y: 9.923546, z: -0.6350639}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -86635,7 +86635,7 @@ Transform:
   m_GameObject: {fileID: 581095103}
   serializedVersion: 2
   m_LocalRotation: {x: 0.20918429, y: 0.7427101, z: -0.26967874, w: 0.576105}
-  m_LocalPosition: {x: -11.010701, y: 5.9736586, z: -3.828083}
+  m_LocalPosition: {x: -10.410701, y: 5.9736586, z: -4.3280826}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -117527,7 +117527,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 750037391586525417, guid: a272cf83217e6c144a765e2b1ca1563b, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 2147483647
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1254348671603515708, guid: a272cf83217e6c144a765e2b1ca1563b, type: 3}
       propertyPath: m_CastShadows
@@ -127325,7 +127325,7 @@ Transform:
   m_GameObject: {fileID: 859967932}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.86602443, z: -0, w: 0.5000018}
-  m_LocalPosition: {x: -9.45, y: 0, z: -10}
+  m_LocalPosition: {x: -8.55, y: 0, z: -8.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -190774,7 +190774,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 750037391586525417, guid: a272cf83217e6c144a765e2b1ca1563b, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 2147483647
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1254348671603515708, guid: a272cf83217e6c144a765e2b1ca1563b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -209087,7 +209087,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 750037391586525417, guid: a272cf83217e6c144a765e2b1ca1563b, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 2147483647
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1254348671603515708, guid: a272cf83217e6c144a765e2b1ca1563b, type: 3}
       propertyPath: m_CastShadows
@@ -238874,6 +238874,7 @@ MonoBehaviour:
   ethel: {fileID: 711856474}
   ethelAgent: {fileID: 711856481}
   ethelAnimator: {fileID: 1811022558}
+  firstMarker: {fileID: 859967933}
   secondMarker: {fileID: 1585071594}
   arrivalDistance: 0.15
   runningSpeed: 3.5
@@ -238889,6 +238890,8 @@ MonoBehaviour:
   ethelVoiceClip: {fileID: 8300000, guid: 1f64eba0cf667674386aafafd56ab031, type: 3}
   textDuration: 1
   triggerToActivate: {fileID: 642124676}
+  doorAnimator: {fileID: 2137841386}
+  doorOpenWaitDuration: 1.5
 --- !u!114 &1565670608
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -252175,6 +252178,10 @@ PrefabInstance:
     - target: {fileID: 2801768388850130156, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Name
       value: QuestionFX
+      objectReference: {fileID: 0}
+    - target: {fileID: 2801768388850130156, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
+      propertyPath: m_Layer
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
@@ -284719,7 +284726,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 750037391586525417, guid: a272cf83217e6c144a765e2b1ca1563b, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 2147483647
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1254348671603515708, guid: a272cf83217e6c144a765e2b1ca1563b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -320699,7 +320706,7 @@ Transform:
   m_GameObject: {fileID: 2073143486}
   serializedVersion: 2
   m_LocalRotation: {x: 0.2091843, y: 0.7427101, z: -0.2696787, w: 0.5761051}
-  m_LocalPosition: {x: -12.120931, y: 5.973546, z: -2.89505}
+  m_LocalPosition: {x: -11.52093, y: 5.973546, z: -3.3950498}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -335352,7 +335359,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 750037391586525417, guid: a272cf83217e6c144a765e2b1ca1563b, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 2147483647
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -344927,7 +344934,7 @@ Transform:
   m_GameObject: {fileID: 4839443324701872738}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.23846507, z: -0, w: 0.97115105}
-  m_LocalPosition: {x: -11.122146, y: 0, z: -3.572476}
+  m_LocalPosition: {x: -10.522145, y: 0, z: -4.0724754}
   m_LocalScale: {x: 0.95, y: 0.95, z: 0.95}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -356191,21 +356198,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentIDCounter: 53
-  json: "{\"Options\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":26}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":299.2667,\"yPos\":-308.733246},\"ID\":23,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Chcia\u0142bym
-    z\u0142o\u017Cy\u0107 panience wyrazy wsp\xF3\u0142czucia.\",\"parentUIDs\":[0],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":45}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":32.333313,\"yPos\":272.666626},\"ID\":43,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Po
-    dzisiejszym wieczorze trudno to wykluczy\u0107.\",\"parentUIDs\":[42],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":49}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":491.333252,\"yPos\":267.666626},\"ID\":48,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jestem
-    lekarzem, panienko Violet.\",\"parentUIDs\":[42],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":51}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":254.333282,\"yPos\":547.6665},\"ID\":50,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Prosz\u0119
-    na siebie uwa\u017Ca\u0107, panienko Violet.\",\"parentUIDs\":[45,49],\"SpeechUID\":-1}],\"Parameters\":[],\"SpeechNodes\":[{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":23}],\"EditorInfo\":{\"isRoot\":true,\"xPos\":298.333344,\"yPos\":-417.333374},\"ID\":0,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"O
-    co chodzi, doktorze?\",\"parentUIDs\":[],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":27}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":296.40036,\"yPos\":-235.799988},\"ID\":26,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"\u015Amier\u0107
-    kogo\u015B bliskiego mo\u017Ce wydawa\u0107 si\u0119 ko\u0144cem \u015Bwiata\u2026\",\"parentUIDs\":[23],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":41}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":295.8666,\"yPos\":-144.933319},\"ID\":27,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dla
-    mnie to jest koniec \u015Bwiata, panie Watson.\",\"parentUIDs\":[26],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":52}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":298.333221,\"yPos\":-46.3332825},\"ID\":41,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Prosz\u0119
+  json: "{\"Options\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":26}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":533.93335,\"yPos\":-321.399872},\"ID\":23,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Chcia\u0142bym
+    z\u0142o\u017Cy\u0107 panience wyrazy wsp\xF3\u0142czucia.\",\"parentUIDs\":[0],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":45}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":266.999969,\"yPos\":260},\"ID\":43,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Po
+    dzisiejszym wieczorze trudno to wykluczy\u0107.\",\"parentUIDs\":[42],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":49}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":725.9999,\"yPos\":255},\"ID\":48,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Jestem
+    lekarzem, panienko Violet.\",\"parentUIDs\":[42],\"SpeechUID\":-1},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":51}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":488.999939,\"yPos\":534.9999},\"ID\":50,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Prosz\u0119
+    na siebie uwa\u017Ca\u0107, panienko Violet.\",\"parentUIDs\":[45,49],\"SpeechUID\":-1}],\"Parameters\":[],\"SpeechNodes\":[{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":23}],\"EditorInfo\":{\"isRoot\":true,\"xPos\":533,\"yPos\":-430},\"ID\":0,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"O
+    co chodzi, doktorze?\",\"parentUIDs\":[],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":27}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":531.067,\"yPos\":-248.466614},\"ID\":26,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"\u015Amier\u0107
+    kogo\u015B bliskiego mo\u017Ce wydawa\u0107 si\u0119 ko\u0144cem \u015Bwiata\u2026\",\"parentUIDs\":[23],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":41}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":530.533264,\"yPos\":-157.599945},\"ID\":27,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dla
+    mnie to jest koniec \u015Bwiata, panie Watson.\",\"parentUIDs\":[26],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":52}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":532.9999,\"yPos\":-58.99991},\"ID\":41,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Prosz\u0119
     mi wierzy\u0107. Z do\u015Bwiadczenia wiem, \u017Ce gdy przejdziemy przez \u017Ca\u0142ob\u0119,
-    \u015Bwiat z czasem zn\xF3w nabiera barw.\",\"parentUIDs\":[27],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":43},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":48}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":299.999847,\"yPos\":176.666626},\"ID\":42,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Chcia\u0142abym
+    \u015Bwiat z czasem zn\xF3w nabiera barw.\",\"parentUIDs\":[27],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":43},{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":48}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":534.6665,\"yPos\":164},\"ID\":42,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Chcia\u0142abym
     m\xF3c porozmawia\u0107 z ni\u0105 cho\u0107 ten ostatni raz\u2026 Czy my\u015Bli
-    pan, \u017Ce jest to mo\u017Cliwe?\",\"parentUIDs\":[52],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":50}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":79.33328,\"yPos\":410.666626},\"ID\":45,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Mo\u017Ce
-    wi\u0119c istnieje jeszcze spos\xF3b\u2026\",\"parentUIDs\":[43],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":50}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":423.333282,\"yPos\":419.666656},\"ID\":49,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Rozumiem\u2026
-    By\u0107 mo\u017Ce powinnam porozmawia\u0107 z Madame Selm\u0105.\",\"parentUIDs\":[48],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":250.333282,\"yPos\":687.6665},\"ID\":51,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dzi\u0119kuj\u0119
-    za s\u0142owa wsparcia, panie Watson.\",\"parentUIDs\":[50],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":42}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":293.999969,\"yPos\":68.666626},\"ID\":52,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Najtrudniejsze
+    pan, \u017Ce jest to mo\u017Cliwe?\",\"parentUIDs\":[52],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":50}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":313.999939,\"yPos\":398},\"ID\":45,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Mo\u017Ce
+    wi\u0119c istnieje jeszcze spos\xF3b\u2026\",\"parentUIDs\":[43],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableOptionConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":50}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":657.999939,\"yPos\":407},\"ID\":49,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Rozumiem\u2026
+    By\u0107 mo\u017Ce powinnam porozmawia\u0107 z Madame Selm\u0105.\",\"parentUIDs\":[48],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":484.999939,\"yPos\":674.9999},\"ID\":51,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dzi\u0119kuj\u0119
+    za s\u0142owa wsparcia, panie Watson.\",\"parentUIDs\":[50],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Violet\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":42}],\"EditorInfo\":{\"isRoot\":false,\"xPos\":528.6666,\"yPos\":56},\"ID\":52,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Najtrudniejsze
     bywaj\u0105 s\u0142owa, kt\xF3rych nie zd\u0105\u017Cyli\u015Bmy wypowiedzie\u0107.\",\"parentUIDs\":[41],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0}]}"
   saveVersion: 110
   DefaultName: 
@@ -370233,7 +370240,7 @@ Transform:
   m_GameObject: {fileID: 6246396674198932830}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.5309549, z: 0, w: 0.84740007}
-  m_LocalPosition: {x: -12.232375, y: -0.00011271238, z: -2.639443}
+  m_LocalPosition: {x: -11.632375, y: -0.00011271238, z: -3.1394427}
   m_LocalScale: {x: 1.025, y: 1.0249997, z: 1.0250001}
   m_ConstrainProportionsScale: 0
   m_Children:
