@@ -1,5 +1,8 @@
 using UnityEngine;
 
+// Alias chroni przed 'using System.Diagnostics;' dopisywanym przez Visual Studio (CS0104).
+using Debug = UnityEngine.Debug;
+
 /// <summary>
 /// Keeps the identity of the two basement lamps while using one held-lamp visual for each character.
 /// </summary>
@@ -116,5 +119,37 @@ public class Lvl3LampVisualManager : MonoBehaviour
     {
         return player != null &&
                (player.playerCharacter == PlayerCharacter.Watson || player.CompareTag("PlayerB"));
+    }
+
+    // ---------------------------------------------------------------
+    // SYSTEM ZAPISU - niesione lampy
+    // ---------------------------------------------------------------
+
+    // Zwraca obiekt lampy niesionej przez wskazana postac (null = nie niesie).
+    public GameObject GetCarriedLampForSave(bool isWatson)
+    {
+        return isWatson ? watsonCarriedLamp : sherlockCarriedLamp;
+    }
+
+    // Przywraca stan niesienia lampy. Start() bezwarunkowo gasi wizualizacje
+    // i swiatlo, wiec po wczytaniu zapisu trzeba je wlaczyc z powrotem -
+    // inaczej piwnica zostaje calkowicie ciemna.
+    public void RestoreCarriedLamp(bool isWatson, GameObject lamp)
+    {
+        if (isWatson)
+            watsonCarriedLamp = lamp;
+        else
+            sherlockCarriedLamp = lamp;
+
+        bool niesie = lamp != null;
+
+        if (niesie)
+            lamp.SetActive(false);
+
+        SetHeldVisualActive(isWatson, niesie);
+        SetHeldLampLightActive(isWatson, niesie);
+
+        Debug.Log("Lvl3LampVisualManager: " + (isWatson ? "Watson" : "Sherlock") +
+                  (niesie ? " niesie lampe '" + lamp.name + "'." : " nie niesie lampy."));
     }
 }

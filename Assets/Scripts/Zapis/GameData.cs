@@ -64,6 +64,12 @@ public class GameData
     // IsSolved jest wlasciwoscia, wiec zapisujemy je osobno, a nie przez flagi.
     public List<string> solvedSequencePuzzles;
 
+    // --- Lampy niesione przez postacie w piwnicy (Lvl3LampVisualManager) ---
+    // Bez tego po wczytaniu piwnica jest calkowicie ciemna, bo swiatlo
+    // niesionej lampy gasnie w Start() managera.
+    public string sherlockCarriedLampId;
+    public string watsonCarriedLampId;
+
     // --- Cele kamer postaci (LookAt) ---
     // Scena startuje z kamera wycelowana w Selme (seans), a przesuwa ja dopiero
     // dialog otwierajacy. Po wczytaniu ten dialog nie leci, wiec cel trzeba zapisac.

@@ -14,7 +14,7 @@ public class SaveLoadManager : MonoBehaviour
     // Wersja formatu zapisu. Podnies o 1 po kazdej zmianie struktury GameData.
     // Pliki z inna wersja sa ignorowane - lepiej zaczac od nowa niz wczytac
     // polowe danych i dostac czarny ekran.
-    public const int WERSJA_ZAPISU = 4;
+    public const int WERSJA_ZAPISU = 5;
 
     public static SaveLoadManager Instance;
 
@@ -200,6 +200,19 @@ public class SaveLoadManager : MonoBehaviour
 
         // --- Stan zagadek: flagi, pozycje, animatory ---
         ZbierzStanZagadek(data);
+
+        // --- Niesione lampy (piwnica) ---
+        if (Lvl3LampVisualManager.Instance != null)
+        {
+            GameObject lampaSherlocka = Lvl3LampVisualManager.Instance.GetCarriedLampForSave(false);
+            GameObject lampaWatsona = Lvl3LampVisualManager.Instance.GetCarriedLampForSave(true);
+
+            data.sherlockCarriedLampId = lampaSherlocka != null ? BuildObjectID(lampaSherlocka) : "";
+            data.watsonCarriedLampId = lampaWatsona != null ? BuildObjectID(lampaWatsona) : "";
+
+            Debug.Log("SaveGame: niesione lampy - Sherlock: '" + data.sherlockCarriedLampId +
+                      "', Watson: '" + data.watsonCarriedLampId + "'.");
+        }
 
         // --- Pozycje NPC ---
         data.npcs = ZbierzNpc();
@@ -410,6 +423,7 @@ public class SaveLoadManager : MonoBehaviour
 
         // --- Pozycje NPC ---
         Krok("NPC", () => PrzywrocNpc(data.npcs));
+        Krok("niesione lampy", () => PrzywrocNiesioneLampy(data));
 
         // --- Odkryte punkty sledztwa ---
         // MUSI byc przed CluesLog: panel przelicza licznik "Zbadaj pomieszczenie"
@@ -973,6 +987,35 @@ public class SaveLoadManager : MonoBehaviour
         Debug.Log("LoadGame: stan zagadek przywrocony (pozycji: " + pozycje +
                   ", flag: " + flagi + ", komponentow: " + komponenty +
                   ", animatorow: " + animatory + ").");
+    }
+
+    private void PrzywrocNiesioneLampy(GameData data)
+    {
+        if (Lvl3LampVisualManager.Instance == null)
+        {
+            Debug.Log("LoadGame: brak Lvl3LampVisualManager - pomijam niesione lampy.");
+            return;
+        }
+
+        Lvl3LampVisualManager.Instance.RestoreCarriedLamp(false, ZnajdzObiektPoSciezce(data.sherlockCarriedLampId));
+        Lvl3LampVisualManager.Instance.RestoreCarriedLamp(true, ZnajdzObiektPoSciezce(data.watsonCarriedLampId));
+    }
+
+    // Odnajduje obiekt w scenie po sciezce w hierarchii (takze nieaktywny).
+    private static GameObject ZnajdzObiektPoSciezce(string objectId)
+    {
+        if (string.IsNullOrEmpty(objectId))
+            return null;
+
+        foreach (Transform t in FindObjectsByType<Transform>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (t != null && BuildObjectID(t.gameObject) == objectId)
+                return t.gameObject;
+        }
+
+        Debug.LogWarning("LoadGame: nie znaleziono obiektu '" + objectId + "'.");
+        return null;
     }
 
     private static void PrzywrocRodzicow(
