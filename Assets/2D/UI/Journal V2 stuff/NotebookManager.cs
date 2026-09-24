@@ -503,7 +503,7 @@ public class NotebookManager : MonoBehaviour
 
     // Szybki podglad notatki: panel przesuniety w osi X, opcjonalnie
     // zamykany lewym przyciskiem myszy (uzywane przez Interactable).
-    public void ShowNoteImmediately(NoteData note, float displayPositionX, bool closeOnLeftMouseClick)
+    public void ShowNoteImmediately(NoteData note, float displayPositionX, bool closeOnLeftMouseClick, bool playNoticeAudio = true)
     {
         if (note == null || notebookPanel == null)
             return;
@@ -521,15 +521,15 @@ public class NotebookManager : MonoBehaviour
         }
 
         quickReadClosesOnLeftClick = closeOnLeftMouseClick;
-        ShowNoteImmediately(note);
+        ShowNoteImmediately(note, playNoticeAudio);
     }
 
-    public void ShowNoteImmediately(NoteData note)
+    public void ShowNoteImmediately(NoteData note, bool playNoticeAudio = true)
     {
         if (note == null || notebookPanel == null)
             return;
 
-        AddNote(note);
+        AddNote(note, playNoticeAudio: playNoticeAudio);
         openedAsQuickRead = true;
 
         if (!IsNotebookOpen)
@@ -560,7 +560,7 @@ public class NotebookManager : MonoBehaviour
         log?.SetQuestLogVisible(true);
     }
 
-    public void AddNote(NoteData note, bool showUpdateNotification = true)
+    public void AddNote(NoteData note, bool showUpdateNotification = true, bool playNoticeAudio = true)
     {
         if (note == null)
             return;
@@ -576,7 +576,7 @@ public class NotebookManager : MonoBehaviour
         Debug.Log("DODANO NOTATKE: " + note.name, note);
 
         if (showUpdateNotification)
-            CluesLog.Instance?.ShowJournalUpdateNotice(GetNoteAddedNotice(note), false);
+            CluesLog.Instance?.ShowJournalUpdateNotice(GetNoteAddedNotice(note), playNoticeAudio);
 
         if (note.category == NoteCategory.Osoby && note.person == NotebookPerson.None)
             Debug.LogWarning("NotebookManager: note in category Osoby has no assigned person.", note);

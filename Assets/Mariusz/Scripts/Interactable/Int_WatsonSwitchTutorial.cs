@@ -199,9 +199,7 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
         yield return FinishWatsonFacingPlayer(player);
 
         if (cameraController != null)
-            cameraController.SetZoomIndex(
-                Mathf.Max(0, cameraController.CurrentZoomIndex - 1),
-                cameraPresetTransitionDuration);
+            cameraController.SetZoomInOneStep(cameraPresetTransitionDuration);
 
         SwitchCharacter switchCharacter = SwitchCharacter.Instance;
         if (switchCharacter != null)

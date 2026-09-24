@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
 public class EagleVisionScanner : MonoBehaviour
@@ -41,6 +42,17 @@ public class EagleVisionScanner : MonoBehaviour
     private float questionFxScanProgress;
     private bool manualScanRingActive;
     private Material runtimeScanRangeRingMaterial;
+    private readonly List<FootprintRendererSlot> footprintRendererSlots = new List<FootprintRendererSlot>();
+    private readonly MaterialPropertyBlock footprintPropertyBlock = new MaterialPropertyBlock();
+    private static readonly int PlayerPositionId = Shader.PropertyToID("_PlayerPosition");
+    private static readonly int VisibleRadiusId = Shader.PropertyToID("_VisibleRadius");
+
+    private struct FootprintRendererSlot
+    {
+        public Renderer renderer;
+        public int materialIndex;
+        public bool isBackground;
+    }
 
     public float duration = 5;
     public float size = 30;
@@ -87,6 +99,8 @@ public class EagleVisionScanner : MonoBehaviour
             Debug.LogWarning("EagleVisionScanner: Layer '" + outlinedObjectsLayerName + "' was not found.", this);
 
         InitializeScanRangeRing();
+        RefreshFootprintRenderers();
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void Update()
@@ -352,8 +366,45 @@ public class EagleVisionScanner : MonoBehaviour
 
     private void OnDestroy()
     {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+
         if (runtimeScanRangeRingMaterial != null)
             Destroy(runtimeScanRangeRingMaterial);
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        RefreshFootprintRenderers();
+    }
+
+    private void RefreshFootprintRenderers()
+    {
+        footprintRendererSlots.Clear();
+
+        if (footprintMaterials == null || footprintMaterials.Length == 0)
+            return;
+
+        Renderer[] renderers = FindObjectsByType<Renderer>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (Renderer renderer in renderers)
+        {
+            Material[] materials = renderer.sharedMaterials;
+            for (int materialIndex = 0; materialIndex < materials.Length; materialIndex++)
+            {
+                for (int footprintIndex = 0; footprintIndex < footprintMaterials.Length; footprintIndex++)
+                {
+                    if (materials[materialIndex] == null || materials[materialIndex] != footprintMaterials[footprintIndex])
+                        continue;
+
+                    footprintRendererSlots.Add(new FootprintRendererSlot
+                    {
+                        renderer = renderer,
+                        materialIndex = materialIndex,
+                        isBackground = footprintIndex == 0
+                    });
+                    break;
+                }
+            }
+        }
     }
 
     private bool UsesOutlinedObjectsLayer(Collider hit, Interactable interactable)
@@ -384,30 +435,21 @@ public class EagleVisionScanner : MonoBehaviour
     }
 
     private void FindshaderFootPrints()
-
     {
+        if (playerTransform == null)
+            return;
 
-        if (playerTransform != null && footprintMaterials != null && footprintMaterials.Length > 0)
+        Vector3 position = playerTransform.position;
+        foreach (FootprintRendererSlot slot in footprintRendererSlots)
         {
-            Vector3 pos = playerTransform.position;
+            if (slot.renderer == null)
+                continue;
 
-            Material background = footprintMaterials[0];
-            if (background != null)
-            {
-                background.SetVector("_PlayerPosition", pos);
-                background.SetFloat("_VisibleRadius", radius + bacgroundTreshold);
-            }
-
-            for (int i = 1; i < footprintMaterials.Length; i++)
-            {
-                if (footprintMaterials[i] != null)
-                {
-                    footprintMaterials[i].SetVector("_PlayerPosition", pos);
-                    footprintMaterials[i].SetFloat("_VisibleRadius", radius);
-                }
-            }
+            slot.renderer.GetPropertyBlock(footprintPropertyBlock, slot.materialIndex);
+            footprintPropertyBlock.SetVector(PlayerPositionId, position);
+            footprintPropertyBlock.SetFloat(VisibleRadiusId, radius + (slot.isBackground ? bacgroundTreshold : 0f));
+            slot.renderer.SetPropertyBlock(footprintPropertyBlock, slot.materialIndex);
         }
-
     }
 
     private void OnDrawGizmosSelected()

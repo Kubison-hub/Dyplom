@@ -22,6 +22,10 @@ public class lvl2_Int_Book : Lvl3InteractionDialogueBase
     [SerializeField] private Renderer intRenderer;
     [SerializeField] private AudioSource audioFX;
 
+    [Header("Inventory")]
+    [SerializeField] private Sprite inventoryIcon;
+    [SerializeField, TextArea] private string inventoryFullText = "Nie mam miejsca w ekwipunku.";
+
     public bool keyFounded = false;
 
     protected override Lvl3DialogueLine[] DefaultDialogueLines => DefaultLines;
@@ -33,6 +37,22 @@ public class lvl2_Int_Book : Lvl3InteractionDialogueBase
 
     public void PerformInteraction(PlayerController player)
     {
+        if (performed)
+            return;
+
+        if (InventoryManager.Instance == null ||
+            !InventoryManager.Instance.TryAddItem(ItemType.Level2BookKey, inventoryIcon))
+        {
+            if (player != null && player.playerCharacter == PlayerCharacter.Watson)
+                PlayerTopText.Instance?.ShowWatsonTopText(inventoryFullText);
+            else
+                PlayerTopText.Instance?.ShowTopText(inventoryFullText, string.Empty);
+
+            if (player != null)
+                player.currentInteractable = null;
+            return;
+        }
+
         performed = true;
         Debug.Log(interactable.name + ", interaction Performed");
 
@@ -54,7 +74,6 @@ public class lvl2_Int_Book : Lvl3InteractionDialogueBase
 
         if (spline2 != null)
             spline2.SetActive(false);
-        Debug.Log("KEY ADDED");
         keyFounded = true;
 
         interactable.isInteractableActive = false;

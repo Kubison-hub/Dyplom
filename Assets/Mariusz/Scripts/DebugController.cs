@@ -9,8 +9,10 @@ public sealed class DebugController : MonoBehaviour
     [SerializeField] private bool debugModeEnabled;
 
     [Header("Sekwencja początkowa")]
-    [Tooltip("W trybie debugowania określa, czy TutorialTimeline ma uruchomić początkową rozmowę i sekwencję notatnika.")]
-    [SerializeField] private bool runOpeningConversationSequence = true;
+    [Tooltip("W trybie debugowania pomija początkową rozmowę i sekwencję notatnika. Odznaczone pole zachowuje ustawienie TutorialTimeline.")]
+    [SerializeField] private bool disableOpeningConversationSequence;
+    [Tooltip("Look At kamery podczas pomijania początkowej rozmowy. Puste pole zachowuje target z TutorialTimeline.")]
+    [SerializeField] private Transform initialCameraLookAtTargetWhenConversationDisabled;
 
     [Header("Schody na piętro")]
     [Tooltip("W trybie debugowania pozwala wejść po schodach niezależnie od normalnych warunków fabularnych.")]
@@ -19,6 +21,7 @@ public sealed class DebugController : MonoBehaviour
     private TutorialTimeline tutorialTimeline;
     private Int_StairsUp stairsUp;
     private bool originalOpeningConversationSequence;
+    private Transform originalInitialCameraLookAtTarget;
     private bool originalCanGoUpStairs;
     private bool hasOpeningConversationOriginal;
     private bool hasCanGoUpStairsOriginal;
@@ -79,6 +82,7 @@ public sealed class DebugController : MonoBehaviour
 
         tutorialTimeline = target;
         originalOpeningConversationSequence = target.RunOpeningConversationSequence;
+        originalInitialCameraLookAtTarget = target.InitialCameraLookAtTarget;
         hasOpeningConversationOriginal = true;
         openingConversationOverrideApplied = false;
         ApplyOpeningConversationOverride();
@@ -122,21 +126,15 @@ public sealed class DebugController : MonoBehaviour
         stairsOverrideApplied = false;
     }
 
-    public bool TryGetRunOpeningConversationSequence(out bool value)
-    {
-        value = runOpeningConversationSequence;
-        return isActiveAndEnabled && debugModeEnabled;
-    }
-
     public bool TryGetCanGoUpStairs(out bool value)
     {
         value = debugCanGoUpStairs;
         return isActiveAndEnabled && debugModeEnabled;
     }
 
-    public void SetRunOpeningConversationSequence(bool value)
+    public void SetDisableOpeningConversationSequence(bool value)
     {
-        runOpeningConversationSequence = value;
+        disableOpeningConversationSequence = value;
         ApplyOpeningConversationOverride();
     }
 
@@ -157,14 +155,18 @@ public sealed class DebugController : MonoBehaviour
         if (tutorialTimeline == null || !hasOpeningConversationOriginal)
             return;
 
-        if (TryGetRunOpeningConversationSequence(out bool value))
+        if (isActiveAndEnabled && debugModeEnabled && disableOpeningConversationSequence)
         {
-            tutorialTimeline.RunOpeningConversationSequence = value;
+            tutorialTimeline.RunOpeningConversationSequence = false;
+            tutorialTimeline.InitialCameraLookAtTarget = initialCameraLookAtTargetWhenConversationDisabled != null
+                ? initialCameraLookAtTargetWhenConversationDisabled
+                : originalInitialCameraLookAtTarget;
             openingConversationOverrideApplied = true;
         }
         else if (openingConversationOverrideApplied)
         {
             tutorialTimeline.RunOpeningConversationSequence = originalOpeningConversationSequence;
+            tutorialTimeline.InitialCameraLookAtTarget = originalInitialCameraLookAtTarget;
             openingConversationOverrideApplied = false;
         }
     }
@@ -189,7 +191,11 @@ public sealed class DebugController : MonoBehaviour
     private void RestoreOriginalValues()
     {
         if (tutorialTimeline != null && hasOpeningConversationOriginal && openingConversationOverrideApplied)
+        {
             tutorialTimeline.RunOpeningConversationSequence = originalOpeningConversationSequence;
+            tutorialTimeline.InitialCameraLookAtTarget = originalInitialCameraLookAtTarget;
+            openingConversationOverrideApplied = false;
+        }
 
         if (stairsUp != null && hasCanGoUpStairsOriginal && stairsOverrideApplied)
             stairsUp.CanGoUpStairs = originalCanGoUpStairs;

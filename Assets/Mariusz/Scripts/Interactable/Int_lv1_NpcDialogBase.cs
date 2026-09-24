@@ -16,7 +16,7 @@ public abstract class Int_lv1_NpcDialogBase : Lvl3InteractionDialogueBase
     [SerializeField] private AudioSource introAudioSource;
     [SerializeField] private AudioClip introAudioClip;
 
-    private Interactable interactable;
+    private Interactable npcInteractable;
     private bool dialogueStarting;
     private Coroutine dialogueEndWatcher;
 
@@ -29,8 +29,8 @@ public abstract class Int_lv1_NpcDialogBase : Lvl3InteractionDialogueBase
 
     protected virtual void Start()
     {
-        interactable = GetComponent<Interactable>();
-        interactable.SetInteractionType(RequiredInteractionType);
+        npcInteractable = GetComponent<Interactable>();
+        npcInteractable.SetInteractionType(RequiredInteractionType);
 
         if (smartNPC == null)
             smartNPC = GetComponent<SmartNPC>();

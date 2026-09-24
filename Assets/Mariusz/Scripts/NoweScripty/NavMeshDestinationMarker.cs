@@ -4,7 +4,8 @@ using UnityEngine.AI;
 public class NavMeshDestinationMarker : MonoBehaviour
 {
     private static NavMeshDestinationMarker instance;
-    private const string HiddenLayerName = "Sherlock";
+    private const string RingLayerName = "NavMeshRing";
+    private const string FallbackLayerName = "Sherlock";
 
     [Header("Appearance")]
     [SerializeField, Min(0.1f)] private float radius = 0.38f;
@@ -98,7 +99,7 @@ public class NavMeshDestinationMarker : MonoBehaviour
             return;
         }
 
-        SetHiddenLayer();
+        SetRingLayer();
         EnsureVisual();
         baseScale = transform.localScale;
         gameObject.SetActive(false);
@@ -151,16 +152,17 @@ public class NavMeshDestinationMarker : MonoBehaviour
         }
     }
 
-    private void SetHiddenLayer()
+    private void SetRingLayer()
     {
-        int hiddenLayer = LayerMask.NameToLayer(HiddenLayerName);
-        if (hiddenLayer < 0)
+        int ringLayer = LayerMask.NameToLayer(RingLayerName);
+        if (ringLayer < 0)
         {
-            Debug.LogWarning($"{name}: Layer '{HiddenLayerName}' was not found.", this);
-            return;
+            Debug.LogWarning($"{name}: Layer '{RingLayerName}' was not found. Using '{FallbackLayerName}' until it is added.", this);
+            ringLayer = LayerMask.NameToLayer(FallbackLayerName);
         }
 
-        SetLayerRecursively(transform, hiddenLayer);
+        if (ringLayer >= 0)
+            SetLayerRecursively(transform, ringLayer);
     }
 
     private static void SetLayerRecursively(Transform root, int layer)

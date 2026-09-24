@@ -130,7 +130,7 @@ public sealed class CameraPresetVfxScaleController : MonoBehaviour
         if (cameraController == null)
             return;
 
-        int presetIndex = cameraController.CurrentZoomIndex;
+        int presetIndex = cameraController.PresetScaleIndex;
         if (presetIndex != activePresetIndex)
         {
             activePresetIndex = presetIndex;

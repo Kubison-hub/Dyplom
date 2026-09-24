@@ -99,7 +99,7 @@ public class Int_Globus : Lvl3InteractionDialogueBase, IVioletRoomInteractionGat
             firstInteraction = false;
 
             if (cameraController != null)
-                cameraController.SetZoomIndex(Mathf.Max(0, cameraController.CurrentZoomIndex - 1));
+                cameraController.SetZoomInOneStep();
 
             if (interactable != null)
                 interactable.isInteractableActive = true;

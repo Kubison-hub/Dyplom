@@ -129,6 +129,7 @@ public class CluesLog : MonoBehaviour
     [SerializeField] private string firstIdeaPointTutorialTitle = "Punkty dedukcji";
     [SerializeField, TextArea(3, 6)] private string firstIdeaPointTutorialText =
         "Odkryte ślady tworzą punkty dedukcji. Zbadaj miejsce zbrodni i odnajdź wszystkie punkty, aby połączyć fakty oraz odtworzyć przebieg wydarzeń.";
+    [SerializeField, Min(0f)] private float firstIdeaPointTutorialDelay = 1.5f;
     [SerializeField] private bool playFirstIdeaPointTutorialAudio = true;
 
     [Header("Basement IdeaPoint Progress")]
@@ -1249,14 +1250,14 @@ public class CluesLog : MonoBehaviour
             !firstIdeaPointTutorialPending && discoveredPoint != null)
         {
             firstIdeaPointTutorialPending = true;
-            StartCoroutine(ShowFirstIdeaPointTutorialAfterReveal(discoveredPoint));
+            StartCoroutine(ShowFirstIdeaPointTutorialAfterDelay());
         }
     }
 
-    private IEnumerator ShowFirstIdeaPointTutorialAfterReveal(DetectiveIdeaPoint discoveredPoint)
+    private IEnumerator ShowFirstIdeaPointTutorialAfterDelay()
     {
-        while (discoveredPoint != null && discoveredPoint.IsDiscoveryRevealActive)
-            yield return null;
+        if (firstIdeaPointTutorialDelay > 0f)
+            yield return new WaitForSeconds(firstIdeaPointTutorialDelay);
 
         firstIdeaPointTutorialPending = false;
 

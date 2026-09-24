@@ -80,7 +80,7 @@ public class Int_lv1_LibraryBooks : Lvl3InteractionDialogueBase, IVioletRoomInte
         performed = true;
 
         if (cameraController != null)
-            cameraController.SetZoomIndex(Mathf.Max(0, cameraController.CurrentZoomIndex - 1));
+            cameraController.SetZoomInOneStep();
 
         StartCoroutine(PlayBookshelfDialogueAfterDelay(player));
 

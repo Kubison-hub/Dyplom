@@ -293,7 +293,7 @@ public sealed class SherlockWatsonHintConditions : MonoBehaviour
             return;
         }
 
-        NotebookManager.Instance.AddNote(note, showUpdateNotification);
+        NotebookManager.Instance.AddNote(note, showUpdateNotification, playNoticeAudio: true);
         PlayNoteAudio(noteIndex);
     }
 

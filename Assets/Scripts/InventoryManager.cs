@@ -510,5 +510,6 @@ public enum ItemType
     WoodBlockLevel2,
     SmallBox,
     GramophoneRecord,
-    LibraryKey
+    LibraryKey,
+    Level2BookKey
 }

@@ -21,6 +21,7 @@ public class lvl2_Int_SelmaDoor : Lvl3InteractionDialogueBase
 
     [SerializeField] private Vector3 openEuler = new Vector3(0f, 90f, 0f);
     [SerializeField] private CameraController cameraController;
+    [SerializeField] private string unlockedCameraPresetName = "Medium";
 
 
     [SerializeField] private float openSpeed = 120f;
@@ -214,7 +215,10 @@ public class lvl2_Int_SelmaDoor : Lvl3InteractionDialogueBase
     private void HandleUnlocked()
     {
         audioController.PlayUnlock();
-        cameraController.ReturnToPreviousZoomState();
+        if (cameraController != null &&
+            (string.IsNullOrWhiteSpace(unlockedCameraPresetName) ||
+             !cameraController.SetZoomPreset(unlockedCameraPresetName)))
+            cameraController.ReturnToPreviousZoomState();
         ClueManager.Instance.isLockpicking = false;
 
         Debug.Log("Door unlocked");

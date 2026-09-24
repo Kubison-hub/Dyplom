@@ -30,6 +30,6 @@ public class DialogueNotebookActions : MonoBehaviour
             return;
         }
 
-        NotebookManager.Instance.AddNote(note);
+        NotebookManager.Instance.AddNote(note, playNoticeAudio: false);
     }
 }

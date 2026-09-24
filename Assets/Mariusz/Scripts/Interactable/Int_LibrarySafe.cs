@@ -111,7 +111,7 @@ public class Int_LibrarySafe : Lvl3InteractionDialogueBase
         }
 
         if (cameraController != null)
-            cameraController.SetZoomIndex(Mathf.Max(0, cameraController.CurrentZoomIndex - 1));
+            cameraController.SetZoomInOneStep();
 
         PlayDialogue(player, keyAcceptedDialogue);
 

@@ -32,6 +32,8 @@ public class DetectiveIdeaManager : MonoBehaviour
 
     [Header("Dragged Line Description")]
     public bool showDraggedLineDescription = true;
+    [SerializeField] private bool showDraggedIdeaTitleTopText = true;
+    [SerializeField] private bool showDraggedIdeaDescriptionTopText = false;
     public Color lineDescriptionColor = new Color(0.68f, 0.88f, 0.7f, 1f);
     [Min(0.01f)] public float lineDescriptionFontSize = 0.16f;
     [Min(0.1f)] public float lineDescriptionSizeMultiplier = 8f;
@@ -53,8 +55,12 @@ public class DetectiveIdeaManager : MonoBehaviour
     [SerializeField] private AudioClip ideaPointDiscoveryClip;
     [SerializeField] private AudioClip grabIdeaPointClip;
     [SerializeField] private AudioClip releaseIdeaPointClip;
-    [SerializeField] private AudioClip correctConnectionClip;
-    [SerializeField] private AudioClip wrongConnectionClip;
+    [UnityEngine.Serialization.FormerlySerializedAs("correctConnectionClip")]
+    [SerializeField] private AudioClip connectionClip;
+    [SerializeField, Range(0.1f, 3f)] private float firstCorrectConnectionPitch = 1f;
+    [SerializeField, Range(0f, 1f)] private float correctConnectionPitchStep = 0.12f;
+    [SerializeField, Range(0.1f, 3f)] private float finalCorrectConnectionPitch = 2f;
+    [SerializeField, Range(0.1f, 3f)] private float wrongConnectionPitch = 0.75f;
     [SerializeField] private AudioClip puzzleCompleteClip;
 
     [Header("Player Camera Look At")]
@@ -102,6 +108,7 @@ public class DetectiveIdeaManager : MonoBehaviour
     private Vector3 headRigTargetVelocity;
     private bool resetHeadRigTargetOnNextDrag = true;
     private AudioSource runtimeIdeaPointDiscoveryAudioSource;
+    private AudioSource runtimeConnectionAudioSource;
 
     private void Awake()
     {
@@ -439,7 +446,7 @@ public class DetectiveIdeaManager : MonoBehaviour
         dragSource.SetVisible(true);
         dragSource.SetHovered(true);
         RememberVisiblePoint(dragSource);
-        dragSource.ShowIdeaText();
+        ShowDraggedIdeaTopText(dragSource);
 
         previewLine = CreateLine(previewLineColor);
         previewLine.positionCount = 2;
@@ -472,7 +479,11 @@ public class DetectiveIdeaManager : MonoBehaviour
 
         if (advancesSequence)
         {
-            PlayPuzzleSound(correctConnectionClip);
+            bool completesPuzzle = puzzleCompletionEnabled && activePuzzle != null &&
+                                  sequenceProgressIndex + 1 >= activePuzzle.correctSequence.Count;
+            PlayConnectionSound(completesPuzzle
+                ? finalCorrectConnectionPitch
+                : firstCorrectConnectionPitch + sequenceProgressIndex * correctConnectionPitchStep);
 
             previewLine.startColor = acceptedLineColor;
             previewLine.endColor = acceptedLineColor;
@@ -485,9 +496,7 @@ public class DetectiveIdeaManager : MonoBehaviour
             previewLine = null;
             sequenceProgressIndex++;
 
-            if (activePuzzle != null &&
-                puzzleCompletionEnabled &&
-                sequenceProgressIndex >= activePuzzle.correctSequence.Count)
+            if (completesPuzzle)
             {
                 activePuzzle.SolveFromOrderedSequence();
                 CompletePuzzle();
@@ -499,7 +508,7 @@ public class DetectiveIdeaManager : MonoBehaviour
         }
 
         // Every non-sequential connection remains visible as a dark clue trail.
-        PlayPuzzleSound(wrongConnectionClip);
+        PlayConnectionSound(wrongConnectionPitch);
         KeepRejectedLine(target);
         ClearActiveSequenceLines();
         sequenceProgressIndex = 0;
@@ -532,12 +541,22 @@ public class DetectiveIdeaManager : MonoBehaviour
         dragSource.SetVisible(true);
         dragSource.SetHovered(true);
         RememberVisiblePoint(dragSource);
+        ShowDraggedIdeaTopText(dragSource);
 
         previewLine = CreateLine(previewLineColor);
         previewLine.positionCount = 2;
         previewLine.SetPosition(0, dragSource.AnchorPosition);
         previewLine.SetPosition(1, GetPointerWorldPosition());
         CreatePreviewLineDescription(dragSource);
+    }
+
+    private void ShowDraggedIdeaTopText(DetectiveIdeaPoint point)
+    {
+        if (showDraggedIdeaTitleTopText)
+            point.ShowIdeaTitle();
+
+        if (showDraggedIdeaDescriptionTopText)
+            point.ShowIdeaText();
     }
 
     private void CancelDrag(bool playReleaseSound = false)
@@ -999,6 +1018,31 @@ public class DetectiveIdeaManager : MonoBehaviour
     {
         if (clip != null && puzzleAudioSource != null)
             puzzleAudioSource.PlayOneShot(clip);
+    }
+
+    private void PlayConnectionSound(float pitch)
+    {
+        if (connectionClip == null)
+            return;
+
+        if (runtimeConnectionAudioSource == null)
+        {
+            runtimeConnectionAudioSource = gameObject.AddComponent<AudioSource>();
+            runtimeConnectionAudioSource.playOnAwake = false;
+            runtimeConnectionAudioSource.loop = false;
+            runtimeConnectionAudioSource.spatialBlend = 0f;
+
+            if (puzzleAudioSource != null)
+            {
+                runtimeConnectionAudioSource.outputAudioMixerGroup = puzzleAudioSource.outputAudioMixerGroup;
+                runtimeConnectionAudioSource.volume = puzzleAudioSource.volume;
+                runtimeConnectionAudioSource.mute = puzzleAudioSource.mute;
+                runtimeConnectionAudioSource.ignoreListenerPause = puzzleAudioSource.ignoreListenerPause;
+            }
+        }
+
+        runtimeConnectionAudioSource.pitch = Mathf.Clamp(pitch, 0.1f, 3f);
+        runtimeConnectionAudioSource.PlayOneShot(connectionClip);
     }
 
     public void PlayIdeaPointDiscoverySound()

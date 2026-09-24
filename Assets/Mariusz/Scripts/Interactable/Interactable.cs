@@ -102,6 +102,8 @@ public class Interactable : MonoBehaviour
     public NoteData[] databaseNotes;
     [Tooltip("Adds every assigned Database Note after PerformInteraction. Disable this for interactions with custom note timing.")]
     public bool addDatabaseNotesAutomatically = true;
+    [Tooltip("Play the shared journal update sound when this interaction adds a note. Disabled by default.")]
+    [SerializeField] private bool playNoticeAudioForNoteUpdates = false;
     [Space]
 
 
@@ -1595,6 +1597,15 @@ public class Interactable : MonoBehaviour
                 Debug.LogError("Int_FakeRecord is null");
         }
 
+        if (interactionType == InteractionType.Int_BurnedLetters)
+        {
+            int_burnetLetters interaction = GetComponent<int_burnetLetters>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("int_burnetLetters is null");
+        }
+
         if (interactionType == InteractionType.Int_lv3_Ethel)
         {
             Int_lv3_Ethel interaction = GetComponent<Int_lv3_Ethel>();
@@ -2226,7 +2237,7 @@ public class Interactable : MonoBehaviour
             return;
         }
 
-        notebookManager.AddNote(note);
+        notebookManager.AddNote(note, playNoticeAudio: playNoticeAudioForNoteUpdates);
     }
 
     public void AddAllDatabaseNotes()
@@ -2265,9 +2276,9 @@ public class Interactable : MonoBehaviour
         }
 
         if (quickReadDisplayPositionX.HasValue)
-            notebookManager.ShowNoteImmediately(note, quickReadDisplayPositionX.Value, closeOnLeftMouseClick);
+            notebookManager.ShowNoteImmediately(note, quickReadDisplayPositionX.Value, closeOnLeftMouseClick, playNoticeAudioForNoteUpdates);
         else
-            notebookManager.ShowNoteImmediately(note);
+            notebookManager.ShowNoteImmediately(note, playNoticeAudioForNoteUpdates);
     }
     public void SetQuestionFXEagleVisionState(bool active)
     {
@@ -2499,5 +2510,6 @@ public enum InteractionType
     Int_Gramophone,
     Int_GramophoneRecord,
     Int_GramophoneController,
-    Int_FakeRecord
+    Int_FakeRecord,
+    Int_BurnedLetters
 }

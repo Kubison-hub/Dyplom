@@ -24,6 +24,7 @@ public class CameraController : MonoBehaviour
     [Tooltip("In Play Mode, applies the currently selected preset every frame so its Radius and Height values can be tuned live.")]
     [SerializeField] private bool livePresetPreview;
     public int CurrentZoomIndex => targetZoomIndex;
+    public int PresetScaleIndex => hasMirrorPreset ? Mathf.Max(0, targetZoomIndex - 1) : targetZoomIndex;
     public bool IsCurrentGameplayCamera => IsActiveGameplayCamera();
 
     private CinemachineCamera cineCamera;
@@ -62,7 +63,9 @@ public class CameraController : MonoBehaviour
     [SerializeField, Min(0.01f)] private float dialogueRotationFadeOutDuration = 0.8f;
 
     [Header("Zoom")]
-    [SerializeField, Min(0f)] private float zoomTransitionDuration = 0.45f;
+    [Tooltip("Camera travel speed in world units per second. Explicit transition durations still override this speed.")]
+    [InspectorName("Zoom Transition Speed")]
+    [SerializeField, Min(0.01f)] private float zoomTransitionWorldSpeed = 10f;
     [SerializeField] private AnimationCurve zoomTransitionCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
     [Header("Depth Of Field")]
@@ -82,11 +85,14 @@ public class CameraController : MonoBehaviour
 
     [SerializeField] private int startZoomIndex = 2;
 
+    private bool hasMirrorPreset;
+    private bool mirrorZoneActive;
+
     [Header("Manual Zoom Range")]
-    [Tooltip("First zoom preset available through the mouse wheel.")]
-    [SerializeField, Min(0)] private int manualZoomMinIndex = 0;
-    [Tooltip("Last zoom preset available through the mouse wheel. Higher presets are reserved for scripted cameras.")]
-    [SerializeField, Min(0)] private int manualZoomMaxIndex = 3;
+    [Tooltip("First zoom preset available through the mouse wheel outside the mirror zone.")]
+    [SerializeField, Min(0)] private int manualZoomMinIndex = 1;
+    [Tooltip("Last zoom preset available through the mouse wheel.")]
+    [SerializeField, Min(0)] private int manualZoomMaxIndex = 5;
 
     private int targetZoomIndex;
     private int previousZoomIndex = -1;
@@ -170,6 +176,9 @@ public class CameraController : MonoBehaviour
             enabled = false;
             return;
         }
+
+        hasMirrorPreset = zoomPresets != null && zoomPresets.Length > 1 &&
+            string.Equals(zoomPresets[0].name, "Mirror", StringComparison.OrdinalIgnoreCase);
 
         targetZoomIndex = Mathf.Clamp(startZoomIndex, 0, zoomPresets.Length - 1);
         ApplyZoomPresetImmediate(zoomPresets[targetZoomIndex]);
@@ -529,14 +538,14 @@ public class CameraController : MonoBehaviour
         dialogueZoomWasOverridden = useAutomaticDialogueCamera;
         if (useAutomaticDialogueCamera)
         {
-            dialoguePreviousZoomIndex = targetZoomIndex;
+            dialoguePreviousZoomIndex = hasMirrorPreset ? Mathf.Max(1, targetZoomIndex) : targetZoomIndex;
             float preRollDuration = conversation != null
                 ? conversation.AutomaticDialogueCameraPreRollTime
                 : 0.35f;
 
             if (conversation != null && !conversation.SetCustomPreset)
             {
-                StartDialogueZoomPreRoll(Mathf.Max(0, targetZoomIndex - 1), preRollDuration);
+                StartDialogueZoomPreRoll(Mathf.Max(hasMirrorPreset ? 1 : 0, targetZoomIndex - 1), preRollDuration);
             }
             else
             {
@@ -579,7 +588,7 @@ public class CameraController : MonoBehaviour
         if (zoomPresets == null || zoomPresets.Length == 0)
             return;
 
-        presetIndex = Mathf.Clamp(presetIndex, 0, zoomPresets.Length - 1);
+        presetIndex = Mathf.Clamp(presetIndex, hasMirrorPreset ? 1 : 0, zoomPresets.Length - 1);
 
         dialogueZoomPreRollStart = CaptureCurrentZoomPreset();
         zoomTransitionActive = false;
@@ -626,13 +635,79 @@ public class CameraController : MonoBehaviour
         zoomTransitionStart = CaptureCurrentZoomPreset();
         zoomTransitionTargetIndex = presetIndex;
         zoomTransitionElapsed = 0f;
-        activeZoomTransitionDuration = duration >= 0f ? duration : zoomTransitionDuration;
+        activeZoomTransitionDuration = duration >= 0f
+            ? duration
+            : CalculateZoomTransitionDuration(zoomTransitionStart, zoomPresets[presetIndex]);
         zoomTransitionActive = activeZoomTransitionDuration > 0f;
         dialogueZoomPreRollActive = false;
         dialogueZoomPreRollTargetIndex = -1;
 
         if (!zoomTransitionActive)
             CompleteZoomTransition();
+    }
+
+    private float CalculateZoomTransitionDuration(ZoomPreset from, ZoomPreset to)
+    {
+        float verticalPosition = orbitalFollow.VerticalAxis.GetNormalizedValue();
+        Vector2 startOrbitPoint = GetZoomOrbitPoint(from, verticalPosition);
+        Vector2 targetOrbitPoint = GetZoomOrbitPoint(to, verticalPosition);
+        float distance = Vector2.Distance(startOrbitPoint, targetOrbitPoint) * Mathf.Abs(orbitalFollow.RadialAxis.Value);
+        return distance / Mathf.Max(0.01f, zoomTransitionWorldSpeed);
+    }
+
+    private Vector2 GetZoomOrbitPoint(ZoomPreset preset, float verticalPosition)
+    {
+        Vector2[] knots = new Vector2[5];
+        knots[1] = new Vector2(-preset.bottomRadius, preset.bottomHeight);
+        knots[2] = new Vector2(-preset.centerRadius, preset.centerHeight);
+        knots[3] = new Vector2(-preset.topRadius, preset.topHeight);
+
+        float curvature = orbitalFollow.Orbits.SplineCurvature;
+        knots[0] = Vector2.Lerp(knots[1] + (knots[1] - knots[2]) * 0.5f, Vector2.zero, curvature);
+        knots[4] = Vector2.Lerp(knots[3] + (knots[3] - knots[2]) * 0.5f, Vector2.zero, curvature);
+
+        const int segmentCount = 4;
+        float[] lower = new float[segmentCount];
+        float[] diagonal = new float[segmentCount];
+        float[] upper = new float[segmentCount];
+        Vector2[] right = new Vector2[segmentCount];
+        Vector2[] firstControl = new Vector2[segmentCount];
+
+        diagonal[0] = 2f;
+        upper[0] = 1f;
+        right[0] = knots[0] + 2f * knots[1];
+
+        for (int i = 1; i < segmentCount - 1; i++)
+        {
+            lower[i] = 1f;
+            diagonal[i] = 4f;
+            upper[i] = 1f;
+            right[i] = 4f * knots[i] + 2f * knots[i + 1];
+        }
+
+        lower[segmentCount - 1] = 2f;
+        diagonal[segmentCount - 1] = 7f;
+        right[segmentCount - 1] = 8f * knots[segmentCount - 1] + knots[segmentCount];
+
+        for (int i = 1; i < segmentCount; i++)
+        {
+            float factor = lower[i] / diagonal[i - 1];
+            diagonal[i] -= factor * upper[i - 1];
+            right[i] -= factor * right[i - 1];
+        }
+
+        firstControl[segmentCount - 1] = right[segmentCount - 1] / diagonal[segmentCount - 1];
+        for (int i = segmentCount - 2; i >= 0; i--)
+            firstControl[i] = (right[i] - upper[i] * firstControl[i + 1]) / diagonal[i];
+
+        int segment = verticalPosition > 0.5f ? 2 : 1;
+        float t = verticalPosition > 0.5f ? (verticalPosition - 0.5f) * 2f : verticalPosition * 2f;
+        Vector2 secondControl = 2f * knots[segment + 1] - firstControl[segment + 1];
+        float inverseT = 1f - t;
+        return inverseT * inverseT * inverseT * knots[segment]
+            + 3f * inverseT * inverseT * t * firstControl[segment]
+            + 3f * inverseT * t * t * secondControl
+            + t * t * t * knots[segment + 1];
     }
 
     private static bool IsTutorialBlockingCamera()
@@ -1083,7 +1158,22 @@ public class CameraController : MonoBehaviour
 
     public void SetZoomState(CameraZoomState state)
     {
-        SetZoomIndex((int)state);
+        SetZoomPreset(state.ToString());
+    }
+
+    public void SetMirrorZoneActive(bool active)
+    {
+        if (!hasMirrorPreset || mirrorZoneActive == active)
+            return;
+
+        mirrorZoneActive = active;
+        if (!active && targetZoomIndex == 0)
+            SetZoomIndex(1);
+    }
+
+    public void SetZoomInOneStep(float transitionDuration = -1f)
+    {
+        SetZoomIndex(Mathf.Max(hasMirrorPreset ? 1 : 0, targetZoomIndex - 1), transitionDuration);
     }
 
     public bool SetZoomPreset(string presetName, float transitionDuration = -1f)
@@ -1627,7 +1717,7 @@ public class CameraController : MonoBehaviour
         if (zoomPresets == null || zoomPresets.Length == 0)
             return;
 
-        int clampedIndex = Mathf.Clamp(index, 0, zoomPresets.Length - 1);
+        int clampedIndex = Mathf.Clamp(index, hasMirrorPreset && !mirrorZoneActive ? 1 : 0, zoomPresets.Length - 1);
 
         if (clampedIndex == targetZoomIndex)
             return;
@@ -1644,7 +1734,9 @@ public class CameraController : MonoBehaviour
         if (previousZoomIndex < 0)
             return;
 
-        int indexToReturn = previousZoomIndex;
+        int indexToReturn = hasMirrorPreset && !mirrorZoneActive
+            ? Mathf.Max(1, previousZoomIndex)
+            : previousZoomIndex;
 
         previousZoomIndex = targetZoomIndex;
         targetZoomIndex = indexToReturn;
@@ -1656,14 +1748,17 @@ public class CameraController : MonoBehaviour
     private void GetManualZoomRange(out int minZoomIndex, out int maxZoomIndex)
     {
         int lastPresetIndex = Mathf.Max(0, zoomPresets.Length - 1);
+        int availableMin = hasMirrorPreset && !mirrorZoneActive ? 1 : 0;
         if (livePresetPreview)
         {
-            minZoomIndex = 0;
+            minZoomIndex = availableMin;
             maxZoomIndex = lastPresetIndex;
             return;
         }
 
-        minZoomIndex = Mathf.Clamp(manualZoomMinIndex, 0, lastPresetIndex);
+        minZoomIndex = hasMirrorPreset && mirrorZoneActive
+            ? 0
+            : Mathf.Clamp(manualZoomMinIndex, availableMin, lastPresetIndex);
         maxZoomIndex = Mathf.Clamp(manualZoomMaxIndex, minZoomIndex, lastPresetIndex);
     }
 

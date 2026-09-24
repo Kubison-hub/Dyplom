@@ -164,6 +164,7 @@ public class MagnifierGlassController : MonoBehaviour
     private Vector3 loupeCursorFlareBaseScale;
     private Vector3 watsonGripCursorBaseScale;
     private bool hasInspectionHit;
+    private float defaultLensDistanceFromHit;
     private Vector3 lastRayOrigin;
     private Vector3 lastHitPoint;
     private Vector3 lastHitNormal;
@@ -238,6 +239,7 @@ public class MagnifierGlassController : MonoBehaviour
     private void Awake()
     {
         instance = this;
+        defaultLensDistanceFromHit = lensDistanceFromHit;
     }
 
     private void Start()
@@ -1126,6 +1128,8 @@ public class MagnifierGlassController : MonoBehaviour
 
     private void HideLoupe()
     {
+        lensDistanceFromHit = defaultLensDistanceFromHit;
+
         if (rootCanvasGroup != null)
         {
             rootCanvasGroup.alpha = 0f;
@@ -1260,6 +1264,7 @@ public class MagnifierGlassController : MonoBehaviour
 
     private void OnDisable()
     {
+        lensDistanceFromHit = defaultLensDistanceFromHit;
         EndLoupeOrbit(true);
         debugLoupeToggleActive = false;
         wasSherlockLoupeActive = false;

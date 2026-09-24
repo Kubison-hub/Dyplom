@@ -20,6 +20,16 @@ public class TutorialTimeline : MonoBehaviour
         get => runOpeningConversationSequence;
         set => runOpeningConversationSequence = value;
     }
+    public Transform InitialCameraLookAtTarget
+    {
+        get => initialCameraLookAtTarget;
+        set
+        {
+            initialCameraLookAtTarget = value;
+            if (initialCameraTargetReady)
+                ForceOpeningCameraTarget();
+        }
+    }
     public bool BlocksWorldInput => activeTutorialPopup != null || releasePopupInputCoroutine != null;
     public bool KeepsEagleVisionActive =>
         currentStage == TutorialStage.WaitingForIdeaLineTutorialClose ||
@@ -115,6 +125,14 @@ public class TutorialTimeline : MonoBehaviour
     [SerializeField] private VideoClip focusTutorialPopupVideoClip;
 
     [Header("Idea Line Puzzle Tutorial")]
+    [Tooltip("Sherlock voice source for the approach line. Falls back to DialogueAudioRegistry when empty.")]
+    [SerializeField] private AudioSource ideaLineSherlockVoiceSource;
+    [SerializeField] private Lvl3DialogueLine ideaLineApproachDialogue = new Lvl3DialogueLine
+    {
+        speaker = Lvl3DialogueSpeaker.Sherlock,
+        text = "Zebraliśmy już ślady. Czas połączyć je w całość.",
+        duration = 3f
+    };
     [Tooltip("Leave empty to use every unique point from the active DetectiveSequencePuzzle.")]
     [SerializeField] private DetectiveIdeaPoint[] requiredIdeaPoints;
     [SerializeField] private PlayerController ideaLineTutorialPlayer;
@@ -157,8 +175,10 @@ public class TutorialTimeline : MonoBehaviour
     [SerializeField] private bool logIdeaLineTutorialProgress = true;
 
     private bool openingTutorialWasVisible;
+    private bool initialCameraTargetReady;
     private bool openingConversationSequenceStarted;
     private Coroutine moveToIdeaLineTutorialCoroutine;
+    private bool finishIdeaLineCameraOrbitAfterPopup;
     private string lastIdeaPointDebugStatus;
     private Coroutine firstPopupCoroutine;
     private Coroutine focusTutorialPopupCoroutine;
@@ -212,6 +232,7 @@ public class TutorialTimeline : MonoBehaviour
 
         // Start runs after every Awake, so both CameraControllers have their
         // Cinemachine references before the initial cinematic target is cleared.
+        initialCameraTargetReady = true;
         ForceOpeningCameraTarget();
     }
 
@@ -284,8 +305,23 @@ public class TutorialTimeline : MonoBehaviour
         {
             if (IsIdeaLinePuzzleSolved())
             {
+                finishIdeaLineCameraOrbitAfterPopup = false;
+                StopCameraHorizontalOrbit();
                 currentStage = TutorialStage.Completed;
                 return;
+            }
+
+            if (finishIdeaLineCameraOrbitAfterPopup)
+            {
+                if (AreTutorialCamerasAtHorizontalAxis(ideaLineTutorialHorizontalAxis))
+                {
+                    finishIdeaLineCameraOrbitAfterPopup = false;
+                    StopCameraHorizontalOrbit();
+                }
+                else
+                {
+                    SetCameraHorizontalOrbit(ideaLineTutorialHorizontalAxis, ideaLineTutorialOrbitSpeed);
+                }
             }
 
             KeepEagleVisionForced();
@@ -297,6 +333,7 @@ public class TutorialTimeline : MonoBehaviour
         if (currentStage != TutorialStage.IdeaLinePuzzleActive)
             return;
 
+        finishIdeaLineCameraOrbitAfterPopup = false;
         StopCameraHorizontalOrbit();
         currentStage = TutorialStage.Completed;
         LogIdeaLineTutorial("Ground click ended the idea line puzzle session and released forced Eagle Vision.");
@@ -667,6 +704,7 @@ public class TutorialTimeline : MonoBehaviour
 
     private IEnumerator MovePlayerToIdeaLineTutorialPosition(PlayerController player)
     {
+        Coroutine approachDialogue = StartCoroutine(PlayIdeaLineApproachDialogue());
         CancelConflictingWatsonCompletionMovements();
         StartWatsonMoveToIdeaLineTutorialPosition();
         KeepEagleVisionForced();
@@ -707,6 +745,9 @@ public class TutorialTimeline : MonoBehaviour
             yield return null;
         }
 
+        if (approachDialogue != null)
+            yield return approachDialogue;
+
         currentStage = TutorialStage.WaitingForIdeaLineTutorialClose;
         PlayIdeaLinePuzzleMusic();
         ShowGameplayTutorialPopup(
@@ -716,6 +757,33 @@ public class TutorialTimeline : MonoBehaviour
 
         LogIdeaLineTutorial("Idea line popup requested. Waiting until it is closed.");
         moveToIdeaLineTutorialCoroutine = null;
+    }
+
+    private IEnumerator PlayIdeaLineApproachDialogue()
+    {
+        Lvl3DialogueLine line = ideaLineApproachDialogue;
+        if (string.IsNullOrWhiteSpace(line.text) && line.voiceClip == null)
+            yield break;
+
+        PlayerTopText.Instance?.ShowTopTextPersistent(line.text, string.Empty);
+
+        AudioSource voiceSource = ideaLineSherlockVoiceSource != null
+            ? ideaLineSherlockVoiceSource
+            : DialogueAudioRegistry.Instance != null
+                ? DialogueAudioRegistry.Instance.SherlockVoiceSource
+                : null;
+        if (voiceSource != null && line.voiceClip != null)
+        {
+            voiceSource.Stop();
+            voiceSource.PlayOneShot(line.voiceClip);
+        }
+        else if (line.voiceClip != null)
+        {
+            Debug.LogWarning("TutorialTimeline: assign Idea Line Sherlock Voice Source to play the approach dialogue.", this);
+        }
+
+        yield return new WaitForSeconds(line.duration > 0f ? line.duration : 3f);
+        PlayerTopText.Instance?.ClearTopTextIfMatches(line.text, string.Empty);
     }
 
     private static void CancelConflictingWatsonCompletionMovements()
@@ -805,7 +873,9 @@ public class TutorialTimeline : MonoBehaviour
 
     private void FinishIdeaLinePuzzleTutorial()
     {
-        StopCameraHorizontalOrbit();
+        finishIdeaLineCameraOrbitAfterPopup = !AreTutorialCamerasAtHorizontalAxis(ideaLineTutorialHorizontalAxis);
+        if (!finishIdeaLineCameraOrbitAfterPopup)
+            StopCameraHorizontalOrbit();
         SetIdeaLineTutorialInputLocked(false);
         currentStage = TutorialStage.IdeaLinePuzzleActive;
         LogIdeaLineTutorial("Idea line tutorial closed. Player input restored; Eagle Vision remains forced until the puzzle is solved.");
@@ -975,7 +1045,7 @@ public class TutorialTimeline : MonoBehaviour
         foreach (CameraController cameraController in tutorialCameras)
         {
             if (cameraController != null)
-                cameraController.SetZoomIndex((int)zoomState, transitionDuration);
+                cameraController.SetZoomPreset(zoomState.ToString(), transitionDuration);
         }
     }
 

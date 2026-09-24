@@ -23,7 +23,7 @@ public class lvl2_Int_Mirror : Lvl3InteractionDialogueBase
         new Lvl3DialogueLine
         {
             speaker = Lvl3DialogueSpeaker.Sherlock,
-            text = "Potrzebujê specjalnego kluczyka.",
+            text = "PotrzebujÄ™ specjalnego kluczyka.",
             duration = 3f
         }
     };
@@ -96,6 +96,7 @@ public class lvl2_Int_Mirror : Lvl3InteractionDialogueBase
         }
 
         door.transform.localRotation = openRotation;
+        InventoryManager.Instance?.TryRemoveItem(ItemType.Level2BookKey);
         FinishInteraction();
     }
 
