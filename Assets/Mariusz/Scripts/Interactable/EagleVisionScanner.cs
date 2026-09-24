@@ -43,9 +43,9 @@ public class EagleVisionScanner : MonoBehaviour
     private bool manualScanRingActive;
     private Material runtimeScanRangeRingMaterial;
     private readonly List<FootprintRendererSlot> footprintRendererSlots = new List<FootprintRendererSlot>();
-    private readonly MaterialPropertyBlock footprintPropertyBlock = new MaterialPropertyBlock();
-    private static readonly int PlayerPositionId = Shader.PropertyToID("_PlayerPosition");
-    private static readonly int VisibleRadiusId = Shader.PropertyToID("_VisibleRadius");
+    private MaterialPropertyBlock footprintPropertyBlock;
+    private int playerPositionId;
+    private int visibleRadiusId;
 
     private struct FootprintRendererSlot
     {
@@ -78,6 +78,9 @@ public class EagleVisionScanner : MonoBehaviour
     private void Start()
     {
         Instance = this;
+        footprintPropertyBlock = new MaterialPropertyBlock();
+        playerPositionId = Shader.PropertyToID("_PlayerPosition");
+        visibleRadiusId = Shader.PropertyToID("_VisibleRadius");
 
         scannerPS = GetComponentInChildren<ParticleSystem>();
         scannerCollider = GetComponent<SphereCollider>();
@@ -446,8 +449,8 @@ public class EagleVisionScanner : MonoBehaviour
                 continue;
 
             slot.renderer.GetPropertyBlock(footprintPropertyBlock, slot.materialIndex);
-            footprintPropertyBlock.SetVector(PlayerPositionId, position);
-            footprintPropertyBlock.SetFloat(VisibleRadiusId, radius + (slot.isBackground ? bacgroundTreshold : 0f));
+            footprintPropertyBlock.SetVector(playerPositionId, position);
+            footprintPropertyBlock.SetFloat(visibleRadiusId, radius + (slot.isBackground ? bacgroundTreshold : 0f));
             slot.renderer.SetPropertyBlock(footprintPropertyBlock, slot.materialIndex);
         }
     }
