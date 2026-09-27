@@ -70,6 +70,27 @@ public class GameData
     public string sherlockCarriedLampId;
     public string watsonCarriedLampId;
 
+    // --- Stan obiektow pod Sherlockiem i Watsonem ---
+    // Swiatla i wizualizacje trzymanych lamp wisza pod postaciami, czyli POZA
+    // drzewem LEVELS. Zapisujemy wylaczone obiekty i stan ich komponentow.
+    public List<LevelGroupSaveData> playerSubtree;
+    public List<ScriptFlagSaveData> playerComponents;
+
+    // --- Przezroczystosc czarnych plyt (BLACK DOCS) ---
+    // Plyty zakrywajace pomieszczenia znikaja przez wygaszenie alfy materialu,
+    // a material to stan runtime - po wczytaniu wracalby do pelnej czerni.
+    public List<BlackboardSaveData> blackboards;
+
+    // Wyzwalacze Int_lv3_RemoveBlackboard, przez ktore gracz juz przeszedl.
+    // Po wczytaniu odtwarzamy na nich stan koncowy: wygaszony material
+    // i zgaszona plyta.
+    public List<string> removedBlackboardTriggers;
+
+    // --- Lampy (niesione, zawieszone na uchwytach, stojace) ---
+    // Zawieszenie lampy przepina ja pod gniazdo na scianie, wiec zmienia sie
+    // jej sciezka w hierarchii. Zapisujemy rodzica, pozycje i stan wprost.
+    public List<LampSaveData> lamps;
+
     // --- Cele kamer postaci (LookAt) ---
     // Scena startuje z kamera wycelowana w Selme (seans), a przesuwa ja dopiero
     // dialog otwierajacy. Po wczytaniu ten dialog nie leci, wiec cel trzeba zapisac.
@@ -200,6 +221,7 @@ public class ScriptFlagSaveData
 public class TransformSaveData
 {
     public string objectId;
+    public string objectName;   // zapas, gdy obiekt zostal przepiety i sciezka sie zmienila
     public string parentId;   // zagadki potrafia przepinac obiekty pod innego rodzica
     public Vector3 localPosition;
     public Vector3 localEuler;
@@ -225,5 +247,29 @@ public class AnimatorSaveData
 public class LevelGroupSaveData
 {
     public string objectId;   // sciezka w hierarchii
+    public bool active;
+}
+
+// Alfa materialu czarnej plyty zakrywajacej pomieszczenie.
+[System.Serializable]
+public class BlackboardSaveData
+{
+    public string objectId;
+    public string objectName;
+    public float alpha;
+    public bool active;            // czy obiekt plyty byl wlaczony
+    public bool rendererEnabled;   // czy Mesh Renderer plyty byl wlaczony
+}
+
+// Stan pojedynczej lampy.
+[System.Serializable]
+public class LampSaveData
+{
+    public string objectId;
+    public string objectName;
+    public string parentId;
+    public string parentName;
+    public Vector3 localPosition;
+    public Vector3 localEuler;
     public bool active;
 }

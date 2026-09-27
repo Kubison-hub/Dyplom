@@ -1,6 +1,9 @@
 using System.Collections;
 using UnityEngine;
 
+// Alias chroni przed 'using System.Diagnostics;' dopisywanym przez Visual Studio (CS0104).
+using Debug = UnityEngine.Debug;
+
 [RequireComponent(typeof(Collider))]
 public class Int_lv3_RemoveBlackboard : MonoBehaviour
 {
@@ -28,6 +31,16 @@ public class Int_lv3_RemoveBlackboard : MonoBehaviour
 
     private void Start()
     {
+        // Po wczytaniu zapisu ten obiekt zostaje wlaczony razem z grupa poziomu,
+        // wiec Start() wykonuje sie DOPIERO po zakonczeniu wczytywania. Bez
+        // ponizszego warunku zapalalby z powrotem czarne plyty, ktore gracz
+        // juz usunal. 'hasTriggered' jest przywracane przez system zapisu.
+        if (hasTriggered)
+        {
+            ApplyTriggeredStateImmediately();
+            return;
+        }
+
         if (!activateObjectsOnStart)
             return;
 
@@ -36,6 +49,51 @@ public class Int_lv3_RemoveBlackboard : MonoBehaviour
             if (target != null)
                 target.SetActive(true);
         }
+    }
+
+    // Czy gracz juz usunal ta plyte (dla systemu zapisu).
+    public bool HasTriggered => hasTriggered;
+
+    // Obiekt plyty, ktora ten wyzwalacz usuwa (dla systemu zapisu).
+    public GameObject BlackBoard => blackBoardToRemove;
+
+    // Ustawia koncowy stan od razu, bez animacji wygaszania.
+    // Uzywane po wczytaniu zapisu, gdy plyta byla juz usunieta.
+    //
+    // Podmieniamy material na wygaszony i zerujemy alfe, a dopiero potem
+    // gasimy obiekt. Dzieki temu nawet jesli inny skrypt zapali plyte
+    // po wczytaniu, pozostanie ona calkowicie przezroczysta.
+    public void ApplyTriggeredStateImmediately()
+    {
+        hasTriggered = true;
+
+        if (blackBoardToRemove == null)
+            return;
+
+        Renderer blackBoardRenderer = blackBoardToRemove.GetComponent<Renderer>();
+
+        if (blackBoardRenderer != null)
+        {
+            if (blackBoardFadeMaterial != null)
+                blackBoardRenderer.material = blackBoardFadeMaterial;
+
+            Material material = blackBoardRenderer.material;
+            string colorProperty = material.HasProperty("_BaseColor") ? "_BaseColor" : "_Color";
+
+            if (material.HasProperty(colorProperty))
+            {
+                Color color = material.GetColor(colorProperty);
+                color.a = 0f;
+                material.SetColor(colorProperty, color);
+            }
+
+            blackBoardRenderer.enabled = false;
+        }
+
+        blackBoardToRemove.SetActive(false);
+
+        Debug.Log("Int_lv3_RemoveBlackboard: przywrocono usunieta plyte '" +
+                  blackBoardToRemove.name + "'.", this);
     }
 
     private void OnTriggerEnter(Collider other)

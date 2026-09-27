@@ -14,13 +14,34 @@ public class SaveLoadManager : MonoBehaviour
     // Wersja formatu zapisu. Podnies o 1 po kazdej zmianie struktury GameData.
     // Pliki z inna wersja sa ignorowane - lepiej zaczac od nowa niz wczytac
     // polowe danych i dostac czarny ekran.
-    public const int WERSJA_ZAPISU = 5;
+    public const int WERSJA_ZAPISU = 16;
+
+    [Header("Diagnostyka")]
+    [Tooltip("Przywracanie wszystkich pol bool w skryptach pod LEVELS. " +
+             "Odznacz, jesli po wczytaniu jakas interakcja przestaje reagowac - " +
+             "to najszersza czesc zapisu i najczestsze zrodlo takich problemow.")]
+    public bool przywracajFlagiSkryptow = true;
+
+    [Tooltip("Nazwa obiektu do sledzenia w logu podczas wczytywania. " +
+             "Zostaw puste, zeby wylaczyc. Przyklad: lv3_R2bb")]
+    public string sledzonyObiekt = "";
+
+    [Tooltip("Ile razy po wczytaniu ponowic ustawienie czarnych plyt. " +
+             "Kilkanascie skryptow zapala je we wlasnym Start(), ktory " +
+             "wykonuje sie PO wczytaniu - dlatego stan trzeba nalozyc ponownie.")]
+    [Min(0)] public int powtorzeniaPlyt = 4;
+
+    [Tooltip("Odstep miedzy powtorzeniami, w sekundach.")]
+    [Min(0.05f)] public float odstepPowtorzenPlyt = 0.5f;
 
     public static SaveLoadManager Instance;
 
     // ID przedmiotow podniesionych w tej sesji/scenie.
     // Nie jest statyczne celowo: nowa scena = nowy manager = czysta lista (nowa gra).
     private readonly HashSet<string> collectedObjectIDs = new HashSet<string>();
+
+    // Wycisza logi przy ponawianiu stanu plyt, zeby nie zalewac konsoli.
+    private bool cichePowtorzenie;
 
     private void Awake()
     {
@@ -201,6 +222,12 @@ public class SaveLoadManager : MonoBehaviour
         // --- Stan zagadek: flagi, pozycje, animatory ---
         ZbierzStanZagadek(data);
 
+        // --- Stan obiektow pod postaciami (swiatla lamp) ---
+        ZbierzDrzewoPostaci(data);
+
+        // --- Lampy: pozycja, rodzic i stan ---
+        data.lamps = ZbierzLampy();
+
         // --- Niesione lampy (piwnica) ---
         if (Lvl3LampVisualManager.Instance != null)
         {
@@ -375,7 +402,9 @@ public class SaveLoadManager : MonoBehaviour
 
         // --- Stan zagadek: flagi, pozycje, animatory ---
         // Po wlaczeniu grup, zeby objac takze obiekty dopiero co odsloniete.
+        Sledz("po poziomach");
         Krok("stan zagadek", () => PrzywrocStanZagadek(data));
+        Sledz("po stanie zagadek");
 
         // --- Tutoriale ---
         // SpawnHiddenItems() ponizej pokazuje tutorial o przedmiotach do znalezienia.
@@ -423,6 +452,8 @@ public class SaveLoadManager : MonoBehaviour
 
         // --- Pozycje NPC ---
         Krok("NPC", () => PrzywrocNpc(data.npcs));
+        Krok("drzewo postaci", () => PrzywrocDrzewoPostaci(data));
+        Krok("lampy", () => PrzywrocLampy(data.lamps));
         Krok("niesione lampy", () => PrzywrocNiesioneLampy(data));
 
         // --- Odkryte punkty sledztwa ---
@@ -474,6 +505,23 @@ public class SaveLoadManager : MonoBehaviour
         {
             Debug.LogWarning("LoadGame: brak SwitchCharacter.Instance - aktywna postac nie zostanie przywrocona.");
         }
+
+        Sledz("przed plytami");
+
+        // Czarne plyty przywracamy NA KONCU - wczesniejsze etapy potrafia
+        // wlaczac obiekty wewnatrz odkrytych pomieszczen.
+        Krok("czarne plyty", () => PrzywrocCzarnePlyty(data.blackboards));
+        Krok("usuniete plyty", () => PrzywrocUsunietePlyty(data.removedBlackboardTriggers));
+
+        // Skrypty w rodzaju Int_lv3_RemoveBlackboard zapalaja czarne plyty
+        // we wlasnym Start(), a ten wykonuje sie dopiero PO wczytaniu - obiekty
+        // z wylaczonych grup poziomu budza sie w chwili ich wlaczenia.
+        // Dlatego nakladamy stan plyt jeszcze kilka razy przez najblizsze sekundy.
+        if (powtorzeniaPlyt > 0)
+            StartCoroutine(PonawiajPlyty(data.blackboards, data.removedBlackboardTriggers,
+                                         data.npcs, data.lamps));
+
+        Sledz("po plytach");
 
         Debug.Log("Gra wczytana!");
     }
@@ -768,12 +816,12 @@ public class SaveLoadManager : MonoBehaviour
         if (komponent == null)
             return false;
 
-        Renderer renderer = komponent as Renderer;
-        if (renderer != null)
-        {
-            wlaczony = renderer.enabled;
-            return true;
-        }
+        // Rendererow NIE zapisujemy. System DOCS (Dynamic Occlusion Cutout)
+        // wylacza renderery scian zaslaniajacych postac i robi to na biezaco.
+        // Utrwalenie tego stanu w zapisie powodowalo, ze po wczytaniu setki
+        // obiektow zostawaly niewidoczne, a scena byla czarna.
+        if (komponent is Renderer)
+            return false;
 
         Collider collider = komponent as Collider;
         if (collider != null)
@@ -798,12 +846,9 @@ public class SaveLoadManager : MonoBehaviour
         if (komponent == null)
             return false;
 
-        Renderer renderer = komponent as Renderer;
-        if (renderer != null)
-        {
-            renderer.enabled = wlaczony;
-            return true;
-        }
+        // Renderery pomijamy - patrz komentarz w SprobujOdczytacWlaczenie.
+        if (komponent is Renderer)
+            return false;
 
         Collider collider = komponent as Collider;
         if (collider != null)
@@ -843,6 +888,7 @@ public class SaveLoadManager : MonoBehaviour
             // 1. Pozycja i obrot - lapie przesuniete sciany, przyciski, dzwignie.
             TransformSaveData trans = new TransformSaveData();
             trans.objectId = BuildObjectID(t.gameObject);
+            trans.objectName = t.name;
             trans.parentId = t.parent != null ? BuildObjectID(t.parent.gameObject) : "";
             trans.localPosition = t.localPosition;
             trans.localEuler = t.localEulerAngles;
@@ -911,6 +957,20 @@ public class SaveLoadManager : MonoBehaviour
 
         Debug.Log("SaveGame: rozwiazanych zagadek sekwencyjnych: " + data.solvedSequencePuzzles.Count);
 
+        data.blackboards = ZbierzCzarnePlyty(drzewo);
+
+        // Wyzwalacze usuwania czarnych plyt.
+        data.removedBlackboardTriggers = new List<string>();
+
+        foreach (Int_lv3_RemoveBlackboard wyzwalacz in FindObjectsByType<Int_lv3_RemoveBlackboard>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (wyzwalacz != null && wyzwalacz.HasTriggered)
+                data.removedBlackboardTriggers.Add(BuildObjectID(wyzwalacz.gameObject));
+        }
+
+        Debug.Log("SaveGame: usunietych czarnych plyt: " + data.removedBlackboardTriggers.Count + ".");
+
         Debug.Log("SaveGame: stan zagadek - flag: " + data.levelFlags.Count +
                   ", pozycji: " + data.levelTransforms.Count +
                   ", animatorow: " + data.levelAnimators.Count + ".");
@@ -978,7 +1038,17 @@ public class SaveLoadManager : MonoBehaviour
         PrzywrocRodzicow(data.levelTransforms, poSciezce);
 
         int pozycje = PrzywrocPozycjeObiektow(data.levelTransforms, poSciezce);
-        int flagi = PrzywrocFlagiSkryptow(data.levelFlags, poSciezce);
+        int flagi = 0;
+
+        if (przywracajFlagiSkryptow)
+        {
+            flagi = PrzywrocFlagiSkryptow(data.levelFlags, poSciezce);
+        }
+        else
+        {
+            Debug.LogWarning("LoadGame: przywracanie flag skryptow jest WYLACZONE w Inspectorze. " +
+                             "Czesc zagadek moze nie pamietac swojego stanu.");
+        }
         int komponenty = PrzywrocWlaczenieKomponentow(data.levelFlags, poSciezce);
         int animatory = PrzywrocAnimatory(data.levelAnimators, poSciezce);
 
@@ -987,6 +1057,192 @@ public class SaveLoadManager : MonoBehaviour
         Debug.Log("LoadGame: stan zagadek przywrocony (pozycji: " + pozycje +
                   ", flag: " + flagi + ", komponentow: " + komponenty +
                   ", animatorow: " + animatory + ").");
+    }
+
+    // Korzenie obiektow obu postaci. Pod nimi wisza m.in. swiatla trzymanych lamp.
+    private static List<Transform> ZnajdzKorzeniePostaci()
+    {
+        List<Transform> korzenie = new List<Transform>();
+
+        if (SwitchCharacter.Instance != null && SwitchCharacter.Instance.players != null)
+        {
+            // Typ elementu zalezy od wersji SwitchCharacter, wiec go nie wymuszamy.
+            foreach (var gracz in SwitchCharacter.Instance.players)
+            {
+                if (gracz != null)
+                    korzenie.Add(gracz.transform.root);
+            }
+        }
+
+        return korzenie;
+    }
+
+    private void ZbierzDrzewoPostaci(GameData data)
+    {
+        data.playerSubtree = new List<LevelGroupSaveData>();
+        data.playerComponents = new List<ScriptFlagSaveData>();
+
+        foreach (Transform korzen in ZnajdzKorzeniePostaci())
+        {
+            List<Transform> drzewo = new List<Transform>();
+            ZbierzDrzewo(korzen, drzewo);
+
+            foreach (Transform t in drzewo)
+            {
+                if (t == null)
+                    continue;
+
+                if (!t.gameObject.activeSelf)
+                {
+                    LevelGroupSaveData wpis = new LevelGroupSaveData();
+                    wpis.objectId = BuildObjectID(t.gameObject);
+                    wpis.active = false;
+                    data.playerSubtree.Add(wpis);
+                }
+
+                Component[] komponenty = t.GetComponents<Component>();
+
+                for (int i = 0; i < komponenty.Length; i++)
+                {
+                    bool wlaczony;
+                    if (!SprobujOdczytacWlaczenie(komponenty[i], out wlaczony))
+                        continue;
+
+                    ScriptFlagSaveData wpis = new ScriptFlagSaveData();
+                    wpis.key = KluczKomponentu(t.gameObject, komponenty[i], i);
+                    wpis.value = wlaczony;
+                    data.playerComponents.Add(wpis);
+                }
+            }
+        }
+
+        Debug.Log("SaveGame: drzewo postaci - wylaczonych obiektow: " + data.playerSubtree.Count +
+                  ", komponentow: " + data.playerComponents.Count + ".");
+    }
+
+    private void PrzywrocDrzewoPostaci(GameData data)
+    {
+        if (data.playerSubtree == null && data.playerComponents == null)
+            return;
+
+        HashSet<string> wylaczone = new HashSet<string>();
+        if (data.playerSubtree != null)
+        {
+            foreach (LevelGroupSaveData wpis in data.playerSubtree)
+            {
+                if (wpis != null && !string.IsNullOrEmpty(wpis.objectId))
+                    wylaczone.Add(wpis.objectId);
+            }
+        }
+
+        Dictionary<string, Transform> poSciezce = new Dictionary<string, Transform>();
+
+        foreach (Transform korzen in ZnajdzKorzeniePostaci())
+        {
+            List<Transform> drzewo = new List<Transform>();
+            ZbierzDrzewo(korzen, drzewo);
+
+            foreach (Transform t in drzewo)
+            {
+                if (t == null)
+                    continue;
+
+                string id = BuildObjectID(t.gameObject);
+                poSciezce[id] = t;
+
+                bool maBycAktywny = !wylaczone.Contains(id);
+                if (t.gameObject.activeSelf != maBycAktywny)
+                    t.gameObject.SetActive(maBycAktywny);
+            }
+        }
+
+        int komponenty = PrzywrocWlaczenieKomponentow(data.playerComponents, poSciezce);
+
+        Debug.Log("LoadGame: drzewo postaci przywrocone (obiektow: " + poSciezce.Count +
+                  ", komponentow: " + komponenty + ").");
+    }
+
+    // Wszystkie lampy w scenie. Konwencja: nazwa zawiera "Lamp".
+    private static List<Transform> ZnajdzLampy()
+    {
+        List<Transform> lampy = new List<Transform>();
+
+        foreach (Transform t in FindObjectsByType<Transform>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (t != null && t.name.IndexOf("Lamp", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                lampy.Add(t);
+        }
+
+        return lampy;
+    }
+
+    private List<LampSaveData> ZbierzLampy()
+    {
+        List<LampSaveData> lista = new List<LampSaveData>();
+
+        foreach (Transform t in ZnajdzLampy())
+        {
+            LampSaveData wpis = new LampSaveData();
+            wpis.objectId = BuildObjectID(t.gameObject);
+            wpis.objectName = t.name;
+            wpis.parentId = t.parent != null ? BuildObjectID(t.parent.gameObject) : "";
+            wpis.parentName = t.parent != null ? t.parent.name : "";
+            wpis.localPosition = t.localPosition;
+            wpis.localEuler = t.localEulerAngles;
+            wpis.active = t.gameObject.activeSelf;
+            lista.Add(wpis);
+        }
+
+        Debug.Log("SaveGame: lamp: " + lista.Count + ".");
+        return lista;
+    }
+
+    private void PrzywrocLampy(List<LampSaveData> zapisane)
+    {
+        if (zapisane == null || zapisane.Count == 0)
+            return;
+
+        // Lampy szukamy w calej scenie - zawieszenie na uchwycie przepina je
+        // pod inny obiekt, wiec zapisana sciezka moze juz nie pasowac.
+        Dictionary<string, Transform> poSciezce = new Dictionary<string, Transform>();
+        List<Transform> wszystkie = new List<Transform>();
+
+        foreach (Transform t in FindObjectsByType<Transform>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (t == null)
+                continue;
+
+            poSciezce[BuildObjectID(t.gameObject)] = t;
+            wszystkie.Add(t);
+        }
+
+        Dictionary<string, Transform> poNazwie = ZbudujMapePoNazwie(wszystkie);
+        int licznik = 0;
+
+        foreach (LampSaveData wpis in zapisane)
+        {
+            if (wpis == null)
+                continue;
+
+            Transform lampa = ZnajdzWDrzewie(poSciezce, poNazwie, wpis.objectId, wpis.objectName);
+            if (lampa == null)
+                continue;
+
+            Transform rodzic = ZnajdzWDrzewie(poSciezce, poNazwie, wpis.parentId, wpis.parentName);
+
+            if (rodzic != null && lampa.parent != rodzic)
+                lampa.SetParent(rodzic, false);
+
+            lampa.localPosition = wpis.localPosition;
+            lampa.localEulerAngles = wpis.localEuler;
+            lampa.gameObject.SetActive(wpis.active);
+            licznik++;
+        }
+
+        if (!cichePowtorzenie)
+            Debug.Log("LoadGame: przywrocono " + licznik + " z " + zapisane.Count + " lamp.");
     }
 
     private void PrzywrocNiesioneLampy(GameData data)
@@ -1018,6 +1274,228 @@ public class SaveLoadManager : MonoBehaviour
         return null;
     }
 
+    // Buduje mape nazwa -> Transform, ale TYLKO dla nazw unikalnych w drzewie.
+    // Sluzy jako zapas, gdy obiekt zostal przepiety i jego sciezka sie zmienila.
+    private static Dictionary<string, Transform> ZbudujMapePoNazwie(IEnumerable<Transform> drzewo)
+    {
+        Dictionary<string, Transform> poNazwie = new Dictionary<string, Transform>();
+        HashSet<string> duplikaty = new HashSet<string>();
+
+        foreach (Transform t in drzewo)
+        {
+            if (t == null)
+                continue;
+
+            if (poNazwie.ContainsKey(t.name))
+            {
+                duplikaty.Add(t.name);
+                continue;
+            }
+
+            poNazwie[t.name] = t;
+        }
+
+        foreach (string nazwa in duplikaty)
+            poNazwie.Remove(nazwa);
+
+        return poNazwie;
+    }
+
+    private static Transform ZnajdzWDrzewie(
+        Dictionary<string, Transform> poSciezce,
+        Dictionary<string, Transform> poNazwie,
+        string objectId, string objectName)
+    {
+        Transform t;
+
+        if (!string.IsNullOrEmpty(objectId) && poSciezce.TryGetValue(objectId, out t) && t != null)
+            return t;
+
+        if (!string.IsNullOrEmpty(objectName) && poNazwie.TryGetValue(objectName, out t) && t != null)
+            return t;
+
+        return null;
+    }
+
+    // Czarne plyty (material BLACK DOCS) znikaja przez wygaszenie alfy materialu.
+    // Obiekty, ktore interakcje wykorzystuja jako 'Interactive Shader'
+    // (np. wyglad kukly). Maja czarny material, ale NIE sa plytami
+    // zakrywajacymi pokoj - ich gaszenie psuje wyglad obiektow.
+    private static HashSet<Transform> ZnajdzObiektyShaderowInterakcji()
+    {
+        HashSet<Transform> wykluczone = new HashSet<Transform>();
+
+        foreach (Interactable interakcja in FindObjectsByType<Interactable>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (interakcja != null && interakcja.interactiveShader != null)
+                wykluczone.Add(interakcja.interactiveShader.transform);
+        }
+
+        return wykluczone;
+    }
+
+    private static List<BlackboardSaveData> ZbierzCzarnePlyty(List<Transform> drzewo)
+    {
+        List<BlackboardSaveData> lista = new List<BlackboardSaveData>();
+        HashSet<Transform> wykluczone = ZnajdzObiektyShaderowInterakcji();
+
+        foreach (Transform t in drzewo)
+        {
+            if (t == null)
+                continue;
+
+            Renderer renderer = t.GetComponent<Renderer>();
+            if (renderer == null || renderer.sharedMaterial == null)
+                continue;
+
+            // Obiekty z wieloma materialami (sciany, filary, drzwi) maja czarna
+            // warstwe TYLKO jako dodatek - nie sa plytami zakrywajacymi pokoj.
+            // Gaszenie ich robilo dziury w geometrii.
+            if (renderer.sharedMaterials.Length != 1)
+                continue;
+
+            // Obiekt uzywany przez interakcje jako jej wyglad - nie gasimy.
+            if (wykluczone.Contains(t))
+                continue;
+
+            if (renderer.sharedMaterial.name.IndexOf("BLACK", System.StringComparison.OrdinalIgnoreCase) < 0)
+                continue;
+
+            BlackboardSaveData wpis = new BlackboardSaveData();
+            wpis.objectId = BuildObjectID(t.gameObject);
+            wpis.objectName = t.name;
+            wpis.active = t.gameObject.activeSelf;
+
+            // Odslanianie pomieszczenia polega na wylaczeniu Mesh Renderera
+            // plyty. Renderery zapisujemy WYLACZNIE dla czarnych plyt -
+            // dla reszty sceny nimi zarzadza DOCS i nie wolno ich utrwalac.
+            wpis.rendererEnabled = renderer.enabled;
+
+            // UWAGA: czytamy sharedMaterial, nigdy renderer.material.
+            // Odwolanie do .material tworzy prywatna kopie materialu dla tego
+            // obiektu, przez co system DOCS przestaje na nim dzialac - wycina
+            // dziure w oryginale, a obiekt rysuje swoja kopie (pelna czern).
+            wpis.alpha = renderer.sharedMaterial.HasProperty("_BaseColor")
+                ? renderer.sharedMaterial.GetColor("_BaseColor").a
+                : renderer.sharedMaterial.color.a;
+
+            lista.Add(wpis);
+        }
+
+        Debug.Log("SaveGame: czarnych plyt: " + lista.Count + ".");
+        return lista;
+    }
+
+    private System.Collections.IEnumerator PonawiajPlyty(
+        List<BlackboardSaveData> plyty, List<string> wyzwalacze,
+        List<NpcSaveData> npc, List<LampSaveData> lampy)
+    {
+        for (int i = 0; i < powtorzeniaPlyt; i++)
+        {
+            yield return new WaitForSeconds(odstepPowtorzenPlyt);
+
+            cichePowtorzenie = true;
+            PrzywrocCzarnePlyty(plyty);
+            PrzywrocUsunietePlyty(wyzwalacze);
+            PrzywrocNpc(npc);
+            PrzywrocLampy(lampy);
+            cichePowtorzenie = false;
+
+            Sledz("powtorzenie plyt " + (i + 1));
+        }
+
+        Debug.Log("LoadGame: zakonczono ponawianie stanu czarnych plyt (" +
+                  powtorzeniaPlyt + " powtorzen).");
+    }
+
+    private void PrzywrocUsunietePlyty(List<string> zapisane)
+    {
+        if (zapisane == null || zapisane.Count == 0)
+            return;
+
+        HashSet<string> usuniete = new HashSet<string>(zapisane);
+        int licznik = 0;
+
+        foreach (Int_lv3_RemoveBlackboard wyzwalacz in FindObjectsByType<Int_lv3_RemoveBlackboard>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (wyzwalacz == null || !usuniete.Contains(BuildObjectID(wyzwalacz.gameObject)))
+                continue;
+
+            wyzwalacz.ApplyTriggeredStateImmediately();
+            licznik++;
+        }
+
+        if (!cichePowtorzenie)
+            Debug.Log("LoadGame: przywrocono " + licznik + " z " + zapisane.Count + " usunietych plyt.");
+    }
+
+    private void PrzywrocCzarnePlyty(List<BlackboardSaveData> zapisane)
+    {
+        if (zapisane == null || zapisane.Count == 0)
+            return;
+
+        // Czarne plyty szukamy w CALEJ scenie, nie tylko w drzewie poziomow -
+        // czesc z nich jest przepinana razem z pomieszczeniami i ich sciezka
+        // przestaje pasowac do zapisanej.
+        Dictionary<string, Transform> wSzystkie = new Dictionary<string, Transform>();
+        List<Transform> lista = new List<Transform>();
+
+        foreach (Transform t in FindObjectsByType<Transform>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (t == null)
+                continue;
+
+            wSzystkie[BuildObjectID(t.gameObject)] = t;
+            lista.Add(t);
+        }
+
+        Dictionary<string, Transform> poNazwie = ZbudujMapePoNazwie(lista);
+        int licznik = 0;
+        List<string> nieznalezione = new List<string>();
+
+        foreach (BlackboardSaveData wpis in zapisane)
+        {
+            if (wpis == null)
+                continue;
+
+            Transform t = ZnajdzWDrzewie(wSzystkie, poNazwie, wpis.objectId, wpis.objectName);
+            if (t == null)
+            {
+                nieznalezione.Add(wpis.objectName + " (" + wpis.objectId + ")");
+                continue;
+            }
+
+            Renderer renderer = t.GetComponent<Renderer>();
+            if (renderer == null)
+                continue;
+
+            // Plyta wygaszona alfa - pomieszczenie odkryte, gasimy caly obiekt.
+            if (wpis.alpha < 0.01f)
+            {
+                t.gameObject.SetActive(false);
+                licznik++;
+                continue;
+            }
+
+            // Nie dotykamy materialu przy przywracaniu - patrz uwaga wyzej.
+            t.gameObject.SetActive(wpis.active);
+            renderer.enabled = wpis.rendererEnabled;
+            licznik++;
+        }
+
+        if (!cichePowtorzenie)
+            Debug.Log("LoadGame: przywrocono " + licznik + " z " + zapisane.Count + " czarnych plyt.");
+
+        if (nieznalezione.Count > 0)
+        {
+            Debug.LogWarning("LoadGame: nie znaleziono czarnych plyt: " +
+                             string.Join(" | ", nieznalezione));
+        }
+    }
+
     private static void PrzywrocRodzicow(
         List<TransformSaveData> zapisane, Dictionary<string, Transform> poSciezce)
     {
@@ -1026,13 +1504,15 @@ public class SaveLoadManager : MonoBehaviour
 
         int przepiete = 0;
 
+        Dictionary<string, Transform> poNazwie = ZbudujMapePoNazwie(poSciezce.Values);
+
         foreach (TransformSaveData dane in zapisane)
         {
             if (dane == null || string.IsNullOrEmpty(dane.parentId))
                 continue;
 
-            Transform obiekt;
-            if (!poSciezce.TryGetValue(dane.objectId, out obiekt) || obiekt == null)
+            Transform obiekt = ZnajdzWDrzewie(poSciezce, poNazwie, dane.objectId, dane.objectName);
+            if (obiekt == null)
                 continue;
 
             Transform rodzic;
@@ -1048,6 +1528,31 @@ public class SaveLoadManager : MonoBehaviour
 
         if (przepiete > 0)
             Debug.Log("LoadGame: przepieto " + przepiete + " obiektow pod zapisanych rodzicow.");
+    }
+
+    // Wypisuje stan sledzonego obiektu na kolejnych etapach wczytywania.
+    // Dzieki temu widac, ktory etap go wlacza albo wylacza.
+    private void Sledz(string etap)
+    {
+        if (string.IsNullOrWhiteSpace(sledzonyObiekt))
+            return;
+
+        foreach (Transform t in FindObjectsByType<Transform>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (t == null || t.name != sledzonyObiekt)
+                continue;
+
+            Renderer r = t.GetComponent<Renderer>();
+
+            Debug.Log("[SLEDZENIE] " + etap + ": '" + t.name +
+                      "' aktywny: " + t.gameObject.activeSelf +
+                      ", renderer: " + (r != null ? r.enabled.ToString() : "brak") +
+                      ", material: " + (r != null && r.sharedMaterial != null ? r.sharedMaterial.name : "brak"));
+            return;
+        }
+
+        Debug.LogWarning("[SLEDZENIE] " + etap + ": nie znaleziono obiektu '" + sledzonyObiekt + "'.");
     }
 
     private void PrzywrocRozwiazaneZagadki(List<string> zapisane)
@@ -1080,10 +1585,15 @@ public class SaveLoadManager : MonoBehaviour
 
         int licznik = 0;
 
+        Dictionary<string, Transform> poNazwie = ZbudujMapePoNazwie(poSciezce.Values);
+
         foreach (TransformSaveData dane in zapisane)
         {
-            Transform t;
-            if (dane == null || !poSciezce.TryGetValue(dane.objectId, out t) || t == null)
+            if (dane == null)
+                continue;
+
+            Transform t = ZnajdzWDrzewie(poSciezce, poNazwie, dane.objectId, dane.objectName);
+            if (t == null)
                 continue;
 
             t.localPosition = dane.localPosition;
@@ -1372,7 +1882,8 @@ public class SaveLoadManager : MonoBehaviour
             przywrocone++;
         }
 
-        Debug.Log("LoadGame: przywrocono pozycje " + przywrocone + " z " + zapisane.Count + " NPC.");
+        if (!cichePowtorzenie)
+            Debug.Log("LoadGame: przywrocono pozycje " + przywrocone + " z " + zapisane.Count + " NPC.");
 
         if (przywrocone < zapisane.Count)
         {

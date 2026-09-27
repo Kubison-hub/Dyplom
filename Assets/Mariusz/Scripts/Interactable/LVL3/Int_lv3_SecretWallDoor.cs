@@ -1,5 +1,8 @@
 using System.Collections;
 using UnityEngine;
+
+// Alias chroni przed 'using System.Diagnostics;' dopisywanym przez Visual Studio (CS0104).
+using Debug = UnityEngine.Debug;
 using Unity.Cinemachine;
 
 [RequireComponent(typeof(Interactable))]
@@ -197,5 +200,53 @@ public class Int_lv3_SecretWallDoor : Lvl3ClockworkInteraction
         color.a = 0f;
         material.SetColor(colorProperty, color);
         blackBoardToDisableOnOpen.SetActive(false);
+    }
+
+    // ---------------------------------------------------------------
+    // SYSTEM ZAPISU
+    // ---------------------------------------------------------------
+
+    // Odtwarza otwarte drzwi BEZ animacji, dzwieku i wstrzasu kamery.
+    // Interesuja nas tylko trwale skutki: wlaczony pokoj, zgaszony
+    // blackboard i wylaczone kolidery.
+    public void RestoreOpenedState()
+    {
+        if (IsOpened)
+            return;
+
+        IsOpened = true;
+
+        if (roomToActivate != null)
+            roomToActivate.SetActive(true);
+
+        if (blackBoardToDisableOnOpen != null)
+            blackBoardToDisableOnOpen.SetActive(false);
+
+        if (brickOne != null)
+            brickOne.SetInteractionEnabled(false);
+
+        if (brickTwo != null)
+            brickTwo.SetInteractionEnabled(false);
+
+        if (collidersToDisableOnOpen != null)
+        {
+            foreach (Collider targetCollider in collidersToDisableOnOpen)
+            {
+                if (targetCollider != null)
+                    targetCollider.enabled = false;
+            }
+        }
+
+        // Animator ustawiamy od razu w stanie koncowym, bez odtwarzania ruchu.
+        if (doorAnimator != null && !string.IsNullOrWhiteSpace(openTrigger))
+        {
+            doorAnimator.SetTrigger(openTrigger);
+            doorAnimator.Update(0f);
+        }
+
+        if (Interactable != null)
+            Interactable.isInteractableActive = false;
+
+        Debug.Log("Int_lv3_SecretWallDoor: przywrocono otwarte drzwi '" + name + "'.", this);
     }
 }
