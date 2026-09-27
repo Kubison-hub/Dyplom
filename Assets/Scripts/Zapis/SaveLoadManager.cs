@@ -14,7 +14,7 @@ public class SaveLoadManager : MonoBehaviour
     // Wersja formatu zapisu. Podnies o 1 po kazdej zmianie struktury GameData.
     // Pliki z inna wersja sa ignorowane - lepiej zaczac od nowa niz wczytac
     // polowe danych i dostac czarny ekran.
-    public const int WERSJA_ZAPISU = 16;
+    public const int WERSJA_ZAPISU = 17;
 
     [Header("Diagnostyka")]
     [Tooltip("Przywracanie wszystkich pol bool w skryptach pod LEVELS. " +
@@ -1335,6 +1335,18 @@ public class SaveLoadManager : MonoBehaviour
         return wykluczone;
     }
 
+    // Czy nazwa obiektu wskazuje na czarna plyte zakrywajaca pomieszczenie.
+    private static bool CzyNazwaPlyty(string nazwa)
+    {
+        if (string.IsNullOrEmpty(nazwa))
+            return false;
+
+        if (nazwa.EndsWith("bb", System.StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return nazwa.IndexOf("BlackBoard", System.StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
     private static List<BlackboardSaveData> ZbierzCzarnePlyty(List<Transform> drzewo)
     {
         List<BlackboardSaveData> lista = new List<BlackboardSaveData>();
@@ -1357,6 +1369,17 @@ public class SaveLoadManager : MonoBehaviour
 
             // Obiekt uzywany przez interakcje jako jej wyglad - nie gasimy.
             if (wykluczone.Contains(t))
+                continue;
+
+            // Obiekt bedacy czescia interakcji (np. wyglad kukly) - nie gasimy.
+            if (t.GetComponentInParent<Interactable>() != null)
+                continue;
+
+            // Za plyte uznajemy tylko obiekt nazwany zgodnie z konwencja sceny:
+            // "lv3_R1bb" ... "lv3_R6bb", "BasementBlackBoard", "Level_3_BlackBoards".
+            // Samo wykrywanie po materiale bylo za szerokie - lapalo sciany,
+            // filary i elementy wygladu innych obiektow.
+            if (!CzyNazwaPlyty(t.name))
                 continue;
 
             if (renderer.sharedMaterial.name.IndexOf("BLACK", System.StringComparison.OrdinalIgnoreCase) < 0)
