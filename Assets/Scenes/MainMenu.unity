@@ -2406,9 +2406,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2764814848813797691, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
       propertyPath: m_text
-      value: "Poruszanie/Interakcja - LPM\nTryb Skupienia - Lewy Shift\nLupa (Sherlock)
-        / Podnoszenie (Watson)  - F\nZmiana postaci - Spacja\nNotatnik - TAB\nPoruszanie
-        kamer\u0105 - PPM\nOddalanie/Przybli\u017Canie - Scroll"
+      value: "Poruszanie/Interakcja - LPM\nTryb Skupienia/Umiej\u0119tno\u015B\u0107
+        Watsona - Lewy Shift\nLupa (Sherlock) - F\nZmiana postaci - Spacja\nNotatnik
+        - TAB\nPoruszanie kamer\u0105 - PPM\nOddalanie/Przybli\u017Canie - Scroll"
       objectReference: {fileID: 0}
     - target: {fileID: 2764814848813797691, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
       propertyPath: m_margin.z
@@ -4789,6 +4789,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03dcd295dde287848bcbc5af281301af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  przywracajFlagiSkryptow: 1
+  sledzonyObiekt: 
+  powtorzeniaPlyt: 4
+  odstepPowtorzenPlyt: 0.5
 --- !u!114 &534910994
 MonoBehaviour:
   m_ObjectHideFlags: 0
