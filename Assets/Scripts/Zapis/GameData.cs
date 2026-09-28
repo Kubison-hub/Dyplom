@@ -91,6 +91,18 @@ public class GameData
     // jej sciezka w hierarchii. Zapisujemy rodzica, pozycje i stan wprost.
     public List<LampSaveData> lamps;
 
+    // Lampy zawieszone na sciennych uchwytach (Int_lv3_WallLampHolder).
+    // Zapisujemy numer lampy przy kazdym uchwycie - sam uchwyt wie,
+    // gdzie sa jego lampy, wiec nie zalezymy od nazw obiektow.
+    public List<WallLampSaveData> wallLamps;
+
+    // Renderery modeli NPC. Postacie bywaja ukrywane przez wylaczenie
+    // renderera, a nie calego obiektu - stad Ethel pojawiala sie po wczytaniu
+    // mimo identycznego activeSelf i pozycji. Rendererow ogolnie NIE zapisujemy
+    // (koliduje to z systemem DOCS od przezroczystych scian), wiec robimy
+    // wyjatek tylko dla drzewa NPC.
+    public List<ScriptFlagSaveData> npcRenderers;
+
     // --- Cele kamer postaci (LookAt) ---
     // Scena startuje z kamera wycelowana w Selme (seans), a przesuwa ja dopiero
     // dialog otwierajacy. Po wczytaniu ten dialog nie leci, wiec cel trzeba zapisac.
@@ -272,4 +284,12 @@ public class LampSaveData
     public Vector3 localPosition;
     public Vector3 localEuler;
     public bool active;
+}
+
+// Lampa zawieszona na jednym sciennym uchwycie.
+[System.Serializable]
+public class WallLampSaveData
+{
+    public string holderId;
+    public int mountedLampIndex;   // 0 = brak, 1 = Held Lamp 1, 2 = Held Lamp 2
 }

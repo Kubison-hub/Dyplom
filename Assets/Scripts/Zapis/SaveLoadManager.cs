@@ -14,7 +14,7 @@ public class SaveLoadManager : MonoBehaviour
     // Wersja formatu zapisu. Podnies o 1 po kazdej zmianie struktury GameData.
     // Pliki z inna wersja sa ignorowane - lepiej zaczac od nowa niz wczytac
     // polowe danych i dostac czarny ekran.
-    public const int WERSJA_ZAPISU = 17;
+    public const int WERSJA_ZAPISU = 21;
 
     [Header("Diagnostyka")]
     [Tooltip("Przywracanie wszystkich pol bool w skryptach pod LEVELS. " +
@@ -93,16 +93,42 @@ public class SaveLoadManager : MonoBehaviour
             return "";
 
         Transform t = go.transform;
-        string path = t.name;
+        string path = SegmentSciezki(t);
         Transform parent = t.parent;
 
         while (parent != null)
         {
-            path = parent.name + "/" + path;
+            path = SegmentSciezki(parent) + "/" + path;
             parent = parent.parent;
         }
 
         return path;
+    }
+
+    // Jeden segment sciezki. Gdy rodzenstwo ma powtarzajace sie nazwy
+    // (a w scenie zdarza sie to czesto, np. dwa "BrickPillar_01 (65)"
+    // w jednym rodzicu), dopisujemy numer porzadkowy. Bez tego oba obiekty
+    // maja identyczne ID, jeden nadpisuje drugiego w zapisie i po wczytaniu
+    // dostaja wspolny stan - stad znikajace kukly, lampy i postacie.
+    private static string SegmentSciezki(Transform t)
+    {
+        Transform parent = t.parent;
+
+        if (parent == null)
+            return t.name;
+
+        int powtorzenia = 0;
+
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            if (parent.GetChild(i).name == t.name)
+                powtorzenia++;
+        }
+
+        if (powtorzenia <= 1)
+            return t.name;
+
+        return t.name + "#" + t.GetSiblingIndex();
     }
 
     // Wywolaj to w momencie podniesienia/usuniecia przedmiotu ze sceny.
@@ -227,6 +253,8 @@ public class SaveLoadManager : MonoBehaviour
 
         // --- Lampy: pozycja, rodzic i stan ---
         data.lamps = ZbierzLampy();
+        data.wallLamps = ZbierzUchwytyLamp();
+        data.npcRenderers = ZbierzRendereryNpc();
 
         // --- Niesione lampy (piwnica) ---
         if (Lvl3LampVisualManager.Instance != null)
@@ -453,7 +481,13 @@ public class SaveLoadManager : MonoBehaviour
         // --- Pozycje NPC ---
         Krok("NPC", () => PrzywrocNpc(data.npcs));
         Krok("drzewo postaci", () => PrzywrocDrzewoPostaci(data));
-        Krok("lampy", () => PrzywrocLampy(data.lamps));
+        // UWAGA: ogolnego PrzywrocLampy juz NIE wywolujemy. Dopasowywalo lampy
+        // po nazwie, a w scenie jest 11 uchwytow i nazwy typu "lvl3_HeldLamp 1"
+        // powtarzaja sie - przez to aktywowalo przypadkowa lampe na jej
+        // pierwotnym miejscu i powstawal duplikat. Zawieszone lampy odtwarza
+        // teraz sam uchwyt, ktory zna swoje referencje z Inspectora.
+        Krok("uchwyty lamp", () => PrzywrocUchwytyLamp(data.wallLamps));
+        Krok("renderery NPC", () => PrzywrocRendereryNpc(data.npcRenderers));
         Krok("niesione lampy", () => PrzywrocNiesioneLampy(data));
 
         // --- Odkryte punkty sledztwa ---
@@ -519,7 +553,7 @@ public class SaveLoadManager : MonoBehaviour
         // Dlatego nakladamy stan plyt jeszcze kilka razy przez najblizsze sekundy.
         if (powtorzeniaPlyt > 0)
             StartCoroutine(PonawiajPlyty(data.blackboards, data.removedBlackboardTriggers,
-                                         data.npcs, data.lamps));
+                                         data.npcs, data.wallLamps, data.npcRenderers));
 
         Sledz("po plytach");
 
@@ -1198,6 +1232,154 @@ public class SaveLoadManager : MonoBehaviour
         return lista;
     }
 
+    // Wszystkie renderery w drzewie kazdego NPC.
+    private static List<Renderer> ZnajdzRendereryNpc()
+    {
+        List<Renderer> renderery = new List<Renderer>();
+
+        foreach (Transform npc in ZnajdzNpc())
+        {
+            if (npc == null)
+                continue;
+
+            renderery.AddRange(npc.GetComponentsInChildren<Renderer>(true));
+        }
+
+        return renderery;
+    }
+
+    private static string KluczRendereraNpc(Renderer renderer)
+    {
+        return BuildObjectID(renderer.gameObject) + "|" + renderer.GetType().Name + "|renderer";
+    }
+
+    private List<ScriptFlagSaveData> ZbierzRendereryNpc()
+    {
+        List<ScriptFlagSaveData> lista = new List<ScriptFlagSaveData>();
+
+        foreach (Renderer renderer in ZnajdzRendereryNpc())
+        {
+            if (renderer == null)
+                continue;
+
+            ScriptFlagSaveData wpis = new ScriptFlagSaveData();
+            wpis.key = KluczRendereraNpc(renderer);
+            wpis.value = renderer.enabled;
+            lista.Add(wpis);
+        }
+
+        int wylaczone = 0;
+        foreach (ScriptFlagSaveData wpis in lista)
+        {
+            if (!wpis.value)
+                wylaczone++;
+        }
+
+        Debug.Log("SaveGame: rendererow NPC: " + lista.Count + ", wylaczonych: " + wylaczone + ".");
+        return lista;
+    }
+
+    private void PrzywrocRendereryNpc(List<ScriptFlagSaveData> zapisane)
+    {
+        if (zapisane == null || zapisane.Count == 0)
+            return;
+
+        Dictionary<string, bool> mapa = new Dictionary<string, bool>();
+        foreach (ScriptFlagSaveData wpis in zapisane)
+        {
+            if (wpis != null && !string.IsNullOrEmpty(wpis.key))
+                mapa[wpis.key] = wpis.value;
+        }
+
+        int licznik = 0;
+
+        foreach (Renderer renderer in ZnajdzRendereryNpc())
+        {
+            if (renderer == null)
+                continue;
+
+            bool wlaczony;
+            if (!mapa.TryGetValue(KluczRendereraNpc(renderer), out wlaczony))
+                continue;
+
+            if (renderer.enabled != wlaczony)
+            {
+                renderer.enabled = wlaczony;
+                licznik++;
+            }
+        }
+
+        if (!cichePowtorzenie)
+            Debug.Log("LoadGame: poprawiono " + licznik + " rendererow NPC.");
+    }
+
+    private List<WallLampSaveData> ZbierzUchwytyLamp()
+    {
+        List<WallLampSaveData> lista = new List<WallLampSaveData>();
+
+        foreach (Int_lv3_WallLampHolder uchwyt in FindObjectsByType<Int_lv3_WallLampHolder>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (uchwyt == null)
+                continue;
+
+            WallLampSaveData wpis = new WallLampSaveData();
+            wpis.holderId = BuildObjectID(uchwyt.gameObject);
+            wpis.mountedLampIndex = uchwyt.MountedLampIndex;
+            lista.Add(wpis);
+        }
+
+        int zLampa = 0;
+        foreach (WallLampSaveData wpis in lista)
+        {
+            if (wpis.mountedLampIndex > 0)
+                zLampa++;
+        }
+
+        Debug.Log("SaveGame: sciennych uchwytow lamp: " + lista.Count +
+                  ", z zawieszona lampa: " + zLampa + ".");
+        return lista;
+    }
+
+    private void PrzywrocUchwytyLamp(List<WallLampSaveData> zapisane)
+    {
+        if (zapisane == null || zapisane.Count == 0)
+            return;
+
+        Dictionary<string, int> poId = new Dictionary<string, int>();
+        foreach (WallLampSaveData wpis in zapisane)
+        {
+            if (wpis != null && !string.IsNullOrEmpty(wpis.holderId))
+                poId[wpis.holderId] = wpis.mountedLampIndex;
+        }
+
+        int zawieszone = 0;
+
+        foreach (Int_lv3_WallLampHolder uchwyt in FindObjectsByType<Int_lv3_WallLampHolder>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (uchwyt == null)
+                continue;
+
+            int index;
+            if (!poId.TryGetValue(BuildObjectID(uchwyt.gameObject), out index))
+                continue;
+
+            if (index > 0)
+            {
+                uchwyt.RestoreMountedLamp(index);
+                zawieszone++;
+            }
+            else
+            {
+                uchwyt.RefreshMountedLampLightFromSave();
+            }
+        }
+
+        if (!cichePowtorzenie)
+            Debug.Log("LoadGame: przywrocono " + zawieszone + " zawieszonych lamp.");
+    }
+
     private void PrzywrocLampy(List<LampSaveData> zapisane)
     {
         if (zapisane == null || zapisane.Count == 0)
@@ -1412,7 +1594,8 @@ public class SaveLoadManager : MonoBehaviour
 
     private System.Collections.IEnumerator PonawiajPlyty(
         List<BlackboardSaveData> plyty, List<string> wyzwalacze,
-        List<NpcSaveData> npc, List<LampSaveData> lampy)
+        List<NpcSaveData> npc, List<WallLampSaveData> uchwyty,
+        List<ScriptFlagSaveData> renderery)
     {
         for (int i = 0; i < powtorzeniaPlyt; i++)
         {
@@ -1422,7 +1605,8 @@ public class SaveLoadManager : MonoBehaviour
             PrzywrocCzarnePlyty(plyty);
             PrzywrocUsunietePlyty(wyzwalacze);
             PrzywrocNpc(npc);
-            PrzywrocLampy(lampy);
+            PrzywrocUchwytyLamp(uchwyty);
+            PrzywrocRendereryNpc(renderery);
             cichePowtorzenie = false;
 
             Sledz("powtorzenie plyt " + (i + 1));

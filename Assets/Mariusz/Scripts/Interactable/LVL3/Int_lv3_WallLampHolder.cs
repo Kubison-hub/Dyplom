@@ -1,4 +1,7 @@
 using UnityEngine;
+
+// Alias chroni przed 'using System.Diagnostics;' dopisywanym przez Visual Studio (CS0104).
+using Debug = UnityEngine.Debug;
 using UnityEngine.Serialization;
 
 [RequireComponent(typeof(Interactable))]
@@ -197,5 +200,52 @@ public class Int_lv3_WallLampHolder : Lvl3ClockworkInteraction, IInteractionAppr
     {
         if (lampAudioSource != null && clip != null)
             lampAudioSource.PlayOneShot(clip);
+    }
+
+    // ---------------------------------------------------------------
+    // SYSTEM ZAPISU
+    // ---------------------------------------------------------------
+
+    // Ktora lampa wisi na tym uchwycie: 0 = zadna, 1 = heldLamp1, 2 = heldLamp2.
+    // Skrypt nie trzyma wlasnego stanu - wszystko wynika z hierarchii,
+    // dlatego zapisujemy sam numer lampy i odtwarzamy przepiecie.
+    public int MountedLampIndex
+    {
+        get
+        {
+            if (IsLampMountedOnWall(heldLamp1))
+                return 1;
+
+            if (IsLampMountedOnWall(heldLamp2))
+                return 2;
+
+            return 0;
+        }
+    }
+
+    // Wiesza wskazana lampe na uchwycie bez dzwieku i dialogu.
+    // index: 0 = zadna, 1 = heldLamp1, 2 = heldLamp2.
+    public void RestoreMountedLamp(int index)
+    {
+        if (wallLampSocket == null)
+            return;
+
+        GameObject lamp = index == 1 ? heldLamp1 : (index == 2 ? heldLamp2 : null);
+
+        if (lamp != null)
+        {
+            lamp.transform.SetParent(wallLampSocket, false);
+            lamp.transform.localPosition = wallLampLocalPosition;
+            lamp.transform.localRotation = Quaternion.Euler(wallLampLocalEulerAngles);
+            lamp.SetActive(true);
+        }
+
+        RefreshMountedLampLight();
+    }
+
+    // Odswieza swiatlo uchwytu z zewnatrz (po wczytaniu zapisu).
+    public void RefreshMountedLampLightFromSave()
+    {
+        RefreshMountedLampLight();
     }
 }
