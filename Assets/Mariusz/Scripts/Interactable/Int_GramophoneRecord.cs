@@ -1,24 +1,30 @@
 using UnityEngine;
 
+// Alias chroni przed 'using System.Diagnostics;' dopisywanym przez Visual Studio (CS0104).
+using Debug = UnityEngine.Debug;
+
 [RequireComponent(typeof(Interactable))]
 public sealed class Int_GramophoneRecord : Lvl3InteractionDialogueBase
 {
     [Header("Character Dialogue Lines")]
-    [SerializeField] private Lvl3DialogueLine sherlockDialogue = new Lvl3DialogueLine
+    [SerializeField]
+    private Lvl3DialogueLine sherlockDialogue = new Lvl3DialogueLine
     {
         speaker = Lvl3DialogueSpeaker.Sherlock,
         text = "Winylowe płyty, przyjrzyjmy się im z bliska",
         duration = 3f
     };
 
-    [SerializeField] private Lvl3DialogueLine watsonDialogue = new Lvl3DialogueLine
+    [SerializeField]
+    private Lvl3DialogueLine watsonDialogue = new Lvl3DialogueLine
     {
         speaker = Lvl3DialogueSpeaker.Watson,
         text = "Kolekcja płyt winylowych",
         duration = 3f
     };
 
-    [SerializeField] private Lvl3DialogueLine watsonPickupDialogue = new Lvl3DialogueLine
+    [SerializeField]
+    private Lvl3DialogueLine watsonPickupDialogue = new Lvl3DialogueLine
     {
         speaker = Lvl3DialogueSpeaker.Watson,
         text = "Duchy przeszłości - myślę, że nada się w sam raz",
@@ -28,7 +34,8 @@ public sealed class Int_GramophoneRecord : Lvl3InteractionDialogueBase
     [Header("Record Clue Point")]
     [Tooltip("Root containing the clue point visual and its QuestionFX. It starts hidden.")]
     [SerializeField] private GameObject cluePointRoot;
-    [SerializeField] private Lvl3DialogueLine cluePointDialogue = new Lvl3DialogueLine
+    [SerializeField]
+    private Lvl3DialogueLine cluePointDialogue = new Lvl3DialogueLine
     {
         speaker = Lvl3DialogueSpeaker.Sherlock,
         text = "Duchy przeszłości — znamienne.",
@@ -132,6 +139,11 @@ public sealed class Int_GramophoneRecord : Lvl3InteractionDialogueBase
         }
 
         collected = true;
+
+        // Zapis: bez tego plyta wraca na swoje miejsce po wczytaniu gry,
+        // mimo ze jest juz w ekwipunku.
+        if (SaveLoadManager.Instance != null)
+            SaveLoadManager.Instance.MarkCollected(gameObject);
 
         if (pickupAudioSource != null && pickupAudioClip != null)
             pickupAudioSource.PlayOneShot(pickupAudioClip);
