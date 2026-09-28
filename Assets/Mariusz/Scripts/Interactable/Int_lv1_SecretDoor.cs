@@ -25,13 +25,6 @@ public class Int_lv1_SecretDoor : Lvl3InteractionDialogueBase
     [SerializeField] private EagleVisionScanner scanner;
     [SerializeField] private GameObject[] footprintSplines;
 
-    [Header("Tutorial Camera")]
-    [SerializeField] private CameraController cameraController;
-    [SerializeField] private string tutorialCameraPresetName = "Wide";
-    [SerializeField, Min(0f)] private float cameraTransitionDuration = 2.5f;
-    [SerializeField, Min(0f)] private float cameraSettleDelay = 0.75f;
-    [SerializeField] private bool returnToPreviousCameraAfterTutorial = true;
-
     private Interactable interactable;
     private Collider interactionCollider;
     private bool performed;
@@ -44,9 +37,6 @@ public class Int_lv1_SecretDoor : Lvl3InteractionDialogueBase
         interactable = GetComponent<Interactable>();
         interactionCollider = GetComponent<Collider>();
         interactable.SetInteractionType(InteractionType.Int_lv1_SecretDoor);
-
-        if (cameraController == null)
-            cameraController = FindFirstObjectByType<CameraController>();
 
         SetFootprintSplinesActive(false);
     }
@@ -102,12 +92,6 @@ public class Int_lv1_SecretDoor : Lvl3InteractionDialogueBase
         if (tutorialDelay > 0f)
             yield return new WaitForSecondsRealtime(tutorialDelay);
 
-        bool cameraChanged = cameraController != null &&
-                             cameraController.SetZoomPreset(tutorialCameraPresetName, cameraTransitionDuration);
-
-        if (cameraChanged && cameraSettleDelay > 0f)
-            yield return new WaitForSecondsRealtime(cameraSettleDelay);
-
         TutorialTimeline tutorialTimeline = TutorialTimeline.Instance;
         if (tutorialTimeline != null)
         {
@@ -124,9 +108,6 @@ public class Int_lv1_SecretDoor : Lvl3InteractionDialogueBase
             scanner.footPrints = true;
 
         SetFootprintSplinesActive(true);
-
-        if (cameraChanged && returnToPreviousCameraAfterTutorial)
-            cameraController.ReturnToPreviousZoomState(cameraTransitionDuration);
 
         EnableRepeatableInteraction();
     }

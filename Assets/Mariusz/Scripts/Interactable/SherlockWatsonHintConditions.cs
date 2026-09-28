@@ -35,6 +35,17 @@ public sealed class SherlockWatsonHintConditions : MonoBehaviour
     [SerializeField] private string libraryGateParameterName = "LibraryGate";
     [SerializeField] private string magicBallParameterName = "MagicBall";
     [SerializeField] private string easyTableCompleteParameterName = "EasyTableComplete";
+    [SerializeField] private string ethelParameterName = "Ethel";
+    [SerializeField] private string gramParameterName = "Gram";
+    [SerializeField] private string selmaEscortParameterName = "SelmaEscort";
+    [SerializeField] private string basementParameterName = "Basement";
+    [SerializeField] private string trapParameterName = "Trap";
+    [SerializeField] private string ethelLetterParameterName = "EthelLetter";
+    [SerializeField] private string brickWallParameterName = "BrickWall";
+    [SerializeField] private string basementSecretWallParameterName = "BsSecretWall";
+    [SerializeField] private string oldClockParameterName = "OldClock";
+    [SerializeField] private string brickClockParameterName = "BrickClock";
+    [SerializeField] private string controlUnitParameterName = "ControlUnit";
 
     [Header("Investigation Progress")]
     [SerializeField] private bool bodyExamined;
@@ -56,6 +67,17 @@ public sealed class SherlockWatsonHintConditions : MonoBehaviour
     [SerializeField] private bool libraryGate;
     [SerializeField] private bool magicBall;
     [SerializeField] private bool easyTableComplete;
+    [SerializeField] private bool ethel;
+    [SerializeField] private bool gram;
+    [SerializeField] private bool selmaEscort;
+    [SerializeField] private bool basement;
+    [SerializeField] private bool trap;
+    [SerializeField] private bool ethelLetter;
+    [SerializeField] private bool brickWall;
+    [SerializeField] private bool basementSecretWall;
+    [SerializeField] private bool oldClock;
+    [SerializeField] private bool brickClock;
+    [SerializeField] private bool controlUnit;
 
     [Header("Act I IdeaPoints")]
     [Tooltip("When left empty, the component finds IdeaPoint_Light automatically.")]
@@ -223,6 +245,70 @@ public sealed class SherlockWatsonHintConditions : MonoBehaviour
         ApplyConditionToBothConversations(easyTableCompleteParameterName, true);
     }
 
+    public void MarkEthelPassageDoorUsed()
+    {
+        if (ethel)
+            return;
+
+        ethel = true;
+        ApplyConditionToBothConversations(ethelParameterName, true);
+    }
+
+    public void MarkGramophoneConversationComplete()
+    {
+        if (gram)
+            return;
+
+        gram = true;
+        ApplyConditionToBothConversations(gramParameterName, true);
+    }
+
+    public void MarkSelmaEscortConversationComplete()
+    {
+        selmaEscort = true;
+        gram = false;
+        ApplyConditionToBothConversations(selmaEscortParameterName, true);
+        ApplyConditionToBothConversations(gramParameterName, false);
+    }
+
+    public void MarkBasementEntered()
+    {
+        if (basement)
+            return;
+
+        basement = true;
+        ApplyConditionToBothConversations(basementParameterName, true);
+    }
+
+    public void MarkTrapTriggered()
+    {
+        if (trap)
+            return;
+
+        trap = true;
+        ApplyConditionToBothConversations(trapParameterName, true);
+    }
+
+    public void MarkEthelLetterConversationComplete()
+    {
+        if (ethelLetter)
+            return;
+
+        ethelLetter = true;
+        ApplyConditionToBothConversations(ethelLetterParameterName, true);
+    }
+
+    public void MarkBrickWallFound() => SetKnownCondition(ref brickWall, brickWallParameterName);
+
+    public void MarkBasementSecretWallFound() =>
+        SetKnownCondition(ref basementSecretWall, basementSecretWallParameterName);
+
+    public void MarkOldClockFound() => SetKnownCondition(ref oldClock, oldClockParameterName);
+
+    public void MarkBrickClockFound() => SetKnownCondition(ref brickClock, brickClockParameterName);
+
+    public void MarkControlUnitFound() => SetKnownCondition(ref controlUnit, controlUnitParameterName);
+
     /// <summary>
     /// Reapplies all serialized investigation flags to both dialogue variants.
     /// Call this after restoring a saved investigation state.
@@ -246,6 +332,26 @@ public sealed class SherlockWatsonHintConditions : MonoBehaviour
         ApplyConditionToBothConversations(libraryGateParameterName, libraryGate);
         ApplyConditionToBothConversations(magicBallParameterName, magicBall);
         ApplyConditionToBothConversations(easyTableCompleteParameterName, easyTableComplete);
+        ApplyConditionToBothConversations(ethelParameterName, ethel);
+        ApplyConditionToBothConversations(gramParameterName, gram);
+        ApplyConditionToBothConversations(selmaEscortParameterName, selmaEscort);
+        ApplyConditionToBothConversations(basementParameterName, basement);
+        ApplyConditionToBothConversations(trapParameterName, trap);
+        ApplyConditionToBothConversations(ethelLetterParameterName, ethelLetter);
+        ApplyConditionToBothConversations(brickWallParameterName, brickWall);
+        ApplyConditionToBothConversations(basementSecretWallParameterName, basementSecretWall);
+        ApplyConditionToBothConversations(oldClockParameterName, oldClock);
+        ApplyConditionToBothConversations(brickClockParameterName, brickClock);
+        ApplyConditionToBothConversations(controlUnitParameterName, controlUnit);
+    }
+
+    private void SetKnownCondition(ref bool state, string parameterName)
+    {
+        if (state)
+            return;
+
+        state = true;
+        ApplyConditionToBothConversations(parameterName, true);
     }
 
     /// <summary>

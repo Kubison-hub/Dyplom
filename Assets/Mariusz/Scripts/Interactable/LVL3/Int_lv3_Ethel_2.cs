@@ -163,12 +163,18 @@ public class Int_lv3_Ethel_2 : MonoBehaviour
         PlayerController inactivePlayer = GetInactivePlayer(player);
         inactivePlayer?.SetConversationMovementAllowed(true);
 
-        StartEthelConversation(player);
+        bool conversationStarted = StartEthelConversation(player);
 
         // SmartNPC changes ConversationManager state on the following frame.
         yield return null;
         while (ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
             yield return null;
+
+        if (conversationStarted)
+        {
+            FindFirstObjectByType<SherlockWatsonHintConditions>(FindObjectsInactive.Include)?
+                .MarkEthelLetterConversationComplete();
+        }
 
         CluesLog.Instance?.RegisterBasementEvidence("EthelSecondConversation");
         CluesLog.Instance?.SetEthelSecondConversationDescription();
@@ -180,18 +186,24 @@ public class Int_lv3_Ethel_2 : MonoBehaviour
         yield return RunEthelSequence();
     }
 
-    private void StartEthelConversation(PlayerController player)
+    private bool StartEthelConversation(PlayerController player)
     {
         if (ethelVoiceSource != null && conversationIntroAudio != null)
             ethelVoiceSource.PlayOneShot(conversationIntroAudio);
 
         if (ethelSmartNPC == null)
-            return;
+            return false;
 
         ethelSmartNPC.SprawdzIZacznijRozmowe();
 
-        if (player == null || ConversationManager.Instance == null || ConversationManager.Instance.IsConversationActive)
-            return;
+        if (ConversationManager.Instance == null)
+            return false;
+
+        if (ConversationManager.Instance.IsConversationActive)
+            return true;
+
+        if (player == null)
+            return false;
 
         NPCConversation conversation = player.playerCharacter == PlayerCharacter.Watson
             ? ethelSmartNPC.rozmowaDlaPostaciB
@@ -200,7 +212,7 @@ public class Int_lv3_Ethel_2 : MonoBehaviour
         if (conversation == null)
         {
             Debug.LogWarning($"{name}: Ethel has no conversation assigned for the active player.", this);
-            return;
+            return false;
         }
 
         string playerId = player.playerCharacter == PlayerCharacter.Watson ? "PlayerB" : "PlayerA";
@@ -210,6 +222,8 @@ public class Int_lv3_Ethel_2 : MonoBehaviour
 
         if (ethelSmartNPC.noteIDToUnlock >= 0)
             JournalManager.Instance?.UnlockNote(ethelSmartNPC.noteIDToUnlock);
+
+        return true;
     }
 
     private IEnumerator RunEthelSequence()

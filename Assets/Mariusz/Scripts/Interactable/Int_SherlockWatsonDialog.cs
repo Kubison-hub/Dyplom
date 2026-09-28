@@ -5,6 +5,8 @@ using UnityEngine.AI;
 [RequireComponent(typeof(Interactable))]
 public sealed class Int_SherlockWatsonDialog : Int_lv1_NpcDialogBase, IPlayerInteractionAvailability
 {
+    protected override bool CountsAsSessionWitness => false;
+
     [Header("Companion Approach")]
     [SerializeField, Min(0.1f)] private float approachDistance = 1.5f;
     [SerializeField, Min(0.1f)] private float approachNavMeshSampleRadius = 1.2f;
@@ -82,17 +84,7 @@ public sealed class Int_SherlockWatsonDialog : Int_lv1_NpcDialogBase, IPlayerInt
                 player.navMeshAgent.velocity = Vector3.zero;
             }
 
-            if (delayedCompanionTurnCoroutine != null)
-            {
-                StopCoroutine(delayedCompanionTurnCoroutine);
-                delayedCompanionTurnCoroutine = null;
-            }
-
-            if (companionTurnCoroutine != null)
-            {
-                StopCoroutine(companionTurnCoroutine);
-                companionTurnCoroutine = null;
-            }
+            StopPendingCompanionTurn();
 
             // No NavMesh approach is needed. Clear the world-interaction owner so
             // PlayerController cannot start a second RotateAndPerform coroutine,
@@ -119,8 +111,7 @@ public sealed class Int_SherlockWatsonDialog : Int_lv1_NpcDialogBase, IPlayerInt
         player.SetWaitingForInteractionReaction(false);
         player.MoveToInteractable();
 
-        if (delayedCompanionTurnCoroutine != null)
-            StopCoroutine(delayedCompanionTurnCoroutine);
+        StopPendingCompanionTurn();
 
         float turnDistance = Mathf.Lerp(initialDistance, finalDistance, companionTurnStartProgress);
         delayedCompanionTurnCoroutine = StartCoroutine(
@@ -142,11 +133,10 @@ public sealed class Int_SherlockWatsonDialog : Int_lv1_NpcDialogBase, IPlayerInt
         PlayerController companion = FindCompanion(player);
         if (player != null && companion != null)
         {
-            while (delayedCompanionTurnCoroutine != null)
-                yield return null;
-
-            while (companionTurnCoroutine != null)
-                yield return null;
+            // Reaching the interaction point supersedes the delayed mid-approach
+            // turn. Waiting for it here can deadlock when the player already
+            // stands exactly at the generated approach point.
+            StopPendingCompanionTurn();
 
             yield return FaceEachOther(player, companion);
         }
@@ -285,6 +275,13 @@ public sealed class Int_SherlockWatsonDialog : Int_lv1_NpcDialogBase, IPlayerInt
 
     private void OnDisable()
     {
+        StopPendingCompanionTurn();
+        companionApproachPending = false;
+        dialogueStartPending = false;
+    }
+
+    private void StopPendingCompanionTurn()
+    {
         if (delayedCompanionTurnCoroutine != null)
             StopCoroutine(delayedCompanionTurnCoroutine);
 
@@ -293,7 +290,5 @@ public sealed class Int_SherlockWatsonDialog : Int_lv1_NpcDialogBase, IPlayerInt
 
         delayedCompanionTurnCoroutine = null;
         companionTurnCoroutine = null;
-        companionApproachPending = false;
-        dialogueStartPending = false;
     }
 }

@@ -65,6 +65,7 @@ public class EagleVisionSystem : MonoBehaviour
     private Coroutine firstVisionEyeTutorialCoroutine;
     private bool debugVisionLockedOn;
     private bool manualVisionAudioSessionActive;
+    private bool ideaSequenceVisionAudioSessionActive;
     private ColorAdjustments eagleVisionColorAdjustments;
     private float originalEagleVisionSaturation;
     private bool saturationOverrideNeutralized;
@@ -150,13 +151,19 @@ public class EagleVisionSystem : MonoBehaviour
                 manualVisionAudioSessionActive = manualVisionRequested;
                 if (manualVisionAudioSessionActive)
                     PlayEagleVisionTransitionAudio(true);
+                else if (ideaSequenceForcesVision)
+                {
+                    ideaSequenceVisionAudioSessionActive = true;
+                    PlayEagleVisionTransitionAudio(true);
+                }
             }
             else
             {
-                if (manualVisionAudioSessionActive)
+                if (manualVisionAudioSessionActive || ideaSequenceVisionAudioSessionActive)
                     PlayEagleVisionTransitionAudio(false);
 
                 manualVisionAudioSessionActive = false;
+                ideaSequenceVisionAudioSessionActive = false;
             }
             //SwitchRenderer();
             Scan();
@@ -170,8 +177,12 @@ public class EagleVisionSystem : MonoBehaviour
 
         SyncSherlockScannerState();
 
+        bool showManualScanVisuals = manualVisionHeld ||
+                                     debugVisionLockedOn ||
+                                     firstVisionEyeTutorialForcesActive;
+
         if (eagleVisionScanner != null)
-            eagleVisionScanner.SetManualScanRingActive(manualVisionHeld || debugVisionLockedOn);
+            eagleVisionScanner.SetManualScanRingActive(showManualScanVisuals);
 
         // 3. P?ynne przej?cie Volume (zostaje bez zmian, bo reaguje na isActive)
         float targetWeight = isActive ? 1f : 0f;
@@ -182,7 +193,7 @@ public class EagleVisionSystem : MonoBehaviour
             eagleVisionVolume.weight = Mathf.Lerp(eagleVisionVolume.weight, targetWeight, blend);
         }
 
-        UpdateColorMaskShaderGlobals(manualVisionHeld || debugVisionLockedOn);
+        UpdateColorMaskShaderGlobals(showManualScanVisuals);
     }
 
     private void PlayEagleVisionTransitionAudio(bool entering)

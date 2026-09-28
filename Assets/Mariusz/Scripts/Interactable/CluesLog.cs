@@ -4,6 +4,7 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Video;
 
 // Aliasy chronia przed 'using System.Diagnostics;', ktory Visual Studio
 // dopisuje po wklejeniu kodu i psuje kompilacje (CS0104).
@@ -28,6 +29,13 @@ public class CluesLog : MonoBehaviour
     [SerializeField] private TextMeshProUGUI questLogObjectiveRow;
     [SerializeField] private TextMeshProUGUI questLogSubObjectiveRow;
 
+    [Header("Quest Log Collapse")]
+    [SerializeField] private Button questLogCollapseButton;
+    [SerializeField] private TextMeshProUGUI questLogCollapseButtonLabel;
+    [SerializeField] private bool startQuestLogCollapsed;
+    [SerializeField] private string collapseQuestLogLabel = "[▲]";
+    [SerializeField] private string expandQuestLogLabel = "[▼]";
+
     public bool IsQuestLogVisible
     {
         get
@@ -43,6 +51,9 @@ public class CluesLog : MonoBehaviour
     {
         if (questLogContent != null)
             questLogContent.gameObject.SetActive(visible);
+
+        if (questLogCollapseButton != null)
+            questLogCollapseButton.gameObject.SetActive(visible);
 
         if (questLogText != null &&
             (questLogContent == null || !questLogText.transform.IsChildOf(questLogContent)))
@@ -96,7 +107,7 @@ public class CluesLog : MonoBehaviour
     [SerializeField] private string examineRoomText = "Zbadaj pomieszczenie";
     [SerializeField] private string findSecretPassageText = "Odnajdź tajne przejście";
     [SerializeField] private string findSecretDoorOpeningMethodText = "Znajdź sposób na otworzenie tajnych drzwi w ścianie";
-    [SerializeField] private string completeTableMechanismText = "Skompletuj brakujące elementy mechanizmu stołu";
+    [SerializeField] private string completeTableMechanismText = "Odnajdź brakujący element mechanizmu";
     [SerializeField] private string investigateSecretPassageText = "Zbadaj dokąd prowadzi tajne przejście";
     [SerializeField] private string connectionsText = "Dowiedz się więcej o Powiązaniach Lady Edith";
     [SerializeField] private string interviewSessionWitnessesText = "Przesłuchaj świadków biorących udział w sesji";
@@ -129,6 +140,7 @@ public class CluesLog : MonoBehaviour
     [SerializeField] private string firstIdeaPointTutorialTitle = "Punkty dedukcji";
     [SerializeField, TextArea(3, 6)] private string firstIdeaPointTutorialText =
         "Odkryte ślady tworzą punkty dedukcji. Zbadaj miejsce zbrodni i odnajdź wszystkie punkty, aby połączyć fakty oraz odtworzyć przebieg wydarzeń.";
+    [SerializeField] private VideoClip firstIdeaPointTutorialVideoClip;
     [SerializeField, Min(0f)] private float firstIdeaPointTutorialDelay = 1.5f;
     [SerializeField] private bool playFirstIdeaPointTutorialAudio = true;
 
@@ -185,6 +197,9 @@ public class CluesLog : MonoBehaviour
     private Coroutine questLogRowsTransitionCoroutine;
     private bool hasPendingQuestLogRowsRefresh;
     private bool pendingQuestLogRowsAnimate;
+    private bool questLogCollapsed;
+    private Vector2 expandedQuestLogSizeDelta;
+    private bool hasExpandedQuestLogSize;
     private bool debugSlowMotionEnabled;
     private float timeScaleBeforeDebugSlowMotion = 1f;
     private readonly List<QuestLogRowView> activeQuestRows = new();
@@ -215,6 +230,7 @@ public class CluesLog : MonoBehaviour
         ConfigureJournalUpdateNotice();
         ConfigureQuestLogText();
         ConfigureQuestLogRows();
+        ConfigureQuestLogCollapseButton();
     }
 
     private void Start()
@@ -355,7 +371,7 @@ public class CluesLog : MonoBehaviour
         secretPassageExplored = true;
         crimeSceneVisible = false;
         findEthelVisible = true;
-        findWayUpstairsVisible = false;
+        findWayUpstairsVisible = true;
         UpdateLog();
     }
 
@@ -371,7 +387,7 @@ public class CluesLog : MonoBehaviour
         secretPassageExplored = true;
         crimeSceneVisible = false;
         findEthelVisible = true;
-        findWayUpstairsVisible = false;
+        findWayUpstairsVisible = true;
         SetDescription(ethelPassageDescription);
         UpdateLog();
     }
@@ -470,6 +486,7 @@ public class CluesLog : MonoBehaviour
     public void BeginUpperFloorEvidenceObjective()
     {
         sessionWitnessesVisible = false;
+        askArthurAboutFoundItemsVisible = false;
         upperFloorEvidenceVisible = true;
         UpdateLog();
     }
@@ -685,6 +702,91 @@ public class CluesLog : MonoBehaviour
         }
     }
 
+    private void ConfigureQuestLogCollapseButton()
+    {
+        questLogCollapsed = startQuestLogCollapsed;
+
+        if (questLogContent is RectTransform contentRect)
+        {
+            expandedQuestLogSizeDelta = contentRect.sizeDelta;
+            hasExpandedQuestLogSize = true;
+        }
+
+        if (questLogCollapseButton == null)
+            return;
+
+        LayoutElement buttonLayout = questLogCollapseButton.GetComponent<LayoutElement>();
+        if (buttonLayout == null)
+            buttonLayout = questLogCollapseButton.gameObject.AddComponent<LayoutElement>();
+
+        buttonLayout.ignoreLayout = true;
+        questLogCollapseButton.transform.SetAsLastSibling();
+        questLogCollapseButton.interactable = true;
+
+        if (questLogCollapseButton.targetGraphic != null)
+            questLogCollapseButton.targetGraphic.raycastTarget = true;
+
+        if (questLogCollapseButtonLabel == null)
+            questLogCollapseButtonLabel = questLogCollapseButton.GetComponentInChildren<TextMeshProUGUI>(true);
+
+        if (questLogCollapseButtonLabel != null)
+            questLogCollapseButtonLabel.raycastTarget = false;
+
+        questLogCollapseButton.onClick.RemoveListener(ToggleQuestLogCollapsed);
+        questLogCollapseButton.onClick.AddListener(ToggleQuestLogCollapsed);
+        ApplyQuestLogCollapsedState();
+    }
+
+    public void ToggleQuestLogCollapsed()
+    {
+        questLogCollapsed = !questLogCollapsed;
+        ApplyQuestLogCollapsedState();
+    }
+
+    private void ApplyQuestLogCollapsedState()
+    {
+        foreach (QuestLogRowView row in activeQuestRows)
+        {
+            if (row?.Label != null)
+                row.Label.gameObject.SetActive(!questLogCollapsed);
+        }
+
+        if (questLogCollapseButtonLabel != null)
+        {
+            questLogCollapseButtonLabel.text = questLogCollapsed
+                ? expandQuestLogLabel
+                : collapseQuestLogLabel;
+        }
+
+        if (questLogContent is RectTransform contentRect)
+        {
+            ResizeQuestLogBackground(contentRect);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(contentRect);
+        }
+    }
+
+    private void ResizeQuestLogBackground(RectTransform contentRect)
+    {
+        if (!hasExpandedQuestLogSize || questLogTitleRow == null)
+            return;
+
+        Vector2 sizeDelta = expandedQuestLogSizeDelta;
+        if (questLogCollapsed)
+        {
+            float titleHeight = LayoutUtility.GetPreferredHeight(questLogTitleRow.rectTransform);
+            if (titleHeight <= 0f)
+                titleHeight = questLogTitleRow.rectTransform.rect.height;
+
+            VerticalLayoutGroup layout = contentRect.GetComponent<VerticalLayoutGroup>();
+            if (layout != null)
+                titleHeight += layout.padding.top + layout.padding.bottom;
+
+            sizeDelta.y = titleHeight;
+        }
+
+        contentRect.sizeDelta = sizeDelta;
+    }
+
     private bool HasQuestLogRows()
     {
         return questLogTitleRow != null && questLogObjectiveRow != null &&
@@ -778,6 +880,8 @@ public class CluesLog : MonoBehaviour
                 row = CreateQuestLogRow(data, prepareFadeIn ? 0f : 1f);
                 activeQuestRows.Add(row);
             }
+
+            row.Label.gameObject.SetActive(!questLogCollapsed);
 
             row.Label.transform.SetSiblingIndex(index + GetRowStartSiblingIndex());
         }
@@ -1127,7 +1231,7 @@ public class CluesLog : MonoBehaviour
         if (connectionsVisible)
         {
             AppendObjective(builder, connectionsText, true, connectionsCompleted);
-            if (sessionWitnessesVisible)
+            if (sessionWitnessesVisible && interviewedSessionWitnesses < requiredSessionWitnesses)
             {
                 AppendNestedObjective(
                     builder,
@@ -1175,11 +1279,9 @@ public class CluesLog : MonoBehaviour
 
         builder.AppendLine($" • {examineCrimeSceneText}");
 
-        if (crimeSceneCompleted)
+        if (ideaPointPuzzleSolved)
         {
-            if (!ideaPointPuzzleSolved)
-                AppendNestedObjective(builder, findSecretPassageText, false);
-            else if (secretDoorOpeningPuzzleSolved)
+            if (secretDoorOpeningPuzzleSolved)
             {
                 if (!secretPassageExplored)
                     AppendNestedObjective(builder, investigateSecretPassageText, false);
@@ -1192,22 +1294,25 @@ public class CluesLog : MonoBehaviour
                 {
                     AppendNestedObjective(
                         builder,
-                        $"{completeTableMechanismText} {GetCollectedTableMechanismElementCount()}/3",
+                        completeTableMechanismText,
                         false);
                 }
             }
-
-            return;
         }
+        else if (crimeSceneCompleted)
+            AppendNestedObjective(builder, findSecretPassageText, false);
 
-        AppendNestedObjective(
-            builder,
-            $"{examineEdithBodyText} {collectedEdithBodyClues}/{requiredEdithBodyClues}",
-            false);
-        AppendNestedObjective(
-            builder,
-            $"{examineRoomText} {discoveredRoomIdeaPoints}/{GetRoomIdeaPointTarget()}",
-            false);
+        if (collectedEdithBodyClues < requiredEdithBodyClues)
+            AppendNestedObjective(
+                builder,
+                $"{examineEdithBodyText} {collectedEdithBodyClues}/{requiredEdithBodyClues}",
+                false);
+
+        if (discoveredRoomIdeaPoints < GetRoomIdeaPointTarget())
+            AppendNestedObjective(
+                builder,
+                $"{examineRoomText} {discoveredRoomIdeaPoints}/{GetRoomIdeaPointTarget()}",
+                false);
     }
 
     private static void AppendNestedObjective(StringBuilder builder, string text, bool completed)
@@ -1267,7 +1372,7 @@ public class CluesLog : MonoBehaviour
         firstIdeaPointTutorialShown = TutorialTimeline.Instance.ShowGameplayTutorialPopup(
             firstIdeaPointTutorialTitle,
             firstIdeaPointTutorialText,
-            null,
+            firstIdeaPointTutorialVideoClip,
             playFirstIdeaPointTutorialAudio);
     }
 

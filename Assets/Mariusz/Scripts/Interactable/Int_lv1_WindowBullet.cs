@@ -28,20 +28,16 @@ public class Int_lv1_WindowBullet : Lvl3InteractionDialogueBase
     [SerializeField, Min(0.1f)] private float examinationZoneRange = 1.5f;
     [SerializeField] private Vector3 examinationZoneOffset;
 
-    [Header("Camera")]
-    [SerializeField] private CameraController cameraController;
-    private const string ExaminationPresetName = "Narrow";
-
     private Interactable interactable;
     private Collider interactionCollider;
     private PlayerController examiningPlayer;
     private GameObject examinationZone;
     private bool isExamining;
     private bool isInsideExaminationZone;
-    private bool isCameraInExaminationMode;
     private bool clueFound;
     private bool completed;
     private bool tutorialPopupShown;
+    private bool mainInteractionDisabled;
 
     protected override Lvl3DialogueLine[] DefaultDialogueLines => windowExaminationDialogue;
 
@@ -51,18 +47,21 @@ public class Int_lv1_WindowBullet : Lvl3InteractionDialogueBase
         interactionCollider = GetComponent<Collider>();
         interactable.SetInteractionType(InteractionType.Int_lv1_WindowBullet);
 
-        if (cameraController == null)
-            cameraController = FindFirstObjectByType<CameraController>();
-
         if (windowBulletIdeaPoint != null)
             windowBulletIdeaPoint.discoveryMode = DetectiveIdeaPoint.DiscoveryMode.External;
 
         if (clueToFind != null)
             clueToFind.SetActive(true);
+
+        if (interactable.IsCompleted)
+            DisableMainInteraction();
     }
 
     private void Update()
     {
+        if (!mainInteractionDisabled && interactable != null && interactable.IsCompleted)
+            DisableMainInteraction();
+
         if (!isExamining || completed || examiningPlayer == null)
             return;
 
@@ -77,15 +76,13 @@ public class Int_lv1_WindowBullet : Lvl3InteractionDialogueBase
             return;
 
         isInsideExaminationZone = playerIsNowInside;
-        if (isInsideExaminationZone)
-            EnterExaminationCamera();
-        else
+        if (!isInsideExaminationZone)
             ResumeInteractionAfterExit();
     }
 
     public void PerformInteraction(PlayerController player)
     {
-        if (completed || isExamining || player == null)
+        if (completed || isExamining || player == null || interactable != null && interactable.IsCompleted)
             return;
 
         examiningPlayer = player;
@@ -96,24 +93,11 @@ public class Int_lv1_WindowBullet : Lvl3InteractionDialogueBase
         if (windowExaminationDialogue == null || windowExaminationDialogue.Length == 0)
             ShowFirstUseTutorialPopup();
 
-        if (interactable != null)
-        {
-            interactable.isInteractableActive = false;
-            interactable.allowQuestionFXWhenInactive = false;
-            interactable.SetQuestionFXEagleVisionState(false);
-
-            if (interactable.interactiveShader != null)
-                interactable.interactiveShader.SetActive(false);
-        }
-
-        if (interactionCollider != null)
-            interactionCollider.enabled = false;
+        interactable?.MarkCompleted();
+        DisableMainInteraction();
 
         CreateExaminationZone();
         isInsideExaminationZone = IsPlayerInsideExaminationZone();
-        if (isInsideExaminationZone)
-            EnterExaminationCamera();
-
     }
 
     public void RegisterWindowClue()
@@ -148,27 +132,11 @@ public class Int_lv1_WindowBullet : Lvl3InteractionDialogueBase
             tutorialPopupVideoClip);
     }
 
-    private void EnterExaminationCamera()
-    {
-        if (isCameraInExaminationMode)
-            return;
-
-        if (cameraController == null)
-            return;
-
-        isCameraInExaminationMode = cameraController.SetZoomPreset(ExaminationPresetName);
-    }
-
     private void ResumeInteractionAfterExit()
     {
         isExamining = false;
         examiningPlayer = null;
         isInsideExaminationZone = false;
-
-        if (isCameraInExaminationMode)
-            cameraController?.ReturnToPreviousZoomState();
-
-        isCameraInExaminationMode = false;
 
         if (examinationZone != null)
         {
@@ -176,19 +144,7 @@ public class Int_lv1_WindowBullet : Lvl3InteractionDialogueBase
             examinationZone = null;
         }
 
-        if (interactable != null)
-        {
-            interactable.isInteractableActive = true;
-
-            if (interactable.interactiveShader != null)
-                interactable.interactiveShader.SetActive(true);
-
-            bool eagleVisionActive = EagleVisionSystem.Instance != null && EagleVisionSystem.Instance.isActive;
-            interactable.SetQuestionFXEagleVisionState(eagleVisionActive);
-        }
-
-        if (interactionCollider != null)
-            interactionCollider.enabled = true;
+        DisableMainInteraction();
     }
 
     private void CompleteInteraction()
@@ -201,16 +157,20 @@ public class Int_lv1_WindowBullet : Lvl3InteractionDialogueBase
         isExamining = false;
         examiningPlayer = null;
 
-        if (isCameraInExaminationMode)
-            cameraController?.ReturnToPreviousZoomState();
-
-        isCameraInExaminationMode = false;
-
         if (examinationZone != null)
         {
             Destroy(examinationZone);
             examinationZone = null;
         }
+
+        DisableMainInteraction();
+        if (interactable != null)
+            interactable.interactiveShader = null;
+    }
+
+    private void DisableMainInteraction()
+    {
+        mainInteractionDisabled = true;
 
         if (interactable != null)
         {
@@ -220,8 +180,6 @@ public class Int_lv1_WindowBullet : Lvl3InteractionDialogueBase
 
             if (interactable.interactiveShader != null)
                 interactable.interactiveShader.SetActive(false);
-
-            interactable.interactiveShader = null;
         }
 
         if (interactionCollider != null)

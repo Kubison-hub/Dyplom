@@ -1,4 +1,5 @@
 using System.Collections;
+using DialogueEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.AI;
@@ -62,6 +63,8 @@ public class Int_lv4_HiddenDoor : Lvl3InteractionDialogueBase
     [SerializeField] private Lvl3DialogueLine[] keyFoundDialogue;
     [SerializeField] private Lvl3DialogueLine[] missingKeyDialogue;
     [SerializeField] private Lvl3DialogueLine[] keyUseDialogue;
+    [Tooltip("Optional Watson SmartNPC conversation started after Key Use Dialogue and the opening sequence finish.")]
+    [SerializeField] private SmartNPC conversationAfterKeyUseDialogue;
 
     [Header("Loupe Discovery")]
     [SerializeField, Min(0.1f)] private float loupeHoldDuration = 1.3f;
@@ -79,6 +82,9 @@ public class Int_lv4_HiddenDoor : Lvl3InteractionDialogueBase
     private bool loupeRevealed;
     private float loupeHoldTimer;
     private Vector3 keyInitialLocalPosition;
+    private bool keyUseDialogueCompleted;
+    private bool openingSequenceReadyForConversation;
+    private bool conversationAfterKeyUseStarted;
 
     protected override Lvl3DialogueLine[] DefaultDialogueLines => keyFoundDialogue;
 
@@ -279,6 +285,9 @@ public class Int_lv4_HiddenDoor : Lvl3InteractionDialogueBase
             hatchAfterOpening.SetWatsonInRoom(true);
         yield return RotateSherlockTowardWatson();
 
+        openingSequenceReadyForConversation = true;
+        TryStartConversationAfterKeyUseDialogue();
+
         if (interactable != null)
         {
             interactable.isInteractableActive = false;
@@ -300,6 +309,42 @@ public class Int_lv4_HiddenDoor : Lvl3InteractionDialogueBase
             if (keyCollider != null)
                 keyCollider.enabled = false;
         }
+    }
+
+    protected override void OnDialogueSequenceCompleted(Lvl3DialogueLine[] lines)
+    {
+        if (!ReferenceEquals(lines, keyUseDialogue))
+            return;
+
+        keyUseDialogueCompleted = true;
+        TryStartConversationAfterKeyUseDialogue();
+    }
+
+    private void TryStartConversationAfterKeyUseDialogue()
+    {
+        if (!keyUseDialogueCompleted || !openingSequenceReadyForConversation ||
+            conversationAfterKeyUseStarted || conversationAfterKeyUseDialogue == null)
+        {
+            return;
+        }
+
+        if (ConversationManager.Instance == null || ConversationManager.Instance.IsConversationActive)
+            return;
+
+        NPCConversation conversation = conversationAfterKeyUseDialogue.rozmowaDlaPostaciA;
+        if (conversation == null)
+        {
+            Debug.LogWarning($"{name}: Watson conversation after Key Use Dialogue is not assigned for Sherlock.", this);
+            return;
+        }
+
+        conversationAfterKeyUseStarted = true;
+        QuestManager.Instance?.OdnotujRozmowe("PlayerA", conversationAfterKeyUseDialogue.npcID);
+        conversationAfterKeyUseDialogue.BeginDialogueCameraFocus(conversation);
+        ConversationManager.Instance.StartConversation(conversation);
+
+        if (conversationAfterKeyUseDialogue.noteIDToUnlock >= 0)
+            JournalManager.Instance?.UnlockNote(conversationAfterKeyUseDialogue.noteIDToUnlock);
     }
 
     private void ReparentDoorBeforeOpening()

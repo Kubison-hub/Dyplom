@@ -114,6 +114,7 @@ public class Piano : MonoBehaviour
             if (firstPlay)
             {
                 action = 2;
+                ChangeCameraPresetForFirstPlay(player);
                 firstPlay = false;
             }
             else action = 3;
@@ -134,6 +135,36 @@ public class Piano : MonoBehaviour
                 HitCover();
                 break;
         }
+    }
+
+    private static void ChangeCameraPresetForFirstPlay(PlayerController player)
+    {
+        CameraController activeCamera = null;
+        SwitchCharacter switchCharacter = SwitchCharacter.Instance;
+        if (switchCharacter != null && switchCharacter.playersCamera != null)
+        {
+            int activeIndex = switchCharacter.activePlayerIndex;
+            if (activeIndex >= 0 && activeIndex < switchCharacter.playersCamera.Length &&
+                switchCharacter.playersCamera[activeIndex] != null)
+            {
+                activeCamera = switchCharacter.playersCamera[activeIndex]
+                    .GetComponent<CameraController>();
+                if (activeCamera == null)
+                {
+                    activeCamera = switchCharacter.playersCamera[activeIndex]
+                        .GetComponentInChildren<CameraController>(true);
+                }
+            }
+        }
+
+        if (activeCamera == null && player != null)
+        {
+            activeCamera = player.GetComponent<CameraController>();
+            if (activeCamera == null)
+                activeCamera = player.GetComponentInChildren<CameraController>(true);
+        }
+
+        activeCamera?.SetZoomInOneStep();
     }
 
     private void HitCover()

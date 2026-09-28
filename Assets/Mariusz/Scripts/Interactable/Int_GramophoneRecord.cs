@@ -43,6 +43,7 @@ public sealed class Int_GramophoneRecord : Lvl3InteractionDialogueBase
     };
 
     [Header("Inventory Pickup")]
+    [SerializeField] private Int_GramophoneController gramophoneController;
     [SerializeField] private ItemType inventoryItemType = ItemType.GramophoneRecord;
     [SerializeField] private Sprite inventoryIcon;
     [Tooltip("Visible record object hidden after a successful pickup. Leave empty to hide this whole interaction.")]
@@ -145,6 +146,12 @@ public sealed class Int_GramophoneRecord : Lvl3InteractionDialogueBase
         if (SaveLoadManager.Instance != null)
             SaveLoadManager.Instance.MarkCollected(gameObject);
 
+        if (gramophoneController == null)
+            gramophoneController = FindFirstObjectByType<Int_GramophoneController>();
+
+        GetComponent<Interactable>()?.AddNote(
+            gramophoneController != null && gramophoneController.ConversationCompleted ? 1 : 0);
+
         if (pickupAudioSource != null && pickupAudioClip != null)
             pickupAudioSource.PlayOneShot(pickupAudioClip);
 
@@ -184,7 +191,12 @@ public sealed class Int_GramophoneRecord : Lvl3InteractionDialogueBase
     private void Setup()
     {
         SetupInteractable(InteractionType.Int_GramophoneRecord);
-        GetComponent<Interactable>()?.SetWatsonInteractionAllowed(true);
+        Interactable interactable = GetComponent<Interactable>();
+        if (interactable != null)
+        {
+            interactable.SetWatsonInteractionAllowed(true);
+            interactable.addDatabaseNotesAutomatically = false;
+        }
     }
 
     private static bool IsWatson(PlayerController player)

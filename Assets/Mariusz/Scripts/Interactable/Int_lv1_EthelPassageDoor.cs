@@ -61,6 +61,8 @@ public class Int_lv1_EthelPassageDoor : Lvl3InteractionDialogueBase
         if (!hasBeenUsed)
         {
             hasBeenUsed = true;
+            FindFirstObjectByType<SherlockWatsonHintConditions>(FindObjectsInactive.Include)?
+                .MarkEthelPassageDoorUsed();
             GetComponent<Interactable>()?.MarkCompleted();
             ActivateStairsGoal();
             CluesLog.Instance?.SetFindEthelUpstairsObjective();

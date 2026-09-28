@@ -17,7 +17,6 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
     [SerializeField] private float placedFigureLocalYRotation = 180f;
 
     [Header("Completion Sequence")]
-    [SerializeField, Min(0f)] private float narrowCameraSettleDuration = 1f;
     [SerializeField, Min(1f)] private float completionFigureAnimationMultiplier = 3f;
 
     [Header("Watson Completion Movement")]
@@ -32,7 +31,6 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
     [SerializeField, Min(0.01f)] private float completionRotationTolerance = 0.5f;
 
     [Header("Completion Reveal")]
-    [SerializeField] private CameraController cameraController;
     [SerializeField] private GameObject realRoom;
     [SerializeField] private Renderer[] backgroundBoxRenderers;
     [SerializeField, Min(0.01f)] private float backgroundBoxFadeDuration = 1f;
@@ -76,7 +74,8 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
             duration = 3f
         }
     };
-    [SerializeField] private Lvl3DialogueLine[] missingFiguresDialogue =
+    [FormerlySerializedAs("missingFiguresDialogue")]
+    [SerializeField] private Lvl3DialogueLine[] interactionAfterHoverDialogue =
     {
         new Lvl3DialogueLine
         {
@@ -123,7 +122,7 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
     private float loupeHoverStartedAt = -1f;
     public bool Opened { get; private set; }
 
-    protected override Lvl3DialogueLine[] DefaultDialogueLines => missingFiguresDialogue;
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => firstInteractionDialogue;
 
     private struct BackgroundMaterialTarget
     {
@@ -200,7 +199,7 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
         {
             firstInteractionPerformed = true;
             CluesLog.Instance?.StartTableMechanismObjective();
-            PlayDialogue(player, firstInteractionDialogue);
+            PlayDialogue(player, GetInspectionClickDialogue());
 
             if (player != null)
                 player.currentInteractable = null;
@@ -228,11 +227,16 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
         }
         else if (!HasAnyUnplacedFigureInInventory())
         {
-            PlayDialogue(player, missingFiguresDialogue);
+            PlayDialogue(player, GetInspectionClickDialogue());
         }
 
         if (player != null)
             player.currentInteractable = null;
+    }
+
+    private Lvl3DialogueLine[] GetInspectionClickDialogue()
+    {
+        return loupeHoverDiscovered ? interactionAfterHoverDialogue : firstInteractionDialogue;
     }
 
     private IEnumerator PlayPlacementDialogueThenComplete(PlayerController player)
@@ -335,11 +339,7 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
 
     private IEnumerator CompleteInteractionSequence()
     {
-        cameraController?.SetZoomState(CameraZoomState.Narrow);
         MoveWatsonToCompletionDestination();
-
-        if (narrowCameraSettleDuration > 0f)
-            yield return new WaitForSeconds(narrowCameraSettleDuration);
 
         float figureAnimationDuration = placedFigureAnimationDuration * completionFigureAnimationMultiplier;
         foreach (Transform placedFigure in placedFigures)
@@ -357,7 +357,6 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
         PlayDialogue(null, completionDialogue);
         AddCompletedPuzzleNotebookNote();
         StartCoroutine(RotateCharactersAfterDoorOpens());
-        cameraController?.SetZoomState(CameraZoomState.Medium);
         Debug.Log("Koniec interakcji: wszystkie figurki znajdują się na stole.");
 
         if (interactable != null)
@@ -483,13 +482,25 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
             yield return null;
 
         if (watsonAgent.pathStatus != NavMeshPathStatus.PathComplete)
+        {
+            ReleaseWatsonAfterCompletionMovement();
             yield break;
+        }
 
         while (watsonAgent.remainingDistance > watsonAgent.stoppingDistance + completionRotationTolerance)
             yield return null;
 
+        ReleaseWatsonAfterCompletionMovement();
+    }
+
+    private void ReleaseWatsonAfterCompletionMovement()
+    {
+        if (watsonAgent == null || !watsonAgent.isOnNavMesh)
+            return;
+
         watsonAgent.ResetPath();
-        watsonAgent.isStopped = true;
+        watsonAgent.isStopped = false;
+        watsonAgent.updateRotation = true;
     }
 
     private static Transform GetPlayerTransform(int playerIndex)

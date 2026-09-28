@@ -53,7 +53,6 @@ public class lvl3_int_ChestLockpick : Lvl3InteractionDialogueBase, IInteractionA
     [SerializeField] private Transform minigameTransform;
     [SerializeField] private Camera playerCamera;
     [SerializeField] private LockPickAudioController audioController;
-    [SerializeField] private CameraController cameraController;
     [SerializeField] private int lockFieldCount = 5;
     [SerializeField] private int sequenceLength = 4;
 
@@ -130,9 +129,6 @@ public class lvl3_int_ChestLockpick : Lvl3InteractionDialogueBase, IInteractionA
             Debug.LogError($"{name}: Player camera is missing.");
             return;
         }
-
-        if (cameraController != null)
-            cameraController.SetZoomPreset("Narrow");
 
         if (ClueManager.Instance != null)
         {
@@ -350,11 +346,6 @@ public class lvl3_int_ChestLockpick : Lvl3InteractionDialogueBase, IInteractionA
 
     private void CloseLockpickView()
     {
-        if (cameraController != null)
-        {
-            cameraController.ReturnToPreviousZoomState();
-        }
-
         if (ClueManager.Instance != null)
         {
             ClueManager.Instance.isLockpicking = false;

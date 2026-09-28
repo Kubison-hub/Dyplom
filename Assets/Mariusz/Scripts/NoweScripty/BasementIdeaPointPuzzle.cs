@@ -22,9 +22,6 @@ public class BasementIdeaPointPuzzle : MonoBehaviour
     [SerializeField, Min(0.1f)] private float navMeshSampleRadius = 1f;
     [SerializeField, Min(0.05f)] private float arrivalDistance = 0.1f;
     [SerializeField, Min(0.1f)] private float rotationSpeed = 300f;
-    [Tooltip("Camera zoom preset applied after Sherlock reaches Puzzle Position.")]
-    [SerializeField] private string sequenceCameraPreset = "Wide";
-
     [Header("Watson Sequence Position")]
     [SerializeField] private PlayerController watson;
     [SerializeField] private Transform watsonPuzzlePosition;
@@ -198,33 +195,11 @@ public class BasementIdeaPointPuzzle : MonoBehaviour
         sherlock.transform.rotation = targetRotation;
         agent.updateRotation = true;
 
-        SetSequenceCameraPreset();
-
         while (watsonMoveCoroutine != null)
             yield return null;
 
         sherlock.UnlockMovement();
         EnableConnectionsAndVision();
-    }
-
-    private void SetSequenceCameraPreset()
-    {
-        if (string.IsNullOrWhiteSpace(sequenceCameraPreset) || SwitchCharacter.Instance == null)
-            return;
-
-        int activePlayerIndex = SwitchCharacter.Instance.activePlayerIndex;
-        var playerCameras = SwitchCharacter.Instance.playersCamera;
-        if (playerCameras == null || activePlayerIndex < 0 || activePlayerIndex >= playerCameras.Length ||
-            playerCameras[activePlayerIndex] == null)
-            return;
-
-        CameraController cameraController = playerCameras[activePlayerIndex].GetComponent<CameraController>();
-        if (cameraController != null && !cameraController.SetZoomPreset(sequenceCameraPreset))
-        {
-            Debug.LogWarning(
-                $"BasementIdeaPointPuzzle: Camera preset '{sequenceCameraPreset}' was not found.",
-                cameraController);
-        }
     }
 
     private void StartWatsonMoveToPuzzlePosition()
@@ -459,7 +434,7 @@ public class BasementIdeaPointPuzzle : MonoBehaviour
         DetectiveIdeaPoint from,
         DetectiveIdeaPoint to,
         string firstDescription,
-        string repeatDescription,
+        string unusedRepeatDescription,
         bool canConnect = false,
         DetectiveIdeaPoint dependencyFirst = null,
         DetectiveIdeaPoint dependencySecond = null,
@@ -477,8 +452,6 @@ public class BasementIdeaPointPuzzle : MonoBehaviour
         connection.canConnectReverse = false;
         connection.firstTitle = "Sherlock";
         connection.firstDescription = firstDescription;
-        connection.repeatTitle = "Sherlock";
-        connection.repeatDescription = repeatDescription;
         connection.lockedTitle = "Sherlock";
         connection.lockedDescription = string.IsNullOrWhiteSpace(lockedDescription)
             ? firstDescription

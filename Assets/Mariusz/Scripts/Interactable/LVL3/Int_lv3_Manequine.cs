@@ -137,6 +137,8 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
             return;
 
         triggered = true;
+        FindFirstObjectByType<SherlockWatsonHintConditions>(FindObjectsInactive.Include)?
+            .MarkTrapTriggered();
 
         foreach (Animator doorAnimator in secretDoorAnimators)
         {

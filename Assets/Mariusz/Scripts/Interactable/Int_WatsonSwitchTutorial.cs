@@ -22,10 +22,6 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
     [Header("Watson Escort Unlock")]
     [SerializeField] private WatsonEscortNPC watsonEscortNpcToActivate;
 
-    [Header("Camera")]
-    [SerializeField] private CameraController cameraController;
-    [SerializeField, Min(0f)] private float cameraPresetTransitionDuration = 2.5f;
-
     [Header("Immediate Watson Reaction")]
     [SerializeField, Min(1f)] private float watsonTurnSpeed = 360f;
     [SerializeField, Range(0f, 1f)] private float watsonTurnStartProgress = 0.5f;
@@ -108,8 +104,6 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
         if (deactivateOnTutorialComplete == null)
             deactivateOnTutorialComplete = gameObject;
 
-        if (cameraController == null)
-            cameraController = FindFirstObjectByType<CameraController>();
     }
 
     public void PerformInteraction(PlayerController player)
@@ -197,9 +191,6 @@ public class Int_WatsonSwitchTutorial : MonoBehaviour
         ClearCurrentInteraction(player);
 
         yield return FinishWatsonFacingPlayer(player);
-
-        if (cameraController != null)
-            cameraController.SetZoomInOneStep(cameraPresetTransitionDuration);
 
         SwitchCharacter switchCharacter = SwitchCharacter.Instance;
         if (switchCharacter != null)

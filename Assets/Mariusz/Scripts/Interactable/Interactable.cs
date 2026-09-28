@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using UnityEngine.VFX;
 using UnityEngine.AI;
@@ -46,6 +46,7 @@ public class Interactable : MonoBehaviour
     public Transform interactabePoint;
     [Header("Interaction Point Occupancy")]
     [SerializeField] private bool useOccupiedPointFallback = true;
+    [SerializeField] private bool preferRightOccupiedPointFallback;
     [SerializeField, Min(0.1f)] private float interactionPointOccupiedRadius = 0.75f;
     [SerializeField, Min(0.1f)] private float interactionPointFallbackOffset = 0.9f;
     [SerializeField, Min(0.1f)] private float interactionPointNavMeshSampleRadius = 1.2f;
@@ -89,6 +90,16 @@ public class Interactable : MonoBehaviour
     [SerializeField, Min(0.1f)] private float sherlockNavMeshSampleRadius = 1f;
     [Space]
 
+    [Header("Camera Preset")]
+    [SerializeField] private bool changeCameraPreset = false;
+    [Tooltip("Preset index offset applied during interaction. Negative values move the camera closer. Index 0 (Mirror) is excluded.")]
+    [SerializeField] private int cameraPresetIndexOffset = -1;
+    [SerializeField] private bool returnAfterExit = true;
+    [SerializeField] private bool setCustomPreset = false;
+    [SerializeField] private string customCameraPresetName;
+    [SerializeField, Min(0.1f)] private float cameraPresetReturnZoneRadius = 1f;
+    [Space]
+
     public string objectDescription = "Wpisz nazwę obiektu";
     public GameObject interactiveShader;
     [Header("Interaction Shader")]
@@ -130,6 +141,10 @@ public class Interactable : MonoBehaviour
     private float forcedInteractionShaderColorTransitionSpeed;
     private Coroutine sherlockInteractionFocusCoroutine;
     private bool sherlockReactionApproachInProgress;
+    private GameObject cameraPresetReturnZone;
+    private CameraController cameraPresetController;
+    private int cameraPresetBeforeInteraction = -1;
+    private int cameraPresetAppliedByInteraction = -1;
 
     public bool IsCompanionReactionApproachInProgress
     {
@@ -595,6 +610,8 @@ public class Interactable : MonoBehaviour
 
     public void PerformInteraction(PlayerController player)
     {
+        ChangeCameraPreset(player);
+
         Int_lv4_EthelEntrance directEthelEntrance = GetComponent<Int_lv4_EthelEntrance>();
         if (directEthelEntrance != null)
         {
@@ -1524,15 +1541,15 @@ public class Interactable : MonoBehaviour
                 Debug.LogError("lvl3_int_SecretLeverWall is null");
         }
 
-        if (interactionType == InteractionType.lvl3_int_SecretLever)
-        {
-            lvl3_int_SecretLever interaction = GetComponent<lvl3_int_SecretLever>();
-            if (interaction != null)
-            {
-                interaction.PerformInteraction(player);
-            }
-            else
-                Debug.LogError("lvl3_int_SecretLever is null");
+        if (interactionType == InteractionType.lvl3_int_SecretLever)
+        {
+            lvl3_int_SecretLever interaction = GetComponent<lvl3_int_SecretLever>();
+            if (interaction != null)
+            {
+                interaction.PerformInteraction(player);
+            }
+            else
+                Debug.LogError("lvl3_int_SecretLever is null");
         }
         if (interactionType == InteractionType.Int_WatsonSwitchTutorial)
         {
@@ -1604,6 +1621,15 @@ public class Interactable : MonoBehaviour
                 interaction.PerformInteraction(player);
             else
                 Debug.LogError("int_burnetLetters is null");
+        }
+
+        if (interactionType == InteractionType.Int_PaintingRings)
+        {
+            Int_PaintingRings interaction = GetComponent<Int_PaintingRings>();
+            if (interaction != null)
+                interaction.PerformInteraction(player);
+            else
+                Debug.LogError("Int_PaintingRings is null");
         }
 
         if (interactionType == InteractionType.Int_lv3_Ethel)
@@ -1751,6 +1777,117 @@ public class Interactable : MonoBehaviour
         
     }
 
+    public void ChangeCameraPreset(PlayerController player)
+    {
+        if (!changeCameraPreset || cameraPresetReturnZone != null)
+            return;
+
+        CameraController activeCamera = ResolveActiveCameraController(player);
+        if (activeCamera == null)
+            return;
+
+        int previousPresetIndex = activeCamera.CurrentZoomIndex;
+        bool presetChanged;
+
+        if (setCustomPreset)
+        {
+            presetChanged = activeCamera.SetZoomPreset(customCameraPresetName) &&
+                            activeCamera.CurrentZoomIndex != previousPresetIndex;
+        }
+        else
+        {
+            int targetPresetIndex = Mathf.Max(1, previousPresetIndex + cameraPresetIndexOffset);
+            if (targetPresetIndex != previousPresetIndex)
+                activeCamera.SetZoomIndex(targetPresetIndex);
+
+            presetChanged = activeCamera.CurrentZoomIndex != previousPresetIndex;
+        }
+
+        if (!presetChanged || !returnAfterExit)
+            return;
+
+        cameraPresetController = activeCamera;
+        cameraPresetBeforeInteraction = previousPresetIndex;
+        cameraPresetAppliedByInteraction = activeCamera.CurrentZoomIndex;
+        CreateCameraPresetReturnZone(player);
+    }
+
+    public void RestoreCameraPresetAfterExit(CameraPresetReturnZone returnZone)
+    {
+        if (cameraPresetReturnZone == null || returnZone == null ||
+            returnZone.gameObject != cameraPresetReturnZone)
+            return;
+
+        CameraController activeCamera = ResolveActiveCameraController(null);
+        CameraController cameraToRestore = activeCamera != null ? activeCamera : cameraPresetController;
+        bool interactionPresetIsStillActive = cameraToRestore != null &&
+                                              cameraToRestore.CurrentZoomIndex == cameraPresetAppliedByInteraction;
+
+        if (interactionPresetIsStillActive && cameraPresetBeforeInteraction >= 0)
+            cameraToRestore.SetZoomIndex(cameraPresetBeforeInteraction);
+
+        if (interactionPresetIsStillActive &&
+            cameraPresetController != null && cameraPresetController != cameraToRestore &&
+            cameraPresetBeforeInteraction >= 0)
+        {
+            cameraPresetController.SetZoomIndexImmediate(cameraPresetBeforeInteraction);
+        }
+
+        GameObject zoneToDestroy = cameraPresetReturnZone;
+        cameraPresetReturnZone = null;
+        cameraPresetController = null;
+        cameraPresetBeforeInteraction = -1;
+        cameraPresetAppliedByInteraction = -1;
+        Destroy(zoneToDestroy);
+    }
+
+    private void CreateCameraPresetReturnZone(PlayerController player)
+    {
+        Transform zoneAnchor = interactabePoint != null ? interactabePoint : transform;
+        cameraPresetReturnZone = new GameObject($"{name}_CameraPresetReturnZone");
+        cameraPresetReturnZone.transform.SetPositionAndRotation(zoneAnchor.position, Quaternion.identity);
+        cameraPresetReturnZone.transform.localScale = Vector3.one;
+        cameraPresetReturnZone.layer = LayerMask.NameToLayer("Ignore Raycast");
+
+        SphereCollider sphereCollider = cameraPresetReturnZone.AddComponent<SphereCollider>();
+        sphereCollider.isTrigger = true;
+        sphereCollider.radius = cameraPresetReturnZoneRadius;
+
+        CameraPresetReturnZone returnZone = cameraPresetReturnZone.AddComponent<CameraPresetReturnZone>();
+        returnZone.Initialize(this, player != null ? player.transform : null, cameraPresetReturnZoneRadius);
+    }
+
+    private static CameraController ResolveActiveCameraController(PlayerController player)
+    {
+        SwitchCharacter switchCharacter = SwitchCharacter.Instance;
+        if (switchCharacter != null && switchCharacter.playersCamera != null)
+        {
+            int activeIndex = switchCharacter.activePlayerIndex;
+            if (activeIndex >= 0 && activeIndex < switchCharacter.playersCamera.Length &&
+                switchCharacter.playersCamera[activeIndex] != null)
+            {
+                CameraController activeCamera =
+                    switchCharacter.playersCamera[activeIndex].GetComponent<CameraController>();
+                if (activeCamera == null)
+                {
+                    activeCamera = switchCharacter.playersCamera[activeIndex]
+                        .GetComponentInChildren<CameraController>(true);
+                }
+
+                if (activeCamera != null)
+                    return activeCamera;
+            }
+        }
+
+        if (player == null)
+            return null;
+
+        CameraController playerCamera = player.GetComponent<CameraController>();
+        return playerCamera != null
+            ? playerCamera
+            : player.GetComponentInChildren<CameraController>(true);
+    }
+
 
 
 
@@ -1790,8 +1927,8 @@ public class Interactable : MonoBehaviour
 
         Vector3[] directions =
         {
-            -selectedInteractionPoint.right,
-            selectedInteractionPoint.right,
+            preferRightOccupiedPointFallback ? selectedInteractionPoint.right : -selectedInteractionPoint.right,
+            preferRightOccupiedPointFallback ? -selectedInteractionPoint.right : selectedInteractionPoint.right,
             selectedInteractionPoint.forward,
             -selectedInteractionPoint.forward
         };
@@ -2254,6 +2391,25 @@ public class Interactable : MonoBehaviour
         AddAndOpenNote(noteIndex, null, false);
     }
 
+    public void AddAndOpenNoteInNotebook(int noteIndex)
+    {
+        if (databaseNotes == null || noteIndex < 0 || noteIndex >= databaseNotes.Length)
+        {
+            Debug.LogWarning($"{name}: no valid Database Note exists at index {noteIndex}.");
+            return;
+        }
+
+        NoteData note = databaseNotes[noteIndex];
+        NotebookManager notebookManager = FindFirstObjectByType<NotebookManager>();
+        if (note == null || notebookManager == null)
+        {
+            Debug.LogWarning($"{name}: cannot add and open the requested Database Note.");
+            return;
+        }
+
+        notebookManager.OpenNoteInNotebook(note, playNoticeAudioForNoteUpdates);
+    }
+
     public void AddAndOpenNote(int noteIndex, float quickReadDisplayPositionX, bool closeOnLeftMouseClick)
     {
         AddAndOpenNote(noteIndex, (float?)quickReadDisplayPositionX, closeOnLeftMouseClick);
@@ -2511,5 +2667,6 @@ public enum InteractionType
     Int_GramophoneRecord,
     Int_GramophoneController,
     Int_FakeRecord,
-    Int_BurnedLetters
+    Int_BurnedLetters,
+    Int_PaintingRings
 }

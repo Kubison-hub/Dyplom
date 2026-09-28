@@ -9,9 +9,9 @@ using TMPro;
 using PxP.DOCS;
 
 /// <summary>
-/// Ten PlayerSwitcher po prostu zmienia PlayerInput na aktywn¹ postaæ i zmienia priorytet CinemachineCamery.
-/// Dodatkowo obs³uguje zmianê tartetu do Assetu DynamicOcclusionCutoutSystem (transparentne œciany).
-/// Jest tu te¿ zachowanie Watsona, ale nie powiino tu byæ, to tak na szybko. 
+/// Ten PlayerSwitcher po prostu zmienia PlayerInput na aktywnÄ… postaÄ‡ i zmienia priorytet CinemachineCamery.
+/// Dodatkowo obsÅ‚uguje zmianÄ™ tartetu do Assetu DynamicOcclusionCutoutSystem (transparentne Å›ciany).
+/// Jest tu teÅ¼ zachowanie Watsona, ale nie powiino tu byÄ‡, to tak na szybko.
 /// </summary>
 
 public class SwitchCharacter : MonoBehaviour
@@ -113,6 +113,10 @@ public class SwitchCharacter : MonoBehaviour
                                             TryGetCameraHorizontalAxis(activePlayerIndex, out previousHorizontalAxis);
             if (shouldPreserveCameraAxis)
                 SetCameraHorizontalAxis(index, previousHorizontalAxis);
+
+            if (index != activePlayerIndex)
+                CopyCameraZoomPreset(activePlayerIndex, index);
+
             for (int i = 0; i < players.Length; i++)
             {
                 players[i].enabled = (i == index);
@@ -228,6 +232,29 @@ public class SwitchCharacter : MonoBehaviour
         if (orbitalFollow != null)
             orbitalFollow.HorizontalAxis.Value = horizontalAxis;
     }
+
+    private void CopyCameraZoomPreset(int sourcePlayerIndex, int targetPlayerIndex)
+    {
+        CameraController sourceCamera = GetCameraController(sourcePlayerIndex);
+        CameraController targetCamera = GetCameraController(targetPlayerIndex);
+        if (sourceCamera == null || targetCamera == null)
+            return;
+
+        targetCamera.SetZoomIndexImmediate(sourceCamera.CurrentZoomIndex);
+    }
+
+    private CameraController GetCameraController(int playerIndex)
+    {
+        if (playersCamera == null || playerIndex < 0 || playerIndex >= playersCamera.Length ||
+            playersCamera[playerIndex] == null)
+            return null;
+
+        CameraController cameraController = playersCamera[playerIndex].GetComponent<CameraController>();
+        return cameraController != null
+            ? cameraController
+            : playersCamera[playerIndex].GetComponentInChildren<CameraController>(true);
+    }
+
     private void SetWallTransparencyTarget(Transform target)
     {
 

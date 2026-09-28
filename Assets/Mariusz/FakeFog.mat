@@ -16,13 +16,12 @@ Material:
   - _FADING_ON
   - _RECEIVE_SHADOWS_OFF
   - _SOFTPARTICLES_ON
-  - _SPECULAR_COLOR
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - _FLIPBOOKBLENDING_OFF
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 1
+  m_DoubleSidedGI: 0
   m_CustomRenderQueue: 3000
   stringTagMap:
     RenderType: Transparent
@@ -34,7 +33,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 3ac4b228492802042a24353c510f54ab, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -98,20 +97,20 @@ Material:
     - _BlendModePreserveSpecular: 1
     - _BlendOp: 0
     - _BumpScale: 1
-    - _CameraFadingEnabled: 1
-    - _CameraFarFadeDistance: 1.23
-    - _CameraNearFadeDistance: 0.86
+    - _CameraFadingEnabled: 0
+    - _CameraFarFadeDistance: 26.25
+    - _CameraNearFadeDistance: 41.28
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _ColorMode: 0
-    - _Cull: 0
+    - _Cull: 2
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
-    - _DistortionBlend: 0.128
+    - _DistortionBlend: 1
     - _DistortionEnabled: 1
-    - _DistortionStrength: 20.07
-    - _DistortionStrengthScaled: 2.007
+    - _DistortionStrength: 32.37
+    - _DistortionStrengthScaled: 3.237
     - _DstBlend: 10
     - _DstBlendAlpha: 10
     - _EnvironmentReflections: 1
@@ -126,26 +125,26 @@ Material:
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 0
-    - _Smoothness: 0.419
+    - _Smoothness: 0.173
     - _SmoothnessSource: 0
     - _SmoothnessTextureChannel: 0
     - _SoftParticlesEnabled: 1
-    - _SoftParticlesFarFadeDistance: 11.61
-    - _SoftParticlesNearFadeDistance: 21.8
-    - _SpecularHighlights: 0
+    - _SoftParticlesFarFadeDistance: 0.63
+    - _SoftParticlesNearFadeDistance: 0
+    - _SpecularHighlights: 1
     - _SrcBlend: 5
     - _SrcBlendAlpha: 1
     - _Surface: 1
     - _WorkflowMode: 1
     - _ZWrite: 0
     m_Colors:
-    - _BaseColor: {r: 0.37670797, g: 0.5, b: 0.3514151, a: 1}
-    - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0.86, g: 2.7027028, b: 0, a: 0}
-    - _Color: {r: 0.37670797, g: 0.5, b: 0.3514151, a: 1}
+    - _BaseColor: {r: 0.37670797, g: 0.5, b: 0.3514151, a: 0.49803922}
+    - _BaseColorAddSubDiff: {r: -1, g: 1, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _Color: {r: 0.37670797, g: 0.5, b: 0.3514151, a: 0.49803922}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _SoftParticleFadeParams: {r: 21.8, g: -0.098135434, b: 0, a: 0}
-    - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 0.419}
+    - _SoftParticleFadeParams: {r: 0, g: 1.5873016, b: 0, a: 0}
+    - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 0.173}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &2348224237249293571

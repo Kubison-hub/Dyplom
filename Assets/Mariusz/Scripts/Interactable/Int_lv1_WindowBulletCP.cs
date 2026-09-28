@@ -21,7 +21,6 @@ public class Int_lv1_WindowBulletCP : Lvl3InteractionDialogueBase
 
     private Interactable interactable;
     private Collider interactionCollider;
-    private Renderer[] objectRenderers;
     private bool bulletFound;
 
     protected override Lvl3DialogueLine[] DefaultDialogueLines => bulletFoundDialogue;
@@ -30,7 +29,6 @@ public class Int_lv1_WindowBulletCP : Lvl3InteractionDialogueBase
     {
         interactable = GetComponent<Interactable>();
         interactionCollider = GetComponent<Collider>();
-        objectRenderers = GetComponentsInChildren<Renderer>(true);
     }
 
     public void PerformInteraction(PlayerController player)
@@ -59,12 +57,5 @@ public class Int_lv1_WindowBulletCP : Lvl3InteractionDialogueBase
 
         if (interactionCollider != null)
             interactionCollider.enabled = false;
-
-        foreach (Renderer objectRenderer in objectRenderers)
-        {
-            if (objectRenderer != null)
-                objectRenderer.enabled = false;
-        }
-
     }
 }

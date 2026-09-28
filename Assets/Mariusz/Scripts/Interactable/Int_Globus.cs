@@ -5,9 +5,6 @@ public class Int_Globus : Lvl3InteractionDialogueBase, IVioletRoomInteractionGat
 {
     private Interactable interactable;
 
-    [Header("Camera")]
-    [SerializeField] private CameraController cameraController;
-
     [Header("Spin")]
     [SerializeField] private Transform globeRotationTarget;
     [SerializeField, Min(0.01f)] private float spinDuration = 1.5f;
@@ -97,9 +94,6 @@ public class Int_Globus : Lvl3InteractionDialogueBase, IVioletRoomInteractionGat
         if (firstInteraction)
         {
             firstInteraction = false;
-
-            if (cameraController != null)
-                cameraController.SetZoomInOneStep();
 
             if (interactable != null)
                 interactable.isInteractableActive = true;

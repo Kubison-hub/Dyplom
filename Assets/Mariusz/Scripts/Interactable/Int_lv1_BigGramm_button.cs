@@ -164,7 +164,6 @@ public class Int_lv1_BigGramm_button : MonoBehaviour
 
         MoveNpcsForNextScene(player);
         cameraController?.UnlockHorizontalRotation();
-        cameraController?.SetZoomState(CameraZoomState.Wide);
         cameraController?.SetHorizontalRotation(cutsceneHorizontalAxis);
     }
 
@@ -179,7 +178,6 @@ public class Int_lv1_BigGramm_button : MonoBehaviour
             yield break;
 
         MoveNpcsForNextScene(player);
-        cameraController?.SetZoomState(CameraZoomState.Wide);
         cameraController?.SetHorizontalRotation(cutsceneHorizontalAxis);
         cameraController?.LockCurrentHorizontalRotation();
         cutsceneVideoPlayer.Play();
@@ -235,7 +233,6 @@ public class Int_lv1_BigGramm_button : MonoBehaviour
             cutsceneRoot.SetActive(false);
 
         cameraController?.UnlockHorizontalRotation();
-        cameraController?.SetZoomState(CameraZoomState.Wide);
         cameraController?.SetHorizontalRotation(cutsceneHorizontalAxis);
 
         if (cutscenePlayer != null)

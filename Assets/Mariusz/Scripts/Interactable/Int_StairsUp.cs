@@ -83,14 +83,11 @@ public class Int_StairsUp : MonoBehaviour
     [Tooltip("Plays only when Selma notices Sherlock while he is already walking to the stairs.")]
     [SerializeField] private Lvl3DialogueLine[] firstDiscoveryDialogueLines;
     [SerializeField] private Lvl3DialogueLine[] firstDiscoveryResolutionDialogueLines;
-    [Tooltip("Plays after the first-discovery camera reaches its Wide preset.")]
+    [Tooltip("Plays after the first-discovery resolution dialogue.")]
     [SerializeField] private Lvl3DialogueLine[] afterDiscoveryCameraDialogueLines;
     [Tooltip("One line is picked at random when Selma catches Sherlock walking to the stairs again.")]
     [SerializeField] private Lvl3DialogueLine[] repetitiveDiscoveryDialogueLines;
     [SerializeField, Min(1f)] private float discoveryRotationSpeed = 220f;
-    [SerializeField] private CameraController cameraController;
-    [SerializeField] private string discoveryCameraPreset = "Wide";
-    [SerializeField, Min(0f)] private float discoveryCameraTransitionDuration = 2.5f;
     [SerializeField] private AudioSource sherlockVoiceSource;
     [SerializeField] private AudioSource watsonVoiceSource;
     [SerializeField] private AudioSource selmaVoiceSource;
@@ -470,8 +467,6 @@ public class Int_StairsUp : MonoBehaviour
 
         yield return PlayDialogueLines(firstDiscoveryResolutionDialogueLines);
 
-        GetCameraController()?.SetZoomPreset(discoveryCameraPreset, discoveryCameraTransitionDuration);
-
         yield return PlayDialogueLines(afterDiscoveryCameraDialogueLines);
 
         isFirstDiscoverySequencePlaying = false;
@@ -566,14 +561,6 @@ public class Int_StairsUp : MonoBehaviour
             yield break;
 
         yield return PlayDialogueLines(new[] { lines[UnityEngine.Random.Range(0, lines.Length)] });
-    }
-
-    private CameraController GetCameraController()
-    {
-        if (cameraController == null)
-            cameraController = FindFirstObjectByType<CameraController>();
-
-        return cameraController;
     }
 
     private IEnumerator PlaySelmaGateDialogue()

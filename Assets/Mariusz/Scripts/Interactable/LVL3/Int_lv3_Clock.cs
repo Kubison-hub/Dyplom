@@ -30,11 +30,6 @@ public class Int_lv3_Clock : Lvl3ClockworkInteraction
         "Najpierw muszę zrozumieć powiązanie zegara z pozostałymi mechanizmami.";
     [SerializeField] private AudioClip puzzleRequiredAudio;
 
-    [Header("First Interaction Camera")]
-    [Tooltip("Optional. If empty, uses the currently active character camera.")]
-    [SerializeField] private CameraController cameraController;
-    [SerializeField, Min(0f)] private float narrowTransitionDuration = 2.5f;
-
     [Header("Feedback")]
     [SerializeField] private AudioSource tickAudioSource;
     [SerializeField] private AudioSource correctTimeAudioSource;
@@ -80,7 +75,6 @@ public class Int_lv3_Clock : Lvl3ClockworkInteraction
         if (!hasBeenExamined)
         {
             hasBeenExamined = true;
-            GetCameraController()?.SetZoomPreset("Narrow", narrowTransitionDuration);
             ShowTopText(firstInteractionText);
 
             AudioSource voiceSource = GetVoiceSource(Lvl3DialogueSpeaker.Sherlock);
@@ -122,6 +116,8 @@ public class Int_lv3_Clock : Lvl3ClockworkInteraction
             yield return new WaitForSeconds(dialogueDuration);
 
         brickClockIdeaPoint?.RevealFromExternalSource();
+        FindFirstObjectByType<SherlockWatsonHintConditions>(FindObjectsInactive.Include)?
+            .MarkBrickClockFound();
     }
 
     private bool IsBasementIdeaPuzzleSolved()
@@ -198,19 +194,4 @@ public class Int_lv3_Clock : Lvl3ClockworkInteraction
         isCorrectHourDebug = currentHour == correctHour;
     }
 
-    private CameraController GetCameraController()
-    {
-        if (cameraController != null)
-            return cameraController;
-
-        if (SwitchCharacter.Instance == null || SwitchCharacter.Instance.playersCamera == null)
-            return null;
-
-        int activePlayerIndex = SwitchCharacter.Instance.activePlayerIndex;
-        if (activePlayerIndex < 0 || activePlayerIndex >= SwitchCharacter.Instance.playersCamera.Length)
-            return null;
-
-        return SwitchCharacter.Instance.playersCamera[activePlayerIndex]
-            .GetComponent<CameraController>();
-    }
 }

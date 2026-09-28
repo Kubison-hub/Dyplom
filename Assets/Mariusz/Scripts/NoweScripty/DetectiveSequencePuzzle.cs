@@ -99,7 +99,6 @@ public class DetectiveSequencePuzzle : MonoBehaviour
 
         string connectionKey = GetConnectionKey(from, to);
         bool wasDiscovered = discoveredConnections.Contains(connectionKey);
-        bool wasAttempted = attemptedConnections.Contains(connectionKey);
 
         if (!DependenciesMet(connection))
         {
@@ -107,7 +106,7 @@ public class DetectiveSequencePuzzle : MonoBehaviour
             return ConnectionResult.Wrong;
         }
 
-        ShowConnectionText(connection, wasAttempted);
+        ShowConnectionText(connection);
         attemptedConnections.Add(connectionKey);
 
         if (!connection.canConnect)
@@ -230,15 +229,9 @@ public class DetectiveSequencePuzzle : MonoBehaviour
         return requiresAll;
     }
 
-    private void ShowConnectionText(DetectiveIdeaPoint.IdeaConnection connection, bool repeated)
+    private void ShowConnectionText(DetectiveIdeaPoint.IdeaConnection connection)
     {
-        // A repeated attempt should always be readable. Most connections only
-        // need one authored line, so fall back to it when no repeat text exists.
-        string description = repeated && !string.IsNullOrWhiteSpace(connection.repeatDescription)
-            ? connection.repeatDescription
-            : connection.firstDescription;
-
-        ShowTopText(description, "");
+        ShowTopText(connection.firstDescription, "");
     }
 
     private string GetConnectionKey(DetectiveIdeaPoint first, DetectiveIdeaPoint second)

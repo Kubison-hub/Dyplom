@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -27,6 +28,8 @@ public class DetectiveIdeaManager : MonoBehaviour
     public Color rejectedLineColor = new Color(0.16f, 0.30f, 0.20f, 0.8f);
     public float lineWidth = 0.035f;
     [Range(0.1f, 1f)] public float rejectedLineWidthMultiplier = 0.5f;
+    [SerializeField, Min(0f)] private float failedLineHoldDuration = 2f;
+    [SerializeField, Min(0.01f)] private float lineFadeDuration = 0.4f;
     public float pointerDistance = 8f;
     public string lineLayerName = "WorldText";
 
@@ -82,6 +85,7 @@ public class DetectiveIdeaManager : MonoBehaviour
     private readonly List<LineRenderer> acceptedLines = new List<LineRenderer>();
     private readonly List<LineRenderer> activeSequenceLines = new List<LineRenderer>();
     private readonly List<LineRenderer> rejectedLines = new List<LineRenderer>();
+    private readonly Dictionary<LineRenderer, Coroutine> fadingLines = new Dictionary<LineRenderer, Coroutine>();
 
     private DetectiveIdeaPoint hoveredPoint;
     private DetectiveIdeaPoint dragSource;
@@ -112,6 +116,12 @@ public class DetectiveIdeaManager : MonoBehaviour
 
     private void Awake()
     {
+        int ideaLayer = LayerMask.NameToLayer("IdeaPoint");
+        if (ideaLayer >= 0)
+            ideaLayerMask = 1 << ideaLayer;
+        else
+            Debug.LogWarning("DetectiveIdeaManager: Layer 'IdeaPoint' does not exist.", this);
+
         lineLayerName = "WorldText";
         previewLineColor = new Color(0.62f, 0.82f, 0.64f, 0.95f);
         acceptedLineColor = new Color(0.42f, 0.68f, 0.48f, 1f);
@@ -259,7 +269,8 @@ public class DetectiveIdeaManager : MonoBehaviour
         {
             if (dragSource != null)
             {
-                CancelDrag(playReleaseSound: true);
+                CancelDrag(playReleaseSound: true, fadeLines: true);
+                FadePendingLinesNow();
                 return true;
             }
 
@@ -269,10 +280,17 @@ public class DetectiveIdeaManager : MonoBehaviour
             if (consumeNextEmptyVisionClick)
             {
                 consumeNextEmptyVisionClick = false;
+                FadePendingLinesNow();
                 return true;
             }
 
-            return TryConsumeEmptyVisionClick();
+            if (TryConsumeEmptyVisionClick())
+            {
+                FadePendingLinesNow();
+                return true;
+            }
+
+            return false;
         }
 
         if (!point.IsDiscovered)
@@ -507,10 +525,10 @@ public class DetectiveIdeaManager : MonoBehaviour
             return;
         }
 
-        // Every non-sequential connection remains visible as a dark clue trail.
+        // Failed trails stay visible briefly before fading out.
         PlayConnectionSound(wrongConnectionPitch);
         KeepRejectedLine(target);
-        ClearActiveSequenceLines();
+        ClearActiveSequenceLines(fadeLines: true, holdDuration: failedLineHoldDuration);
         sequenceProgressIndex = 0;
         consumeNextEmptyVisionClick = true;
 
@@ -559,7 +577,7 @@ public class DetectiveIdeaManager : MonoBehaviour
             point.ShowIdeaText();
     }
 
-    private void CancelDrag(bool playReleaseSound = false)
+    private void CancelDrag(bool playReleaseSound = false, bool fadeLines = false)
     {
         if (playReleaseSound && dragSource != null)
             PlayPuzzleSound(releaseIdeaPointClip);
@@ -568,9 +586,16 @@ public class DetectiveIdeaManager : MonoBehaviour
             dragSource.SetHovered(false);
 
         dragSource = null;
-        DestroyPreviewLine();
+        if (fadeLines && previewLine != null)
+        {
+            rejectedLines.Add(previewLine);
+            FadeLine(previewLine, 0f);
+            previewLine = null;
+        }
+        else
+            DestroyPreviewLine();
         DestroyPreviewLineDescription();
-        ClearActiveSequenceLines();
+        ClearActiveSequenceLines(fadeLines);
         sequenceProgressIndex = 0;
         RestoreSequenceLookAt();
     }
@@ -801,7 +826,24 @@ public class DetectiveIdeaManager : MonoBehaviour
         if (!Physics.Raycast(ray, out RaycastHit hit, raycastDistance, ideaLayerMask, triggerInteraction))
             return null;
 
-        return hit.collider.GetComponentInParent<DetectiveIdeaPoint>();
+        DetectiveIdeaPoint point = hit.collider.GetComponentInParent<DetectiveIdeaPoint>();
+        if (point != null && point.isActiveAndEnabled)
+            return point;
+
+        RaycastHit[] hits = Physics.RaycastAll(ray, raycastDistance, ideaLayerMask, triggerInteraction);
+        DetectiveIdeaPoint nearestPoint = null;
+        float nearestDistance = float.MaxValue;
+        foreach (RaycastHit candidate in hits)
+        {
+            point = candidate.collider.GetComponentInParent<DetectiveIdeaPoint>();
+            if (point == null || !point.isActiveAndEnabled || candidate.distance >= nearestDistance)
+                continue;
+
+            nearestPoint = point;
+            nearestDistance = candidate.distance;
+        }
+
+        return nearestPoint;
     }
 
     private Vector3 GetPointerWorldPosition()
@@ -821,12 +863,13 @@ public class DetectiveIdeaManager : MonoBehaviour
 
         LineRenderer line = lineObject.AddComponent<LineRenderer>();
         line.useWorldSpace = true;
+        line.textureMode = LineTextureMode.Stretch;
         line.material = GetLineMaterial();
         line.startColor = color;
         line.endColor = color;
         line.startWidth = lineWidth;
         line.endWidth = lineWidth;
-        line.numCapVertices = 4;
+        line.numCapVertices = 1;
         line.numCornerVertices = 4;
 
         return line;
@@ -909,19 +952,76 @@ public class DetectiveIdeaManager : MonoBehaviour
         }
     }
 
-    private void ClearActiveSequenceLines()
+    private void ClearActiveSequenceLines(bool fadeLines = false, float holdDuration = 0f)
     {
         for (int i = activeSequenceLines.Count - 1; i >= 0; i--)
         {
             LineRenderer line = activeSequenceLines[i];
             if (line != null)
             {
-                acceptedLines.Remove(line);
-                Destroy(line.gameObject);
+                if (fadeLines)
+                    FadeLine(line, holdDuration);
+                else
+                {
+                    acceptedLines.Remove(line);
+                    Destroy(line.gameObject);
+                }
             }
         }
 
         activeSequenceLines.Clear();
+    }
+
+    private void FadeLine(LineRenderer line, float holdDuration)
+    {
+        if (line == null)
+            return;
+
+        if (fadingLines.TryGetValue(line, out Coroutine existing))
+            StopCoroutine(existing);
+
+        fadingLines[line] = StartCoroutine(FadeLineRoutine(line, holdDuration));
+    }
+
+    private void FadePendingLinesNow()
+    {
+        foreach (LineRenderer line in new List<LineRenderer>(fadingLines.Keys))
+            FadeLine(line, 0f);
+    }
+
+    private IEnumerator FadeLineRoutine(LineRenderer line, float holdDuration)
+    {
+        if (holdDuration > 0f)
+            yield return new WaitForSecondsRealtime(holdDuration);
+
+        if (line != null)
+        {
+            Color start = line.startColor;
+            Color end = line.endColor;
+            float elapsed = 0f;
+            while (elapsed < lineFadeDuration && line != null)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float alpha = 1f - Mathf.Clamp01(elapsed / lineFadeDuration);
+                line.startColor = new Color(start.r, start.g, start.b, start.a * alpha);
+                line.endColor = new Color(end.r, end.g, end.b, end.a * alpha);
+                yield return null;
+            }
+        }
+
+        acceptedLines.Remove(line);
+        rejectedLines.Remove(line);
+        fadingLines.Remove(line);
+        if (line != null)
+            Destroy(line.gameObject);
+    }
+
+    private void StopLineFades()
+    {
+        foreach (Coroutine fade in fadingLines.Values)
+            StopCoroutine(fade);
+
+        fadingLines.Clear();
     }
 
     private void SetDiscoveredPointsVisible(bool visible)
@@ -961,6 +1061,7 @@ public class DetectiveIdeaManager : MonoBehaviour
 
     private void CompletePuzzle()
     {
+        StopLineFades();
         puzzleCompleted = true;
         ideaPuzzleSessionActive = false;
         Debug.Log("SUCCES");
@@ -1084,6 +1185,7 @@ public class DetectiveIdeaManager : MonoBehaviour
 
     private void DestroySessionLines()
     {
+        StopLineFades();
         DestroyPreviewLine();
         DestroyPreviewLineDescription();
 
@@ -1196,6 +1298,7 @@ public class DetectiveIdeaManager : MonoBehaviour
         previewLine.SetPosition(0, dragSource.AnchorPosition);
         previewLine.SetPosition(1, target.AnchorPosition);
         rejectedLines.Add(previewLine);
+        FadeLine(previewLine, failedLineHoldDuration);
         previewLine = null;
     }
 

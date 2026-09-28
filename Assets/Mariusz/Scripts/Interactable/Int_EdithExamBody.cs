@@ -37,17 +37,15 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase, IInteractionApproa
 
     //public GameObject[] nextInteractions;
     public GameObject nextInteractions;
-    [SerializeField] private CameraController cameraController;
     [Header("Examination Zone")]
     [SerializeField, Min(0.1f)] private float examinationZoneRange = 3f;
     [SerializeField] private Vector3 examinationZoneOffset;
-    [Header("Examination Camera")]
-    [SerializeField] private string examinationPresetName = "EdithExam";
-    [SerializeField] private float examinationHorizontalAxis = -80f;
-    [SerializeField, Min(0.1f)] private float examinationOrbitSpeed = 1.5f;
+    [Header("Examination Look At")]
     [SerializeField] private Transform examinationLookAtTarget;
-    [SerializeField, Min(0.01f)] private float examinationLookAtTransitionSpeed = 0.2f;
+    [SerializeField, Min(0f)] private float examinationLookAtTransitionDuration = 0.35f;
+    [Tooltip("Optional. When empty, the camera returns to the Look At target used before the examination.")]
     [SerializeField] private Transform examinationLookAtReturnTarget;
+    [SerializeField, Min(0.01f)] private float examinationLookAtReturnSpeed = 3f;
     [Header("Tutorial Popup")]
     [SerializeField] private bool showTutorialPopup = true;
     [SerializeField, Min(0f)] private float tutorialPopupDelay = 1f;
@@ -154,7 +152,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase, IInteractionApproa
     private PlayerController examiningPlayer;
     private GameObject examinationZone;
     private bool isPlayerInsideExaminationZone;
-    private bool isExaminationCameraActive;
+    private CameraController examinationCameraController;
     private bool examinationLookAtActive;
     private bool tutorialPopupShown;
     private bool tutorialPopupPending;
@@ -199,9 +197,6 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase, IInteractionApproa
         interactable?.SetWatsonInteractionAllowed(true);
         GetBulletCp()?.GetComponent<Interactable>()?.SetWatsonInteractionAllowed(false);
         FindEdithIdeaPointIfNeeded();
-        if (cameraController == null)
-            cameraController = FindFirstObjectByType<CameraController>();
-
         if (watsonAnimator == null && watsonGO != null)
             watsonAnimator = watsonGO.GetComponentInChildren<Animator>();
 
@@ -254,9 +249,9 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase, IInteractionApproa
         isPlayerInsideExaminationZone = playerIsNowInside;
 
         if (isPlayerInsideExaminationZone)
-            EnterExaminationCamera();
+            EnterExaminationZone();
         else
-            ExitExaminationCamera();
+            ExitExaminationZone();
     }
 
     public void PerformInteraction(PlayerController player)
@@ -1130,10 +1125,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase, IInteractionApproa
         isPlayerInsideExaminationZone = false;
         CancelPendingTutorialPopup();
 
-        cameraController?.StopScriptedHorizontalOrbit();
-        cameraController?.SetZoomState(CameraZoomState.Medium);
         RestoreExaminationLookAt();
-        isExaminationCameraActive = false;
 
         if (examinationZone != null)
         {
@@ -1171,9 +1163,9 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase, IInteractionApproa
         isPlayerInsideExaminationZone = IsPlayerInsideExaminationZone();
 
         if (isPlayerInsideExaminationZone)
-            EnterExaminationCamera();
+            EnterExaminationZone();
         else
-            ExitExaminationCamera();
+            ExitExaminationZone();
     }
 
     private void SetExaminationClueObjectsActive(bool active)
@@ -1200,41 +1192,19 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase, IInteractionApproa
         }
     }
 
-    private void EnterExaminationCamera()
+    private void EnterExaminationZone()
     {
         SetExaminationGuidanceVisible(false);
-
-        if (isExaminationCameraActive)
-            return;
-
-        isExaminationCameraActive = cameraController != null &&
-                                  cameraController.SetZoomPreset(examinationPresetName);
-        cameraController?.OrbitHorizontalAxisTo(examinationHorizontalAxis, examinationOrbitSpeed);
-
-        if (!IsWatson(examiningPlayer) && examinationLookAtTarget != null && cameraController != null)
-        {
-            cameraController.OverrideLookAtTargetSmooth(
-                examinationLookAtTarget,
-                examinationLookAtTransitionSpeed);
-            examinationLookAtActive = true;
-        }
-
+        BeginExaminationLookAt();
         ShowExaminationTutorialsIfReady();
     }
 
-    private void ExitExaminationCamera()
+    private void ExitExaminationZone()
     {
         if (!examinationCompleted && interactable != null)
             interactable.isInteractableActive = true;
 
-        if (isExaminationCameraActive)
-        {
-            cameraController?.StopScriptedHorizontalOrbit();
-            cameraController?.SetZoomState(CameraZoomState.Medium);
-            isExaminationCameraActive = false;
-            CancelPendingTutorialPopup();
-        }
-
+        CancelPendingTutorialPopup();
         RestoreExaminationLookAt();
 
         SetExaminationGuidanceVisible(true);
@@ -1253,17 +1223,49 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase, IInteractionApproa
         }
     }
 
+    private void BeginExaminationLookAt()
+    {
+        if (examinationLookAtActive || examinationLookAtTarget == null)
+            return;
+
+        examinationCameraController = GetActiveCameraController();
+        if (examinationCameraController == null)
+            return;
+
+        examinationCameraController.BeginDialogueLookAt(
+            examinationLookAtTarget,
+            examinationLookAtTransitionDuration);
+        examinationLookAtActive = true;
+    }
+
     private void RestoreExaminationLookAt()
     {
         if (!examinationLookAtActive)
             return;
 
-        if (examinationLookAtReturnTarget != null)
-            cameraController?.ForceLookAtTarget(examinationLookAtReturnTarget);
-        else
-            cameraController?.RestoreLookAtTarget();
-
+        examinationCameraController?.RestoreDialogueLookAt(
+            examinationLookAtReturnTarget,
+            examinationLookAtReturnSpeed);
+        examinationCameraController = null;
         examinationLookAtActive = false;
+    }
+
+    private static CameraController GetActiveCameraController()
+    {
+        SwitchCharacter switchCharacter = SwitchCharacter.Instance;
+        if (switchCharacter == null || switchCharacter.playersCamera == null)
+            return null;
+
+        int activeIndex = switchCharacter.activePlayerIndex;
+        if (activeIndex < 0 || activeIndex >= switchCharacter.playersCamera.Length ||
+            switchCharacter.playersCamera[activeIndex] == null)
+            return null;
+
+        CameraController cameraController =
+            switchCharacter.playersCamera[activeIndex].GetComponent<CameraController>();
+        return cameraController != null
+            ? cameraController
+            : switchCharacter.playersCamera[activeIndex].GetComponentInChildren<CameraController>(true);
     }
 
     private void ShowTutorialPopupIfNeeded()
@@ -1283,7 +1285,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase, IInteractionApproa
         tutorialPopupCoroutine = null;
         tutorialPopupPending = false;
 
-        if (!interactionPerforming || !isExaminationCameraActive || TutorialTimeline.Instance == null)
+        if (!interactionPerforming || !isPlayerInsideExaminationZone || TutorialTimeline.Instance == null)
             yield break;
 
         tutorialPopupShown = true;
@@ -1318,7 +1320,7 @@ public class Int_EdithExamBody : Lvl3InteractionDialogueBase, IInteractionApproa
             initialDialogueCompleted = true;
             SetExaminationClueObjectsActive(true);
 
-            if (interactionPerforming && isExaminationCameraActive)
+            if (interactionPerforming && isPlayerInsideExaminationZone)
                 ShowExaminationTutorialsIfReady();
 
             if (continueBulletCpAfterInitialDialogue)

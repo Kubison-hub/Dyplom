@@ -8,7 +8,6 @@ public class int_Globus_Button : MonoBehaviour, IVioletRoomInteractionGate
 
     [Header("Result")]
     [SerializeField] private LockPickAudioController audioController;
-    [SerializeField] private CameraController cameraController;
     [SerializeField] private Animator globusAnimator;
     [SerializeField] private int_LibraryPainting painting;
     [SerializeField] private Int_Globus globe;
@@ -50,9 +49,6 @@ public class int_Globus_Button : MonoBehaviour, IVioletRoomInteractionGate
 
         if (audioController != null)
             audioController.PlayUnlock();
-
-        if (cameraController != null)
-            cameraController.ReturnToPreviousZoomState();
 
         if (globusAnimator != null)
             globusAnimator.SetTrigger("Rotate");

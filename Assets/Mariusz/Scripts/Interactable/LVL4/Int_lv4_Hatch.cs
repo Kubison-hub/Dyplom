@@ -50,10 +50,7 @@ public class Int_lv4_Hatch : Lvl3InteractionDialogueBase
             return;
 
         if (opened)
-        {
-            PlayDialogue(player, sherlockRepeatDialogue);
             return;
-        }
 
         if (IsWatsonPlayer(player))
         {
@@ -61,7 +58,7 @@ public class Int_lv4_Hatch : Lvl3InteractionDialogueBase
             return;
         }
 
-        if (isWatsonInRoom)
+        if (IsWatsonAvailable())
         {
             PlayDialogue(player, watsonInRoomDialogue);
             StartCoroutine(RotateWatsonTowardHatch());
@@ -76,6 +73,20 @@ public class Int_lv4_Hatch : Lvl3InteractionDialogueBase
         }
 
         PlayDialogue(player, sherlockRepeatDialogue);
+    }
+
+    private bool IsWatsonAvailable()
+    {
+        if (isWatsonInRoom)
+            return true;
+
+        SwitchCharacter switchCharacter = SwitchCharacter.Instance;
+        return switchCharacter != null &&
+               switchCharacter.canSwitch &&
+               switchCharacter.players != null &&
+               switchCharacter.players.Length > 1 &&
+               switchCharacter.players[1] != null &&
+               switchCharacter.players[1].gameObject.activeInHierarchy;
     }
 
     public void SetWatsonInRoom(bool value)

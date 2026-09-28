@@ -42,6 +42,8 @@ public class Int_lv3_SpecialBrick : Lvl3InteractionDialogueBase
 
         discovered = true;
         revealBasementExitAfterDialogue = true;
+        FindFirstObjectByType<SherlockWatsonHintConditions>(FindObjectsInactive.Include)?
+            .MarkBrickWallFound();
 
         foreach (GameObject target in activateOnDiscovered)
         {

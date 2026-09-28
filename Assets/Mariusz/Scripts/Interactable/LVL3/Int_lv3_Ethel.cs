@@ -127,6 +127,7 @@ public class Int_lv3_Ethel : MonoBehaviour
             yield return null;
 
         InventoryManager.Instance?.TryRemoveItem(ItemType.SmallBox);
+        InventoryManager.Instance?.TryRemoveItem(ItemType.Lalka);
         yield return OpenNotebookNoteAfterConversation();
 
         CluesLog.Instance?.RegisterBasementEvidence("EthelFirstConversation");
@@ -141,7 +142,7 @@ public class Int_lv3_Ethel : MonoBehaviour
         if (!openNotebookNoteAfterConversation || interactable == null)
             yield break;
 
-        interactable.AddAndOpenNote(notebookNoteIndex, -60f, true);
+        interactable.AddAndOpenNoteInNotebook(notebookNoteIndex);
         yield return null;
 
         while (NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen)

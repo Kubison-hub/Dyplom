@@ -72,6 +72,8 @@ public class Int_lv3_ClockClue : Lvl3InteractionDialogueBase
         {
             discovered = true;
             oldClockIdeaPoint?.RevealFromExternalSource();
+            FindFirstObjectByType<SherlockWatsonHintConditions>(FindObjectsInactive.Include)?
+                .MarkOldClockFound();
             revealBasementExitAfterDialogue = true;
         }
 

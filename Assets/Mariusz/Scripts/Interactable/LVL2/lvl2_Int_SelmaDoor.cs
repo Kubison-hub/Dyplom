@@ -20,10 +20,6 @@ public class lvl2_Int_SelmaDoor : Lvl3InteractionDialogueBase
     private bool isOpen = false;
 
     [SerializeField] private Vector3 openEuler = new Vector3(0f, 90f, 0f);
-    [SerializeField] private CameraController cameraController;
-    [SerializeField] private string unlockedCameraPresetName = "Medium";
-
-
     [SerializeField] private float openSpeed = 120f;
     [SerializeField] private float fadeDuration = 1f;
 
@@ -33,6 +29,7 @@ public class lvl2_Int_SelmaDoor : Lvl3InteractionDialogueBase
     [SerializeField] private Camera playerCamera;
     private LockPickMinigameController currentMinigame;
     [SerializeField] private LockPickAudioController audioController;
+    private PlayerController interactingPlayer;
 
     private Interactable interactable;
     public bool setActiveOnStart = false;
@@ -70,6 +67,7 @@ public class lvl2_Int_SelmaDoor : Lvl3InteractionDialogueBase
 
     public void PerformInteraction(PlayerController player)
     {
+        interactingPlayer = player;
         performed = true;
         Debug.Log(interactable.name + ", interaction Performed");
 
@@ -81,8 +79,6 @@ public class lvl2_Int_SelmaDoor : Lvl3InteractionDialogueBase
             interactable.isInteractableActive = false;
             firsInteraction = false;
             player.currentInteractable = null;
-            cameraController?.SetZoomState(CameraZoomState.Narrow);
-
             if (firstInteractionDialogue != null && firstInteractionDialogue.Length > 0)
             {
                 waitingForFirstInteractionDialogue = true;
@@ -95,7 +91,6 @@ public class lvl2_Int_SelmaDoor : Lvl3InteractionDialogueBase
         }
         else
         {
-            cameraController.SetZoomState(CameraZoomState.Narrow);
             LockPick();
             player.currentInteractable = null;
         }
@@ -215,10 +210,6 @@ public class lvl2_Int_SelmaDoor : Lvl3InteractionDialogueBase
     private void HandleUnlocked()
     {
         audioController.PlayUnlock();
-        if (cameraController != null &&
-            (string.IsNullOrWhiteSpace(unlockedCameraPresetName) ||
-             !cameraController.SetZoomPreset(unlockedCameraPresetName)))
-            cameraController.ReturnToPreviousZoomState();
         ClueManager.Instance.isLockpicking = false;
 
         Debug.Log("Door unlocked");
@@ -229,6 +220,8 @@ public class lvl2_Int_SelmaDoor : Lvl3InteractionDialogueBase
         {
             openCoroutine = StartCoroutine(OpenDoor());
         }
+
+        ChangeCameraPresetAfterUnlock();
 
         if (fadeCoroutine != null)
             StopCoroutine(fadeCoroutine);
@@ -246,12 +239,44 @@ public class lvl2_Int_SelmaDoor : Lvl3InteractionDialogueBase
 
     }
 
+    private void ChangeCameraPresetAfterUnlock()
+    {
+        CameraController activeCamera = null;
+        SwitchCharacter switchCharacter = SwitchCharacter.Instance;
+        if (switchCharacter != null && switchCharacter.playersCamera != null)
+        {
+            int activeIndex = switchCharacter.activePlayerIndex;
+            if (activeIndex >= 0 && activeIndex < switchCharacter.playersCamera.Length &&
+                switchCharacter.playersCamera[activeIndex] != null)
+            {
+                activeCamera = switchCharacter.playersCamera[activeIndex]
+                    .GetComponent<CameraController>();
+                if (activeCamera == null)
+                {
+                    activeCamera = switchCharacter.playersCamera[activeIndex]
+                        .GetComponentInChildren<CameraController>(true);
+                }
+            }
+        }
+
+        if (activeCamera == null && playerCamera != null)
+            activeCamera = playerCamera.GetComponentInParent<CameraController>();
+
+        if (activeCamera == null && interactingPlayer != null)
+        {
+            activeCamera = interactingPlayer.GetComponent<CameraController>();
+            if (activeCamera == null)
+                activeCamera = interactingPlayer.GetComponentInChildren<CameraController>(true);
+        }
+
+        if (activeCamera != null)
+            activeCamera.SetZoomIndex(activeCamera.CurrentZoomIndex + 1);
+    }
+
     private void HandleClosed()
     {
         ClueManager.Instance.isLockpicking = false;
         audioController.PlayReset();
-        cameraController.ReturnToPreviousZoomState();
-
         if (currentMinigame != null)
             Destroy(currentMinigame.gameObject);
 

@@ -344,7 +344,7 @@ public class NotebookManager : MonoBehaviour
         bool isFirstVisibleNote = true;
         foreach (NoteData note in allNotes)
         {
-            if (note.category == selectedCategory)
+            if (note != null && note.category == selectedCategory)
             {
                 CreateNoteButton(note, !isFirstVisibleNote);
 
@@ -498,6 +498,43 @@ public class NotebookManager : MonoBehaviour
         if (note.customPaperGraphic != null)
         {
             paperImage.sprite = note.customPaperGraphic;
+        }
+    }
+
+    public void OpenNoteInNotebook(NoteData note, bool playNoticeAudio = true)
+    {
+        if (note == null || notebookPanel == null)
+            return;
+
+        AddNote(note, playNoticeAudio: playNoticeAudio);
+
+        if (!IsNotebookOpen)
+            ToggleNotebook();
+
+        if (!IsNotebookOpen)
+            return;
+
+        openedAsQuickRead = false;
+        quickReadClosesOnLeftClick = false;
+        if (categoryPanel != null)
+            categoryPanel.SetActive(false);
+
+        ShowCategory((int)note.category);
+
+        if (note.category == NoteCategory.Osoby && IsPersonNote(note))
+        {
+            MarkPersonNotesAsRead(note.person);
+            DisplayPerson(note.person);
+        }
+        else if (note.category == NoteCategory.Obserwacje && IsGroupedObservationNote(note))
+        {
+            MarkObservationNotesAsRead(note.observation);
+            DisplayObservation(note.observation);
+        }
+        else
+        {
+            MarkNoteAsRead(note);
+            DisplayNote(note);
         }
     }
 

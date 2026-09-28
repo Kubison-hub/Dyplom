@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 using UnityEngine.Video;
 
 /// <summary>
@@ -14,6 +15,30 @@ public class TutorialPopupWindow : MonoBehaviour
     [SerializeField] private GameObject tutorialVideoContainer;
 
     private float openedAtUnscaledTime;
+    private RawImage tutorialVideoImage;
+    private CanvasGroup popupCanvasGroup;
+    private bool videoConfigured;
+
+    private void Awake()
+    {
+        popupCanvasGroup = GetComponent<CanvasGroup>();
+        if (popupCanvasGroup == null)
+            popupCanvasGroup = gameObject.AddComponent<CanvasGroup>();
+
+        if (tutorialVideoPlayer != null)
+            tutorialVideoImage = tutorialVideoPlayer.GetComponent<RawImage>();
+    }
+
+    private void OnEnable()
+    {
+        if (videoConfigured)
+            PrepareVideo();
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeFromVideoEvents();
+    }
 
     public void Configure(string title, string content, VideoClip videoClip)
     {
@@ -29,19 +54,65 @@ public class TutorialPopupWindow : MonoBehaviour
         if (tutorialVideoPlayer == null)
             return;
 
+        UnsubscribeFromVideoEvents();
         tutorialVideoPlayer.Stop();
+        tutorialVideoPlayer.playOnAwake = false;
+        tutorialVideoPlayer.waitForFirstFrame = true;
         tutorialVideoPlayer.clip = videoClip;
+        videoConfigured = videoClip != null;
+
+        if (popupCanvasGroup != null)
+            popupCanvasGroup.alpha = videoConfigured ? 0f : 1f;
 
         if (tutorialVideoContainer != null)
             tutorialVideoContainer.SetActive(videoClip != null);
 
+        if (tutorialVideoImage != null)
+            tutorialVideoImage.enabled = false;
+
         tutorialVideoPlayer.enabled = videoClip != null;
 
-        if (videoClip != null)
-        {
-            tutorialVideoPlayer.isLooping = true;
-            tutorialVideoPlayer.Play();
-        }
+        if (videoConfigured && isActiveAndEnabled)
+            PrepareVideo();
+    }
+
+    private void PrepareVideo()
+    {
+        if (tutorialVideoPlayer == null || tutorialVideoPlayer.clip == null)
+            return;
+
+        UnsubscribeFromVideoEvents();
+        tutorialVideoPlayer.prepareCompleted += HandleVideoPrepared;
+        tutorialVideoPlayer.frameReady += HandleFirstVideoFrameReady;
+        tutorialVideoPlayer.sendFrameReadyEvents = true;
+        tutorialVideoPlayer.isLooping = true;
+        tutorialVideoPlayer.Prepare();
+    }
+
+    private void HandleVideoPrepared(VideoPlayer source)
+    {
+        source.Play();
+    }
+
+    private void HandleFirstVideoFrameReady(VideoPlayer source, long frameIndex)
+    {
+        if (tutorialVideoImage != null)
+            tutorialVideoImage.enabled = true;
+
+        if (popupCanvasGroup != null)
+            popupCanvasGroup.alpha = 1f;
+
+        source.sendFrameReadyEvents = false;
+        UnsubscribeFromVideoEvents();
+    }
+
+    private void UnsubscribeFromVideoEvents()
+    {
+        if (tutorialVideoPlayer == null)
+            return;
+
+        tutorialVideoPlayer.prepareCompleted -= HandleVideoPrepared;
+        tutorialVideoPlayer.frameReady -= HandleFirstVideoFrameReady;
     }
 
     private void Update()

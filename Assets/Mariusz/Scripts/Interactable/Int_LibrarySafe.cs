@@ -10,7 +10,6 @@ public class Int_LibrarySafe : Lvl3InteractionDialogueBase
     [SerializeField] private SafeCodeDrumMinigame codeDrumPrefab;
     [SerializeField] private Transform minigameTransform;
     [SerializeField] private Camera playerCamera;
-    [SerializeField] private CameraController cameraController;
     [SerializeField] private LockPickAudioController audioController;
     [SerializeField] private string code = "1A4";
     [SerializeField, Min(0.1f)] private float minigameExitRange = 3f;
@@ -110,9 +109,6 @@ public class Int_LibrarySafe : Lvl3InteractionDialogueBase
             hasKey = false;
         }
 
-        if (cameraController != null)
-            cameraController.SetZoomInOneStep();
-
         PlayDialogue(player, keyAcceptedDialogue);
 
         if (ClueManager.Instance != null)
@@ -162,9 +158,6 @@ public class Int_LibrarySafe : Lvl3InteractionDialogueBase
 
     private void CloseMinigame()
     {
-        if (cameraController != null)
-            cameraController.ReturnToPreviousZoomState();
-
         if (ClueManager.Instance != null)
             ClueManager.Instance.isLockpicking = false;
 

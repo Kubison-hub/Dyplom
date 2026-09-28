@@ -6,9 +6,6 @@ public class int_LibraryPainting : Lvl3InteractionDialogueBase
 
     private Interactable interactable;
     private Collider interactionCollider;
-    [SerializeField] private CameraController cameraController;
-    [SerializeField, Min(0f)] private float cameraTransitionDuration = 2.5f;
-
     public bool performed = false;
 
     public float pushDuration = 1f;
@@ -38,6 +35,11 @@ public class int_LibraryPainting : Lvl3InteractionDialogueBase
         }
     };
 
+    [Header("Second Inspection Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] secondInspectionDialogue;
+
+    private bool hasBeenInspected;
+
     protected override Lvl3DialogueLine[] DefaultDialogueLines => inspectionDialogue;
 
 
@@ -47,17 +49,23 @@ public class int_LibraryPainting : Lvl3InteractionDialogueBase
         interactable?.SetWatsonInteractionAllowed(true);
         interactionCollider = GetComponent<Collider>();
 
-        if (cameraController == null)
-            cameraController = FindFirstObjectByType<CameraController>();
-
     }
 
     public void PerformInteraction(PlayerController player)
     {
-        cameraController?.SetZoomPreset("Narrow", cameraTransitionDuration);
-
         if (!paintingPushed)
-            PlayDialogue(player, IsWatson(player) ? watsonInspectionDialogue : inspectionDialogue);
+        {
+            bool isWatson = IsWatson(player);
+            Lvl3DialogueLine[] dialogue = isWatson
+                ? watsonInspectionDialogue
+                : hasBeenInspected && secondInspectionDialogue != null &&
+                  secondInspectionDialogue.Length > 0
+                    ? secondInspectionDialogue
+                    : inspectionDialogue;
+
+            PlayDialogue(player, dialogue);
+            hasBeenInspected = true;
+        }
 
         if (player != null)
             player.currentInteractable = null;

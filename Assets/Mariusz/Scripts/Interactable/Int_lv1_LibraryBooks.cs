@@ -4,11 +4,6 @@ using UnityEngine;
 [RequireComponent(typeof(Interactable))]
 public class Int_lv1_LibraryBooks : Lvl3InteractionDialogueBase, IVioletRoomInteractionGate
 {
-    [Header("Camera")]
-    [SerializeField] private CameraController cameraController;
-    [SerializeField] private float horizontalAxis = 116.8f;
-    [SerializeField] private float orbitSpeed = 5f;
-
     [Header("Bookshelf Dialogue")]
     [SerializeField, Min(0f)] private float dialogueDelay = 0.5f;
     [SerializeField] private Lvl3DialogueLine[] bookshelfDialogue =
@@ -60,16 +55,18 @@ public class Int_lv1_LibraryBooks : Lvl3InteractionDialogueBase, IVioletRoomInte
     private bool performed;
     private bool isWalkingToWaitPoint;
     private bool firstVioletGateTriggered;
+    private bool noteAdded;
 
     protected override Lvl3DialogueLine[] DefaultDialogueLines => bookshelfDialogue;
 
     private void Start()
     {
         interactable = GetComponent<Interactable>();
+        if (interactable != null)
+            interactable.addDatabaseNotesAutomatically = false;
+
         interactionCollider = GetComponent<Collider>();
 
-        if (cameraController == null)
-            cameraController = FindFirstObjectByType<CameraController>();
     }
 
     public void PerformInteraction(PlayerController player)
@@ -78,9 +75,7 @@ public class Int_lv1_LibraryBooks : Lvl3InteractionDialogueBase, IVioletRoomInte
             return;
 
         performed = true;
-
-        if (cameraController != null)
-            cameraController.SetZoomInOneStep();
+        AddLibraryNoteIfNeeded();
 
         StartCoroutine(PlayBookshelfDialogueAfterDelay(player));
 
@@ -109,6 +104,8 @@ public class Int_lv1_LibraryBooks : Lvl3InteractionDialogueBase, IVioletRoomInte
         if (!debugVioletGateRedirected)
             return false;
 
+        AddLibraryNoteIfNeeded();
+
         if (player == null)
             return true;
 
@@ -117,7 +114,7 @@ public class Int_lv1_LibraryBooks : Lvl3InteractionDialogueBase, IVioletRoomInte
         if (waitInteractionPoint == null)
         {
             isWalkingToWaitPoint = true;
-            StartCoroutine(PlayVioletGateDialogue());
+            StartCoroutine(PlayVioletGateDialogue(player));
             return true;
         }
 
@@ -129,6 +126,15 @@ public class Int_lv1_LibraryBooks : Lvl3InteractionDialogueBase, IVioletRoomInte
         }
 
         return true;
+    }
+
+    private void AddLibraryNoteIfNeeded()
+    {
+        if (noteAdded || interactable == null)
+            return;
+
+        noteAdded = true;
+        interactable.AddAllDatabaseNotes();
     }
 
     private bool IsVioletInRoom()
@@ -157,12 +163,14 @@ public class Int_lv1_LibraryBooks : Lvl3InteractionDialogueBase, IVioletRoomInte
         }
 
         if (player != null)
-            yield return PlayVioletGateDialogue();
+            yield return PlayVioletGateDialogue(player);
 
     }
 
-    private IEnumerator PlayVioletGateDialogue()
+    private IEnumerator PlayVioletGateDialogue(PlayerController player)
     {
+        yield return RotateSherlockTowardsBooks(player);
+
         PlayDialogue(null, debugVioletObservesFromOutside ? violetObservesLibraryDialogue : violetPresentDialogue);
         while (IsDialoguePlaying)
             yield return null;
@@ -170,6 +178,37 @@ public class Int_lv1_LibraryBooks : Lvl3InteractionDialogueBase, IVioletRoomInte
         ActivateFirstVioletGateObject();
         MoveWatsonToGatePoint();
         isWalkingToWaitPoint = false;
+    }
+
+    private IEnumerator RotateSherlockTowardsBooks(PlayerController player)
+    {
+        if (player == null ||
+            (player.playerCharacter != PlayerCharacter.Sherlock && !player.CompareTag("PlayerA")))
+            yield break;
+
+        Vector3 direction = transform.position - player.transform.position;
+        direction.y = 0f;
+        if (direction.sqrMagnitude <= 0.001f)
+            yield break;
+
+        Quaternion targetRotation = Quaternion.LookRotation(direction.normalized);
+        bool restoreAgentRotation = player.navMeshAgent != null && player.navMeshAgent.updateRotation;
+        if (player.navMeshAgent != null)
+            player.navMeshAgent.updateRotation = false;
+
+        float rotationSpeed = Mathf.Max(1f, player.interactionPointRotationSpeed);
+        while (Quaternion.Angle(player.transform.rotation, targetRotation) > 1f)
+        {
+            player.transform.rotation = Quaternion.RotateTowards(
+                player.transform.rotation,
+                targetRotation,
+                rotationSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        player.transform.rotation = targetRotation;
+        if (player.navMeshAgent != null)
+            player.navMeshAgent.updateRotation = restoreAgentRotation;
     }
 
     private void ActivateFirstVioletGateObject()

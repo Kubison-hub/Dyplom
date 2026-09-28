@@ -24,7 +24,7 @@ public class CameraController : MonoBehaviour
     [Tooltip("In Play Mode, applies the currently selected preset every frame so its Radius and Height values can be tuned live.")]
     [SerializeField] private bool livePresetPreview;
     public int CurrentZoomIndex => targetZoomIndex;
-    public int PresetScaleIndex => hasMirrorPreset ? Mathf.Max(0, targetZoomIndex - 1) : targetZoomIndex;
+    public int PresetScaleIndex => targetZoomIndex;
     public bool IsCurrentGameplayCamera => IsActiveGameplayCamera();
 
     private CinemachineCamera cineCamera;
@@ -59,13 +59,16 @@ public class CameraController : MonoBehaviour
     [SerializeField] private string dialogueZoomPresetName = "Narrow";
     [SerializeField, Min(0f)] private float dialogueZoomReturnDuration = 0.45f;
     [SerializeField, Min(0.01f)] private float dialogueLookAtReturnSpeed = 1f;
-    [SerializeField, Min(0.01f)] private float dialogueRotationFadeInDuration = 0.2f;
-    [SerializeField, Min(0.01f)] private float dialogueRotationFadeOutDuration = 0.8f;
 
     [Header("Zoom")]
-    [Tooltip("Camera travel speed in world units per second. Explicit transition durations still override this speed.")]
+    [Tooltip("Camera travel speed in world units per second for non-dialogue preset transitions.")]
     [InspectorName("Zoom Transition Speed")]
     [SerializeField, Min(0.01f)] private float zoomTransitionWorldSpeed = 10f;
+    [Tooltip("Acceleration and deceleration time when Use Zoom Transition Curve is disabled.")]
+    [SerializeField, Min(0f)] private float zoomTransitionRampTime = 0.2f;
+    [Tooltip("Use the curve instead of the speed ramp for non-dialogue preset transitions.")]
+    [SerializeField] private bool useZoomTransitionCurve;
+    [InspectorName("Zoom Transition Curve")]
     [SerializeField] private AnimationCurve zoomTransitionCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
     [Header("Depth Of Field")]
@@ -99,6 +102,14 @@ public class CameraController : MonoBehaviour
     private bool zoomTransitionActive;
     private float zoomTransitionElapsed;
     private float activeZoomTransitionDuration;
+    private float zoomTransitionDistance;
+    private float zoomTransitionRampDuration;
+    private float zoomTransitionCruiseDuration;
+    private float zoomTransitionPeakSpeed;
+    private bool zoomTransitionUsesCurve;
+    private Vector2 rotationComposerDampingBeforeZoom;
+    private bool zoomRotationDampingOverridden;
+    private bool zoomRotationDampingRestorePending;
     private int zoomTransitionTargetIndex = -1;
     private ZoomPreset zoomTransitionStart;
     private DepthOfField depthOfField;
@@ -139,7 +150,6 @@ public class CameraController : MonoBehaviour
     private bool restoringSmoothLookAtTarget;
     private int dialoguePreviousZoomIndex = -1;
     private bool dialogueZoomWasOverridden;
-    private float dialogueAutoRotationWeight;
     private bool dialogueZoomPreRollActive;
     private float dialogueZoomPreRollElapsed;
     private float dialogueZoomPreRollDuration;
@@ -195,6 +205,7 @@ public class CameraController : MonoBehaviour
 
     private void OnDisable()
     {
+        RestoreZoomRotationDamping();
         ConversationManager.OnConversationStarted -= HandleConversationStarted;
         ConversationManager.OnConversationUIWillShow -= HandleConversationUIWillShow;
         ConversationManager.OnConversationUIHidden -= HandleConversationUIHidden;
@@ -202,6 +213,9 @@ public class CameraController : MonoBehaviour
 
     private void Update()
     {
+        if (zoomRotationDampingRestorePending)
+            RestoreZoomRotationDamping();
+
         if (IsTutorialBlockingCamera())
         {
             if (!tutorialCameraInputBlocked)
@@ -456,7 +470,6 @@ public class CameraController : MonoBehaviour
             // The player has taken over the framing. Keep dialogue zoom, but never
             // re-enable the dialogue orbit until this conversation ends.
             dialogAutoRotationSuppressedByManualInput = true;
-            dialogueAutoRotationWeight = 0f;
             return;
         }
 
@@ -499,7 +512,6 @@ public class CameraController : MonoBehaviour
             dialogAutoRotateActive = true;
             autoRotationSuppressedByManualInput = false;
             // Dialogues may change the zoom preset, but keep the current horizontal framing.
-            dialogueAutoRotationWeight = 0f;
             return;
         }
 
@@ -512,13 +524,12 @@ public class CameraController : MonoBehaviour
             autoRotateCamera = false;
 
             if (dialogueZoomWasOverridden && dialoguePreviousZoomIndex >= 0)
-                SetZoomIndex(dialoguePreviousZoomIndex, dialogueZoomReturnDuration);
+                SetZoomIndexInternal(dialoguePreviousZoomIndex, dialogueZoomReturnDuration, true);
 
             dialoguePreviousZoomIndex = -1;
             dialogueZoomWasOverridden = false;
         }
 
-        dialogueAutoRotationWeight = 0f;
     }
 
     private void HandleConversationStarted()
@@ -593,6 +604,7 @@ public class CameraController : MonoBehaviour
         dialogueZoomPreRollStart = CaptureCurrentZoomPreset();
         zoomTransitionActive = false;
         zoomTransitionTargetIndex = -1;
+        RestoreZoomRotationDamping();
         dialogueZoomPreRollTargetIndex = presetIndex;
         targetZoomIndex = presetIndex;
         dialogueZoomPreRollElapsed = 0f;
@@ -630,15 +642,25 @@ public class CameraController : MonoBehaviour
         dialogueZoomPreRollTargetIndex = -1;
     }
 
-    private void StartZoomTransition(int presetIndex, float duration)
+    private void StartZoomTransition(int presetIndex, float duration, bool useDialogueDuration = false)
     {
         zoomTransitionStart = CaptureCurrentZoomPreset();
         zoomTransitionTargetIndex = presetIndex;
         zoomTransitionElapsed = 0f;
-        activeZoomTransitionDuration = duration >= 0f
-            ? duration
-            : CalculateZoomTransitionDuration(zoomTransitionStart, zoomPresets[presetIndex]);
+        zoomTransitionUsesCurve = useDialogueDuration || useZoomTransitionCurve;
+        if (useDialogueDuration)
+        {
+            activeZoomTransitionDuration = Mathf.Max(0f, duration);
+        }
+        else
+        {
+            ConfigureConstantSpeedZoomTransition(zoomTransitionStart, zoomPresets[presetIndex]);
+        }
         zoomTransitionActive = activeZoomTransitionDuration > 0f;
+        if (zoomTransitionActive && !useDialogueDuration)
+            SuppressZoomRotationDamping();
+        else
+            RestoreZoomRotationDamping();
         dialogueZoomPreRollActive = false;
         dialogueZoomPreRollTargetIndex = -1;
 
@@ -646,13 +668,44 @@ public class CameraController : MonoBehaviour
             CompleteZoomTransition();
     }
 
-    private float CalculateZoomTransitionDuration(ZoomPreset from, ZoomPreset to)
+    private void ConfigureConstantSpeedZoomTransition(ZoomPreset from, ZoomPreset to)
     {
         float verticalPosition = orbitalFollow.VerticalAxis.GetNormalizedValue();
         Vector2 startOrbitPoint = GetZoomOrbitPoint(from, verticalPosition);
         Vector2 targetOrbitPoint = GetZoomOrbitPoint(to, verticalPosition);
-        float distance = Vector2.Distance(startOrbitPoint, targetOrbitPoint) * Mathf.Abs(orbitalFollow.RadialAxis.Value);
-        return distance / Mathf.Max(0.01f, zoomTransitionWorldSpeed);
+        zoomTransitionDistance = Vector2.Distance(startOrbitPoint, targetOrbitPoint) *
+                                 Mathf.Abs(orbitalFollow.RadialAxis.Value);
+        if (zoomTransitionDistance <= 0.0001f)
+        {
+            activeZoomTransitionDuration = 0f;
+            return;
+        }
+
+        float speed = Mathf.Max(0.01f, zoomTransitionWorldSpeed);
+        if (zoomTransitionUsesCurve)
+        {
+            activeZoomTransitionDuration = zoomTransitionDistance / speed;
+            return;
+        }
+
+        float rampTime = Mathf.Max(0f, zoomTransitionRampTime);
+        if (rampTime <= 0f)
+        {
+            zoomTransitionRampDuration = 0f;
+            zoomTransitionCruiseDuration = zoomTransitionDistance / speed;
+            zoomTransitionPeakSpeed = speed;
+        }
+        else
+        {
+            zoomTransitionRampDuration = Mathf.Min(rampTime,
+                Mathf.Sqrt(zoomTransitionDistance * rampTime / speed));
+            zoomTransitionPeakSpeed = speed * zoomTransitionRampDuration / rampTime;
+            zoomTransitionCruiseDuration = Mathf.Max(0f,
+                (zoomTransitionDistance - zoomTransitionPeakSpeed * zoomTransitionRampDuration) /
+                zoomTransitionPeakSpeed);
+        }
+
+        activeZoomTransitionDuration = 2f * zoomTransitionRampDuration + zoomTransitionCruiseDuration;
     }
 
     private Vector2 GetZoomOrbitPoint(ZoomPreset preset, float verticalPosition)
@@ -726,7 +779,9 @@ public class CameraController : MonoBehaviour
 
         zoomTransitionElapsed += Time.unscaledDeltaTime;
         float normalizedTime = Mathf.Clamp01(zoomTransitionElapsed / activeZoomTransitionDuration);
-        float easedTime = EvaluateNormalizedZoomTransitionCurve(normalizedTime);
+        float easedTime = zoomTransitionUsesCurve
+            ? EvaluateNormalizedZoomTransitionCurve(normalizedTime)
+            : EvaluateConstantSpeedZoomProgress();
         ApplyZoomPresetInterpolated(
             zoomTransitionStart,
             zoomPresets[zoomTransitionTargetIndex],
@@ -734,6 +789,34 @@ public class CameraController : MonoBehaviour
 
         if (normalizedTime >= 1f)
             CompleteZoomTransition();
+    }
+
+    private float EvaluateConstantSpeedZoomProgress()
+    {
+        if (zoomTransitionDistance <= 0f)
+            return 1f;
+
+        float elapsed = Mathf.Min(zoomTransitionElapsed, activeZoomTransitionDuration);
+        float distanceTravelled;
+        if (zoomTransitionRampDuration > 0f && elapsed < zoomTransitionRampDuration)
+        {
+            distanceTravelled = 0.5f * zoomTransitionPeakSpeed * elapsed * elapsed /
+                                zoomTransitionRampDuration;
+        }
+        else if (elapsed < zoomTransitionRampDuration + zoomTransitionCruiseDuration)
+        {
+            distanceTravelled = 0.5f * zoomTransitionPeakSpeed * zoomTransitionRampDuration +
+                                zoomTransitionPeakSpeed * (elapsed - zoomTransitionRampDuration);
+        }
+        else
+        {
+            float remaining = activeZoomTransitionDuration - elapsed;
+            distanceTravelled = zoomTransitionDistance -
+                                0.5f * zoomTransitionPeakSpeed * remaining * remaining /
+                                Mathf.Max(0.0001f, zoomTransitionRampDuration);
+        }
+
+        return Mathf.Clamp01(distanceTravelled / zoomTransitionDistance);
     }
 
     private float EvaluateNormalizedZoomTransitionCurve(float normalizedTime)
@@ -757,8 +840,33 @@ public class CameraController : MonoBehaviour
         if (zoomTransitionTargetIndex >= 0 && zoomTransitionTargetIndex < zoomPresets.Length)
             ApplyZoomPresetImmediate(zoomPresets[zoomTransitionTargetIndex]);
 
+        zoomRotationDampingRestorePending = zoomRotationDampingOverridden;
         zoomTransitionActive = false;
         zoomTransitionTargetIndex = -1;
+    }
+
+    private void SuppressZoomRotationDamping()
+    {
+        if (rotationComposer == null)
+            return;
+
+        if (!zoomRotationDampingOverridden)
+        {
+            rotationComposerDampingBeforeZoom = rotationComposer.Damping;
+            zoomRotationDampingOverridden = true;
+        }
+
+        zoomRotationDampingRestorePending = false;
+        rotationComposer.Damping = Vector2.zero;
+    }
+
+    private void RestoreZoomRotationDamping()
+    {
+        if (zoomRotationDampingOverridden && rotationComposer != null)
+            rotationComposer.Damping = rotationComposerDampingBeforeZoom;
+
+        zoomRotationDampingOverridden = false;
+        zoomRotationDampingRestorePending = false;
     }
 
     private void ApplyZoomPresetImmediate(ZoomPreset preset)
@@ -1714,6 +1822,30 @@ public class CameraController : MonoBehaviour
 
     public void SetZoomIndex(int index, float transitionDuration = -1f)
     {
+        SetZoomIndexInternal(index, transitionDuration, false);
+    }
+
+    public void SetZoomIndexImmediate(int index)
+    {
+        if (zoomPresets == null || zoomPresets.Length == 0)
+            return;
+
+        int clampedIndex = Mathf.Clamp(index, hasMirrorPreset && !mirrorZoneActive ? 1 : 0, zoomPresets.Length - 1);
+        if (clampedIndex != targetZoomIndex)
+            previousZoomIndex = targetZoomIndex;
+
+        targetZoomIndex = clampedIndex;
+        zoomTransitionActive = false;
+        zoomTransitionTargetIndex = -1;
+        dialogueZoomPreRollActive = false;
+        dialogueZoomPreRollTargetIndex = -1;
+        RestoreZoomRotationDamping();
+        ApplyZoomPresetImmediate(zoomPresets[targetZoomIndex]);
+        UpdateDebugZoomState();
+    }
+
+    private void SetZoomIndexInternal(int index, float transitionDuration, bool useDialogueDuration)
+    {
         if (zoomPresets == null || zoomPresets.Length == 0)
             return;
 
@@ -1725,7 +1857,7 @@ public class CameraController : MonoBehaviour
         if (clampedIndex != targetZoomIndex)
             previousZoomIndex = targetZoomIndex;
         targetZoomIndex = clampedIndex;
-        StartZoomTransition(targetZoomIndex, transitionDuration);
+        StartZoomTransition(targetZoomIndex, transitionDuration, useDialogueDuration);
 
         UpdateDebugZoomState();
     }

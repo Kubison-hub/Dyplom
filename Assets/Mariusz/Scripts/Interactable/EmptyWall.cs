@@ -15,13 +15,9 @@ public class EmptyWall : Lvl3InteractionDialogueBase
     public GameObject[] nextInteractions;
     [SerializeField] private DetectiveIdeaPoint ideaPoint;
     [SerializeField] private CameraController cameraController;
-    [SerializeField] private string wallExamPresetName = "WallExam";
-    [Tooltip("Used when the linked IdeaPoint is discovered and the wall examination ends.")]
-    [SerializeField] private CameraZoomState completedIdeaPointZoomState = CameraZoomState.Wide;
     [Header("Wall Examination Zone")]
     [SerializeField, Min(0.1f)] private float playerZoneRange = 3f;
     [SerializeField] private Vector3 playerZoneOffset;
-    [SerializeField, Min(0f)] private float wallExamZoomTransitionDuration = 0.45f;
     [Header("Wall Examination Orbit")]
     [SerializeField] private bool orbitToWallExamAxis = true;
     [SerializeField] private float wallExamHorizontalAxis = 178f;
@@ -38,7 +34,7 @@ public class EmptyWall : Lvl3InteractionDialogueBase
         new Lvl3DialogueLine
         {
             speaker = Lvl3DialogueSpeaker.Sherlock,
-            text = "Ta œciana pustki siê nie boi, Watsonie.",
+            text = "Ta Å›ciana pustki siÄ™ nie boi, Watsonie.",
             duration = 3f
         }
     };
@@ -48,7 +44,6 @@ public class EmptyWall : Lvl3InteractionDialogueBase
     private GameObject playerZone;
     private bool isPlayerInsideZone;
     private bool isMonitoringExamination;
-    private bool isWallExamCameraActive;
     private bool tutorialPopupShown;
     private bool tutorialPopupPending;
     private Coroutine tutorialPopupCoroutine;
@@ -96,8 +91,6 @@ public class EmptyWall : Lvl3InteractionDialogueBase
 
             isPlayerInsideZone = false;
             cameraController?.StopScriptedHorizontalOrbit();
-            cameraController?.SetZoomState(completedIdeaPointZoomState);
-            isWallExamCameraActive = false;
             SetWallInteractionShaderVisible(true);
             CancelPendingTutorialPopup();
             return;
@@ -107,8 +100,6 @@ public class EmptyWall : Lvl3InteractionDialogueBase
             return;
 
         isPlayerInsideZone = true;
-        isWallExamCameraActive = cameraController != null &&
-                                  cameraController.SetZoomPreset(wallExamPresetName, wallExamZoomTransitionDuration);
         StartWallExamOrbit();
         SetWallInteractionShaderVisible(false);
         ShowTutorialPopupIfNeeded();
@@ -161,8 +152,6 @@ public class EmptyWall : Lvl3InteractionDialogueBase
 
         if (isPlayerInsideZone)
         {
-            isWallExamCameraActive = cameraController != null &&
-                                      cameraController.SetZoomPreset(wallExamPresetName, wallExamZoomTransitionDuration);
             StartWallExamOrbit();
             SetWallInteractionShaderVisible(false);
             ShowTutorialPopupIfNeeded();
@@ -173,10 +162,6 @@ public class EmptyWall : Lvl3InteractionDialogueBase
         isMonitoringExamination = false;
         CancelPendingTutorialPopup();
         cameraController?.StopScriptedHorizontalOrbit();
-        if (isWallExamCameraActive)
-            cameraController?.SetZoomState(completedIdeaPointZoomState);
-
-        isWallExamCameraActive = false;
 
         if (playerZone != null)
             Destroy(playerZone);

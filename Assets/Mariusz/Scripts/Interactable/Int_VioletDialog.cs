@@ -269,7 +269,20 @@ public class Int_VioletDialog : Lvl3InteractionDialogueBase
 
         if (dialogueWasStartedByEscort && redFigureCollected)
         {
-            WatsonEscortController.Instance?.ForceFarewell();
+            WatsonEscortController escortController = WatsonEscortController.Instance;
+            WatsonEscortNPC escortNpc = VioletGO != null
+                ? VioletGO.GetComponentInChildren<WatsonEscortNPC>(true)
+                : null;
+
+            escortController?.ForceFarewell();
+
+            while (escortController != null && escortController.IsEscorting)
+                yield return null;
+
+            if (escortNpc != null)
+                yield return escortNpc.WaitForDialogueToFinish();
+
+            escortController?.RestoreSwitchingAndSelectSherlock();
             yield break;
         }
 

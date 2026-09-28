@@ -7,6 +7,8 @@ using UnityEngine.VFX;
 [DisallowMultipleComponent]
 public class DetectiveIdeaPoint : MonoBehaviour
 {
+    private const string RaycastLayerName = "IdeaPoint";
+    private const string RaycastTargetName = "IdeaPointRaycastTarget";
     public enum DiscoveryMode
     {
         Magnifier,
@@ -39,10 +41,6 @@ public class DetectiveIdeaPoint : MonoBehaviour
         [Header("First response")]
         public string firstTitle = "Sherlock";
         [TextArea] public string firstDescription = "";
-
-        [Header("Repeated response")]
-        public string repeatTitle = "Sherlock";
-        [TextArea] public string repeatDescription = "";
 
         [Header("Dependencies")]
         public DependencyMode dependencyMode = DependencyMode.All;
@@ -131,9 +129,9 @@ public class DetectiveIdeaPoint : MonoBehaviour
             CreateDefaultVisual();
 
         CacheBaseVisualScale();
-        EnsureVisualRaycastTarget();
         ApplyVisualColor();
         ApplyVisualLayer();
+        EnsureVisualRaycastTarget();
         SetVisible(false);
     }
 
@@ -141,6 +139,12 @@ public class DetectiveIdeaPoint : MonoBehaviour
     {
         if (string.IsNullOrWhiteSpace(ideaId))
             ideaId = gameObject.name;
+    }
+
+    private void OnEnable()
+    {
+        if (ideaVisual != null)
+            EnsureVisualRaycastTarget();
     }
 
     public Vector3 AnchorPosition
@@ -363,9 +367,7 @@ public class DetectiveIdeaPoint : MonoBehaviour
             renderer.sharedMaterial = visualMaterial;
 
         CacheBaseVisualScale();
-        EnsureVisualRaycastTarget();
         ApplyVisualColor();
-        ApplyVisualLayer();
     }
 
     private void CacheBaseVisualScale()
@@ -376,14 +378,31 @@ public class DetectiveIdeaPoint : MonoBehaviour
 
     private void EnsureVisualRaycastTarget()
     {
-        if (!useVisualAsRaycastTarget || ideaVisual == null)
+        if (!isActiveAndEnabled || !useVisualAsRaycastTarget || ideaVisual == null)
             return;
 
-        Collider visualCollider = ideaVisual.GetComponent<Collider>();
-        if (visualCollider == null)
-            visualCollider = ideaVisual.AddComponent<SphereCollider>();
+        int layer = LayerMask.NameToLayer(RaycastLayerName);
+        if (layer < 0)
+        {
+            Debug.LogWarning($"{name}: Layer '{RaycastLayerName}' does not exist.", this);
+            return;
+        }
 
-        visualCollider.isTrigger = true;
+        Transform target = ideaVisual.transform.Find(RaycastTargetName);
+        if (target == null)
+        {
+            GameObject targetObject = new GameObject(RaycastTargetName);
+            target = targetObject.transform;
+            target.SetParent(ideaVisual.transform, false);
+        }
+
+        target.gameObject.layer = layer;
+        SphereCollider targetCollider = target.GetComponent<SphereCollider>();
+        if (targetCollider == null)
+            targetCollider = target.gameObject.AddComponent<SphereCollider>();
+
+        targetCollider.isTrigger = true;
+        targetCollider.radius = 0.5f;
     }
 
     private void ApplyVisualColor()

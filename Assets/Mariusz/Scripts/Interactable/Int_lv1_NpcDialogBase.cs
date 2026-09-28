@@ -24,6 +24,7 @@ public abstract class Int_lv1_NpcDialogBase : Lvl3InteractionDialogueBase
     protected override Lvl3DialogueLine[] DefaultDialogueLines => null;
     protected virtual bool ShouldFacePlayerBeforeDialogue => facePlayerBeforeDialogue;
     protected virtual bool ShouldFaceInteractingPlayerTowardNpcBeforeDialogue => false;
+    protected virtual bool CountsAsSessionWitness => true;
     protected virtual void OnNpcDialogueStarted() { }
     protected virtual void OnNpcDialogueFinished() { }
 
@@ -111,7 +112,9 @@ public abstract class Int_lv1_NpcDialogBase : Lvl3InteractionDialogueBase
             yield return null;
 
         dialogueEndWatcher = null;
-        CluesLog.Instance?.RegisterSessionWitnessInterview(smartNPC);
+        if (CountsAsSessionWitness)
+            CluesLog.Instance?.RegisterSessionWitnessInterview(smartNPC);
+
         OnNpcDialogueFinished();
     }
 

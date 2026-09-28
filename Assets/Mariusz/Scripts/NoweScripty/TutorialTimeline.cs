@@ -100,6 +100,9 @@ public class TutorialTimeline : MonoBehaviour
     [SerializeField] private string notebookTutorialId = "NotebookTutorial";
     [Tooltip("Play tutorial panel opening and closing sounds for the notebook tutorial.")]
     [SerializeField] private bool notebookTutorialPanelPlayAudio = true;
+    [Tooltip("Optional additional sound played only when the first notebook tutorial panel appears.")]
+    [SerializeField] private AudioSource notebookTutorialAdditionalAudioSource;
+    [SerializeField] private AudioClip notebookTutorialAdditionalAudio;
 
     [Header("Sherlock And Watson Dialogue Tutorial")]
     [Tooltip("Enabled after the first notebook is closed and disabled after the dialogue tutorial panel closes.")]
@@ -148,6 +151,7 @@ public class TutorialTimeline : MonoBehaviour
     [SerializeField, Min(0.01f)] private float ideaLineTutorialOrbitTolerance = 0.5f;
     [SerializeField, Min(0f)] private float cameraSettleDuration = 5f;
     [SerializeField] private string ideaLineTutorialId = "IdeaLinePuzzleTutorial";
+    [SerializeField, Min(0f)] private float ideaLinePopupDelayAfterDialogue = 0.5f;
     [SerializeField] private string ideaLineTutorialPopupTitle = "LACZENIE FAKTOW";
     [SerializeField, TextArea]
     private string ideaLineTutorialText =
@@ -295,7 +299,8 @@ public class TutorialTimeline : MonoBehaviour
         {
             KeepEagleVisionForced();
 
-            if (activeTutorialPopup == null && releasePopupInputCoroutine == null)
+            if (activeTutorialPopup == null && releasePopupInputCoroutine == null &&
+                moveToIdeaLineTutorialCoroutine == null)
                 FinishIdeaLinePuzzleTutorial();
 
             return;
@@ -438,6 +443,8 @@ public class TutorialTimeline : MonoBehaviour
                 notebookTutorialText,
                 notebookTutorialId,
                 notebookTutorialPanelPlayAudio);
+            PlayNotebookTutorialAdditionalAudio();
+
             while (tutorialManager.BlocksWorldInput)
                 yield return null;
         }
@@ -453,6 +460,23 @@ public class TutorialTimeline : MonoBehaviour
         BeginFirstWorldClickStage();
         StartFocusTutorialPopupCountdown();
         LogIdeaLineTutorial("Opening conversation and notebook tutorial completed. Waiting for the first world click.");
+    }
+
+    private void PlayNotebookTutorialAdditionalAudio()
+    {
+        if (notebookTutorialAdditionalAudio == null)
+            return;
+
+        AudioSource source = notebookTutorialAdditionalAudioSource != null
+            ? notebookTutorialAdditionalAudioSource
+            : tutorialPopupAudioSource;
+
+        if (source != null)
+            source.PlayOneShot(notebookTutorialAdditionalAudio);
+        else
+            Debug.LogWarning(
+                "TutorialTimeline: assign Notebook Tutorial Additional Audio Source or Tutorial Popup Audio Source.",
+                this);
     }
 
     public IEnumerator PrepareFirstSherlockWatsonDialogue()
@@ -584,7 +608,9 @@ public class TutorialTimeline : MonoBehaviour
             ? Instantiate(tutorialPopupPrefab, tutorialPopupParent, false)
             : Instantiate(tutorialPopupPrefab);
 
+        popup.gameObject.SetActive(false);
         popup.Configure(title, content, videoClip);
+        popup.gameObject.SetActive(true);
         activeTutorialPopup = popup.gameObject;
         activeTutorialPopupPlaysAudio = playAudio;
 
@@ -704,7 +730,7 @@ public class TutorialTimeline : MonoBehaviour
 
     private IEnumerator MovePlayerToIdeaLineTutorialPosition(PlayerController player)
     {
-        Coroutine approachDialogue = StartCoroutine(PlayIdeaLineApproachDialogue());
+        StartCoroutine(ShowIdeaLineTutorialAfterDialogue());
         CancelConflictingWatsonCompletionMovements();
         StartWatsonMoveToIdeaLineTutorialPosition();
         KeepEagleVisionForced();
@@ -745,8 +771,15 @@ public class TutorialTimeline : MonoBehaviour
             yield return null;
         }
 
-        if (approachDialogue != null)
-            yield return approachDialogue;
+        moveToIdeaLineTutorialCoroutine = null;
+    }
+
+    private IEnumerator ShowIdeaLineTutorialAfterDialogue()
+    {
+        yield return StartCoroutine(PlayIdeaLineApproachDialogue());
+
+        if (ideaLinePopupDelayAfterDialogue > 0f)
+            yield return new WaitForSeconds(ideaLinePopupDelayAfterDialogue);
 
         currentStage = TutorialStage.WaitingForIdeaLineTutorialClose;
         PlayIdeaLinePuzzleMusic();
@@ -756,7 +789,6 @@ public class TutorialTimeline : MonoBehaviour
             ideaLineTutorialPopupVideoClip);
 
         LogIdeaLineTutorial("Idea line popup requested. Waiting until it is closed.");
-        moveToIdeaLineTutorialCoroutine = null;
     }
 
     private IEnumerator PlayIdeaLineApproachDialogue()

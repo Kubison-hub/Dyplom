@@ -11,6 +11,10 @@ Shader "Mariusz/Detective Idea Line"
         [Toggle] _VerticalFlow ("Vertical Flow", Float) = 1
         _FlowSpeed ("Flow Speed", Range(-5, 5)) = 0.25
         _FlowStrength ("Flow Strength", Range(0, 1)) = 0.08
+        [HDR] _PulseColor ("Pulse Color", Color) = (0.7, 1.6, 1.1, 1)
+        _PulseSpeed ("Pulse Speed", Range(0.05, 3)) = 0.65
+        _PulseWidth ("Pulse Width", Range(0.02, 0.5)) = 0.18
+        _PulseIntensity ("Pulse Intensity", Range(0, 8)) = 3
     }
 
     SubShader
@@ -67,6 +71,10 @@ Shader "Mariusz/Detective Idea Line"
                 float _VerticalFlow;
                 float _FlowSpeed;
                 float _FlowStrength;
+                half4 _PulseColor;
+                float _PulseSpeed;
+                float _PulseWidth;
+                float _PulseIntensity;
             CBUFFER_END
 
             Varyings Vert(Attributes input)
@@ -95,10 +103,16 @@ Shader "Mariusz/Detective Idea Line"
                 flow *= 0.75 + 0.25 * sin(phase * 13.0 + time * 0.7);
                 float flowGain = 1.0 + _FlowStrength * flow;
 
+                float pulseCenter = frac(_Time.y * _PulseSpeed);
+                float pulse = saturate(1.0 - abs(input.uv.x - pulseCenter) / _PulseWidth);
+
                 half3 tint = input.color.rgb;
                 half3 lightColor = (_CoreColor.rgb * core + _GlowColor.rgb * glow * 0.5) * tint;
-                half alpha = saturate(max(core, glow * 0.6) * _Opacity * input.color.a);
-                return half4(lightColor * _EmissionIntensity * flowGain, alpha);
+                lightColor = lightColor * _EmissionIntensity * flowGain
+                    + _PulseColor.rgb * tint * pulse * _PulseIntensity * max(core, glow * 0.7);
+                half alpha = saturate(max(core, glow * 0.6) * _Opacity * input.color.a
+                    + pulse * max(core, glow * 0.7) * input.color.a);
+                return half4(lightColor, alpha);
             }
             ENDHLSL
         }

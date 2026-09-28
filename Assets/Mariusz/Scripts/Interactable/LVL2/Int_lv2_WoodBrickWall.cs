@@ -130,6 +130,7 @@ public class Int_lv2_WoodBrickWall : Lvl3InteractionDialogueBase
         SetMountedVisual(mountedVariant, true);
         if (socketInteractable != null)
             socketInteractable.isInteractableActive = false;
+
         PlayDialogue(player, insertDialogue);
     }
 

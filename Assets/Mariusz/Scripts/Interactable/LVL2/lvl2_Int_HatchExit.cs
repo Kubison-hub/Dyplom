@@ -1,13 +1,20 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class lvl2_Int_HatchExit : MonoBehaviour
+public class lvl2_Int_HatchExit : Lvl3InteractionDialogueBase
 {
     private Interactable interactable;
 
-    [Header("Top Text")]
-    [TextArea] public string text = "Najpierw powinienem dokładniej przeszukać piętro";
+    [Header("Sherlock Dialogue")]
+    [SerializeField] private Lvl3DialogueLine[] missingLettersDialogue =
+    {
+        new Lvl3DialogueLine
+        {
+            speaker = Lvl3DialogueSpeaker.Sherlock,
+            text = "Najpierw powinienem dokładniej przeszukać piętro.",
+            duration = 3f
+        }
+    };
     
 
     public bool performed = false;
@@ -20,6 +27,8 @@ public class lvl2_Int_HatchExit : MonoBehaviour
     [SerializeField] private GameObject levelOneRoot;
     [Tooltip("Disabled immediately when this hatch interaction begins.")]
     [SerializeField] private GameObject[] deactivateOnInteractionStart;
+    [Tooltip("Additional object disabled when this hatch interaction begins.")]
+    [SerializeField] private GameObject additionalObjectToDeactivate;
     [Tooltip("Activated immediately before teleporting the player into the hidden room.")]
     [SerializeField] private GameObject[] activateBeforeTeleport;
     [Tooltip("Activated immediately before teleporting the player into the hidden room.")]
@@ -41,6 +50,8 @@ public class lvl2_Int_HatchExit : MonoBehaviour
     private int lettersCollected = 0;
     private bool hiddenPassageBlackboardRestored;
     private bool levelOneReturnMusicPlayed;
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => missingLettersDialogue;
 
     public void AddLetter()
     {
@@ -65,6 +76,7 @@ public class lvl2_Int_HatchExit : MonoBehaviour
         Debug.Log(interactable.name + ", interaction Performed");
 
         DeactivateObjectsAtInteractionStart();
+        DeactivateAdditionalObject();
 
         TryExit(player);
 
@@ -87,11 +99,17 @@ public class lvl2_Int_HatchExit : MonoBehaviour
         }
     }
 
+    private void DeactivateAdditionalObject()
+    {
+        if (additionalObjectToDeactivate != null)
+            additionalObjectToDeactivate.SetActive(false);
+    }
+
     public void TryExit(PlayerController player)
     {
         if (!HasAllLetters())
         {
-            StartCoroutine(AddText());
+            PlayDialogue(player, missingLettersDialogue);
             Debug.Log("Brakuje listów");
             
             return;
@@ -129,6 +147,9 @@ public class lvl2_Int_HatchExit : MonoBehaviour
 
         player.transform.rotation = hiddenRoomStartPosition.rotation;
         player.currentInteractable = null;
+
+        FindFirstObjectByType<SherlockWatsonHintConditions>(FindObjectsInactive.Include)?
+            .MarkBasementEntered();
     }
 
     private void PlayLevelOneReturnMusic()
@@ -200,16 +221,9 @@ public class lvl2_Int_HatchExit : MonoBehaviour
         }
     }
 
-    private IEnumerator AddText()
+    protected override void OnDialogueSequenceCompleted(Lvl3DialogueLine[] completedLines)
     {
-        if (PlayerTopText.Instance != null)
-            PlayerTopText.Instance.ShowTopText(text, string.Empty);
-
-        yield return new WaitForSeconds(3);
-        interactable.isInteractableActive = true;
-
+        if (completedLines == missingLettersDialogue && interactable != null)
+            interactable.isInteractableActive = true;
     }
-
-    
-
 }

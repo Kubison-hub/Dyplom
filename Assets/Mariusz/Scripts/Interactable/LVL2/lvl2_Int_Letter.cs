@@ -20,7 +20,7 @@ public class lvl2_Int_Letter : Lvl3InteractionDialogueBase
         new Lvl3DialogueLine
         {
             speaker = Lvl3DialogueSpeaker.Sherlock,
-            text = "Ten list mo¿e wyjaœniæ wiêcej, ni¿ siê wydaje.",
+            text = "Ten list moÅ¼e wyjaÅ›niÄ‡ wiÄ™cej, niÅ¼ siÄ™ wydaje.",
             duration = 3f
         }
     };
@@ -55,7 +55,7 @@ public class lvl2_Int_Letter : Lvl3InteractionDialogueBase
         }
 
         if (openNotebookNoteAfterPickup)
-            interactable.AddAndOpenNote(notebookNoteIndex, -60f, true);
+            interactable.AddAndOpenNoteInNotebook(notebookNoteIndex);
 
         interactable.isInteractableActive = false;
         if (player != null)

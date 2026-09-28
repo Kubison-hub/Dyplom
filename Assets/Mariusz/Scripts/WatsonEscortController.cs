@@ -526,6 +526,13 @@ public class WatsonEscortController : MonoBehaviour
         if (SwitchCharacter.Instance == null)
             return null;
 
+        if (SwitchCharacter.Instance.players != null)
+        {
+            foreach (UnityEngine.InputSystem.PlayerInput playerInput in SwitchCharacter.Instance.players)
+                playerInput?.GetComponent<PlayerController>()?.CancelPendingInteraction();
+        }
+
+        WatsonCompanionController.Instance?.ClearInteractionFocus();
         SwitchCharacter.Instance.canSwitch = true;
         SwitchCharacter.Instance.SetActivePlayer(0);
 

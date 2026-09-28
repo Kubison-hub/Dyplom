@@ -82,6 +82,7 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase, IInteracti
     [SerializeField, Min(0.05f)] private float gramPointArrivalDistance = 0.15f;
     [SerializeField, Min(0.05f)] private float gramPointNavMeshSampleRadius = 1f;
     [SerializeField, Min(1f)] private float gramophoneMovementTimeout = 15f;
+    [SerializeField, Min(1f)] private float detectiveFinalRotationSpeed = 360f;
     [Tooltip("Conversation started after Violet, Sherlock and Watson reach their gramophone points.")]
     [SerializeField] private SmartNPC afterMovementSmartNpc;
 
@@ -179,6 +180,11 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase, IInteracti
 
         canCollect = true;
         conversationCompleted = true;
+        SherlockWatsonHintConditions hintConditions =
+            FindFirstObjectByType<SherlockWatsonHintConditions>(FindObjectsInactive.Include);
+        hintConditions?.MarkGramophoneConversationComplete();
+        hintConditions?.MarkEthelPassageDoorUsed();
+        CluesLog.Instance?.SetFindEthelUpstairsObjective();
         UnlockStairsAndEscortComponents();
 
         // The companion is needed for the initial conversation only. Later clicks
@@ -214,8 +220,6 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase, IInteracti
 
     private void HandleRecordMechanismInteraction(PlayerController player)
     {
-        SetActiveCameraWidePreset();
-
         if (!recordInserted)
         {
             InventoryManager inventory = InventoryManager.Instance;
@@ -258,23 +262,6 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase, IInteracti
         recordAudioSource.clip = recordAudioClip;
         recordAudioSource.loop = loopRecordAudio;
         recordAudioSource.Play();
-    }
-
-    private void SetActiveCameraWidePreset()
-    {
-        if (SwitchCharacter.Instance == null)
-            return;
-
-        int activePlayerIndex = SwitchCharacter.Instance.activePlayerIndex;
-        var playerCameras = SwitchCharacter.Instance.playersCamera;
-        if (playerCameras == null || activePlayerIndex < 0 ||
-            activePlayerIndex >= playerCameras.Length || playerCameras[activePlayerIndex] == null)
-            return;
-
-        CameraController cameraController =
-            playerCameras[activePlayerIndex].GetComponent<CameraController>();
-        if (cameraController != null && !cameraController.SetZoomPreset("Wide"))
-            Debug.LogWarning($"{name}: camera preset 'Wide' was not found.", cameraController);
     }
 
     private IEnumerator MoveCharactersToGramophoneAfterDelay()
@@ -330,11 +317,16 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase, IInteracti
                 {
                     yield return null;
                 }
+
+                FindFirstObjectByType<SherlockWatsonHintConditions>(FindObjectsInactive.Include)?
+                    .MarkSelmaEscortConversationComplete();
             }
             else
                 Debug.LogWarning($"{name}: After Movement Smart NPC is not assigned.", this);
         }
 
+        RestoreDetectiveAgentRotation(sherlock);
+        RestoreDetectiveAgentRotation(watson);
         PlayerController.SetWorldInputLocked(previousWorldInputLock);
         if (SwitchCharacter.Instance != null)
             SwitchCharacter.Instance.canSwitch = previousCanSwitch;
@@ -482,7 +474,24 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase, IInteracti
 
             agent.ResetPath();
             agent.isStopped = true;
-            detective.transform.rotation = destination.rotation;
+            agent.updateRotation = false;
+
+            Vector3 forward = destination.forward;
+            forward.y = 0f;
+            if (forward.sqrMagnitude > 0.0001f)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(forward.normalized, Vector3.up);
+                while (Quaternion.Angle(detective.transform.rotation, targetRotation) > 0.5f)
+                {
+                    detective.transform.rotation = Quaternion.RotateTowards(
+                        detective.transform.rotation,
+                        targetRotation,
+                        detectiveFinalRotationSpeed * Time.deltaTime);
+                    yield return null;
+                }
+
+                detective.transform.rotation = targetRotation;
+            }
         }
         else
         {
@@ -490,6 +499,16 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase, IInteracti
         }
 
         completed?.Invoke();
+    }
+
+    private static void RestoreDetectiveAgentRotation(PlayerController detective)
+    {
+        if (detective == null || detective.navMeshAgent == null ||
+            !detective.navMeshAgent.isActiveAndEnabled || !detective.navMeshAgent.isOnNavMesh)
+            return;
+
+        detective.navMeshAgent.updateRotation = true;
+        detective.navMeshAgent.isStopped = false;
     }
 
     private void ResolveDetectives()

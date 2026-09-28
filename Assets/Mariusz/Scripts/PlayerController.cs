@@ -1,10 +1,12 @@
 ﻿using DialogueEditor;
 using System.Collections;           // Potrzebne do integracji z systemem dialogowym
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems; // Potrzebne do wykrywania kliknięć na UI
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 /// <summary>
 /// Klasa PlayerController zaimplementowana z blokadami dla Dialogów, Dziennika i UI.
@@ -18,6 +20,8 @@ using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
+    private readonly List<RaycastResult> uiRaycastResults = new();
+
     public static bool IsWorldInputLocked { get; private set; }
 
     public static void SetWorldInputLocked(bool isLocked)
@@ -303,6 +307,9 @@ public class PlayerController : MonoBehaviour
         if (IsWorldInputLocked || Time.timeScale <= 0f)
             return;
 
+        if (IsPointerOverInteractiveUI())
+            return;
+
         if (NotebookManager.Instance != null && NotebookManager.Instance.IsNotebookOpen ||
             TutorialManager.Instance != null && TutorialManager.Instance.BlocksWorldInput ||
             TutorialTimeline.Instance != null && TutorialTimeline.Instance.BlocksWorldInput)
@@ -373,6 +380,28 @@ public class PlayerController : MonoBehaviour
 
             MoveToPoint(groundHit.point);
         }
+    }
+
+    private bool IsPointerOverInteractiveUI()
+    {
+        if (EventSystem.current == null || Mouse.current == null)
+            return false;
+
+        PointerEventData pointerData = new(EventSystem.current)
+        {
+            position = Mouse.current.position.ReadValue()
+        };
+
+        uiRaycastResults.Clear();
+        EventSystem.current.RaycastAll(pointerData, uiRaycastResults);
+
+        foreach (RaycastResult result in uiRaycastResults)
+        {
+            if (result.gameObject.GetComponentInParent<Selectable>() != null)
+                return true;
+        }
+
+        return false;
     }
 
     private bool CanMoveToPointInLightMaze(Vector3 point)

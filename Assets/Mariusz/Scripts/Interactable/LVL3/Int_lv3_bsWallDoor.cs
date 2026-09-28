@@ -38,6 +38,8 @@ public class Int_lv3_bsWallDoor : Lvl3LoupeWallPuzzleBase
     protected override void OnPuzzleSolved()
     {
         secretDoorIdeaPoint?.RevealFromExternalSource();
+        FindFirstObjectByType<SherlockWatsonHintConditions>(FindObjectsInactive.Include)?
+            .MarkBasementSecretWallFound();
     }
 
     protected override Lvl3DialogueLine[] DefaultDialogueLines => new[]

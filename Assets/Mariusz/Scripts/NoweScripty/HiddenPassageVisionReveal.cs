@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.VFX;
 
 /// <summary>
 /// Reveals a reconstructed secret passage only while Vision Eye is active.
@@ -25,6 +26,11 @@ public class HiddenPassageVisionReveal : MonoBehaviour
 
     [Header("Ghost Room Fade")]
     [SerializeField, Min(0.01f)] private float ghostFadeDuration = 0.75f;
+
+    [Header("QuestionFX")]
+    [SerializeField] private VisualEffect[] questionFX;
+    [SerializeField] private string questionFXRateProperty = "Rate";
+    [SerializeField, Min(0)] private int eagleVisionQuestionRate = 100;
 
     [Header("Ghost Room Blackboard")]
     [Tooltip("Blackboard covering the reconstructed room outside EagleVision.")]
@@ -65,6 +71,8 @@ public class HiddenPassageVisionReveal : MonoBehaviour
         realWallColliderInitialStates = GetColliderStates(realWallColliders);
         visionInitialStates = GetRendererStates(visionRenderers);
         CacheGhostMaterialTargets();
+        CacheQuestionFX();
+        SetQuestionFXRate(0);
 
         SetGhostVisibility(0f);
         SetVisionRenderersVisible(false);
@@ -88,6 +96,7 @@ public class HiddenPassageVisionReveal : MonoBehaviour
         if (visionActive != visionWasActive)
         {
             visionWasActive = visionActive;
+            SetQuestionFXRate(visionActive ? eagleVisionQuestionRate : 0);
 
             if (visionActive)
             {
@@ -111,12 +120,48 @@ public class HiddenPassageVisionReveal : MonoBehaviour
 
     private void OnDisable()
     {
+        SetQuestionFXRate(0);
         HideReconstruction();
     }
 
     private static bool IsSherlockActive()
     {
         return SwitchCharacter.Instance == null || SwitchCharacter.Instance.activePlayerIndex == 0;
+    }
+
+    private void CacheQuestionFX()
+    {
+        if (questionFX != null && questionFX.Length > 0)
+            return;
+
+        List<VisualEffect> found = new List<VisualEffect>();
+        foreach (VisualEffect effect in GetComponentsInChildren<VisualEffect>(true))
+        {
+            if (effect.gameObject.name == "QuestionFX")
+                found.Add(effect);
+        }
+
+        questionFX = found.ToArray();
+    }
+
+    private void SetQuestionFXRate(int rate)
+    {
+        if (string.IsNullOrWhiteSpace(questionFXRateProperty))
+            return;
+
+        foreach (VisualEffect effect in questionFX)
+        {
+            if (effect == null)
+                continue;
+
+            if (effect.HasInt(questionFXRateProperty))
+                effect.SetInt(questionFXRateProperty, rate);
+            else if (effect.HasFloat(questionFXRateProperty))
+                effect.SetFloat(questionFXRateProperty, rate);
+
+            if (rate > 0)
+                effect.Play();
+        }
     }
 
     private void HideReconstruction()
