@@ -124,7 +124,7 @@ public class TutorialTimeline : MonoBehaviour
     [SerializeField] private string focusTutorialPopupTitle = "SKUPIENIE";
     [SerializeField, TextArea]
     private string focusTutorialPopupText =
-        "Sherlock moze skupic mysli, aby odnalezc wskazowki.\n\nWcisnij Lewy Shift, aby wejsc w tryb skupienia.";
+        "Sherlock moze skupic mysli, aby odnalezc wskazowki.\n\nWcisnij <b>Lewy Shift</b>, aby wejsc w tryb skupienia.";
     [SerializeField] private VideoClip focusTutorialPopupVideoClip;
 
     [Header("Idea Line Puzzle Tutorial")]

@@ -51161,7 +51161,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Wci\u015Bnij [Tab] aby zamkn\u0105\u0107"
+  m_text: "Wci\u015Bnij <b>Tab</b> aby zamkn\u0105\u0107"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
   m_sharedMaterial: {fileID: 6229730292464864198, guid: c549f2dda71f8354499e496d06e16d74, type: 2}
@@ -150649,7 +150649,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mode: 0
-  size: {x: 90.96773, y: 9.517536, z: 25.289433}
+  size: {x: 90.96773, y: 9.517536, z: 25.289434}
   overrideRendererFilters: 0
   minRendererVolumeSize: 0.1
   objectLayerMask:
@@ -150689,7 +150689,7 @@ Transform:
   m_GameObject: {fileID: 1069084056}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -41.983864, y: 0.2473228, z: -3.8572874}
+  m_LocalPosition: {x: -41.983864, y: 0.2473228, z: -3.8572865}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -184405,7 +184405,7 @@ MonoBehaviour:
   tutorialText: "W grze mo\u017Cesz sterowa\u0107 tak\u017Ce Watsonem,\\naby zdobywa\u0107
     wi\u0119cej informacji przes\u0142uchuj\u0105c \u015Bwiadk\xF3w oraz przemieszcza\u0107
     niekt\xF3re obiekty.\\nJe\u017Celi Watson jest w pobli\u017Cu - wci\u015Bnij
-    \"SPACJ\u0118\", aby prze\u0142\u0105cza\u0107 si\u0119 pomi\u0119dzy postaciami."
+    <b>SPACJ\u0118</b>, aby prze\u0142\u0105cza\u0107 si\u0119 pomi\u0119dzy postaciami."
   afterPopupDialogueLines:
   - speaker: 0
     text: Powodzenia.
@@ -184415,8 +184415,9 @@ MonoBehaviour:
   watsonVoiceSource: {fileID: 8390739253207350096}
   afterSwitchTutorialTitle: Watson
   afterSwitchTutorialText: "Watson mo\u017Ce rozmawia\u0107 ze \u015Bwiadkami,\\naby
-    odwr\xF3ci\u0107 uwag\u0119 od Sherlocka.\\nPrzytrzymaj \"F\" i kliknij w posta\u0107,
-    aby j\u0105 zaprosi\u0107 na pogaw\u0119dk\u0119 lub kr\xF3tki spacer."
+    odwr\xF3ci\u0107 uwag\u0119 od Sherlocka.\\nPrzytrzymaj <b>Lewy Shift</b> i kliknij
+    w posta\u0107, aby j\u0105 zaprosi\u0107 na pogaw\u0119dk\u0119 lub kr\xF3tki
+    spacer."
   afterSwitchTutorialVideoClip: {fileID: 32900000, guid: b48ab7525f7debf46a93ef20d34de9a5, type: 3}
   watsonRepeatText: Sherlock?
   sherlockRepeatText: Watson?
@@ -217480,8 +217481,8 @@ MonoBehaviour:
   tutorialPopupDelay: 0.1
   tutorialPopupTitle: "\u015Aledztwo"
   tutorialPopupText: "Zbadaj dok\u0142adnie obiekt aby uzyska\u0107 szczeg\xF3\u0142y.\\nSherlock
-    mo\u017Ce u\u017Cy\u0107 lupy (F) aby przyjrze\u0107 si\u0119 bli\u017Cej oraz
-    k\xF3\u0142ka myszy aby przybli\u017Cy\u0107/oddali\u0107. "
+    mo\u017Ce u\u017Cy\u0107 lupy <b>F</b> aby przyjrze\u0107 si\u0119 bli\u017Cej
+    oraz k\xF3\u0142ka myszy aby przybli\u017Cy\u0107/oddali\u0107. "
   tutorialPopupVideoClip: {fileID: 32900000, guid: 9f4bee0b66e23c846b37b0dc6820a57f, type: 3}
   initialExaminationDialogue:
   - speaker: 0
