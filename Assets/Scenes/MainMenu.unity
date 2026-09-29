@@ -2843,7 +2843,6 @@ MonoBehaviour:
   watsonVoiceSource: {fileID: 0}
   selmaVoiceSource: {fileID: 0}
   violetVoiceSource: {fileID: 0}
-  cameraController: {fileID: 0}
   globeRotationTarget: {fileID: 1202318345}
   spinDuration: 2.5
   totalSpinDegrees: 450
@@ -3176,6 +3175,12 @@ MonoBehaviour:
   sherlockSpeedReactionDelay: 0
   sherlockInteractionFocusDuration: 4
   sherlockNavMeshSampleRadius: 1
+  changeCameraPreset: 0
+  cameraPresetIndexOffset: -1
+  returnAfterExit: 1
+  setCustomPreset: 0
+  customCameraPresetName: 
+  cameraPresetReturnZoneRadius: 1
   objectDescription: Globus
   interactiveShader: {fileID: 533315431}
   interactionShaderVisibility: 1
@@ -5082,9 +5087,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2764814848813797691, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
       propertyPath: m_text
-      value: "Poruszanie/Interakcja - LPM\nTryb Skupienia - Lewy Shift\nLupa (Sherlock)
-        / Podnoszenie (Watson)  - F\nZmiana postaci - Spacja\nNotatnik - TAB\nPoruszanie
-        kamer\u0105 - PPM\nOddalanie/Przybli\u017Canie - Scroll"
+      value: "Poruszanie/Interakcja - LPM\nTryb Skupienia/Umiej\u0119tno\u015B\u0107
+        Watsona - Lewy Shift\nLupa (Sherlock) - F\nZmiana postaci - Spacja\nNotatnik
+        - TAB\nPoruszanie kamer\u0105 - PPM\nOddalanie/Przybli\u017Canie - Scroll"
       objectReference: {fileID: 0}
     - target: {fileID: 2764814848813797691, guid: cd84f9fdb7cb3354a92e5fda13f45b2f, type: 3}
       propertyPath: m_margin.z
@@ -6575,6 +6580,12 @@ MonoBehaviour:
   sherlockSpeedReactionDelay: 0
   sherlockInteractionFocusDuration: 4
   sherlockNavMeshSampleRadius: 1
+  changeCameraPreset: 0
+  cameraPresetIndexOffset: -1
+  returnAfterExit: 1
+  setCustomPreset: 0
+  customCameraPresetName: 
+  cameraPresetReturnZoneRadius: 1
   objectDescription: "Pozostawiona ksi\u0105\u017Cka"
   interactiveShader: {fileID: 184158951}
   interactionShaderVisibility: 1
@@ -8939,6 +8950,11 @@ MonoBehaviour:
   controlCanvas: {fileID: 1726360083}
   creditsCanvas: {fileID: 684709434}
   settingsCanvas: {fileID: 446156227}
+  startFadeCanvasGroup: {fileID: 0}
+  startFadeColor: {r: 0, g: 0, b: 0, a: 1}
+  startFadeDelay: 0.1
+  startFadeDuration: 1.25
+  startFadeHoldDuration: 0.1
 --- !u!4 &534910990
 Transform:
   m_ObjectHideFlags: 0
@@ -8994,6 +9010,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03dcd295dde287848bcbc5af281301af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  przywracajFlagiSkryptow: 1
+  sledzonyObiekt: 
+  powtorzeniaPlyt: 4
+  odstepPowtorzenPlyt: 0.5
 --- !u!114 &534910994
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9366,8 +9386,6 @@ MonoBehaviour:
   watsonVoiceSource: {fileID: 0}
   selmaVoiceSource: {fileID: 0}
   violetVoiceSource: {fileID: 0}
-  cameraController: {fileID: 0}
-  cameraTransitionDuration: 2.5
   performed: 0
   pushDuration: 1
   targetX: -16.8
@@ -9381,6 +9399,7 @@ MonoBehaviour:
     text: "Za tym obrazem mo\u017Ce znajdowa\u0107 si\u0119 ukryty mechanizm."
     voiceClip: {fileID: 0}
     duration: 3
+  secondInspectionDialogue: []
 --- !u!114 &553121450
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9424,6 +9443,12 @@ MonoBehaviour:
   sherlockSpeedReactionDelay: 0
   sherlockInteractionFocusDuration: 4
   sherlockNavMeshSampleRadius: 1
+  changeCameraPreset: 0
+  cameraPresetIndexOffset: -1
+  returnAfterExit: 1
+  setCustomPreset: 0
+  customCameraPresetName: 
+  cameraPresetReturnZoneRadius: 1
   objectDescription: "Obraz na \u015Bcianie"
   interactiveShader: {fileID: 2801768388850130156, guid: c2558b1d0cc08ac429a2a13eb11aa489, type: 3}
   interactionShaderVisibility: 1
@@ -13472,6 +13497,12 @@ MonoBehaviour:
   sherlockSpeedReactionDelay: 0
   sherlockInteractionFocusDuration: 4
   sherlockNavMeshSampleRadius: 1
+  changeCameraPreset: 0
+  cameraPresetIndexOffset: -1
+  returnAfterExit: 1
+  setCustomPreset: 0
+  customCameraPresetName: 
+  cameraPresetReturnZoneRadius: 1
   objectDescription: "Pozostawiona ksi\u0105\u017Cka"
   interactiveShader: {fileID: 1175640334}
   interactionShaderVisibility: 1
@@ -15966,8 +15997,6 @@ MonoBehaviour:
   watsonVoiceSource: {fileID: 0}
   selmaVoiceSource: {fileID: 0}
   violetVoiceSource: {fileID: 0}
-  cameraController: {fileID: 0}
-  cameraTransitionDuration: 2.5
   performed: 0
   pushDuration: 1
   targetX: -16.8
@@ -15981,6 +16010,7 @@ MonoBehaviour:
     text: "Portret kr\xF3lowej Wiktorii."
     voiceClip: {fileID: 8300000, guid: 4e49a58d09298ed4e82d2476cfdf0c2a, type: 3}
     duration: 2.605
+  secondInspectionDialogue: []
 --- !u!114 &1010566877
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16024,6 +16054,12 @@ MonoBehaviour:
   sherlockSpeedReactionDelay: 0
   sherlockInteractionFocusDuration: 4
   sherlockNavMeshSampleRadius: 1
+  changeCameraPreset: 0
+  cameraPresetIndexOffset: -1
+  returnAfterExit: 1
+  setCustomPreset: 0
+  customCameraPresetName: 
+  cameraPresetReturnZoneRadius: 1
   objectDescription: "Obraz na \u015Bcianie"
   interactiveShader: {fileID: 145475582}
   interactionShaderVisibility: 1
@@ -16258,6 +16294,12 @@ MonoBehaviour:
   sherlockSpeedReactionDelay: 0
   sherlockInteractionFocusDuration: 4
   sherlockNavMeshSampleRadius: 1
+  changeCameraPreset: 0
+  cameraPresetIndexOffset: -1
+  returnAfterExit: 1
+  setCustomPreset: 0
+  customCameraPresetName: 
+  cameraPresetReturnZoneRadius: 1
   objectDescription: "Wpisz nazw\u0119 obiektu"
   interactiveShader: {fileID: 0}
   interactionShaderVisibility: 1
@@ -18378,6 +18420,11 @@ MonoBehaviour:
   controlCanvas: {fileID: 0}
   creditsCanvas: {fileID: 0}
   settingsCanvas: {fileID: 0}
+  startFadeCanvasGroup: {fileID: 0}
+  startFadeColor: {r: 0, g: 0, b: 0, a: 1}
+  startFadeDelay: 0.1
+  startFadeDuration: 1.25
+  startFadeHoldDuration: 0.1
 --- !u!4 &1180262179
 Transform:
   m_ObjectHideFlags: 0
@@ -20633,6 +20680,12 @@ MonoBehaviour:
   sherlockSpeedReactionDelay: 0
   sherlockInteractionFocusDuration: 4
   sherlockNavMeshSampleRadius: 1
+  changeCameraPreset: 0
+  cameraPresetIndexOffset: -1
+  returnAfterExit: 1
+  setCustomPreset: 0
+  customCameraPresetName: 
+  cameraPresetReturnZoneRadius: 1
   objectDescription: Kluczyk
   interactiveShader: {fileID: 0}
   interactionShaderVisibility: 1
@@ -25957,6 +26010,12 @@ MonoBehaviour:
   sherlockSpeedReactionDelay: 0
   sherlockInteractionFocusDuration: 4
   sherlockNavMeshSampleRadius: 1
+  changeCameraPreset: 0
+  cameraPresetIndexOffset: -1
+  returnAfterExit: 1
+  setCustomPreset: 0
+  customCameraPresetName: 
+  cameraPresetReturnZoneRadius: 1
   objectDescription: Przycisk
   interactiveShader: {fileID: 0}
   interactionShaderVisibility: 1
@@ -26108,7 +26167,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioController: {fileID: 1622878765}
-  cameraController: {fileID: 0}
   globusAnimator: {fileID: 1517573697}
   painting: {fileID: 1010566876}
   globe: {fileID: 152788428}
@@ -27060,7 +27118,6 @@ MonoBehaviour:
   watsonVoiceSource: {fileID: 0}
   selmaVoiceSource: {fileID: 0}
   violetVoiceSource: {fileID: 0}
-  cameraController: {fileID: 0}
   globeRotationTarget: {fileID: 1191337490}
   spinDuration: 2.5
   totalSpinDegrees: 450
@@ -27156,6 +27213,12 @@ MonoBehaviour:
   sherlockSpeedReactionDelay: 0
   sherlockInteractionFocusDuration: 4
   sherlockNavMeshSampleRadius: 1
+  changeCameraPreset: 0
+  cameraPresetIndexOffset: -1
+  returnAfterExit: 1
+  setCustomPreset: 0
+  customCameraPresetName: 
+  cameraPresetReturnZoneRadius: 1
   objectDescription: Globus
   interactiveShader: {fileID: 549822323}
   interactionShaderVisibility: 1
@@ -27377,6 +27440,11 @@ MonoBehaviour:
   controlCanvas: {fileID: 0}
   creditsCanvas: {fileID: 0}
   settingsCanvas: {fileID: 0}
+  startFadeCanvasGroup: {fileID: 0}
+  startFadeColor: {r: 0, g: 0, b: 0, a: 1}
+  startFadeDelay: 0.1
+  startFadeDuration: 1.25
+  startFadeHoldDuration: 0.1
 --- !u!114 &1689539516
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28775,6 +28843,12 @@ MonoBehaviour:
   sherlockSpeedReactionDelay: 0
   sherlockInteractionFocusDuration: 4
   sherlockNavMeshSampleRadius: 1
+  changeCameraPreset: 0
+  cameraPresetIndexOffset: -1
+  returnAfterExit: 1
+  setCustomPreset: 0
+  customCameraPresetName: 
+  cameraPresetReturnZoneRadius: 1
   objectDescription: "Pier\u015Bcienie"
   interactiveShader: {fileID: 0}
   interactionShaderVisibility: 1
@@ -30352,6 +30426,12 @@ MonoBehaviour:
   sherlockSpeedReactionDelay: 0
   sherlockInteractionFocusDuration: 4
   sherlockNavMeshSampleRadius: 1
+  changeCameraPreset: 0
+  cameraPresetIndexOffset: -1
+  returnAfterExit: 1
+  setCustomPreset: 0
+  customCameraPresetName: 
+  cameraPresetReturnZoneRadius: 1
   objectDescription: "Wpisz nazw\u0119 obiektu"
   interactiveShader: {fileID: 0}
   interactionShaderVisibility: 1
@@ -31505,6 +31585,12 @@ MonoBehaviour:
   sherlockSpeedReactionDelay: 0
   sherlockInteractionFocusDuration: 4
   sherlockNavMeshSampleRadius: 1
+  changeCameraPreset: 0
+  cameraPresetIndexOffset: -1
+  returnAfterExit: 1
+  setCustomPreset: 0
+  customCameraPresetName: 
+  cameraPresetReturnZoneRadius: 1
   objectDescription: Kluczyk
   interactiveShader: {fileID: 0}
   interactionShaderVisibility: 1
@@ -33224,6 +33310,12 @@ MonoBehaviour:
   sherlockSpeedReactionDelay: 0
   sherlockInteractionFocusDuration: 4
   sherlockNavMeshSampleRadius: 1
+  changeCameraPreset: 0
+  cameraPresetIndexOffset: -1
+  returnAfterExit: 1
+  setCustomPreset: 0
+  customCameraPresetName: 
+  cameraPresetReturnZoneRadius: 1
   objectDescription: Przycisk
   interactiveShader: {fileID: 0}
   interactionShaderVisibility: 1
@@ -33375,7 +33467,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioController: {fileID: 2123616831}
-  cameraController: {fileID: 0}
   globusAnimator: {fileID: 682767189}
   painting: {fileID: 553121449}
   globe: {fileID: 0}
