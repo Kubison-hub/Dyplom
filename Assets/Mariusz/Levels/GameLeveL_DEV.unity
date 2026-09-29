@@ -1128,7 +1128,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 50
+  m_SortingOrder: 3
   m_TargetDisplay: 0
 --- !u!1001 &7272997
 PrefabInstance:
@@ -47061,7 +47061,7 @@ MonoBehaviour:
   firstVisionEyeTutorialText: "W trybie skupienia Sherlock mo\u017Ce dostrzec znajduj\u0105ce
     si\u0119 w pobli\u017Cu istotne elementy otoczenia, oznaczone znakami zapytania.
     Gdy dostrze\u017Cesz taki znak, warto dok\u0142adniej zbada\u0107 wskazany obiekt."
-  firstVisionEyeTutorialVideoClip: {fileID: 32900000, guid: 636b806234798454f816c198cc1e8ecf, type: 3}
+  firstVisionEyeTutorialVideoClip: {fileID: 32900000, guid: e40be8688447cde47bf3d10ba29d6d3e, type: 3}
   eagleVisionScanner: {fileID: 2142722458}
 --- !u!114 &336058962
 MonoBehaviour:
@@ -49424,7 +49424,7 @@ MonoBehaviour:
   ideaLineTutorialPopupTitle: "\u0141\u0105czenie Fakt\xF3w"
   ideaLineTutorialText: "Sherlock to mistrz dedukcji.\nPo\u0142\u0105cz fakty w odpowiedniej
     kolejnosci."
-  ideaLineTutorialPopupVideoClip: {fileID: 32900000, guid: bc9129a7522ef554fabe1b3bc77b60d7, type: 3}
+  ideaLineTutorialPopupVideoClip: {fileID: 32900000, guid: 7cfc2ec52a5c1384ba02ed1d19a92934, type: 3}
   gameMusicManager: {fileID: 1427004023}
   ideaLinePuzzleMusic: {fileID: 0}
   loopIdeaLinePuzzleMusic: 0
@@ -82402,7 +82402,7 @@ GameObject:
   - component: {fileID: 591824969}
   - component: {fileID: 591824968}
   m_Layer: 0
-  m_Name: BrickPillar_01 (65)
+  m_Name: MagnifierCamera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -217482,7 +217482,7 @@ MonoBehaviour:
   tutorialPopupText: "Zbadaj dok\u0142adnie obiekt aby uzyska\u0107 szczeg\xF3\u0142y.\\nSherlock
     mo\u017Ce u\u017Cy\u0107 lupy (F) aby przyjrze\u0107 si\u0119 bli\u017Cej oraz
     k\xF3\u0142ka myszy aby przybli\u017Cy\u0107/oddali\u0107. "
-  tutorialPopupVideoClip: {fileID: 32900000, guid: b64baec8b777c7949bf50e2fedfc4fb4, type: 3}
+  tutorialPopupVideoClip: {fileID: 32900000, guid: 9f4bee0b66e23c846b37b0dc6820a57f, type: 3}
   initialExaminationDialogue:
   - speaker: 0
     text: "Przyjrzyjmy si\u0119 jej uwa\u017Cnie, Watsonie."
@@ -221810,7 +221810,7 @@ MonoBehaviour:
   tutorialPopupText: "Niekt\xF3re \u015Blady trudno dostrzec go\u0142ym okiem. U\u017Cyj
     lupy Sherlocka, naciskaj\u0105c <b>F</b>, aby dok\u0142adniej zbada\u0107 podejrzane
     obiekty."
-  tutorialPopupVideoClip: {fileID: 0}
+  tutorialPopupVideoClip: {fileID: 32900000, guid: 216edee15459a2948b9e19c36c3db798, type: 3}
   examinationZoneRange: 1.5
   examinationZoneOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &1531085683
@@ -222986,10 +222986,16 @@ MonoBehaviour:
     m_Bits: 4294967295
   inspectionTriggerInteraction: 1
   lensDistanceFromHit: 1
+  useGroundDistanceOffset: 1
+  groundDistanceOffset: 0.2
   normalInfluence: 0
   maxNormalTiltDegrees: 30
   cameraFollowSpeed: 18
   raycastDistance: 100
+  usePresetAngleCorrection: 1
+  angleCorrectionStartPresetIndex: 3
+  angleCorrectionPerPreset: 4
+  maxPresetAngleCorrection: 12
   changeLookAt: 0
   loupeLookAtRaycastInfluence: 0.12
   loupeLookAtSmoothTime: 1.2
@@ -232614,7 +232620,7 @@ MonoBehaviour:
   tutorialPopupTitle: Odkrywanie
   tutorialPopupText: "Niekt\xF3re miejsca wymagaj\u0105 dok\u0142adniejszego zbadania.
     U\u017Cyj lupy Sherlocka, naciskaj\u0105c <b>F</b>, aby dostrzec ukryte szczeg\xF3\u0142y."
-  tutorialPopupVideoClip: {fileID: 32900000, guid: 60888058899f4ce4bb978d4de29953c7, type: 3}
+  tutorialPopupVideoClip: {fileID: 32900000, guid: cf19a0ab044a4bd45b62122574a7566f, type: 3}
   initialDialogue:
   - speaker: 0
     text: "Ta \u015Bciana... pustki si\u0119 nie boi, Watsonie."
@@ -235419,9 +235425,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentIDCounter: 9
-  json: "{\"Options\":[],\"Parameters\":[],\"SpeechNodes\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":1}],\"EditorInfo\":{\"isRoot\":true,\"xPos\":511,\"yPos\":97},\"ID\":0,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dobrze,
+  json: "{\"Options\":[],\"Parameters\":[],\"SpeechNodes\":[{\"Connections\":[{\"__type\":\"EditableSpeechConnection:#DialogueEditor\",\"Conditions\":[],\"NodeUID\":1}],\"EditorInfo\":{\"isRoot\":true,\"xPos\":419.5,\"yPos\":22},\"ID\":0,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Dobrze,
     \u017Ce jeste\u015B, Watsonie. Musz\u0119 co\u015B z tob\u0105 skonsultowa\u0107,
-    nim ruszymy dalej.\",\"parentUIDs\":[],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":507,\"yPos\":232},\"ID\":1,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Zamieniam
+    nim ruszymy dalej.\",\"parentUIDs\":[],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Sherlock\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0},{\"Connections\":[],\"EditorInfo\":{\"isRoot\":false,\"xPos\":415.5,\"yPos\":157},\"ID\":1,\"ParamActions\":[],\"TMPFontGUID\":null,\"Text\":\"Zamieniam
     si\u0119 w s\u0142uch, Sherlock.\",\"parentUIDs\":[0],\"AdvanceDialogueAutomatically\":false,\"AudioGUID\":null,\"AutoAdvanceShouldDisplayOption\":false,\"IconGUID\":null,\"Name\":\"Watson\",\"OptionUIDs\":null,\"SpeechUID\":0,\"TimeUntilAdvance\":0,\"Volume\":0}]}"
   saveVersion: 110
   DefaultName: Sherlock
@@ -247481,7 +247487,7 @@ MonoBehaviour:
   firstIdeaPointTutorialText: "Odkryte \u015Blady tworz\u0105 punkty dedukcji. Zbadaj
     miejsce zbrodni i odnajd\u017A wszystkie punkty, aby po\u0142\u0105czy\u0107
     fakty oraz odtworzy\u0107 przebieg wydarze\u0144."
-  firstIdeaPointTutorialVideoClip: {fileID: 32900000, guid: d55e0f5ed31f1de40a022144fe0dd967, type: 3}
+  firstIdeaPointTutorialVideoClip: {fileID: 32900000, guid: 2845eef6505f822458c4f8b405d0394b, type: 3}
   firstIdeaPointTutorialDelay: 1.5
   playFirstIdeaPointTutorialAudio: 1
   basementIdeaPoints:
@@ -281323,7 +281329,7 @@ MonoBehaviour:
   tutorialPopupTitle: "\u015Alady"
   tutorialText: "Sherlock za pomoc\u0105 swojej lupy, potrafi r\xF3wnie\u017C rozpoznawa\u0107
     \u015Blady. Wci\u015Bnij <b>F</b> aby u\u017Cy\u0107 lupy Sherlocka."
-  tutorialPopupVideoClip: {fileID: 32900000, guid: 1d7ff37bc3533a04f9b651adc2033b98, type: 3}
+  tutorialPopupVideoClip: {fileID: 32900000, guid: 516217a3a914038479e56526b4a405b7, type: 3}
   scanner: {fileID: 0}
   footprintSplines:
   - {fileID: 886980340}

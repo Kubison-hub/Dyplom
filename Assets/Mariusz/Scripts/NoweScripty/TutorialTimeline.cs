@@ -650,6 +650,7 @@ public class TutorialTimeline : MonoBehaviour
         if (activeTutorialPopupPlaysAudio && tutorialPopupAudioSource != null && tutorialPopupCloseAudio != null)
             tutorialPopupAudioSource.PlayOneShot(tutorialPopupCloseAudio);
 
+        activeTutorialPopup.GetComponent<TutorialPopupWindow>()?.StopAndReleaseVideo();
         Destroy(activeTutorialPopup);
         activeTutorialPopup = null;
         activeTutorialPopupPlaysAudio = true;

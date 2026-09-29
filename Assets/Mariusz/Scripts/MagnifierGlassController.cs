@@ -108,10 +108,22 @@ public class MagnifierGlassController : MonoBehaviour
     [SerializeField] private LayerMask inspectionLayers = ~0;
     [SerializeField] private QueryTriggerInteraction inspectionTriggerInteraction = QueryTriggerInteraction.Ignore;
     [SerializeField, Min(0.31f)] private float lensDistanceFromHit = 0.45f;
+    [Tooltip("Adds extra inspection-camera distance when the loupe ray hits the Ground layer.")]
+    [SerializeField] private bool useGroundDistanceOffset = true;
+    [SerializeField, Min(0f)] private float groundDistanceOffset = 0.2f;
     [SerializeField, Range(0f, 1f)] private float normalInfluence = 0.4f;
     [SerializeField, Range(0f, 90f)] private float maxNormalTiltDegrees = 30f;
     [SerializeField, Min(0f)] private float cameraFollowSpeed = 18f;
     [SerializeField] private float raycastDistance = 100f;
+
+    [Header("Inspection Angle By Camera Preset")]
+    [Tooltip("Makes the inspection cameras less steep for distant gameplay camera presets without changing close presets.")]
+    [SerializeField] private bool usePresetAngleCorrection = true;
+    [Tooltip("First CameraController preset index that receives angle correction. Presets below it remain unchanged.")]
+    [SerializeField, Min(0)] private int angleCorrectionStartPresetIndex = 3;
+    [Tooltip("Additional correction applied for each preset starting with the first corrected preset.")]
+    [SerializeField, Range(0f, 30f)] private float angleCorrectionPerPreset = 4f;
+    [SerializeField, Range(0f, 45f)] private float maxPresetAngleCorrection = 12f;
 
     [Header("Player Camera Look At")]
     [Tooltip("When enabled, the loupe may temporarily change the gameplay camera LookAt target.")]
@@ -904,10 +916,12 @@ public class MagnifierGlassController : MonoBehaviour
 
         directionToViewer.Normalize();
 
+        Vector3 correctedViewerDirection = ApplyPresetAngleCorrection(directionToViewer);
         Vector3 lensDirection = hasLoupeOrbitOffset
-            ? ApplyLoupeOrbit(directionToViewer)
-            : directionToViewer;
-        Vector3 lensCameraPosition = hit.point + lensDirection * lensDistanceFromHit;
+            ? ApplyLoupeOrbit(correctedViewerDirection)
+            : correctedViewerDirection;
+        float inspectionDistance = lensDistanceFromHit + GetGroundDistanceOffset(hit.collider);
+        Vector3 lensCameraPosition = hit.point + lensDirection * inspectionDistance;
         Vector3 directionToHit = (hit.point - lensCameraPosition).normalized;
         Vector3 normalDirection = -hit.normal.normalized;
 
@@ -941,6 +955,45 @@ public class MagnifierGlassController : MonoBehaviour
         lastMainCameraPosition = mainCameraPosition;
         lastLensCameraPosition = lensCameraPosition;
         lastHybridLookPoint = hybridLookPoint;
+    }
+
+    private float GetGroundDistanceOffset(Collider hitCollider)
+    {
+        if (!useGroundDistanceOffset || groundDistanceOffset <= 0f || hitCollider == null)
+            return 0f;
+
+        int groundLayer = LayerMask.NameToLayer("Ground");
+        return groundLayer >= 0 && hitCollider.gameObject.layer == groundLayer
+            ? groundDistanceOffset
+            : 0f;
+    }
+
+    private Vector3 ApplyPresetAngleCorrection(Vector3 directionFromHitToViewer)
+    {
+        if (!usePresetAngleCorrection || angleCorrectionPerPreset <= 0f)
+            return directionFromHitToViewer;
+
+        CameraController cameraController = GetActiveCameraController();
+        if (cameraController == null)
+            return directionFromHitToViewer;
+
+        int correctedPresetStep = cameraController.CurrentZoomIndex - angleCorrectionStartPresetIndex + 1;
+        if (correctedPresetStep <= 0)
+            return directionFromHitToViewer;
+
+        Vector3 horizontalDirection = Vector3.ProjectOnPlane(directionFromHitToViewer, Vector3.up);
+        if (horizontalDirection.sqrMagnitude < 0.0001f)
+            return directionFromHitToViewer;
+
+        float correctionDegrees = Mathf.Min(
+            correctedPresetStep * angleCorrectionPerPreset,
+            maxPresetAngleCorrection);
+
+        return Vector3.RotateTowards(
+            directionFromHitToViewer,
+            horizontalDirection.normalized,
+            correctionDegrees * Mathf.Deg2Rad,
+            0f).normalized;
     }
 
     private void UpdateLoupeAimTarget(Vector3 rawAimPosition)

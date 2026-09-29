@@ -37,7 +37,12 @@ public class TutorialPopupWindow : MonoBehaviour
 
     private void OnDisable()
     {
-        UnsubscribeFromVideoEvents();
+        StopAndReleaseVideo();
+    }
+
+    private void OnDestroy()
+    {
+        StopAndReleaseVideo();
     }
 
     public void Configure(string title, string content, VideoClip videoClip)
@@ -113,6 +118,27 @@ public class TutorialPopupWindow : MonoBehaviour
 
         tutorialVideoPlayer.prepareCompleted -= HandleVideoPrepared;
         tutorialVideoPlayer.frameReady -= HandleFirstVideoFrameReady;
+    }
+
+    public void StopAndReleaseVideo()
+    {
+        UnsubscribeFromVideoEvents();
+
+        if (tutorialVideoPlayer != null)
+        {
+            tutorialVideoPlayer.sendFrameReadyEvents = false;
+            tutorialVideoPlayer.Stop();
+            tutorialVideoPlayer.clip = null;
+            tutorialVideoPlayer.enabled = false;
+        }
+
+        videoConfigured = false;
+
+        if (tutorialVideoImage != null)
+            tutorialVideoImage.enabled = false;
+
+        if (tutorialVideoContainer != null)
+            tutorialVideoContainer.SetActive(false);
     }
 
     private void Update()
