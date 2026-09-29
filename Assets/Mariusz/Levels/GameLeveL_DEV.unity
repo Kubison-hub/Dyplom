@@ -236290,6 +236290,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03dcd295dde287848bcbc5af281301af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  przywracajFlagiSkryptow: 1
+  sledzonyObiekt: 
+  powtorzeniaPlyt: 4
+  odstepPowtorzenPlyt: 0.5
 --- !u!114 &1630563690
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -336893,6 +336897,10 @@ PrefabInstance:
       propertyPath: interactabePoint
       value: 
       objectReference: {fileID: 900635471}
+    - target: {fileID: 1988154442012820440, guid: 947f756d54b78a248aca4492f4fca19a, type: 3}
+      propertyPath: objectDescription
+      value: Pocisk
+      objectReference: {fileID: 0}
     - target: {fileID: 1988154442012820440, guid: 947f756d54b78a248aca4492f4fca19a, type: 3}
       propertyPath: 'clues.Array.data[0]'
       value: 
