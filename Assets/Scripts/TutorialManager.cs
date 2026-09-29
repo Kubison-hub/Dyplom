@@ -150,7 +150,7 @@ public class TutorialManager : MonoBehaviour
         
         yield return new WaitForSeconds(0.1f);
         //TutorialTimeline.Instance.ShowGameplayTutorialPopup(0);
-        PokazTutorial("Witaj w demie gry \"Ghosts of the Past\"\n\nWciśnij <b>Lewy Przycisk Myszy</b>, aby się poruszyć. \n Wciśnij <b>Prawy Przycisk Myszy</b>, aby poruszyć kamerą. \n Użyj <b>kółka myszy</b> aby oddalić/przybliżyć kamerę. \nWciśnij <b>Lewy Shift</b>, aby wejść w tryb skupienia.", "MoveTutorial");
+        PokazTutorial("Witaj w demie gry \"Ghosts of the Past\"\n\nWciśnij <b>Lewy Przycisk Myszy</b>, aby się poruszyć. \n Wciśnij <b>Prawy Przycisk Myszy</b>, aby poruszyć kamerą. \n Użyj <b>kółka myszy</b>, aby oddalić/przybliżyć kamerę. \nWciśnij <b>Lewy Shift</b>, aby wejść w tryb skupienia.", "MoveTutorial");
     }
 
 
