@@ -1,6 +1,9 @@
 using System.Collections;
 using UnityEngine;
 
+// Alias chroni przed 'using System.Diagnostics;' dopisywanym przez Visual Studio (CS0104).
+using Debug = UnityEngine.Debug;
+
 [RequireComponent(typeof(Interactable))]
 public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
 {
@@ -411,5 +414,69 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
                 duration = 3f
             }
         };
+    }
+
+    // ---------------------------------------------------------------
+    // SYSTEM ZAPISU
+    // ---------------------------------------------------------------
+
+    // Odtwarza stan po uruchomieniu pulapki: zamkniete drzwi, przepieta sciana,
+    // wylaczony poprzedni pokoj i zapalona czarna plyta.
+    // Pomija animacje, dzwieki, obrot postaci i dialog - te maja sie nie powtarzac.
+    public void RestoreTrapTriggeredState()
+    {
+        if (triggered)
+            return;
+
+        triggered = true;
+        hasBeenExamined = true;
+        triggerTrapAfterInspectionDialogue = false;
+        revealTrapDoorIdeaAfterDialogue = false;
+
+        // Drzwi od razu w stanie zamknietym, bez odtwarzania animacji.
+        if (secretDoorAnimators != null)
+        {
+            foreach (Animator doorAnimator in secretDoorAnimators)
+            {
+                if (doorAnimator == null)
+                    continue;
+
+                if (!string.IsNullOrWhiteSpace(secretDoorCloseTrigger))
+                    doorAnimator.SetTrigger(secretDoorCloseTrigger);
+
+                if (setOpenedBoolOnDoors && !string.IsNullOrWhiteSpace(openedBool))
+                    doorAnimator.SetBool(openedBool, false);
+
+                doorAnimator.Update(0f);
+            }
+        }
+
+        // Sciana wraca pod rodzica z nowego pokoju.
+        if (objectToReparent != null && targetParent != null)
+            objectToReparent.SetParent(targetParent, true);
+
+        if (roomToDeactivate != null)
+            roomToDeactivate.SetActive(false);
+
+        if (blackBoardToEnableOnTrap != null)
+            blackBoardToEnableOnTrap.SetActive(true);
+
+        if (collidersToEnableWhenClosed != null)
+        {
+            foreach (Collider doorCollider in collidersToEnableWhenClosed)
+            {
+                if (doorCollider != null)
+                    doorCollider.enabled = true;
+            }
+        }
+
+        if (disableAfterTrigger)
+        {
+            Interactable interactable = GetComponent<Interactable>();
+            if (interactable != null)
+                interactable.isInteractableActive = false;
+        }
+
+        Debug.Log("Int_lv3_Manequine: przywrocono uruchomiona pulapke '" + name + "'.", this);
     }
 }

@@ -47,6 +47,11 @@ public abstract class WoodBlockButtonPickupBase : Lvl3InteractionDialogueBase
 
         collected = true;
         GetComponent<Interactable>()?.MarkCompleted();
+
+        // Zapis: bez tego przedmiot wraca na swoje miejsce po wczytaniu gry,
+        // mimo ze jest juz w ekwipunku.
+        if (SaveLoadManager.Instance != null)
+            SaveLoadManager.Instance.MarkCollected(gameObject);
         if (setHiddenDoorHasKeyOnPickup && hiddenDoorToUnlock != null)
             hiddenDoorToUnlock.SetHasKey(true);
 

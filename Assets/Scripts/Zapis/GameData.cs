@@ -107,6 +107,36 @@ public class GameData
     // zobaczy gracz - bez nich po wczytaniu wracaja stare wersje rozmow.
     public List<ScriptFlagSaveData> conversationFlags;
 
+    // Uruchomione pulapki manekina (Int_lv3_Manequine). Zamykaja przejscie,
+    // przepinaja sciane i wylaczaja poprzedni pokoj.
+    public List<string> triggeredMannequinTraps;
+
+    // Parametry liczbowe rozmow (int i float). Niektore galezie dialogow
+    // zaleza od licznikow, nie tylko od flag bool.
+    public List<ConversationNumberSaveData> conversationNumbers;
+
+    // Animatory spoza drzewa LEVELS - drzwi i mechanizmy stojace poza grupami
+    // poziomow, np. na NPC albo w korzeniu sceny.
+    public List<AnimatorSaveData> sceneAnimators;
+
+    // Pozycje obiektow spoza drzewa LEVELS, ktore gracz moze przesuwac
+    // (np. skrzynki Watsona). Zapisujemy tylko te z Rigidbody albo z nazwa
+    // wskazujaca na ruchomy obiekt - calej sceny nie ma sensu utrwalac.
+    public List<TransformSaveData> movableObjects;
+
+    // --- Sledztwo (ClueManager): poszlaki, wnioski i questy ---
+    // Zapisujemy nazwy assetow, bo indeksy przestaja pasowac po kazdej
+    // zmianie kolejnosci w bazie.
+    public List<string> collectedClues;
+    public List<string> collectedConclusions;
+    public List<string> collectedQuestConclusions;
+    public List<string> completedQuests;
+    public List<string> activeQuests;
+
+    // Liczniki w skryptach (int i float): etap sekwencji, liczba zbadanych
+    // elementow, liczba prob. Bez nich zagadki licza od zera po wczytaniu.
+    public List<ScriptNumberSaveData> scriptNumbers;
+
     // --- Cele kamer postaci (LookAt) ---
     // Scena startuje z kamera wycelowana w Selme (seans), a przesuwa ja dopiero
     // dialog otwierajacy. Po wczytaniu ten dialog nie leci, wiec cel trzeba zapisac.
@@ -296,4 +326,24 @@ public class WallLampSaveData
 {
     public string holderId;
     public int mountedLampIndex;   // 0 = brak, 1 = Held Lamp 1, 2 = Held Lamp 2
+}
+
+// Parametr liczbowy rozmowy.
+[System.Serializable]
+public class ConversationNumberSaveData
+{
+    public string key;        // nazwaRozmowy|nazwaParametru
+    public bool isInt;        // true = int, false = float
+    public int intValue;
+    public float floatValue;
+}
+
+// Licznik w skrypcie.
+[System.Serializable]
+public class ScriptNumberSaveData
+{
+    public string key;      // sciezka|typKomponentu|nazwaPola
+    public bool isInt;
+    public int intValue;
+    public float floatValue;
 }

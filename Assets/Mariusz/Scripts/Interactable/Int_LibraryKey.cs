@@ -15,7 +15,8 @@ public class Int_LibraryKey : Lvl3InteractionDialogueBase
     [SerializeField, TextArea] private string inventoryFullText = "Nie mam miejsca w ekwipunku.";
 
     [Header("Key Pickup Dialogue")]
-    [SerializeField] private Lvl3DialogueLine[] keyPickupDialogue =
+    [SerializeField]
+    private Lvl3DialogueLine[] keyPickupDialogue =
     {
         new Lvl3DialogueLine
         {
@@ -51,6 +52,11 @@ public class Int_LibraryKey : Lvl3InteractionDialogueBase
                 player.currentInteractable = null;
             return;
         }
+
+        // Zapis: bez tego przedmiot wraca na swoje miejsce po wczytaniu gry,
+        // mimo ze jest juz w ekwipunku.
+        if (SaveLoadManager.Instance != null)
+            SaveLoadManager.Instance.MarkCollected(gameObject);
 
         performed = true;
         interactable?.MarkCompleted();

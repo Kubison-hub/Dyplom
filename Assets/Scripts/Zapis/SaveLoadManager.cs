@@ -15,7 +15,7 @@ public class SaveLoadManager : MonoBehaviour
     // Wersja formatu zapisu. Podnies o 1 po kazdej zmianie struktury GameData.
     // Pliki z inna wersja sa ignorowane - lepiej zaczac od nowa niz wczytac
     // polowe danych i dostac czarny ekran.
-    public const int WERSJA_ZAPISU = 22;
+    public const int WERSJA_ZAPISU = 29;
 
     [Header("Diagnostyka")]
     [Tooltip("Przywracanie wszystkich pol bool w skryptach pod LEVELS. " +
@@ -257,6 +257,22 @@ public class SaveLoadManager : MonoBehaviour
         data.wallLamps = ZbierzUchwytyLamp();
         data.npcRenderers = ZbierzRendereryNpc();
         data.conversationFlags = ZbierzParametryRozmow();
+        data.conversationNumbers = ZbierzLiczboweParametryRozmow();
+        data.sceneAnimators = ZbierzAnimatorySceny();
+        data.movableObjects = ZbierzRuchomeObiekty();
+        ZbierzSledztwo(data);
+        data.scriptNumbers = ZbierzLicznikiSkryptow();
+
+        data.triggeredMannequinTraps = new List<string>();
+
+        foreach (Int_lv3_Manequine pulapka in FindObjectsByType<Int_lv3_Manequine>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (pulapka != null && pulapka.IsTrapTriggered)
+                data.triggeredMannequinTraps.Add(BuildObjectID(pulapka.gameObject));
+        }
+
+        Debug.Log("SaveGame: uruchomionych pulapek manekina: " + data.triggeredMannequinTraps.Count + ".");
 
         // --- Niesione lampy (piwnica) ---
         if (Lvl3LampVisualManager.Instance != null)
@@ -491,6 +507,14 @@ public class SaveLoadManager : MonoBehaviour
         Krok("uchwyty lamp", () => PrzywrocUchwytyLamp(data.wallLamps));
         Krok("renderery NPC", () => PrzywrocRendereryNpc(data.npcRenderers));
         Krok("parametry rozmow", () => PrzywrocParametryRozmow(data.conversationFlags));
+        Krok("liczbowe parametry rozmow", () => PrzywrocLiczboweParametryRozmow(data.conversationNumbers));
+        Krok("animatory sceny", () => PrzywrocAnimatorySceny(data.sceneAnimators));
+        Krok("ruchome obiekty", () => PrzywrocRuchomeObiekty(data.movableObjects));
+        Krok("sledztwo", () => PrzywrocSledztwo(data));
+
+        if (przywracajFlagiSkryptow)
+            Krok("liczniki skryptow", () => PrzywrocLicznikiSkryptow(data.scriptNumbers));
+        Krok("pulapki manekina", () => PrzywrocPulapkiManekina(data.triggeredMannequinTraps));
         Krok("niesione lampy", () => PrzywrocNiesioneLampy(data));
 
         // --- Odkryte punkty sledztwa ---
@@ -542,6 +566,18 @@ public class SaveLoadManager : MonoBehaviour
         {
             Debug.LogWarning("LoadGame: brak SwitchCharacter.Instance - aktywna postac nie zostanie przywrocona.");
         }
+
+        // Wizja orla: jej flagi wracaja razem z flagami skryptow, ale to,
+        // co wizja podswietla, trzeba przeliczyc osobno.
+        Krok("wizja orla", () =>
+        {
+            if (EagleVisionSystem.Instance != null)
+            {
+                EagleVisionSystem.Instance.RefreshScan();
+                Debug.Log("LoadGame: odswiezono wizje orla (aktywna: " +
+                          EagleVisionSystem.Instance.isActive + ").");
+            }
+        });
 
         Sledz("przed plytami");
 
@@ -994,6 +1030,10 @@ public class SaveLoadManager : MonoBehaviour
 
         Debug.Log("SaveGame: rozwiazanych zagadek sekwencyjnych: " + data.solvedSequencePuzzles.Count);
 
+        // Flagi skryptow spoza drzewa LEVELS (interakcje na NPC, managery zagadek).
+        // Bez nich takie skrypty po wczytaniu uruchamiaja sie od nowa.
+        DolaczFlagiSpozaPoziomow(data.levelFlags, drzewo);
+
         data.blackboards = ZbierzCzarnePlyty(drzewo);
 
         // Wyzwalacze usuwania czarnych plyt.
@@ -1080,6 +1120,7 @@ public class SaveLoadManager : MonoBehaviour
         if (przywracajFlagiSkryptow)
         {
             flagi = PrzywrocFlagiSkryptow(data.levelFlags, poSciezce);
+            flagi += PrzywrocFlagiSpozaPoziomow(data.levelFlags, poSciezce);
         }
         else
         {
@@ -1279,6 +1320,600 @@ public class SaveLoadManager : MonoBehaviour
 
     // Parametry bool rozmow decyduja, ktora galaz dialogu zobaczy gracz.
     // Sa stanem runtime, wiec bez zapisu po wczytaniu wracaja stare rozmowy.
+    // Czy ten typ komponentu pomijamy przy zapisie flag.
+    private static bool PomijamyKomponent(MonoBehaviour mb)
+    {
+        if (mb == null)
+            return true;
+
+        // Wlasnych managerow nie zapisujemy - ich flagi sa robocze
+        // i nadpisanie ich psuje samo wczytywanie.
+        return mb is SaveLoadManager ||
+               mb is GameProgressManager ||
+               mb is InventoryManager;
+    }
+
+    // Dokleja flagi bool ze skryptow spoza drzewa LEVELS.
+    private void DolaczFlagiSpozaPoziomow(List<ScriptFlagSaveData> flagi, List<Transform> drzewoPoziomow)
+    {
+        HashSet<Transform> wDrzewie = new HashSet<Transform>(drzewoPoziomow);
+        int dodane = 0;
+
+        foreach (MonoBehaviour mb in FindObjectsByType<MonoBehaviour>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (PomijamyKomponent(mb) || wDrzewie.Contains(mb.transform))
+                continue;
+
+            System.Type typ = mb.GetType();
+
+            foreach (FieldInfo pole in typ.GetFields(FlagiPol))
+            {
+                if (pole.FieldType != typeof(bool))
+                    continue;
+
+                ScriptFlagSaveData flaga = new ScriptFlagSaveData();
+                flaga.key = KluczFlagi(mb.gameObject, typ, pole.Name);
+
+                try
+                {
+                    flaga.value = (bool)pole.GetValue(mb);
+                }
+                catch (System.Exception)
+                {
+                    continue;
+                }
+
+                flagi.Add(flaga);
+                dodane++;
+            }
+        }
+
+        Debug.Log("SaveGame: flag ze skryptow spoza LEVELS: " + dodane + ".");
+    }
+
+    // Przywraca flagi skryptow spoza drzewa LEVELS.
+    private int PrzywrocFlagiSpozaPoziomow(
+        List<ScriptFlagSaveData> zapisane, Dictionary<string, Transform> wDrzewie)
+    {
+        if (zapisane == null)
+            return 0;
+
+        Dictionary<string, bool> mapa = new Dictionary<string, bool>();
+        foreach (ScriptFlagSaveData flaga in zapisane)
+        {
+            if (flaga != null && !string.IsNullOrEmpty(flaga.key))
+                mapa[flaga.key] = flaga.value;
+        }
+
+        int licznik = 0;
+
+        foreach (MonoBehaviour mb in FindObjectsByType<MonoBehaviour>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (PomijamyKomponent(mb))
+                continue;
+
+            if (wDrzewie.ContainsKey(BuildObjectID(mb.gameObject)))
+                continue;
+
+            System.Type typ = mb.GetType();
+
+            foreach (FieldInfo pole in typ.GetFields(FlagiPol))
+            {
+                if (pole.FieldType != typeof(bool))
+                    continue;
+
+                bool wartosc;
+                if (!mapa.TryGetValue(KluczFlagi(mb.gameObject, typ, pole.Name), out wartosc))
+                    continue;
+
+                try
+                {
+                    pole.SetValue(mb, wartosc);
+                    licznik++;
+                }
+                catch (System.Exception)
+                {
+                }
+            }
+        }
+
+        return licznik;
+    }
+
+    private void PrzywrocPulapkiManekina(List<string> zapisane)
+    {
+        if (zapisane == null || zapisane.Count == 0)
+            return;
+
+        HashSet<string> uruchomione = new HashSet<string>(zapisane);
+        int licznik = 0;
+
+        foreach (Int_lv3_Manequine pulapka in FindObjectsByType<Int_lv3_Manequine>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (pulapka == null || !uruchomione.Contains(BuildObjectID(pulapka.gameObject)))
+                continue;
+
+            pulapka.RestoreTrapTriggeredState();
+            licznik++;
+        }
+
+        Debug.Log("LoadGame: przywrocono " + licznik + " z " + zapisane.Count + " pulapek manekina.");
+    }
+
+    // Parametry int i float rozmow. Czesc galezi dialogow zalezy od licznikow.
+    private List<ConversationNumberSaveData> ZbierzLiczboweParametryRozmow()
+    {
+        List<ConversationNumberSaveData> lista = new List<ConversationNumberSaveData>();
+
+        foreach (NPCConversation rozmowa in ZnajdzRozmowy())
+        {
+            if (rozmowa.ParameterList == null)
+                rozmowa.DeserializeForEditor();
+
+            if (rozmowa.ParameterList == null)
+                continue;
+
+            foreach (EditableParameter parametr in rozmowa.ParameterList)
+            {
+                EditableIntParameter parametrInt = parametr as EditableIntParameter;
+
+                if (parametrInt == null || string.IsNullOrWhiteSpace(parametrInt.ParameterName))
+                    continue;
+
+                ConversationNumberSaveData wpis = new ConversationNumberSaveData();
+                wpis.key = rozmowa.name + "|" + parametrInt.ParameterName;
+                wpis.isInt = true;
+                wpis.intValue = parametrInt.IntValue;
+                lista.Add(wpis);
+            }
+        }
+
+        Debug.Log("SaveGame: liczbowych parametrow rozmow: " + lista.Count + ".");
+        return lista;
+    }
+
+    private void PrzywrocLiczboweParametryRozmow(List<ConversationNumberSaveData> zapisane)
+    {
+        if (zapisane == null || zapisane.Count == 0)
+            return;
+
+        Dictionary<string, ConversationNumberSaveData> mapa =
+            new Dictionary<string, ConversationNumberSaveData>();
+
+        foreach (ConversationNumberSaveData wpis in zapisane)
+        {
+            if (wpis != null && !string.IsNullOrEmpty(wpis.key))
+                mapa[wpis.key] = wpis;
+        }
+
+        int licznik = 0;
+
+        foreach (NPCConversation rozmowa in ZnajdzRozmowy())
+        {
+            if (rozmowa.ParameterList == null)
+                rozmowa.DeserializeForEditor();
+
+            if (rozmowa.ParameterList == null)
+                continue;
+
+            foreach (EditableParameter parametr in rozmowa.ParameterList)
+            {
+                EditableIntParameter parametrInt = parametr as EditableIntParameter;
+
+                if (parametrInt == null || string.IsNullOrWhiteSpace(parametrInt.ParameterName))
+                    continue;
+
+                ConversationNumberSaveData wpis;
+                if (!mapa.TryGetValue(rozmowa.name + "|" + parametrInt.ParameterName, out wpis))
+                    continue;
+
+                rozmowa.SetRuntimeIntParameter(parametrInt.ParameterName, wpis.intValue);
+                licznik++;
+            }
+        }
+
+        Debug.Log("LoadGame: przywrocono " + licznik + " z " + zapisane.Count +
+                  " liczbowych parametrow rozmow.");
+    }
+
+    // Animatory spoza drzewa LEVELS - drzwi i mechanizmy stojace poza grupami poziomow.
+    // Czy obiekt wyglada na cos, co gracz moze przesunac.
+    // ---------------------------------------------------------------
+    // SLEDZTWO - poszlaki, wnioski, questy (ClueManager)
+    // ---------------------------------------------------------------
+
+    private static List<string> NazwyAssetow<T>(List<T> lista) where T : Object
+    {
+        List<string> nazwy = new List<string>();
+
+        if (lista == null)
+            return nazwy;
+
+        foreach (T asset in lista)
+        {
+            if (asset != null)
+                nazwy.Add(asset.name);
+        }
+
+        return nazwy;
+    }
+
+    // ---------------------------------------------------------------
+    // LICZNIKI W SKRYPTACH (int / float)
+    // ---------------------------------------------------------------
+
+    // Pola, ktorych NIE zapisujemy - sa robocze i zmieniaja sie co klatke.
+    private static bool PomijamyPoleLicznika(string nazwa)
+    {
+        return nazwa.IndexOf("time", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+               nazwa.IndexOf("timer", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+               nazwa.IndexOf("velocity", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+               nazwa.IndexOf("elapsed", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+               nazwa.IndexOf("alpha", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+               nazwa.IndexOf("speed", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+               nazwa.IndexOf("duration", System.StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    private List<ScriptNumberSaveData> ZbierzLicznikiSkryptow()
+    {
+        List<ScriptNumberSaveData> lista = new List<ScriptNumberSaveData>();
+
+        foreach (MonoBehaviour mb in FindObjectsByType<MonoBehaviour>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (PomijamyKomponent(mb))
+                continue;
+
+            System.Type typ = mb.GetType();
+
+            foreach (FieldInfo pole in typ.GetFields(FlagiPol))
+            {
+                bool jestInt = pole.FieldType == typeof(int);
+                bool jestFloat = pole.FieldType == typeof(float);
+
+                if (!jestInt && !jestFloat)
+                    continue;
+
+                if (PomijamyPoleLicznika(pole.Name))
+                    continue;
+
+                ScriptNumberSaveData wpis = new ScriptNumberSaveData();
+                wpis.key = KluczFlagi(mb.gameObject, typ, pole.Name);
+                wpis.isInt = jestInt;
+
+                try
+                {
+                    if (jestInt)
+                        wpis.intValue = (int)pole.GetValue(mb);
+                    else
+                        wpis.floatValue = (float)pole.GetValue(mb);
+                }
+                catch (System.Exception)
+                {
+                    continue;
+                }
+
+                lista.Add(wpis);
+            }
+        }
+
+        Debug.Log("SaveGame: licznikow w skryptach: " + lista.Count + ".");
+        return lista;
+    }
+
+    private void PrzywrocLicznikiSkryptow(List<ScriptNumberSaveData> zapisane)
+    {
+        if (zapisane == null || zapisane.Count == 0)
+            return;
+
+        Dictionary<string, ScriptNumberSaveData> mapa = new Dictionary<string, ScriptNumberSaveData>();
+        foreach (ScriptNumberSaveData wpis in zapisane)
+        {
+            if (wpis != null && !string.IsNullOrEmpty(wpis.key))
+                mapa[wpis.key] = wpis;
+        }
+
+        int licznik = 0;
+
+        foreach (MonoBehaviour mb in FindObjectsByType<MonoBehaviour>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (PomijamyKomponent(mb))
+                continue;
+
+            System.Type typ = mb.GetType();
+
+            foreach (FieldInfo pole in typ.GetFields(FlagiPol))
+            {
+                bool jestInt = pole.FieldType == typeof(int);
+                bool jestFloat = pole.FieldType == typeof(float);
+
+                if (!jestInt && !jestFloat)
+                    continue;
+
+                ScriptNumberSaveData wpis;
+                if (!mapa.TryGetValue(KluczFlagi(mb.gameObject, typ, pole.Name), out wpis))
+                    continue;
+
+                try
+                {
+                    if (jestInt && wpis.isInt)
+                        pole.SetValue(mb, wpis.intValue);
+                    else if (jestFloat && !wpis.isInt)
+                        pole.SetValue(mb, wpis.floatValue);
+                    else
+                        continue;
+
+                    licznik++;
+                }
+                catch (System.Exception)
+                {
+                }
+            }
+        }
+
+        Debug.Log("LoadGame: przywrocono " + licznik + " z " + zapisane.Count + " licznikow w skryptach.");
+    }
+
+    private void ZbierzSledztwo(GameData data)
+    {
+        if (ClueManager.Instance == null)
+        {
+            Debug.LogWarning("SaveGame: brak ClueManager.Instance - sledztwo NIE zostanie zapisane.");
+            return;
+        }
+
+        ClueManager cm = ClueManager.Instance;
+
+        data.collectedClues = NazwyAssetow(cm.collectedClues);
+        data.collectedConclusions = NazwyAssetow(cm.collectedConclusions);
+        data.collectedQuestConclusions = NazwyAssetow(cm.collectedQuestConclusions);
+        data.completedQuests = NazwyAssetow(cm.completedQuests);
+        data.activeQuests = NazwyAssetow(cm.activeQuests);
+
+        Debug.Log("SaveGame: sledztwo - poszlak: " + data.collectedClues.Count +
+                  ", wnioskow: " + data.collectedConclusions.Count +
+                  ", wnioskow questowych: " + data.collectedQuestConclusions.Count +
+                  ", questow aktywnych: " + data.activeQuests.Count +
+                  ", ukonczonych: " + data.completedQuests.Count + ".");
+    }
+
+    // Poszlaki nie maja wspolnej listy w ClueManager - zbieramy je z pol
+    // 'clues' wszystkich interakcji w scenie.
+    private static Dictionary<string, Clues_SO> ZbierzDostepnePoszlaki()
+    {
+        Dictionary<string, Clues_SO> baza = new Dictionary<string, Clues_SO>();
+
+        foreach (Interactable interakcja in FindObjectsByType<Interactable>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (interakcja == null || interakcja.clues == null)
+                continue;
+
+            foreach (Clues_SO poszlaka in interakcja.clues)
+            {
+                if (poszlaka != null)
+                    baza[poszlaka.name] = poszlaka;
+            }
+        }
+
+        return baza;
+    }
+
+    private static void UzupelnijListe<T>(List<T> cel, List<string> nazwy,
+                                          Dictionary<string, T> baza, ref int licznik) where T : Object
+    {
+        if (cel == null || nazwy == null)
+            return;
+
+        foreach (string nazwa in nazwy)
+        {
+            T asset;
+            if (!baza.TryGetValue(nazwa, out asset) || asset == null)
+                continue;
+
+            if (cel.Contains(asset))
+                continue;
+
+            cel.Add(asset);
+            licznik++;
+        }
+    }
+
+    private static Dictionary<string, T> BazaAssetow<T>(List<T> lista) where T : Object
+    {
+        Dictionary<string, T> baza = new Dictionary<string, T>();
+
+        if (lista == null)
+            return baza;
+
+        foreach (T asset in lista)
+        {
+            if (asset != null)
+                baza[asset.name] = asset;
+        }
+
+        return baza;
+    }
+
+    private void PrzywrocSledztwo(GameData data)
+    {
+        if (ClueManager.Instance == null)
+        {
+            Debug.LogWarning("LoadGame: brak ClueManager.Instance - sledztwo nie zostanie przywrocone.");
+            return;
+        }
+
+        ClueManager cm = ClueManager.Instance;
+        int licznik = 0;
+
+        UzupelnijListe(cm.collectedClues, data.collectedClues, ZbierzDostepnePoszlaki(), ref licznik);
+        UzupelnijListe(cm.collectedConclusions, data.collectedConclusions,
+                       BazaAssetow(cm.allConclusions), ref licznik);
+        UzupelnijListe(cm.collectedQuestConclusions, data.collectedQuestConclusions,
+                       BazaAssetow(cm.allQuestConclusions), ref licznik);
+
+        Dictionary<string, Quest_SO> bazaQuestow = BazaAssetow(cm.allQuests);
+        UzupelnijListe(cm.completedQuests, data.completedQuests, bazaQuestow, ref licznik);
+        UzupelnijListe(cm.activeQuests, data.activeQuests, bazaQuestow, ref licznik);
+
+        CluesLog.Instance?.UpdateLog();
+
+        Debug.Log("LoadGame: przywrocono " + licznik + " wpisow sledztwa (poszlaki, wnioski, questy).");
+    }
+
+    private static bool CzyRuchomyObiekt(Transform t)
+    {
+        if (t == null)
+            return false;
+
+        if (t.GetComponent<Rigidbody>() != null)
+            return true;
+
+        string nazwa = t.name;
+
+        return nazwa.IndexOf("Movable", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+               nazwa.IndexOf("Box", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+               nazwa.IndexOf("Skrzyn", System.StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    private List<TransformSaveData> ZbierzRuchomeObiekty()
+    {
+        List<TransformSaveData> lista = new List<TransformSaveData>();
+
+        Transform korzen = ZnajdzKorzenPoziomow();
+        HashSet<Transform> wDrzewie = new HashSet<Transform>();
+
+        if (korzen != null)
+        {
+            List<Transform> drzewo = new List<Transform>();
+            ZbierzDrzewo(korzen, drzewo);
+
+            foreach (Transform t in drzewo)
+                wDrzewie.Add(t);
+        }
+
+        foreach (Transform t in FindObjectsByType<Transform>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (t == null || wDrzewie.Contains(t) || !CzyRuchomyObiekt(t))
+                continue;
+
+            TransformSaveData wpis = new TransformSaveData();
+            wpis.objectId = BuildObjectID(t.gameObject);
+            wpis.objectName = t.name;
+            wpis.parentId = t.parent != null ? BuildObjectID(t.parent.gameObject) : "";
+            wpis.localPosition = t.localPosition;
+            wpis.localEuler = t.localEulerAngles;
+            lista.Add(wpis);
+        }
+
+        Debug.Log("SaveGame: ruchomych obiektow spoza LEVELS: " + lista.Count + ".");
+        return lista;
+    }
+
+    private void PrzywrocRuchomeObiekty(List<TransformSaveData> zapisane)
+    {
+        if (zapisane == null || zapisane.Count == 0)
+            return;
+
+        Dictionary<string, Transform> poSciezce = new Dictionary<string, Transform>();
+        List<Transform> wszystkie = new List<Transform>();
+
+        foreach (Transform t in FindObjectsByType<Transform>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (t == null)
+                continue;
+
+            poSciezce[BuildObjectID(t.gameObject)] = t;
+            wszystkie.Add(t);
+        }
+
+        Dictionary<string, Transform> poNazwie = ZbudujMapePoNazwie(wszystkie);
+        int licznik = 0;
+
+        foreach (TransformSaveData dane in zapisane)
+        {
+            if (dane == null)
+                continue;
+
+            Transform t = ZnajdzWDrzewie(poSciezce, poNazwie, dane.objectId, dane.objectName);
+            if (t == null)
+                continue;
+
+            // Rigidbody trzeba uspic, inaczej fizyka przeciagnie obiekt z powrotem.
+            Rigidbody cialo = t.GetComponent<Rigidbody>();
+            if (cialo != null && !cialo.isKinematic)
+            {
+                cialo.linearVelocity = Vector3.zero;
+                cialo.angularVelocity = Vector3.zero;
+            }
+
+            t.localPosition = dane.localPosition;
+            t.localEulerAngles = dane.localEuler;
+            licznik++;
+        }
+
+        Debug.Log("LoadGame: przywrocono pozycje " + licznik + " z " + zapisane.Count +
+                  " ruchomych obiektow.");
+    }
+
+    private List<AnimatorSaveData> ZbierzAnimatorySceny()
+    {
+        List<AnimatorSaveData> lista = new List<AnimatorSaveData>();
+
+        Transform korzen = ZnajdzKorzenPoziomow();
+        HashSet<Transform> wDrzewie = new HashSet<Transform>();
+
+        if (korzen != null)
+        {
+            List<Transform> drzewo = new List<Transform>();
+            ZbierzDrzewo(korzen, drzewo);
+
+            foreach (Transform t in drzewo)
+                wDrzewie.Add(t);
+        }
+
+        foreach (Animator animator in FindObjectsByType<Animator>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (animator == null || animator.runtimeAnimatorController == null)
+                continue;
+
+            if (wDrzewie.Contains(animator.transform))
+                continue;
+
+            lista.Add(ZbierzAnimator(animator.gameObject, animator));
+        }
+
+        Debug.Log("SaveGame: animatorow spoza LEVELS: " + lista.Count + ".");
+        return lista;
+    }
+
+    private void PrzywrocAnimatorySceny(List<AnimatorSaveData> zapisane)
+    {
+        if (zapisane == null || zapisane.Count == 0)
+            return;
+
+        Dictionary<string, Transform> poSciezce = new Dictionary<string, Transform>();
+
+        foreach (Transform t in FindObjectsByType<Transform>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (t != null)
+                poSciezce[BuildObjectID(t.gameObject)] = t;
+        }
+
+        int licznik = PrzywrocAnimatory(zapisane, poSciezce);
+
+        Debug.Log("LoadGame: przywrocono " + licznik + " z " + zapisane.Count +
+                  " animatorow spoza LEVELS.");
+    }
+
     private List<ScriptFlagSaveData> ZbierzParametryRozmow()
     {
         List<ScriptFlagSaveData> lista = new List<ScriptFlagSaveData>();
@@ -1634,33 +2269,61 @@ public class SaveLoadManager : MonoBehaviour
             if (t == null)
                 continue;
 
+            // Diagnostyka: obiekt wyglada na czarna plyte po nazwie, ale zostal
+            // odrzucony przez jeden z warunkow ponizej. Log mowi przez ktory.
+            bool nazwaPlyty = CzyNazwaPlyty(t.name);
+
             Renderer renderer = t.GetComponent<Renderer>();
             if (renderer == null || renderer.sharedMaterial == null)
+            {
+                if (nazwaPlyty)
+                    Debug.LogWarning("SaveGame: '" + t.name + "' ma nazwe plyty, ale nie ma renderera - pomijam.");
                 continue;
+            }
 
             // Obiekty z wieloma materialami (sciany, filary, drzwi) maja czarna
             // warstwe TYLKO jako dodatek - nie sa plytami zakrywajacymi pokoj.
             // Gaszenie ich robilo dziury w geometrii.
             if (renderer.sharedMaterials.Length != 1)
+            {
+                if (nazwaPlyty)
+                    Debug.LogWarning("SaveGame: '" + t.name + "' ma nazwe plyty, ale " +
+                                     renderer.sharedMaterials.Length + " materialow - pomijam.");
                 continue;
+            }
 
             // Obiekt uzywany przez interakcje jako jej wyglad - nie gasimy.
             if (wykluczone.Contains(t))
+            {
+                if (nazwaPlyty)
+                    Debug.LogWarning("SaveGame: '" + t.name + "' ma nazwe plyty, ale jest " +
+                                     "przypisany jako Interactive Shader - pomijam.");
                 continue;
+            }
 
             // Obiekt bedacy czescia interakcji (np. wyglad kukly) - nie gasimy.
             if (t.GetComponentInParent<Interactable>() != null)
+            {
+                if (nazwaPlyty)
+                    Debug.LogWarning("SaveGame: '" + t.name + "' ma nazwe plyty, ale lezy pod " +
+                                     "obiektem z Interactable - pomijam.");
                 continue;
+            }
 
             // Za plyte uznajemy tylko obiekt nazwany zgodnie z konwencja sceny:
             // "lv3_R1bb" ... "lv3_R6bb", "BasementBlackBoard", "Level_3_BlackBoards".
             // Samo wykrywanie po materiale bylo za szerokie - lapalo sciany,
             // filary i elementy wygladu innych obiektow.
-            if (!CzyNazwaPlyty(t.name))
+            if (!nazwaPlyty)
                 continue;
 
             if (renderer.sharedMaterial.name.IndexOf("BLACK", System.StringComparison.OrdinalIgnoreCase) < 0)
+            {
+                if (nazwaPlyty)
+                    Debug.LogWarning("SaveGame: '" + t.name + "' ma nazwe plyty, ale material to '" +
+                                     renderer.sharedMaterial.name + "' (bez 'BLACK') - pomijam.");
                 continue;
+            }
 
             BlackboardSaveData wpis = new BlackboardSaveData();
             wpis.objectId = BuildObjectID(t.gameObject);

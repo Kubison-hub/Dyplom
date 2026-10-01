@@ -57,6 +57,11 @@ public class Int_lv3_SmallBox : Lvl3InteractionDialogueBase
             return;
         }
 
+        // Zapis: bez tego przedmiot wraca na swoje miejsce po wczytaniu gry,
+        // mimo ze jest juz w ekwipunku.
+        if (SaveLoadManager.Instance != null)
+            SaveLoadManager.Instance.MarkCollected(gameObject);
+
         interactionCount = 2;
         interactable?.AddAllDatabaseNotes();
         CluesLog.Instance?.RegisterBasementEvidence("SmallBox");
