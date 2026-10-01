@@ -5535,7 +5535,8 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: a40e1d62cfaaf5f4f847fcaf4ac04e12, type: 2}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: ideaDescription
-      value: "W \u015Bcianie salonu ukryto tajne przej\u015Bcie."
+      value: "Po przesuni\u0119ciu sto\u0142u napastnik, niczym zjawa, pojawi\u0142
+        si\u0119 niezauwa\u017Cony."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.size
@@ -151032,7 +151033,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mode: 0
-  size: {x: 23.002018, y: 6.8060913, z: 25.002003}
+  size: {x: 23.002018, y: 6.8060913, z: 25.002005}
   overrideRendererFilters: 0
   minRendererVolumeSize: 0.1
   objectLayerMask:
@@ -151072,7 +151073,7 @@ Transform:
   m_GameObject: {fileID: 1069084056}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -8.001009, y: 1.6030456, z: -4.0010023}
+  m_LocalPosition: {x: -8.001009, y: 1.6030456, z: -4.0010014}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -166680,7 +166681,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: a40e1d62cfaaf5f4f847fcaf4ac04e12, type: 2}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: ideaDescription
-      value: Czas utrwalony w murze dumnie dominuje.
+      value: "Czas utrwalony co\u015B wyznacza"
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.size
@@ -177243,7 +177244,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: a40e1d62cfaaf5f4f847fcaf4ac04e12, type: 2}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: ideaDescription
-      value: "\u015Aciana uwi\u0119zi\u0142a nas, gdy zbuntowa\u0142 si\u0119 strach..."
+      value: "\u015Aciana uwi\u0119zi\u0142a nas, gdy obr\xF3ci\u0142 si\u0119 manekin."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.size
@@ -235479,7 +235480,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: a40e1d62cfaaf5f4f847fcaf4ac04e12, type: 2}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: ideaDescription
-      value: "Ukryte wyj\u015Bcie czeka na sw\xF3j moment."
+      value: "Ukryte wyj\u015Bcie otwiera mechanizm"
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.size
@@ -242019,7 +242020,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: a40e1d62cfaaf5f4f847fcaf4ac04e12, type: 2}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: ideaDescription
-      value: "Manekin wpatruje si\u0119 w tarcz\u0119 zegara."
+      value: "Manekin czeka na sygna\u0142."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.size
