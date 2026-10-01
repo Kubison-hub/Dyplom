@@ -15,7 +15,7 @@ public class SaveLoadManager : MonoBehaviour
     // Wersja formatu zapisu. Podnies o 1 po kazdej zmianie struktury GameData.
     // Pliki z inna wersja sa ignorowane - lepiej zaczac od nowa niz wczytac
     // polowe danych i dostac czarny ekran.
-    public const int WERSJA_ZAPISU = 29;
+    public const int WERSJA_ZAPISU = 31;
 
     [Header("Diagnostyka")]
     [Tooltip("Przywracanie wszystkich pol bool w skryptach pod LEVELS. " +
@@ -26,6 +26,11 @@ public class SaveLoadManager : MonoBehaviour
     [Tooltip("Nazwa obiektu do sledzenia w logu podczas wczytywania. " +
              "Zostaw puste, zeby wylaczyc. Przyklad: lv3_R2bb")]
     public string sledzonyObiekt = "";
+
+    [Tooltip("Przywracanie licznikow int/float ze skryptow. Domyslnie WYLACZONE - " +
+             "nadpisywalo tez pola interfejsu (rozmiary czcionek, odstepy), " +
+             "przez co po wczytaniu psul sie wyglad UI.")]
+    public bool przywracajLicznikiSkryptow = false;
 
     [Tooltip("Ile razy po wczytaniu ponowic ustawienie czarnych plyt. " +
              "Kilkanascie skryptow zapala je we wlasnym Start(), ktory " +
@@ -256,8 +261,12 @@ public class SaveLoadManager : MonoBehaviour
         data.lamps = ZbierzLampy();
         data.wallLamps = ZbierzUchwytyLamp();
         data.npcRenderers = ZbierzRendereryNpc();
-        data.conversationFlags = ZbierzParametryRozmow();
-        data.conversationNumbers = ZbierzLiczboweParametryRozmow();
+        // WYLACZONE. Czytanie ParameterList i wywolywanie DeserializeForEditor()
+        // w czasie gry rozregulowywalo dialogi, a ustawianie IntValue zmienialo
+        // sam asset rozmowy. Warianty dialogow musza byc zapisywane przez
+        // wlasne flagi skryptow, nie przez wnetrznosci Dialogue Editora.
+        data.conversationFlags = new List<ScriptFlagSaveData>();
+        data.conversationNumbers = new List<ConversationNumberSaveData>();
         data.sceneAnimators = ZbierzAnimatorySceny();
         data.movableObjects = ZbierzRuchomeObiekty();
         ZbierzSledztwo(data);
@@ -506,13 +515,12 @@ public class SaveLoadManager : MonoBehaviour
         // teraz sam uchwyt, ktory zna swoje referencje z Inspectora.
         Krok("uchwyty lamp", () => PrzywrocUchwytyLamp(data.wallLamps));
         Krok("renderery NPC", () => PrzywrocRendereryNpc(data.npcRenderers));
-        Krok("parametry rozmow", () => PrzywrocParametryRozmow(data.conversationFlags));
-        Krok("liczbowe parametry rozmow", () => PrzywrocLiczboweParametryRozmow(data.conversationNumbers));
+        // WYLACZONE - patrz uwaga przy zapisie.
         Krok("animatory sceny", () => PrzywrocAnimatorySceny(data.sceneAnimators));
         Krok("ruchome obiekty", () => PrzywrocRuchomeObiekty(data.movableObjects));
         Krok("sledztwo", () => PrzywrocSledztwo(data));
 
-        if (przywracajFlagiSkryptow)
+        if (przywracajLicznikiSkryptow)
             Krok("liczniki skryptow", () => PrzywrocLicznikiSkryptow(data.scriptNumbers));
         Krok("pulapki manekina", () => PrzywrocPulapkiManekina(data.triggeredMannequinTraps));
         Krok("niesione lampy", () => PrzywrocNiesioneLampy(data));
@@ -1328,9 +1336,24 @@ public class SaveLoadManager : MonoBehaviour
 
         // Wlasnych managerow nie zapisujemy - ich flagi sa robocze
         // i nadpisanie ich psuje samo wczytywanie.
-        return mb is SaveLoadManager ||
-               mb is GameProgressManager ||
-               mb is InventoryManager;
+        if (mb is SaveLoadManager || mb is GameProgressManager || mb is InventoryManager)
+            return true;
+
+        // Komponenty interfejsu pomijamy calkowicie. Maja mnostwo pol
+        // liczbowych (rozmiary, odstepy, przezroczystosci), a ich nadpisanie
+        // psuje wyglad UI po wczytaniu.
+        string przestrzen = mb.GetType().Namespace;
+
+        if (!string.IsNullOrEmpty(przestrzen) &&
+            (przestrzen.StartsWith("UnityEngine.UI") ||
+             przestrzen.StartsWith("TMPro") ||
+             przestrzen.StartsWith("UnityEngine.EventSystems")))
+        {
+            return true;
+        }
+
+        return mb.GetComponent<Canvas>() != null ||
+               mb.GetComponent<UnityEngine.UI.Graphic>() != null;
     }
 
     // Dokleja flagi bool ze skryptow spoza drzewa LEVELS.
