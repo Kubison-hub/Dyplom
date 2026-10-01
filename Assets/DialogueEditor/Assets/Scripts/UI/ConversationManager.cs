@@ -43,8 +43,6 @@ namespace DialogueEditor
         public Sprite OptionImage;
         public bool OptionImageSliced;
         public bool AllowMouseInteraction;
-        [Range(0f, 1f)] public float UsedOptionAlpha = 0.6f;
-        [Range(0f, 1f)] public float UsedSelectedOptionAlpha = 0.82f;
 
         // Non-User facing 
         // Not exposed via custom inspector
@@ -91,8 +89,6 @@ namespace DialogueEditor
         // Selection options
         private List<UIConversationButton> m_uiOptions;
         private int m_currentSelectedIndex;
-        private readonly Dictionary<NPCConversation, HashSet<int>> m_usedOptions =
-            new Dictionary<NPCConversation, HashSet<int>>();
 
 
         //--------------------------------------
@@ -675,7 +671,6 @@ namespace DialogueEditor
         public void OptionSelected(OptionNode option)
         {
             m_selectedOption = option;
-            MarkOptionAsUsed(option);
             DoParamAction(option);
             if (option.Event != null)
                 option.Event.Invoke();
@@ -782,10 +777,6 @@ namespace DialogueEditor
                     {
                         UIConversationButton uiOption = CreateButton();
                         uiOption.SetupButton(UIConversationButton.eButtonType.Option, connection.OptionNode);
-                        uiOption.SetUsedVisual(
-                            IsOptionUsed(connection.OptionNode),
-                            UsedOptionAlpha,
-                            UsedSelectedOptionAlpha);
                     }
                 }
             }
@@ -877,27 +868,6 @@ namespace DialogueEditor
             UIConversationButton button = GameObject.Instantiate(ButtonPrefab, OptionsPanel);
             m_uiOptions.Add(button);
             return button;
-        }
-
-        private bool IsOptionUsed(OptionNode option)
-        {
-            return option != null && ActiveConversationSource != null &&
-                   m_usedOptions.TryGetValue(ActiveConversationSource, out HashSet<int> usedNodeIds) &&
-                   usedNodeIds.Contains(option.ID);
-        }
-
-        private void MarkOptionAsUsed(OptionNode option)
-        {
-            if (option == null || ActiveConversationSource == null)
-                return;
-
-            if (!m_usedOptions.TryGetValue(ActiveConversationSource, out HashSet<int> usedNodeIds))
-            {
-                usedNodeIds = new HashSet<int>();
-                m_usedOptions.Add(ActiveConversationSource, usedNodeIds);
-            }
-
-            usedNodeIds.Add(option.ID);
         }
 
         private bool ConditionsMet(Connection connection)
