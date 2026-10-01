@@ -1,5 +1,7 @@
-using System.Diagnostics;
 using UnityEngine;
+
+// Alias chroni przed 'using System.Diagnostics;' dopisywanym przez Visual Studio (CS0104).
+using Debug = UnityEngine.Debug;
 
 public class lvl2_Int_Book : Lvl3InteractionDialogueBase
 {
