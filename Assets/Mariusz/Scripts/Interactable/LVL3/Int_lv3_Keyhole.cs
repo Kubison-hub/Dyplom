@@ -44,6 +44,8 @@ public class Int_lv3_Keyhole : Lvl3ClockworkInteraction
     public GameObject[] nextInteractionGameObjects;
     [Tooltip("Whole GameObjects disabled after the key opens the mechanism.")]
     public GameObject[] gameObjectsToDeactivateOnOpen;
+    [Tooltip("Optional collider disabled after the key opens the mechanism.")]
+    [SerializeField] private Collider colliderToDisableOnOpen;
 
     private bool hasBeenExamined;
     private bool opened;
@@ -149,6 +151,9 @@ public class Int_lv3_Keyhole : Lvl3ClockworkInteraction
             if (target != null)
                 target.SetActive(false);
         }
+
+        if (colliderToDisableOnOpen != null)
+            colliderToDisableOnOpen.enabled = false;
 
         opened = true;
         Interactable?.MarkCompleted();

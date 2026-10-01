@@ -28,11 +28,6 @@ namespace DialogueEditor
         [SerializeField] private Image OptionBackgroundImage = null;
         private RectTransform m_rect;
         private CanvasGroup m_canvasGroup;
-        private float m_transitionAlpha = 1f;
-        private float m_usedAlpha = 1f;
-        private float m_usedSelectedAlpha = 1f;
-        private bool m_isUsed;
-        private bool m_isSelected;
 
         // Node data
         private eButtonType m_buttonType;
@@ -141,17 +136,7 @@ namespace DialogueEditor
                 m_hoverState = eHoverState.animatingOn;
             else
                 m_hoverState = eHoverState.animatingOff;
-            m_isSelected = selected;
-            RefreshVisualAlpha();
             m_hoverT = 0f;
-        }
-
-        public void SetUsedVisual(bool isUsed, float usedAlpha, float selectedUsedAlpha)
-        {
-            m_isUsed = isUsed;
-            m_usedAlpha = Mathf.Clamp01(usedAlpha);
-            m_usedSelectedAlpha = Mathf.Clamp01(selectedUsedAlpha);
-            RefreshVisualAlpha();
         }
 
         public void SetImage(Sprite sprite, bool sliced)
@@ -182,19 +167,8 @@ namespace DialogueEditor
 
         public void SetAlpha(float a)
         {
-            m_transitionAlpha = Mathf.Clamp01(a);
-            RefreshVisualAlpha();
-        }
-
-        private void RefreshVisualAlpha()
-        {
-            if (m_canvasGroup == null)
-                return;
-
-            float stateAlpha = !m_isUsed
-                ? 1f
-                : m_isSelected ? m_usedSelectedAlpha : m_usedAlpha;
-            m_canvasGroup.alpha = m_transitionAlpha * stateAlpha;
+            if (m_canvasGroup != null)
+                m_canvasGroup.alpha = Mathf.Clamp01(a);
         }
 
         public void SetupButton(eButtonType buttonType, ConversationNode node, TMPro.TMP_FontAsset continueFont = null, TMPro.TMP_FontAsset endFont = null)
