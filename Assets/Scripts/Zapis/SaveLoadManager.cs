@@ -1510,7 +1510,11 @@ public class SaveLoadManager : MonoBehaviour
                 if (!mapa.TryGetValue(rozmowa.name + "|" + parametrInt.ParameterName, out wpis))
                     continue;
 
-                rozmowa.SetRuntimeIntParameter(parametrInt.ParameterName, wpis.intValue);
+                // UWAGA: Dialogue Editor w tej wersji nie udostepnia metody
+                // ustawiajacej parametr int w czasie gry. Ustawiamy wartosc
+                // bezposrednio na parametrze - dziala tak samo dla galezi,
+                // ktore go sprawdzaja.
+                parametrInt.IntValue = wpis.intValue;
                 licznik++;
             }
         }
@@ -1525,7 +1529,7 @@ public class SaveLoadManager : MonoBehaviour
     // SLEDZTWO - poszlaki, wnioski, questy (ClueManager)
     // ---------------------------------------------------------------
 
-    private static List<string> NazwyAssetow<T>(List<T> lista) where T : Object
+    private static List<string> NazwyAssetow<T>(List<T> lista) where T : UnityEngine.Object
     {
         List<string> nazwy = new List<string>();
 
@@ -1704,7 +1708,7 @@ public class SaveLoadManager : MonoBehaviour
     }
 
     private static void UzupelnijListe<T>(List<T> cel, List<string> nazwy,
-                                          Dictionary<string, T> baza, ref int licznik) where T : Object
+                                          Dictionary<string, T> baza, ref int licznik) where T : UnityEngine.Object
     {
         if (cel == null || nazwy == null)
             return;
@@ -1723,7 +1727,7 @@ public class SaveLoadManager : MonoBehaviour
         }
     }
 
-    private static Dictionary<string, T> BazaAssetow<T>(List<T> lista) where T : Object
+    private static Dictionary<string, T> BazaAssetow<T>(List<T> lista) where T : UnityEngine.Object
     {
         Dictionary<string, T> baza = new Dictionary<string, T>();
 

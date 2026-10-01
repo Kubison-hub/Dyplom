@@ -1,34 +1,34 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Interactable))]
-public class Int_LibraryKey : Lvl3InteractionDialogueBase
+public class lvl2_Int_Book : Lvl3InteractionDialogueBase
 {
-    private Interactable interactable;
-
-    [SerializeField] private Int_LibrarySafe librarySafe;
-    [SerializeField] private Renderer keyRenderer;
-    [SerializeField] private AudioSource pickupAudio;
-
-    [Header("Inventory")]
-    [SerializeField] private ItemType inventoryItemType = ItemType.LibraryKey;
-    [SerializeField] private Sprite inventoryIcon;
-    [SerializeField, TextArea] private string inventoryFullText = "Nie mam miejsca w ekwipunku.";
-
-    [Header("Key Pickup Dialogue")]
-    [SerializeField]
-    private Lvl3DialogueLine[] keyPickupDialogue =
+    private static readonly Lvl3DialogueLine[] DefaultLines =
     {
         new Lvl3DialogueLine
         {
             speaker = Lvl3DialogueSpeaker.Sherlock,
-            text = "I jest kluczyk, jakie to proste...",
-            duration = 3f
+            text = "Znalaz³em ma³y kluczyk.",
+            duration = 2f
         }
     };
 
-    public bool performed;
+    private Interactable interactable;
+    public GameObject spline1;
+    public GameObject spline2;
 
-    protected override Lvl3DialogueLine[] DefaultDialogueLines => keyPickupDialogue;
+    public bool performed = false;
+    public lvl2_Int_HidenDoorSwitcher switcher;
+
+    [SerializeField] private Renderer intRenderer;
+    [SerializeField] private AudioSource audioFX;
+
+    [Header("Inventory")]
+    [SerializeField] private Sprite inventoryIcon;
+    [SerializeField, TextArea] private string inventoryFullText = "Nie mam miejsca w ekwipunku.";
+
+    public bool keyFounded = false;
+
+    protected override Lvl3DialogueLine[] DefaultDialogueLines => DefaultLines;
 
     private void Start()
     {
@@ -41,7 +41,7 @@ public class Int_LibraryKey : Lvl3InteractionDialogueBase
             return;
 
         if (InventoryManager.Instance == null ||
-            !InventoryManager.Instance.TryAddItem(inventoryItemType, inventoryIcon))
+            !InventoryManager.Instance.TryAddItem(ItemType.Level2BookKey, inventoryIcon))
         {
             if (player != null && player.playerCharacter == PlayerCharacter.Watson)
                 PlayerTopText.Instance?.ShowWatsonTopText(inventoryFullText);
@@ -59,25 +59,37 @@ public class Int_LibraryKey : Lvl3InteractionDialogueBase
             SaveLoadManager.Instance.MarkCollected(gameObject);
 
         performed = true;
-        interactable?.MarkCompleted();
+        Debug.Log(interactable.name + ", interaction Performed");
 
-        if (keyRenderer != null)
-            keyRenderer.enabled = false;
+        if (intRenderer != null)
+            intRenderer.enabled = false;
 
-        if (pickupAudio != null)
-            pickupAudio.Play();
+        if (switcher != null)
+            switcher.canOpen = true;
 
-        if (librarySafe != null)
-            librarySafe.SetKeyFound(true);
+        interactable.AddClue(0);
 
-        MagnifierGlassController.ForceCloseLoupeUntilKeyReleased();
+        if (audioFX != null)
+            audioFX.Play();
 
-        PlayDialogue(player, keyPickupDialogue);
+        PlayInteractionDialogue(player);
+
+        if (spline1 != null)
+            spline1.SetActive(false);
+
+        if (spline2 != null)
+            spline2.SetActive(false);
+        keyFounded = true;
 
         interactable.isInteractableActive = false;
-        interactable.interactiveShader = null;
-
         if (player != null)
             player.currentInteractable = null;
+
+        ////intCollider.enabled = false;
+        //this.gameObject.SetActive(false);
     }
+
+
+
+
 }
