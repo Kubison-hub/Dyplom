@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 using Debug = UnityEngine.Debug;
+using Image = UnityEngine.UI.Image;
+using Random = UnityEngine.Random;
 
 public class InventoryManager : MonoBehaviour
 {
@@ -71,6 +74,10 @@ public class InventoryManager : MonoBehaviour
         {
             Instance = this;
             Debug.Log("InventoryManager: Instance ustawiony na obiekcie '" + gameObject.name + "'.");
+
+            // Zbieramy ikony ze sceny JESZCZE w Awake - pozniej SaveLoadManager
+            // usuwa podniesione przedmioty i ich ikony przepadaja.
+            AutoWykryjIkony();
         }
         else
         {
@@ -80,6 +87,69 @@ public class InventoryManager : MonoBehaviour
     }
 
     private readonly Dictionary<ItemType, Sprite> itemIconCache = new Dictionary<ItemType, Sprite>();
+
+    // Zbiera ikony przedmiotow z obiektow sceny. Szuka komponentow, ktore maja
+    // jednoczesnie pole typu ItemType i pole typu Sprite - taka pare ma kazdy
+    // skrypt podnoszonego przedmiotu, niezaleznie od nazwy klasy.
+    //
+    // Dzieki temu ikona wraca po wczytaniu zapisu nawet wtedy, gdy nikt nie
+    // uzupelnil tablicy "Item Icons" w Inspectorze.
+    private void AutoWykryjIkony()
+    {
+        const BindingFlags flagi = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+        int znalezione = 0;
+
+        foreach (MonoBehaviour mb in FindObjectsByType<MonoBehaviour>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (mb == null)
+                continue;
+
+            System.Type typ = mb.GetType();
+
+            FieldInfo poleTypu = null;
+            FieldInfo poleIkony = null;
+
+            foreach (FieldInfo pole in typ.GetFields(flagi))
+            {
+                if (poleTypu == null && pole.FieldType == typeof(ItemType))
+                    poleTypu = pole;
+                else if (poleIkony == null && pole.FieldType == typeof(Sprite))
+                    poleIkony = pole;
+            }
+
+            if (poleTypu == null || poleIkony == null)
+                continue;
+
+            Sprite ikona;
+            ItemType typPrzedmiotu;
+
+            try
+            {
+                ikona = poleIkony.GetValue(mb) as Sprite;
+                typPrzedmiotu = (ItemType)poleTypu.GetValue(mb);
+            }
+            catch (System.Exception)
+            {
+                continue;
+            }
+
+            if (ikona == null)
+                continue;
+
+            if (itemIconCache.ContainsKey(typPrzedmiotu))
+                continue;
+
+            itemIconCache[typPrzedmiotu] = ikona;
+            znalezione++;
+
+            if (logujDiagnostyke)
+                Debug.Log("InventoryManager: auto-ikona " + typPrzedmiotu + " = " + ikona.name +
+                          " (z obiektu '" + mb.gameObject.name + "').");
+        }
+
+        Debug.Log("InventoryManager: automatycznie wykryto " + znalezione + " ikon przedmiotow.");
+    }
     private readonly Dictionary<Image, Sprite> emptySlotSprites = new Dictionary<Image, Sprite>();
     private readonly Dictionary<Image, Color> emptySlotColors = new Dictionary<Image, Color>();
 

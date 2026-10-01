@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Reflection;
 using Unity.Cinemachine;
+using DialogueEditor;
 
 using Debug = UnityEngine.Debug;
 using Application = UnityEngine.Application;
@@ -14,7 +15,7 @@ public class SaveLoadManager : MonoBehaviour
     // Wersja formatu zapisu. Podnies o 1 po kazdej zmianie struktury GameData.
     // Pliki z inna wersja sa ignorowane - lepiej zaczac od nowa niz wczytac
     // polowe danych i dostac czarny ekran.
-    public const int WERSJA_ZAPISU = 21;
+    public const int WERSJA_ZAPISU = 22;
 
     [Header("Diagnostyka")]
     [Tooltip("Przywracanie wszystkich pol bool w skryptach pod LEVELS. " +
@@ -255,6 +256,7 @@ public class SaveLoadManager : MonoBehaviour
         data.lamps = ZbierzLampy();
         data.wallLamps = ZbierzUchwytyLamp();
         data.npcRenderers = ZbierzRendereryNpc();
+        data.conversationFlags = ZbierzParametryRozmow();
 
         // --- Niesione lampy (piwnica) ---
         if (Lvl3LampVisualManager.Instance != null)
@@ -488,6 +490,7 @@ public class SaveLoadManager : MonoBehaviour
         // teraz sam uchwyt, ktory zna swoje referencje z Inspectora.
         Krok("uchwyty lamp", () => PrzywrocUchwytyLamp(data.wallLamps));
         Krok("renderery NPC", () => PrzywrocRendereryNpc(data.npcRenderers));
+        Krok("parametry rozmow", () => PrzywrocParametryRozmow(data.conversationFlags));
         Krok("niesione lampy", () => PrzywrocNiesioneLampy(data));
 
         // --- Odkryte punkty sledztwa ---
@@ -1251,6 +1254,98 @@ public class SaveLoadManager : MonoBehaviour
     private static string KluczRendereraNpc(Renderer renderer)
     {
         return BuildObjectID(renderer.gameObject) + "|" + renderer.GetType().Name + "|renderer";
+    }
+
+    // Wszystkie rozmowy przypisane do NPC w scenie.
+    private static List<NPCConversation> ZnajdzRozmowy()
+    {
+        List<NPCConversation> rozmowy = new List<NPCConversation>();
+
+        foreach (SmartNPC npc in FindObjectsByType<SmartNPC>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (npc == null)
+                continue;
+
+            if (npc.rozmowaDlaPostaciA != null && !rozmowy.Contains(npc.rozmowaDlaPostaciA))
+                rozmowy.Add(npc.rozmowaDlaPostaciA);
+
+            if (npc.rozmowaDlaPostaciB != null && !rozmowy.Contains(npc.rozmowaDlaPostaciB))
+                rozmowy.Add(npc.rozmowaDlaPostaciB);
+        }
+
+        return rozmowy;
+    }
+
+    // Parametry bool rozmow decyduja, ktora galaz dialogu zobaczy gracz.
+    // Sa stanem runtime, wiec bez zapisu po wczytaniu wracaja stare rozmowy.
+    private List<ScriptFlagSaveData> ZbierzParametryRozmow()
+    {
+        List<ScriptFlagSaveData> lista = new List<ScriptFlagSaveData>();
+
+        foreach (NPCConversation rozmowa in ZnajdzRozmowy())
+        {
+            if (rozmowa.ParameterList == null)
+                rozmowa.DeserializeForEditor();
+
+            if (rozmowa.ParameterList == null)
+                continue;
+
+            foreach (EditableParameter parametr in rozmowa.ParameterList)
+            {
+                EditableBoolParameter parametrBool = parametr as EditableBoolParameter;
+                if (parametrBool == null || string.IsNullOrWhiteSpace(parametrBool.ParameterName))
+                    continue;
+
+                ScriptFlagSaveData wpis = new ScriptFlagSaveData();
+                wpis.key = rozmowa.name + "|" + parametrBool.ParameterName;
+                wpis.value = parametrBool.BoolValue;
+                lista.Add(wpis);
+            }
+        }
+
+        Debug.Log("SaveGame: parametrow rozmow: " + lista.Count + ".");
+        return lista;
+    }
+
+    private void PrzywrocParametryRozmow(List<ScriptFlagSaveData> zapisane)
+    {
+        if (zapisane == null || zapisane.Count == 0)
+            return;
+
+        Dictionary<string, bool> mapa = new Dictionary<string, bool>();
+        foreach (ScriptFlagSaveData wpis in zapisane)
+        {
+            if (wpis != null && !string.IsNullOrEmpty(wpis.key))
+                mapa[wpis.key] = wpis.value;
+        }
+
+        int licznik = 0;
+
+        foreach (NPCConversation rozmowa in ZnajdzRozmowy())
+        {
+            if (rozmowa.ParameterList == null)
+                rozmowa.DeserializeForEditor();
+
+            if (rozmowa.ParameterList == null)
+                continue;
+
+            foreach (EditableParameter parametr in rozmowa.ParameterList)
+            {
+                EditableBoolParameter parametrBool = parametr as EditableBoolParameter;
+                if (parametrBool == null || string.IsNullOrWhiteSpace(parametrBool.ParameterName))
+                    continue;
+
+                bool wartosc;
+                if (!mapa.TryGetValue(rozmowa.name + "|" + parametrBool.ParameterName, out wartosc))
+                    continue;
+
+                rozmowa.SetRuntimeBoolParameter(parametrBool.ParameterName, wartosc);
+                licznik++;
+            }
+        }
+
+        Debug.Log("LoadGame: przywrocono " + licznik + " z " + zapisane.Count + " parametrow rozmow.");
     }
 
     private List<ScriptFlagSaveData> ZbierzRendereryNpc()

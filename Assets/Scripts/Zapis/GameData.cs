@@ -103,6 +103,10 @@ public class GameData
     // wyjatek tylko dla drzewa NPC.
     public List<ScriptFlagSaveData> npcRenderers;
 
+    // Parametry rozmow (Dialogue Editor). To one decyduja, ktora galaz dialogu
+    // zobaczy gracz - bez nich po wczytaniu wracaja stare wersje rozmow.
+    public List<ScriptFlagSaveData> conversationFlags;
+
     // --- Cele kamer postaci (LookAt) ---
     // Scena startuje z kamera wycelowana w Selme (seans), a przesuwa ja dopiero
     // dialog otwierajacy. Po wczytaniu ten dialog nie leci, wiec cel trzeba zapisac.
