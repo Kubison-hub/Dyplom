@@ -334,81 +334,81 @@ public class BasementIdeaPointPuzzle : MonoBehaviour
 
         // Every direction has an observation. Only the three sequence steps advance the puzzle.
         ConfigureConnection(oldClock, brickClock,
-            "Stary zegar trzyma swa warte. Ten w murze dumnie dominuje nad mechanizmem.",
+            "Stary zegar uruchamia ten w ścianie.",
             "Dwa zegary milcza razem, Watsonie.", canConnect: true);
         ConfigureConnection(brickClock, oldClock,
-            "Murowany zegar milczy. Drewniany zachowal odpowiedz.",
+            "Sygnał biegnie od starego zegara.",
             "Odpowiedz kryje sie w starszym z zegarow.");
 
         ConfigureConnection(oldClock, mannequin,
-            "Stary zegar zna godzine, lecz manekin czeka na inny sygnal.",
+            "Między zegarem a manekinem jest ogniwo.",
             "Manekin nie poruszy sie od samego wspomnienia czasu.");
         ConfigureConnection(mannequin, oldClock,
-            "Taniec manekina nie bierze sie znikad. Stary zegar zna jego godzine.",
+            "Manekin nie steruje starym zegarem.",
             "Stary zegar wciaz pilnuje tej tajemnicy.");
 
         ConfigureConnection(oldClock, trapDoor,
-            "Dzwon starego zegara brzmi jak ostrzezenie, nie przypadek.",
+            "Zegar uruchomił pułapkę pośrednio.",
             "Czas i pulapka maja wspolny, ponury rytm.");
         ConfigureConnection(trapDoor, oldClock,
-            "Pulapka zatrzasnela sie, gdy czas stal sie czescia mechanizmu.",
+            "Pułapka zadziałała po uderzeniu zegara.",
             "To nie byl zwykly dzwon zegara.");
 
         ConfigureConnection(oldClock, secretDoor,
-            "Stary zegar pilnuje chwili, w ktorej sciana odzyskuje swoj sekret.",
+            "Sam zegar nie otwiera przejścia.",
             "Wyjscie nie otworzy sie bez wlasciwego momentu.");
         ConfigureConnection(secretDoor, oldClock,
-            "Ukryte wyjscie i stary zegar dziela jedno, dawno zapomniane wspomnienie.",
+            "Przejście potrzebuje kolejnego sygnału.",
             "Sciana pamieta, kiedy zegar jeszcze dzialal.");
 
         ConfigureConnection(brickClock, mannequin,
-            "Gdy zegar wybija piata, manekin zaczyna swoj osobliwy taniec.",
+            "Zegar w ścianie steruje manekinem.",
             "Wskazowki i ruch manekina naleza do jednego mechanizmu.",
             canConnect: true,
             dependencyFirst: oldClock,
             dependencySecond: brickClock,
-            lockedDescription: "Najpierw trzeba zrozumiec, co laczy oba zegary.");
+            lockedDescription: "Najpierw połącz oba zegary.");
         ConfigureConnection(mannequin, brickClock,
-            "Manekin wpatruje sie w tarcze zegara, jakby czekal na rozkaz.",
+            "To zegar steruje manekinem.",
             "Kamienna tarcza nadal przyciaga jego uwage.");
 
         ConfigureConnection(brickClock, trapDoor,
-            "Gdy murowany zegar przemowil, mechanizm pulapki ruszyl.",
+            "Zegar może też sterować pułapką.",
             "Zegar w murze nadaje pulapce jej rytm.");
         ConfigureConnection(trapDoor, brickClock,
-            "Ta pulapka nie zapadla przypadkiem. Zegar w murze dal jej znak.",
+            "Pułapka reaguje na mechanizm zegara.",
             "Kamienny zegar i pulapka pracuja razem.");
 
         ConfigureConnection(brickClock, secretDoor,
-            "Sciana czeka na moment, ktory wyznacza murowany zegar.",
+            "Między zegarem a przejściem jest manekin.",
             "Zegar w murze nadal strzeze przejscia.");
         ConfigureConnection(secretDoor, brickClock,
-            "Ukryte wyjscie spoglada na zegar w murze. Nie bez powodu.",
+            "Zegar nie otwiera przejścia bezpośrednio.",
             "Sciana oczekuje znaku od kamiennego mechanizmu.");
 
         ConfigureConnection(mannequin, trapDoor,
-            "Manekin zatanczyl, a sciana odebrala nam droge na gore.",
+            "Ruch manekina zbiegł się z pułapką.",
             "Taniec i pulapka poruszaja sie jednym rytmem.");
         ConfigureConnection(trapDoor, mannequin,
-            "Pulapka zatrzasnela sie wraz z tancem manekina.",
+            "Pułapka i manekin działają razem.",
             "Ten osobliwy straznik nie tanczy dla zabawy.");
 
         ConfigureConnection(mannequin, secretDoor,
-            "Taniec manekina porusza mechanizm. Sciana ustepuje.",
+            "Manekin uruchamia ukryte przejście.",
             "Manekin i sekretne przejscie sa czescia tej samej konstrukcji.",
             canConnect: true,
             dependencyFirst: brickClock,
             dependencySecond: mannequin,
-            lockedDescription: "Najpierw manekin musi otrzymac swoj sygnal.");
+            lockedDescription: "Najpierw ustal, co porusza manekinem.");
         ConfigureConnection(secretDoor, mannequin,
-            "Sekretne drzwi reaguja na taniec tego osobliwego straznika.",
+            "To manekin uruchamia przejście.",
             "Sciana czeka, az manekin ponownie wykona swoj ruch.");
 
         ConfigureConnection(trapDoor, secretDoor,
-            "Pulapka i ukryte wyjscie naleza do tego samego mechanizmu.",
+            "Pułapka i przejście mają wspólny mechanizm.",
             "Jedno zamyka droge, drugie moze ja oddac.");
         ConfigureConnection(secretDoor, trapDoor,
-            "Sciana zamknela przejscie na sygnal mechanizmu pulapki.",
+            "Przejście i pułapka działają razem.",
             "Wyjscie i pulapka wciaz pozostaja ze soba zwiazane.");
     }
 

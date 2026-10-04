@@ -269,9 +269,17 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase, IInteracti
         ResolveDetectives();
         bool previousWorldInputLock = PlayerController.IsWorldInputLocked;
         bool previousCanSwitch = SwitchCharacter.Instance == null || SwitchCharacter.Instance.canSwitch;
+        NotebookManager notebook = NotebookManager.Instance;
+        PauseMenuManager pauseMenu = FindFirstObjectByType<PauseMenuManager>(FindObjectsInactive.Include);
+        bool previousNotebookEnabled = notebook != null && notebook.enabled;
+        bool previousPauseMenuEnabled = pauseMenu != null && pauseMenu.enabled;
         PlayerController.SetWorldInputLocked(true);
         if (SwitchCharacter.Instance != null)
             SwitchCharacter.Instance.canSwitch = false;
+        if (notebook != null)
+            notebook.enabled = false;
+        if (pauseMenu != null)
+            pauseMenu.enabled = false;
 
         SmartNPC violet = violetSmartNpc;
         if (violet == null && Int_VioletDialog.Instance != null)
@@ -330,6 +338,10 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase, IInteracti
         PlayerController.SetWorldInputLocked(previousWorldInputLock);
         if (SwitchCharacter.Instance != null)
             SwitchCharacter.Instance.canSwitch = previousCanSwitch;
+        if (notebook != null)
+            notebook.enabled = previousNotebookEnabled;
+        if (pauseMenu != null)
+            pauseMenu.enabled = previousPauseMenuEnabled;
     }
 
     private void StartAfterMovementConversation()

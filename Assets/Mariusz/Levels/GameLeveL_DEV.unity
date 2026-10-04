@@ -1938,6 +1938,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
+      propertyPath: m_Shadows.m_Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
       propertyPath: m_BoundingSphereOverride.x
       value: 5.5583e-41
       objectReference: {fileID: 0}
@@ -1959,7 +1963,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8582674244096082803, guid: fff9276fd39682f429ca57a12863940a, type: 3}
       propertyPath: m_AdditionalLightsShadowResolutionTier
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5535,8 +5539,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: a40e1d62cfaaf5f4f847fcaf4ac04e12, type: 2}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: ideaDescription
-      value: "Po przesuni\u0119ciu sto\u0142u napastnik, niczym zjawa, pojawi\u0142
-        si\u0119 niezauwa\u017Cony."
+      value: "Po przesuni\u0119ciu sto\u0142u napastnik, pojawi\u0142 si\u0119 niezauwa\u017Cony."
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.size
@@ -17917,6 +17920,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
+      propertyPath: m_Shadows.m_Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
       propertyPath: m_BoundingSphereOverride.x
       value: 5.5583e-41
       objectReference: {fileID: 0}
@@ -17934,7 +17941,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8582674244096082803, guid: fff9276fd39682f429ca57a12863940a, type: 3}
       propertyPath: m_AdditionalLightsShadowResolutionTier
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -31733,6 +31740,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
+      propertyPath: m_Shadows.m_Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
       propertyPath: m_BoundingSphereOverride.x
       value: 5.5583e-41
       objectReference: {fileID: 0}
@@ -31750,7 +31761,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8582674244096082803, guid: fff9276fd39682f429ca57a12863940a, type: 3}
       propertyPath: m_AdditionalLightsShadowResolutionTier
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -35699,6 +35710,14 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
+      propertyPath: m_Shadows.m_Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
+      propertyPath: m_Shadows.m_Strength
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
       propertyPath: m_BoundingSphereOverride.x
       value: 5.5583e-41
       objectReference: {fileID: 0}
@@ -35716,7 +35735,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8582674244096082803, guid: fff9276fd39682f429ca57a12863940a, type: 3}
       propertyPath: m_AdditionalLightsShadowResolutionTier
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -46173,6 +46192,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
+      propertyPath: m_Shadows.m_Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
       propertyPath: m_BoundingSphereOverride.x
       value: 5.5583e-41
       objectReference: {fileID: 0}
@@ -46190,7 +46213,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8582674244096082803, guid: fff9276fd39682f429ca57a12863940a, type: 3}
       propertyPath: m_AdditionalLightsShadowResolutionTier
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -78586,6 +78609,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
+      propertyPath: m_Shadows.m_Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
       propertyPath: m_BoundingSphereOverride.x
       value: 5.5583e-41
       objectReference: {fileID: 0}
@@ -78631,7 +78658,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8582674244096082803, guid: fff9276fd39682f429ca57a12863940a, type: 3}
       propertyPath: m_AdditionalLightsShadowResolutionTier
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -102368,6 +102395,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
+      propertyPath: m_Shadows.m_Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
       propertyPath: m_BoundingSphereOverride.x
       value: 5.5583e-41
       objectReference: {fileID: 0}
@@ -102385,7 +102416,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8582674244096082803, guid: fff9276fd39682f429ca57a12863940a, type: 3}
       propertyPath: m_AdditionalLightsShadowResolutionTier
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -163672,6 +163703,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
+      propertyPath: m_Shadows.m_Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
       propertyPath: m_BoundingSphereOverride.x
       value: 5.5583e-41
       objectReference: {fileID: 0}
@@ -163689,7 +163724,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8582674244096082803, guid: fff9276fd39682f429ca57a12863940a, type: 3}
       propertyPath: m_AdditionalLightsShadowResolutionTier
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -166680,7 +166715,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: a40e1d62cfaaf5f4f847fcaf4ac04e12, type: 2}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: ideaDescription
-      value: "Czas utrwalony co\u015B wyznacza"
+      value: Zegar wyzwala mechanizm?
       objectReference: {fileID: 0}
     - target: {fileID: 5672837576780651852, guid: 882840d1106a78e41b59570597aa5f4c, type: 3}
       propertyPath: connections.Array.size
@@ -170138,6 +170173,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
+      propertyPath: m_Shadows.m_Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
       propertyPath: m_BoundingSphereOverride.x
       value: 5.5583e-41
       objectReference: {fileID: 0}
@@ -170155,7 +170194,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8582674244096082803, guid: fff9276fd39682f429ca57a12863940a, type: 3}
       propertyPath: m_AdditionalLightsShadowResolutionTier
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -225404,6 +225443,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
+      propertyPath: m_Shadows.m_Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
       propertyPath: m_BoundingSphereOverride.x
       value: 5.5583e-41
       objectReference: {fileID: 0}
@@ -225421,7 +225464,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8582674244096082803, guid: fff9276fd39682f429ca57a12863940a, type: 3}
       propertyPath: m_AdditionalLightsShadowResolutionTier
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -254992,7 +255035,7 @@ MonoBehaviour:
   setCustomPreset: 0
   customCameraPresetName: 
   cameraPresetReturnZoneRadius: 1
-  objectDescription: "Wpisz nazw\u0119 obiektu"
+  objectDescription: 
   interactiveShader: {fileID: 0}
   interactionShaderVisibility: 1
   interactionShaderPulseSpeed: 1.5
@@ -294410,6 +294453,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
+      propertyPath: m_Shadows.m_Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4533239165586241348, guid: fff9276fd39682f429ca57a12863940a, type: 3}
       propertyPath: m_BoundingSphereOverride.x
       value: 5.5583e-41
       objectReference: {fileID: 0}
@@ -294427,7 +294474,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8582674244096082803, guid: fff9276fd39682f429ca57a12863940a, type: 3}
       propertyPath: m_AdditionalLightsShadowResolutionTier
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

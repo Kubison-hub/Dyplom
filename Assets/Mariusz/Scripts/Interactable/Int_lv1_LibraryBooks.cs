@@ -104,8 +104,6 @@ public class Int_lv1_LibraryBooks : Lvl3InteractionDialogueBase, IVioletRoomInte
         if (!debugVioletGateRedirected)
             return false;
 
-        AddLibraryNoteIfNeeded();
-
         if (player == null)
             return true;
 
@@ -153,7 +151,11 @@ public class Int_lv1_LibraryBooks : Lvl3InteractionDialogueBase, IVioletRoomInte
     {
         while (player != null && player.navMeshAgent != null)
         {
+            Vector3 toWaitPoint = waitInteractionPoint.position - player.transform.position;
+            toWaitPoint.y = 0f;
+            bool reachedWaitPoint = toWaitPoint.magnitude <= player.navMeshAgent.stoppingDistance + 0.15f;
             bool arrived = !player.navMeshAgent.pathPending &&
+                           reachedWaitPoint &&
                            player.navMeshAgent.remainingDistance <= player.navMeshAgent.stoppingDistance + 0.05f &&
                            (!player.navMeshAgent.hasPath || player.navMeshAgent.velocity.sqrMagnitude <= 0.01f);
             if (arrived)
@@ -171,6 +173,7 @@ public class Int_lv1_LibraryBooks : Lvl3InteractionDialogueBase, IVioletRoomInte
     {
         yield return RotateSherlockTowardsBooks(player);
 
+        AddLibraryNoteIfNeeded();
         PlayDialogue(null, debugVioletObservesFromOutside ? violetObservesLibraryDialogue : violetPresentDialogue);
         while (IsDialoguePlaying)
             yield return null;
