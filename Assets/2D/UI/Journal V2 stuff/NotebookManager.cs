@@ -546,11 +546,44 @@ public class NotebookManager : MonoBehaviour
     // Dodaje notatke i od razu otwiera ja w notatniku.
     public void OpenNoteInNotebook(NoteData note, bool playNoticeAudio = true)
     {
-        if (note == null)
+        if (note == null || notebookPanel == null)
             return;
 
         AddNote(note, true, playNoticeAudio);
-        ShowNoteImmediately(note, playNoticeAudio);
+
+        if (!IsNotebookOpen)
+            ToggleNotebook();
+
+        if (!IsNotebookOpen)
+            return;
+
+        openedAsQuickRead = false;
+        quickReadClosesOnLeftClick = false;
+        if (hasQuickReadPanelPosition)
+        {
+            RectTransform panelRect = notebookPanel.transform as RectTransform;
+            if (panelRect != null)
+                panelRect.anchoredPosition = panelPositionBeforeQuickRead;
+            hasQuickReadPanelPosition = false;
+        }
+
+        ShowCategory((int)note.category);
+
+        if (note.category == NoteCategory.Osoby && IsPersonNote(note))
+        {
+            MarkPersonNotesAsRead(note.person);
+            DisplayPerson(note.person);
+        }
+        else if (note.category == NoteCategory.Obserwacje && IsGroupedObservationNote(note))
+        {
+            MarkObservationNotesAsRead(note.observation);
+            DisplayObservation(note.observation);
+        }
+        else
+        {
+            MarkNoteAsRead(note);
+            DisplayNote(note);
+        }
     }
 
     // Szybki podglad notatki, bez przesuwania panelu.
@@ -742,6 +775,8 @@ public class NotebookManager : MonoBehaviour
             case NotebookObservation.MiejsceZbrodni: return "Miejsce zbrodni";
             case NotebookObservation.SekretnePrzejscie: return "Sekretne przejście";
             case NotebookObservation.UkrytePrzejscie: return "Ukryte przejście";
+            case NotebookObservation.PulapkaWPiwnicy: return "Pułapka w piwnicy";
+            case NotebookObservation.Biblioteka: return "Biblioteka";
             default: return string.Empty;
         }
     }
@@ -873,7 +908,7 @@ public class NotebookManager : MonoBehaviour
                     ? "Dodano wpis w notatniku: " + GetObservationDisplayName(note.observation) + "."
                     : "Dodano wpis w notatniku: obserwacja. " + note.noteTitle;
             case NoteCategory.Obiekty:
-                return "Dodano wpis w notatniku: obiekt. " + note.noteTitle;
+                return "Dodano wpis w notatniku: " + note.noteTitle + ".";
             case NoteCategory.Zadania:
                 return "Dodano wpis w notatniku: zadanie. " + note.noteTitle;
             default:
