@@ -45325,7 +45325,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -80837,7 +80837,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &570975921
 Transform:
   m_ObjectHideFlags: 0
@@ -92615,7 +92615,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7755962655327079785, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8184648043481443658, guid: 59993a5c102fe614fa8afd7a103f7902, type: 3}
       propertyPath: m_Name
@@ -151038,7 +151038,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mode: 0
-  size: {x: 182.84999, y: 6.963276, z: 29.050007}
+  size: {x: 182.84999, y: 9.517536, z: 29.337435}
   overrideRendererFilters: 0
   minRendererVolumeSize: 0.1
   objectLayerMask:
@@ -151078,7 +151078,7 @@ Transform:
   m_GameObject: {fileID: 1069084056}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -87.924995, y: 1.524453, z: -6.0250015}
+  m_LocalPosition: {x: -87.924995, y: 0.2473228, z: -5.8812876}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -174248,7 +174248,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalScale.x
@@ -183053,7 +183053,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalScale.x
@@ -203058,7 +203058,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -236223,7 +236223,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: bfbda51a0e7103a4592f1a0fec417eb3, type: 3}
       propertyPath: m_Name
-      value: Klapa
+      value: Klapa do zejscia
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: bfbda51a0e7103a4592f1a0fec417eb3, type: 3}
       propertyPath: m_StaticEditorFlags
@@ -236685,7 +236685,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   przywracajFlagiSkryptow: 1
-  sledzonyObiekt: 
+  sledzonyObiekt: Klapa do zejscia
   przywracajLicznikiSkryptow: 0
   powtorzeniaPlyt: 4
   odstepPowtorzenPlyt: 0.5
@@ -298944,7 +298944,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
