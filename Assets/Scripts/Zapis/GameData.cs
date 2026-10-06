@@ -138,6 +138,20 @@ public class GameData
     // elementow, liczba prob. Bez nich zagadki licza od zera po wczytaniu.
     public List<ScriptNumberSaveData> scriptNumbers;
 
+    // Klocki wlozone w gniazda scienne (Int_lv2_WoodBrickWall).
+    // 'mountedVariant' to referencja i nie przezywa wczytania - bez tego
+    // gniazdo zostawalo martwe (nieaktywne i bez mozliwosci odebrania klocka).
+    public List<WoodBlockSocketSaveData> woodBlockSockets;
+
+    // Klapy z poziomu 2 (lvl2_Int_Hatch). Przy otwarciu kasuja referencje
+    // do wlasnego podswietlenia, co bez zapisu blokuje zejscie po wczytaniu.
+    public List<ScriptFlagSaveData> hatches;
+
+    // Liczniki zebranych listow przy wyjsciach z poziomu 2
+    // (lvl2_Int_HatchExit). Zapisujemy je celowo, bo ogolne przywracanie
+    // licznikow jest wylaczone - a bez tego gra blokuje zejscie do piwnicy.
+    public List<ScriptNumberSaveData> hatchExitLetters;
+
     // --- Cele kamer postaci (LookAt) ---
     // Scena startuje z kamera wycelowana w Selme (seans), a przesuwa ja dopiero
     // dialog otwierajacy. Po wczytaniu ten dialog nie leci, wiec cel trzeba zapisac.
@@ -349,4 +363,12 @@ public class ScriptNumberSaveData
     public bool isInt;
     public int intValue;
     public float floatValue;
+}
+
+// Stan jednego gniazda na klocek.
+[System.Serializable]
+public class WoodBlockSocketSaveData
+{
+    public string objectId;
+    public int mountedVariantIndex;   // -1 = gniazdo puste
 }

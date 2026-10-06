@@ -1,4 +1,7 @@
 using UnityEngine;
+
+// Alias chroni przed 'using System.Diagnostics;' dopisywanym przez Visual Studio (CS0104).
+using Debug = UnityEngine.Debug;
 using UnityEngine.AI;
 
 public class lvl2_Int_HatchExit : Lvl3InteractionDialogueBase
@@ -6,7 +9,8 @@ public class lvl2_Int_HatchExit : Lvl3InteractionDialogueBase
     private Interactable interactable;
 
     [Header("Sherlock Dialogue")]
-    [SerializeField] private Lvl3DialogueLine[] missingLettersDialogue =
+    [SerializeField]
+    private Lvl3DialogueLine[] missingLettersDialogue =
     {
         new Lvl3DialogueLine
         {
@@ -15,7 +19,7 @@ public class lvl2_Int_HatchExit : Lvl3InteractionDialogueBase
             duration = 3f
         }
     };
-    
+
 
     public bool performed = false;
 
@@ -60,6 +64,21 @@ public class lvl2_Int_HatchExit : Lvl3InteractionDialogueBase
 
     }
 
+    // --- SYSTEM ZAPISU ---
+    // 'lettersCollected' to licznik int, a ogolne przywracanie licznikow jest
+    // wylaczone (nadpisywalo pola interfejsu). Dlatego zapisujemy go celowo:
+    // bez tego po wczytaniu gra uznaje, ze gracz nie ma listow, i blokuje zejscie.
+
+    public int LettersCollected => lettersCollected;
+
+    public void RestoreLetters(int liczba)
+    {
+        lettersCollected = Mathf.Max(0, liczba);
+
+        Debug.Log("lvl2_Int_HatchExit: przywrocono zebrane listy: " +
+                  lettersCollected + " z " + requiredLetters + ".", this);
+    }
+
     public bool HasAllLetters()
     {
         return lettersCollected >= requiredLetters;
@@ -80,11 +99,11 @@ public class lvl2_Int_HatchExit : Lvl3InteractionDialogueBase
 
         TryExit(player);
 
-        
+
         player.currentInteractable = null;
 
-        
-        
+
+
     }
 
     private void DeactivateObjectsAtInteractionStart()
@@ -111,7 +130,7 @@ public class lvl2_Int_HatchExit : Lvl3InteractionDialogueBase
         {
             PlayDialogue(player, missingLettersDialogue);
             Debug.Log("Brakuje listów");
-            
+
             return;
         }
         Debug.Log("Wszystkie listy zebrane. OPUSZCZAM LEVEL.");
@@ -125,7 +144,7 @@ public class lvl2_Int_HatchExit : Lvl3InteractionDialogueBase
         RestoreHiddenPassageBlackboard();
         TeleportToHiddenRoom(player);
         PlayLevelOneReturnMusic();
-        
+
     }
 
     private void TeleportToHiddenRoom(PlayerController player)

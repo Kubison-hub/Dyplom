@@ -15,7 +15,7 @@ public class SaveLoadManager : MonoBehaviour
     // Bump for incompatible format changes; optional fields retain legacy compatibility.
     // Pliki z inna wersja sa ignorowane - lepiej zaczac od nowa niz wczytac
     // polowe danych i dostac czarny ekran.
-    public const int WERSJA_ZAPISU = 31;
+    public const int WERSJA_ZAPISU = 35;
 
     [Header("Diagnostyka")]
     [Tooltip("Przywracanie wszystkich pol bool w skryptach pod LEVELS. " +
@@ -271,6 +271,9 @@ public class SaveLoadManager : MonoBehaviour
         data.movableObjects = ZbierzRuchomeObiekty();
         ZbierzSledztwo(data);
         data.scriptNumbers = ZbierzLicznikiSkryptow();
+        data.woodBlockSockets = ZbierzGniazdaKlockow();
+        data.hatches = ZbierzKlapy();
+        data.hatchExitLetters = ZbierzZebraneListy();
 
         data.triggeredMannequinTraps = new List<string>();
         data.unlockedBasementLadderIDs = new List<string>();
@@ -526,6 +529,9 @@ public class SaveLoadManager : MonoBehaviour
         Krok("animatory sceny", () => PrzywrocAnimatorySceny(data.sceneAnimators));
         Krok("ruchome obiekty", () => PrzywrocRuchomeObiekty(data.movableObjects));
         Krok("sledztwo", () => PrzywrocSledztwo(data));
+        Krok("gniazda klockow", () => PrzywrocGniazdaKlockow(data.woodBlockSockets));
+        Krok("klapy", () => PrzywrocKlapy(data.hatches));
+        Krok("zebrane listy", () => PrzywrocZebraneListy(data.hatchExitLetters));
 
         if (przywracajLicznikiSkryptow)
             Krok("liczniki skryptow", () => PrzywrocLicznikiSkryptow(data.scriptNumbers));
@@ -611,7 +617,8 @@ public class SaveLoadManager : MonoBehaviour
         // Dlatego nakladamy stan plyt jeszcze kilka razy przez najblizsze sekundy.
         if (powtorzeniaPlyt > 0)
             StartCoroutine(PonawiajPlyty(data.blackboards, data.removedBlackboardTriggers,
-                                         data.npcs, data.wallLamps, data.npcRenderers));
+                                         data.npcs, data.wallLamps, data.npcRenderers,
+                                         data.hatches, data.hatchExitLetters));
 
         Sledz("po plytach");
 
@@ -861,12 +868,19 @@ public class SaveLoadManager : MonoBehaviour
         int wlaczone = 0;
         int zgaszone = 0;
 
+        pokojeDoWlaczenia.Clear();
+
         foreach (Transform t in drzewo)
         {
             if (t == null)
                 continue;
 
             bool maBycAktywny = !wylaczone.Contains(BuildObjectID(t.gameObject));
+
+            // Pokoje, ktore maja byc wlaczone, zapamietujemy i pilnujemy przez
+            // kilka sekund - inaczej Start() niektorych skryptow je gasi.
+            if (maBycAktywny && CzyPokoj(t.name))
+                pokojeDoWlaczenia.Add(t);
 
             if (t.gameObject.activeSelf == maBycAktywny)
                 continue;
@@ -878,6 +892,8 @@ public class SaveLoadManager : MonoBehaviour
             else
                 zgaszone++;
         }
+
+        PrzywrocStanPokoi();
 
         Debug.Log("LoadGame: stan poziomow przywrocony (wlaczono: " + wlaczone +
                   ", wylaczono: " + zgaszone + ", obiektow w drzewie: " + drzewo.Count + ").");
@@ -1760,6 +1776,162 @@ public class SaveLoadManager : MonoBehaviour
         Debug.Log("LoadGame: przywrocono " + licznik + " z " + zapisane.Count + " licznikow w skryptach.");
     }
 
+    private List<ScriptNumberSaveData> ZbierzZebraneListy()
+    {
+        List<ScriptNumberSaveData> lista = new List<ScriptNumberSaveData>();
+
+        foreach (lvl2_Int_HatchExit wyjscie in FindObjectsByType<lvl2_Int_HatchExit>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (wyjscie == null)
+                continue;
+
+            ScriptNumberSaveData wpis = new ScriptNumberSaveData();
+            wpis.key = BuildObjectID(wyjscie.gameObject);
+            wpis.isInt = true;
+            wpis.intValue = wyjscie.LettersCollected;
+            lista.Add(wpis);
+
+            Debug.Log("SaveGame: zebranych listow na '" + wyjscie.name + "': " + wpis.intValue + ".");
+        }
+
+        return lista;
+    }
+
+    private void PrzywrocZebraneListy(List<ScriptNumberSaveData> zapisane)
+    {
+        if (zapisane == null || zapisane.Count == 0)
+            return;
+
+        Dictionary<string, int> poId = new Dictionary<string, int>();
+        foreach (ScriptNumberSaveData wpis in zapisane)
+        {
+            if (wpis != null && !string.IsNullOrEmpty(wpis.key))
+                poId[wpis.key] = wpis.intValue;
+        }
+
+        int licznik = 0;
+
+        foreach (lvl2_Int_HatchExit wyjscie in FindObjectsByType<lvl2_Int_HatchExit>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (wyjscie == null)
+                continue;
+
+            int liczba;
+            if (!poId.TryGetValue(BuildObjectID(wyjscie.gameObject), out liczba))
+                continue;
+
+            wyjscie.RestoreLetters(liczba);
+            licznik++;
+        }
+
+        if (!cichePowtorzenie)
+            Debug.Log("LoadGame: przywrocono licznik listow na " + licznik + " wyjsciach.");
+    }
+
+    private List<ScriptFlagSaveData> ZbierzKlapy()
+    {
+        List<ScriptFlagSaveData> lista = new List<ScriptFlagSaveData>();
+
+        foreach (lvl2_Int_Hatch klapa in FindObjectsByType<lvl2_Int_Hatch>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (klapa == null)
+                continue;
+
+            ScriptFlagSaveData wpis = new ScriptFlagSaveData();
+            wpis.key = BuildObjectID(klapa.gameObject);
+            wpis.value = klapa.IsOpen;
+            lista.Add(wpis);
+        }
+
+        Debug.Log("SaveGame: klap: " + lista.Count + ".");
+        return lista;
+    }
+
+    private void PrzywrocKlapy(List<ScriptFlagSaveData> zapisane)
+    {
+        if (zapisane == null || zapisane.Count == 0)
+            return;
+
+        Dictionary<string, bool> poId = new Dictionary<string, bool>();
+        foreach (ScriptFlagSaveData wpis in zapisane)
+        {
+            if (wpis != null && !string.IsNullOrEmpty(wpis.key))
+                poId[wpis.key] = wpis.value;
+        }
+
+        int licznik = 0;
+
+        foreach (lvl2_Int_Hatch klapa in FindObjectsByType<lvl2_Int_Hatch>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (klapa == null)
+                continue;
+
+            bool otwarta;
+            if (!poId.TryGetValue(BuildObjectID(klapa.gameObject), out otwarta))
+                continue;
+
+            klapa.RestoreHatchState(otwarta);
+            licznik++;
+        }
+
+        Debug.Log("LoadGame: przywrocono " + licznik + " z " + zapisane.Count + " klap.");
+    }
+
+    private List<WoodBlockSocketSaveData> ZbierzGniazdaKlockow()
+    {
+        List<WoodBlockSocketSaveData> lista = new List<WoodBlockSocketSaveData>();
+
+        foreach (Int_lv2_WoodBrickWall gniazdo in FindObjectsByType<Int_lv2_WoodBrickWall>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (gniazdo == null)
+                continue;
+
+            WoodBlockSocketSaveData wpis = new WoodBlockSocketSaveData();
+            wpis.objectId = BuildObjectID(gniazdo.gameObject);
+            wpis.mountedVariantIndex = gniazdo.MountedVariantIndex;
+            lista.Add(wpis);
+        }
+
+        Debug.Log("SaveGame: gniazd na klocki: " + lista.Count + ".");
+        return lista;
+    }
+
+    private void PrzywrocGniazdaKlockow(List<WoodBlockSocketSaveData> zapisane)
+    {
+        if (zapisane == null || zapisane.Count == 0)
+            return;
+
+        Dictionary<string, int> poId = new Dictionary<string, int>();
+        foreach (WoodBlockSocketSaveData wpis in zapisane)
+        {
+            if (wpis != null && !string.IsNullOrEmpty(wpis.objectId))
+                poId[wpis.objectId] = wpis.mountedVariantIndex;
+        }
+
+        int licznik = 0;
+
+        foreach (Int_lv2_WoodBrickWall gniazdo in FindObjectsByType<Int_lv2_WoodBrickWall>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (gniazdo == null)
+                continue;
+
+            int index;
+            if (!poId.TryGetValue(BuildObjectID(gniazdo.gameObject), out index))
+                continue;
+
+            gniazdo.RestoreMountedVariant(index);
+            licznik++;
+        }
+
+        Debug.Log("LoadGame: przywrocono " + licznik + " z " + zapisane.Count + " gniazd na klocki.");
+    }
+
     private void ZbierzSledztwo(GameData data)
     {
         if (ClueManager.Instance == null)
@@ -1785,20 +1957,83 @@ public class SaveLoadManager : MonoBehaviour
 
     // Poszlaki nie maja wspolnej listy w ClueManager - zbieramy je z pol
     // 'clues' wszystkich interakcji w scenie.
+    // Poszlaki nie maja wspolnej listy w ClueManager. Zbieramy je z trzech
+    // zrodel - samo przeszukiwanie pol 'clues' komponentow Interactable
+    // gubilo poszlaki, przez co po wczytaniu gracz nie mogl isc dalej.
     private static Dictionary<string, Clues_SO> ZbierzDostepnePoszlaki()
     {
         Dictionary<string, Clues_SO> baza = new Dictionary<string, Clues_SO>();
 
-        foreach (Interactable interakcja in FindObjectsByType<Interactable>(
-                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        // 1. Poszlaki juz zebrane.
+        if (ClueManager.Instance != null && ClueManager.Instance.collectedClues != null)
         {
-            if (interakcja == null || interakcja.clues == null)
-                continue;
-
-            foreach (Clues_SO poszlaka in interakcja.clues)
+            foreach (Clues_SO poszlaka in ClueManager.Instance.collectedClues)
             {
                 if (poszlaka != null)
                     baza[poszlaka.name] = poszlaka;
+            }
+        }
+
+        // 2. Wszystkie assety poszlak wczytane do pamieci.
+        foreach (Clues_SO poszlaka in Resources.FindObjectsOfTypeAll<Clues_SO>())
+        {
+            if (poszlaka != null)
+                baza[poszlaka.name] = poszlaka;
+        }
+
+        // 3. Refleksja po komponentach sceny - lapie poszlaki przypisane
+        //    w dowolnym skrypcie, nie tylko w polu 'clues'.
+        foreach (MonoBehaviour mb in FindObjectsByType<MonoBehaviour>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (mb == null)
+                continue;
+
+            foreach (FieldInfo pole in mb.GetType().GetFields(FlagiPol))
+            {
+                bool pojedyncza = pole.FieldType == typeof(Clues_SO);
+                bool tablica = pole.FieldType.IsArray &&
+                               typeof(Clues_SO).IsAssignableFrom(pole.FieldType.GetElementType());
+                bool lista = pole.FieldType.IsGenericType &&
+                             System.Array.Exists(pole.FieldType.GetGenericArguments(),
+                                                 arg => typeof(Clues_SO).IsAssignableFrom(arg));
+
+                if (!pojedyncza && !tablica && !lista)
+                    continue;
+
+                object wartosc;
+
+                try
+                {
+                    wartosc = pole.GetValue(mb);
+                }
+                catch (System.Exception)
+                {
+                    continue;
+                }
+
+                if (wartosc == null)
+                    continue;
+
+                if (pojedyncza)
+                {
+                    Clues_SO poszlaka = wartosc as Clues_SO;
+                    if (poszlaka != null)
+                        baza[poszlaka.name] = poszlaka;
+
+                    continue;
+                }
+
+                System.Collections.IEnumerable kolekcja = wartosc as System.Collections.IEnumerable;
+                if (kolekcja == null)
+                    continue;
+
+                foreach (object element in kolekcja)
+                {
+                    Clues_SO poszlaka = element as Clues_SO;
+                    if (poszlaka != null)
+                        baza[poszlaka.name] = poszlaka;
+                }
             }
         }
 
@@ -1852,7 +2087,19 @@ public class SaveLoadManager : MonoBehaviour
         ClueManager cm = ClueManager.Instance;
         int licznik = 0;
 
-        UzupelnijListe(cm.collectedClues, data.collectedClues, ZbierzDostepnePoszlaki(), ref licznik);
+        Dictionary<string, Clues_SO> bazaPoszlak = ZbierzDostepnePoszlaki();
+        Debug.Log("LoadGame: dostepnych assetow poszlak: " + bazaPoszlak.Count + ".");
+
+        if (data.collectedClues != null)
+        {
+            foreach (string nazwa in data.collectedClues)
+            {
+                if (!bazaPoszlak.ContainsKey(nazwa))
+                    Debug.LogWarning("LoadGame: nie znaleziono assetu poszlaki '" + nazwa + "'.");
+            }
+        }
+
+        UzupelnijListe(cm.collectedClues, data.collectedClues, bazaPoszlak, ref licznik);
         UzupelnijListe(cm.collectedConclusions, data.collectedConclusions,
                        BazaAssetow(cm.allConclusions), ref licznik);
         UzupelnijListe(cm.collectedQuestConclusions, data.collectedQuestConclusions,
@@ -2525,7 +2772,8 @@ public class SaveLoadManager : MonoBehaviour
     private System.Collections.IEnumerator PonawiajPlyty(
         List<BlackboardSaveData> plyty, List<string> wyzwalacze,
         List<NpcSaveData> npc, List<WallLampSaveData> uchwyty,
-        List<ScriptFlagSaveData> renderery)
+        List<ScriptFlagSaveData> renderery, List<ScriptFlagSaveData> klapy,
+        List<ScriptNumberSaveData> listy)
     {
         for (int i = 0; i < powtorzeniaPlyt; i++)
         {
@@ -2537,6 +2785,9 @@ public class SaveLoadManager : MonoBehaviour
             PrzywrocNpc(npc);
             PrzywrocUchwytyLamp(uchwyty);
             PrzywrocRendereryNpc(renderery);
+            PrzywrocStanPokoi();
+            PrzywrocKlapy(klapy);
+            PrzywrocZebraneListy(listy);
             cichePowtorzenie = false;
 
             Sledz("powtorzenie plyt " + (i + 1));
@@ -2544,6 +2795,36 @@ public class SaveLoadManager : MonoBehaviour
 
         Debug.Log("LoadGame: zakonczono ponawianie stanu czarnych plyt (" +
                   powtorzeniaPlyt + " powtorzen).");
+    }
+
+    // Pokoje, ktore po wczytaniu maja byc WLACZONE. Zapamietujemy je przy
+    // przywracaniu poziomow i pilnujemy przez kilka sekund, bo niektore skrypty
+    // wylaczaja pokoj we wlasnym Start() - a ten wykonuje sie dopiero po
+    // wczytaniu, gdy nasz zapis wlaczy grupe poziomu.
+    private readonly List<Transform> pokojeDoWlaczenia = new List<Transform>();
+
+    private static bool CzyPokoj(string nazwa)
+    {
+        return !string.IsNullOrEmpty(nazwa) &&
+               nazwa.StartsWith("ROOM", System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    // Wymusza stan pokoi zapamietany przy wczytaniu.
+    private void PrzywrocStanPokoi()
+    {
+        int poprawione = 0;
+
+        foreach (Transform pokoj in pokojeDoWlaczenia)
+        {
+            if (pokoj == null || pokoj.gameObject.activeSelf)
+                continue;
+
+            pokoj.gameObject.SetActive(true);
+            poprawione++;
+        }
+
+        if (poprawione > 0 && !cichePowtorzenie)
+            Debug.Log("LoadGame: ponownie wlaczono " + poprawione + " pokoi.");
     }
 
     private void PrzywrocUsunietePlyty(List<string> zapisane)

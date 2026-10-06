@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Alias chroni przed 'using System.Diagnostics;' dopisywanym przez Visual Studio (CS0104).
+using Debug = UnityEngine.Debug;
+
 [RequireComponent(typeof(Interactable))]
 public class Int_lv2_WoodBrickWall : Lvl3InteractionDialogueBase
 {
@@ -296,5 +299,57 @@ public class Int_lv2_WoodBrickWall : Lvl3InteractionDialogueBase
             if (current != null)
                 current.SetActive(active);
         }
+    }
+
+    // ---------------------------------------------------------------
+    // SYSTEM ZAPISU
+    // ---------------------------------------------------------------
+
+    // Indeks wlozonego klocka w tablicy blockVariants, albo -1 gdy gniazdo puste.
+    // 'mountedVariant' to referencja, wiec nie przezywa wczytania - bez tego
+    // gniazdo zostawalo martwe: nieaktywne do interakcji i bez mozliwosci
+    // odebrania klocka.
+    public int MountedVariantIndex
+    {
+        get
+        {
+            if (mountedVariant == null || blockVariants == null)
+                return -1;
+
+            for (int i = 0; i < blockVariants.Length; i++)
+            {
+                if (blockVariants[i] == mountedVariant)
+                    return i;
+            }
+
+            return -1;
+        }
+    }
+
+    public void RestoreMountedVariant(int index)
+    {
+        if (socketInteractable == null)
+            socketInteractable = GetComponent<Interactable>();
+
+        if (index < 0 || blockVariants == null || index >= blockVariants.Length)
+        {
+            // Gniazdo puste - klocek mozna wlozyc.
+            mountedVariant = null;
+            SetMountedVisual(null, false);
+
+            if (socketInteractable != null)
+                socketInteractable.isInteractableActive = true;
+
+            return;
+        }
+
+        mountedVariant = blockVariants[index];
+        SetMountedVisual(mountedVariant, true);
+
+        if (socketInteractable != null)
+            socketInteractable.isInteractableActive = false;
+
+        Debug.Log("Int_lv2_WoodBrickWall: przywrocono wlozony klocek '" +
+                  mountedVariant.itemType + "' w gniezdzie '" + name + "'.", this);
     }
 }
