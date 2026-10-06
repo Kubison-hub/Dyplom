@@ -35,6 +35,24 @@ public class Int_Lvl_3_Leadder : Lvl3InteractionDialogueBase
     protected override Lvl3DialogueLine[] DefaultDialogueLines => cannotGoDialogue;
     private bool teleportQueued;
 
+    public string ExitPermissionSaveId
+    {
+        get
+        {
+            var interaction = GetComponent<Interactable>();
+            return interaction != null && !string.IsNullOrEmpty(interaction.SaveId)
+                ? interaction.SaveId
+                : SaveLoadManager.BuildObjectID(gameObject);
+        }
+    }
+
+    public void RestoreExitPermission(bool allowed)
+    {
+        canGo = allowed;
+        // A saved transient flag must not block the next use of the ladder.
+        teleportQueued = false;
+    }
+
     public bool CanGo
     {
         get => canGo;

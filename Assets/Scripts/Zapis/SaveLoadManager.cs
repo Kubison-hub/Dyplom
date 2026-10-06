@@ -12,7 +12,7 @@ using Random = UnityEngine.Random;
 
 public class SaveLoadManager : MonoBehaviour
 {
-    // Wersja formatu zapisu. Podnies o 1 po kazdej zmianie struktury GameData.
+    // Bump for incompatible format changes; optional fields retain legacy compatibility.
     // Pliki z inna wersja sa ignorowane - lepiej zaczac od nowa niz wczytac
     // polowe danych i dostac czarny ekran.
     public const int WERSJA_ZAPISU = 31;
@@ -273,6 +273,13 @@ public class SaveLoadManager : MonoBehaviour
         data.scriptNumbers = ZbierzLicznikiSkryptow();
 
         data.triggeredMannequinTraps = new List<string>();
+        data.unlockedBasementLadderIDs = new List<string>();
+        foreach (var ladder in FindObjectsByType<Int_Lvl_3_Leadder>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (ladder.CanGo)
+                data.unlockedBasementLadderIDs.Add(ladder.ExitPermissionSaveId);
+        }
 
         foreach (Int_lv3_Manequine pulapka in FindObjectsByType<Int_lv3_Manequine>(
                      FindObjectsInactive.Include, FindObjectsSortMode.None))
@@ -523,7 +530,9 @@ public class SaveLoadManager : MonoBehaviour
         if (przywracajLicznikiSkryptow)
             Krok("liczniki skryptow", () => PrzywrocLicznikiSkryptow(data.scriptNumbers));
         Krok("pulapki manekina", () => PrzywrocPulapkiManekina(data.triggeredMannequinTraps));
+        Krok("wyjscie Ethel z piwnicy", () => PrzywrocWyjsciaZPiwnicy(data.unlockedBasementLadderIDs));
         Krok("niesione lampy", () => PrzywrocNiesioneLampy(data));
+        Krok("zebrane lampy piwnicy", PrzywrocZebraneLampyPiwnicy);
 
         // --- Odkryte punkty sledztwa ---
         // MUSI byc przed CluesLog: panel przelicza licznik "Zbadaj pomieszczenie"
@@ -593,6 +602,8 @@ public class SaveLoadManager : MonoBehaviour
         // wlaczac obiekty wewnatrz odkrytych pomieszczen.
         Krok("czarne plyty", () => PrzywrocCzarnePlyty(data.blackboards));
         Krok("usuniete plyty", () => PrzywrocUsunietePlyty(data.removedBlackboardTriggers));
+        Krok("ukonczone stoly piwnicy", PrzywrocUkonczoneStolyPiwnicy);
+        Krok("drzwi Ethel z odtwarzaniem zapisu", PrzywrocDrzwiEthel);
 
         // Skrypty w rodzaju Int_lv3_RemoveBlackboard zapalaja czarne plyty
         // we wlasnym Start(), a ten wykonuje sie dopiero PO wczytaniu - obiekty
@@ -969,6 +980,8 @@ public class SaveLoadManager : MonoBehaviour
             // 1. Pozycja i obrot - lapie przesuniete sciany, przyciski, dzwignie.
             TransformSaveData trans = new TransformSaveData();
             trans.objectId = BuildObjectID(t.gameObject);
+            trans.stableId = BuildStableTransformID(t);
+            trans.parentStableId = BuildStableTransformID(t.parent);
             trans.objectName = t.name;
             trans.parentId = t.parent != null ? BuildObjectID(t.parent.gameObject) : "";
             trans.localPosition = t.localPosition;
@@ -1445,6 +1458,68 @@ public class SaveLoadManager : MonoBehaviour
         return licznik;
     }
 
+    private static void PrzywrocZebraneLampyPiwnicy()
+    {
+        var usedLamps = new HashSet<GameObject>();
+        foreach (var holder in FindObjectsByType<Int_lv3_WallLampHolder>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (holder.MountedLamp != null)
+                usedLamps.Add(holder.MountedLamp);
+        }
+        if (Lvl3LampVisualManager.Instance != null)
+        {
+            usedLamps.Add(Lvl3LampVisualManager.Instance.GetCarriedLampForSave(false));
+            usedLamps.Add(Lvl3LampVisualManager.Instance.GetCarriedLampForSave(true));
+        }
+        foreach (var pickup in FindObjectsByType<lvl3_int_Lamp>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            var interaction = pickup.GetComponent<Interactable>();
+            if ((pickup.HeldLamp != null && usedLamps.Contains(pickup.HeldLamp)) ||
+                (interaction != null && interaction.IsCompleted))
+                pickup.RestoreCollectedPickup();
+        }
+    }
+
+    private static void PrzywrocWyjsciaZPiwnicy(List<string> unlockedIDs)
+    {
+        var unlocked = unlockedIDs != null ? new HashSet<string>(unlockedIDs) : null;
+        foreach (var ladder in FindObjectsByType<Int_Lvl_3_Leadder>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+            ladder.RestoreExitPermission(unlocked != null
+                ? unlocked.Contains(ladder.ExitPermissionSaveId)
+                : ladder.CanGo);
+
+        // Legacy saves have no dedicated permission list. Completed Ethel exits
+        // are enough to recover permission, without replaying her conversation.
+        if (unlocked != null)
+            return;
+        foreach (var ethel in FindObjectsByType<Int_lv3_Ethel_2>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (ethel.BasementExit != null && IsBlackboardInteractionCompleted(ethel))
+                ethel.BasementExit.RestoreExitPermission(true);
+        }
+    }
+
+    private static void PrzywrocDrzwiEthel()
+    {
+        foreach (var door in FindObjectsByType<lvl2_Int_DoorEthel>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+            door.RestoreOpenedStateFromSave();
+    }
+
+    private static void PrzywrocUkonczoneStolyPiwnicy()
+    {
+        foreach (var table in FindObjectsByType<int_lv3_easyTable>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (table.IsCompleted)
+                table.RestoreCompletedState();
+        }
+    }
+
     private void PrzywrocPulapkiManekina(List<string> zapisane)
     {
         if (zapisane == null || zapisane.Count == 0)
@@ -1831,6 +1906,8 @@ public class SaveLoadManager : MonoBehaviour
 
             TransformSaveData wpis = new TransformSaveData();
             wpis.objectId = BuildObjectID(t.gameObject);
+            wpis.stableId = BuildStableTransformID(t);
+            wpis.parentStableId = BuildStableTransformID(t.parent);
             wpis.objectName = t.name;
             wpis.parentId = t.parent != null ? BuildObjectID(t.parent.gameObject) : "";
             wpis.localPosition = t.localPosition;
@@ -1861,6 +1938,7 @@ public class SaveLoadManager : MonoBehaviour
         }
 
         Dictionary<string, Transform> poNazwie = ZbudujMapePoNazwie(wszystkie);
+        var stableTransforms = BuildStableTransformMap(wszystkie);
         int licznik = 0;
 
         foreach (TransformSaveData dane in zapisane)
@@ -1868,7 +1946,7 @@ public class SaveLoadManager : MonoBehaviour
             if (dane == null)
                 continue;
 
-            Transform t = ZnajdzWDrzewie(poSciezce, poNazwie, dane.objectId, dane.objectName);
+            Transform t = FindSavedTransform(dane, poSciezce, poNazwie, stableTransforms);
             if (t == null)
                 continue;
 
@@ -1880,6 +1958,11 @@ public class SaveLoadManager : MonoBehaviour
                 cialo.angularVelocity = Vector3.zero;
             }
 
+            Transform parent;
+            if ((!string.IsNullOrEmpty(dane.parentStableId) &&
+                 stableTransforms.TryGetValue(dane.parentStableId, out parent)) ||
+                (!string.IsNullOrEmpty(dane.parentId) && poSciezce.TryGetValue(dane.parentId, out parent)))
+                t.SetParent(parent, false);
             t.localPosition = dane.localPosition;
             t.localEulerAngles = dane.localEuler;
             licznik++;
@@ -2286,10 +2369,65 @@ public class SaveLoadManager : MonoBehaviour
         return nazwa.IndexOf("BlackBoard", System.StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
+    public static Dictionary<GameObject, bool> GetBlackboardDiscoveryStates()
+    {
+        var states = new Dictionary<GameObject, bool>();
+        foreach (var door in FindObjectsByType<lvl2_Int_DoorEthel>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (door.UsesSaveStateRestoration)
+                AddBlackboardDiscoveryState(states, door.Blackboard, door.IsOpen);
+        }
+        foreach (var trigger in FindObjectsByType<Int_lv3_RemoveBlackboard>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+            AddBlackboardDiscoveryState(states, trigger.BlackBoard, trigger.HasTriggered);
+        foreach (var door in FindObjectsByType<Int_lv3_SecretWallDoor>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+            AddBlackboardDiscoveryState(states, door.Blackboard,
+                door.IsOpened || IsBlackboardInteractionCompleted(door));
+        foreach (var door in FindObjectsByType<Int_lv3_ClockSecretPassage>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+            AddBlackboardDiscoveryState(states, door.Blackboard,
+                door.IsOpened || IsBlackboardInteractionCompleted(door));
+        foreach (var interaction in FindObjectsByType<Int_lv3_Ethel>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+            AddBlackboardDiscoveryState(states, interaction.Blackboard,
+                IsBlackboardInteractionCompleted(interaction));
+        foreach (var interaction in FindObjectsByType<Int_lv3_Ethel_2>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+            AddBlackboardDiscoveryState(states, interaction.Blackboard,
+                IsBlackboardInteractionCompleted(interaction));
+        // Trap boards can be covered again and later uncovered by Ethel.
+        // Their actual saved visibility takes precedence over discovery history.
+        foreach (var trap in FindObjectsByType<Int_lv3_Manequine>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (trap.TrapBlackboard != null)
+                states.Remove(trap.TrapBlackboard);
+        }
+        return states;
+    }
+
+    private static bool IsBlackboardInteractionCompleted(Component owner)
+    {
+        Interactable interaction = owner.GetComponent<Interactable>();
+        return interaction != null && interaction.IsCompleted;
+    }
+
+    private static void AddBlackboardDiscoveryState(
+        Dictionary<GameObject, bool> states, GameObject board, bool revealed)
+    {
+        if (board == null)
+            return;
+        bool previous;
+        states[board] = revealed || (states.TryGetValue(board, out previous) && previous);
+    }
+
     private static List<BlackboardSaveData> ZbierzCzarnePlyty(List<Transform> drzewo)
     {
         List<BlackboardSaveData> lista = new List<BlackboardSaveData>();
         HashSet<Transform> wykluczone = ZnajdzObiektyShaderowInterakcji();
+        var discoveryStates = GetBlackboardDiscoveryStates();
 
         foreach (Transform t in drzewo)
         {
@@ -2361,6 +2499,13 @@ public class SaveLoadManager : MonoBehaviour
             // plyty. Renderery zapisujemy WYLACZNIE dla czarnych plyt -
             // dla reszty sceny nimi zarzadza DOCS i nie wolno ich utrwalac.
             wpis.rendererEnabled = renderer.enabled;
+            bool revealed;
+            if (discoveryStates.TryGetValue(t.gameObject, out revealed))
+            {
+                // Inactive levels have not necessarily been discovered.
+                wpis.active = !revealed;
+                wpis.rendererEnabled = !revealed;
+            }
 
             // UWAGA: czytamy sharedMaterial, nigdy renderer.material.
             // Odwolanie do .material tworzy prywatna kopie materialu dla tego
@@ -2445,6 +2590,7 @@ public class SaveLoadManager : MonoBehaviour
         }
 
         Dictionary<string, Transform> poNazwie = ZbudujMapePoNazwie(lista);
+        var discoveryStates = GetBlackboardDiscoveryStates();
         int licznik = 0;
         List<string> nieznalezione = new List<string>();
 
@@ -2464,13 +2610,16 @@ public class SaveLoadManager : MonoBehaviour
             if (renderer == null)
                 continue;
 
-            // Plyta wygaszona alfa - pomieszczenie odkryte, gasimy caly obiekt.
-            if (wpis.alpha < 0.01f)
+            // Also repairs legacy saves made before a level's Start activation.
+            bool revealed;
+            if (discoveryStates.TryGetValue(t.gameObject, out revealed))
             {
-                t.gameObject.SetActive(false);
+                renderer.enabled = !revealed;
+                t.gameObject.SetActive(!revealed);
                 licznik++;
                 continue;
             }
+            // DOCS material alpha is not a discovery flag.
 
             // Nie dotykamy materialu przy przywracaniu - patrz uwaga wyzej.
             t.gameObject.SetActive(wpis.active);
@@ -2488,6 +2637,52 @@ public class SaveLoadManager : MonoBehaviour
         }
     }
 
+    private static string BuildStableTransformID(Transform transform)
+    {
+        if (transform == null)
+            return null;
+        string suffix = "";
+        for (Transform current = transform; current != null; current = current.parent)
+        {
+            var interaction = current.GetComponent<Interactable>();
+            if (interaction != null && !string.IsNullOrEmpty(interaction.SaveId))
+                return "interaction:" + interaction.SaveId + suffix;
+            suffix = "/" + SegmentSciezki(current) + suffix;
+        }
+        return null;
+    }
+
+    private static Dictionary<string, Transform> BuildStableTransformMap(IEnumerable<Transform> transforms)
+    {
+        var map = new Dictionary<string, Transform>();
+        var duplicates = new HashSet<string>();
+        foreach (Transform transform in transforms)
+        {
+            string id = BuildStableTransformID(transform);
+            if (string.IsNullOrEmpty(id) || duplicates.Contains(id))
+                continue;
+            if (map.ContainsKey(id))
+            {
+                map.Remove(id);
+                duplicates.Add(id);
+                Debug.LogWarning("LoadGame: duplicate stable transform ID: " + id);
+            }
+            else
+                map.Add(id, transform);
+        }
+        return map;
+    }
+
+    private static Transform FindSavedTransform(TransformSaveData data,
+        Dictionary<string, Transform> paths, Dictionary<string, Transform> names,
+        Dictionary<string, Transform> stableTransforms)
+    {
+        Transform transform;
+        if (!string.IsNullOrEmpty(data.stableId))
+            return stableTransforms.TryGetValue(data.stableId, out transform) ? transform : null;
+        return ZnajdzWDrzewie(paths, names, data.objectId, data.objectName);
+    }
+
     private static void PrzywrocRodzicow(
         List<TransformSaveData> zapisane, Dictionary<string, Transform> poSciezce)
     {
@@ -2497,18 +2692,27 @@ public class SaveLoadManager : MonoBehaviour
         int przepiete = 0;
 
         Dictionary<string, Transform> poNazwie = ZbudujMapePoNazwie(poSciezce.Values);
+        var allTransforms = FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        var stableTransforms = BuildStableTransformMap(allTransforms);
+        var parentPaths = new Dictionary<string, Transform>();
+        foreach (var transform in allTransforms)
+            parentPaths[BuildObjectID(transform.gameObject)] = transform;
 
         foreach (TransformSaveData dane in zapisane)
         {
             if (dane == null || string.IsNullOrEmpty(dane.parentId))
                 continue;
 
-            Transform obiekt = ZnajdzWDrzewie(poSciezce, poNazwie, dane.objectId, dane.objectName);
+            Transform obiekt = FindSavedTransform(dane, poSciezce, poNazwie, stableTransforms);
             if (obiekt == null)
                 continue;
 
-            Transform rodzic;
-            if (!poSciezce.TryGetValue(dane.parentId, out rodzic) || rodzic == null)
+            Transform rodzic = null;
+            bool foundParent = !string.IsNullOrEmpty(dane.parentStableId) &&
+                               stableTransforms.TryGetValue(dane.parentStableId, out rodzic);
+            if (!foundParent)
+                foundParent = parentPaths.TryGetValue(dane.parentId, out rodzic);
+            if (!foundParent || rodzic == null)
                 continue;
 
             if (obiekt.parent == rodzic)
@@ -2578,13 +2782,14 @@ public class SaveLoadManager : MonoBehaviour
         int licznik = 0;
 
         Dictionary<string, Transform> poNazwie = ZbudujMapePoNazwie(poSciezce.Values);
+        var stableTransforms = BuildStableTransformMap(poSciezce.Values);
 
         foreach (TransformSaveData dane in zapisane)
         {
             if (dane == null)
                 continue;
 
-            Transform t = ZnajdzWDrzewie(poSciezce, poNazwie, dane.objectId, dane.objectName);
+            Transform t = FindSavedTransform(dane, poSciezce, poNazwie, stableTransforms);
             if (t == null)
                 continue;
 

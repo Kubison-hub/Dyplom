@@ -41,6 +41,10 @@ public class Int_lv2_WoodBrickWall : Lvl3InteractionDialogueBase
     [Header("Correct Door")]
     [Tooltip("Optional object disabled after the correct door starts opening. The WoodBrickWall itself stays active.")]
     [SerializeField] private GameObject gameObjectToDeactivateAfterCorrectDoor;
+    [Tooltip("Optional additional Question FX or GameObject disabled after the correct door opens.")]
+    [SerializeField] private GameObject additionalObjectToDeactivateAfterCorrectDoor;
+    [Tooltip("Optional Interactable whose Question FX follows normal Eagle Vision rules and is disabled after the correct door opens.")]
+    [SerializeField] private Interactable additionalQuestionFxInteractable;
     [Tooltip("Time allowed for the correct door's opening animation before the assigned object is disabled.")]
     [SerializeField, Min(0f)] private float deactivateAfterCorrectDoorDelay = 1.1f;
 
@@ -188,6 +192,16 @@ public class Int_lv2_WoodBrickWall : Lvl3InteractionDialogueBase
     {
         if (deactivateAfterCorrectDoorDelay > 0f)
             yield return new WaitForSeconds(deactivateAfterCorrectDoorDelay);
+
+        if (additionalQuestionFxInteractable != null)
+        {
+            additionalQuestionFxInteractable.isInteractableActive = false;
+            additionalQuestionFxInteractable.allowQuestionFXWhenInactive = false;
+            additionalQuestionFxInteractable.SetQuestionFXEagleVisionState(false);
+        }
+
+        if (additionalObjectToDeactivateAfterCorrectDoor != null)
+            additionalObjectToDeactivateAfterCorrectDoor.SetActive(false);
 
         if (gameObjectToDeactivateAfterCorrectDoor != null)
             gameObjectToDeactivateAfterCorrectDoor.SetActive(false);

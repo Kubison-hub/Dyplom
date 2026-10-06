@@ -110,6 +110,7 @@ public class GameData
     // Uruchomione pulapki manekina (Int_lv3_Manequine). Zamykaja przejscie,
     // przepinaja sciane i wylaczaja poprzedni pokoj.
     public List<string> triggeredMannequinTraps;
+    public List<string> unlockedBasementLadderIDs;
 
     // Parametry liczbowe rozmow (int i float). Niektore galezie dialogow
     // zaleza od licznikow, nie tylko od flag bool.
@@ -267,6 +268,8 @@ public class ScriptFlagSaveData
 public class TransformSaveData
 {
     public string objectId;
+    public string stableId;       // Interactable GUID and relative child path; optional in older saves
+    public string parentStableId;
     public string objectName;   // zapas, gdy obiekt zostal przepiety i sciezka sie zmienila
     public string parentId;   // zagadki potrafia przepinac obiekty pod innego rodzica
     public Vector3 localPosition;

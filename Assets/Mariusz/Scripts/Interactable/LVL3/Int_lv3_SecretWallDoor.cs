@@ -41,6 +41,7 @@ public class Int_lv3_SecretWallDoor : Lvl3ClockworkInteraction
     private PlayerController brickTwoHolder;
 
     public bool IsOpened { get; private set; }
+    public GameObject Blackboard => blackBoardToDisableOnOpen;
 
     protected override void Awake()
     {

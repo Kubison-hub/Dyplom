@@ -44,10 +44,14 @@ public class Int_lv3_RemoveBlackboard : MonoBehaviour
         if (!activateObjectsOnStart)
             return;
 
+        var discoveryStates = SaveLoadManager.GetBlackboardDiscoveryStates();
         foreach (GameObject target in objectsToActivateOnStart)
         {
             if (target != null)
-                target.SetActive(true);
+            {
+                bool revealed;
+                target.SetActive(!discoveryStates.TryGetValue(target, out revealed) || !revealed);
+            }
         }
     }
 

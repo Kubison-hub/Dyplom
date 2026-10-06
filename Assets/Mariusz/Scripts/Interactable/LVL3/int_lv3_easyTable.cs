@@ -121,6 +121,7 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
     private bool loupeHoverDiscovered;
     private float loupeHoverStartedAt = -1f;
     public bool Opened { get; private set; }
+    public bool IsCompleted => completed || GetComponent<Interactable>().IsCompleted;
 
     protected override Lvl3DialogueLine[] DefaultDialogueLines => firstInteractionDialogue;
 
@@ -678,5 +679,59 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
 
         secretDoorAnimator.SetBool(openedBoolName, true);
         secretDoorAnimator.SetTrigger(openTriggerName);
+    }
+
+    public void RestoreCompletedState()
+    {
+        // Saved flags may already be true; the scene still needs its final state.
+        completed = true;
+        figurePlaced = true;
+        Opened = true;
+        interactable = GetComponent<Interactable>();
+        interactionCollider = GetComponent<Collider>();
+
+        ReparentObjectBeforeDoorOpens();
+
+        if (realRoom != null)
+            realRoom.SetActive(true);
+        if (ghostRoom != null)
+            ghostRoom.SetActive(false);
+
+        if (backgroundBoxFadeCoroutine != null)
+        {
+            StopCoroutine(backgroundBoxFadeCoroutine);
+            backgroundBoxFadeCoroutine = null;
+        }
+        if (backgroundPropertyBlock == null)
+            backgroundPropertyBlock = new MaterialPropertyBlock();
+        CacheBackgroundMaterialTargets();
+        SetBackgroundBoxVisibility(0f);
+
+        if (figureVisual != null)
+        {
+            figureVisual.SetActive(true);
+            DisablePlacedFigureInteraction(figureVisual);
+        }
+
+        if (secretDoorObject != null)
+            secretDoorObject.SetActive(true);
+        if (secretDoorAnimator == null && secretDoorObject != null)
+            secretDoorAnimator = secretDoorObject.GetComponentInChildren<Animator>(true);
+        // The save system restores the animator's state and time separately.
+        if (secretDoorAnimator != null && !string.IsNullOrWhiteSpace(openedBoolName))
+            secretDoorAnimator.SetBool(openedBoolName, true);
+
+        DeactivateCompletedQuestInteractables();
+        if (watsonEscortNpcToDisable != null)
+            watsonEscortNpcToDisable.enabled = false;
+
+        interactable.isInteractableActive = false;
+        interactable.allowQuestionFXWhenInactive = false;
+        interactable.SetQuestionFXEagleVisionState(false);
+        if (interactable.interactiveShader != null)
+            interactable.interactiveShader.SetActive(false);
+        interactable.interactiveShader = null;
+        if (interactionCollider != null)
+            interactionCollider.enabled = false;
     }
 }

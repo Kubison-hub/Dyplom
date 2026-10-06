@@ -43,6 +43,7 @@ public class Int_lv3_ClockSecretPassage : Lvl3ClockworkInteraction
     private bool opened;
 
     public bool IsOpened => opened;
+    public GameObject Blackboard => blackBoardToDisableOnOpen;
     protected override Lvl3DialogueLine[] DefaultDialogueLines => openingDialogue;
 
     protected override void Awake()

@@ -12,6 +12,7 @@ Shader "Custom/URP/MagnifierOverlay"
         _HiddenCluesStrength("Hidden Clues Strength", Float) = 1
         _DesaturateScene("Desaturate Scene", Range(0,1)) = 1
         _SceneTex("Scene Texture", 2D) = "black" {}
+        _InspectionVisibility("Inspection Visibility", Range(0,1)) = 1
     }
 
     SubShader
@@ -45,6 +46,7 @@ Shader "Custom/URP/MagnifierOverlay"
                 float _EdgeSoftness;
                 float _HiddenCluesStrength;
                 float _DesaturateScene;
+                float _InspectionVisibility;
             CBUFFER_END
 
             struct Attributes
@@ -94,7 +96,8 @@ Shader "Custom/URP/MagnifierOverlay"
 
                 float alpha = 1.0 - smoothstep(_Radius - _EdgeSoftness, _Radius, dist);
 
-                return half4(finalRgb, alpha);
+                // With no surface hit, reveal the game image underneath the lens.
+                return half4(finalRgb, alpha * _InspectionVisibility);
 
                 
             }

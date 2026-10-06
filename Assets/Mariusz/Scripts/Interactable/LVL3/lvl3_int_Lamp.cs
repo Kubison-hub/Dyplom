@@ -6,6 +6,7 @@ public class lvl3_int_Lamp : Lvl3InteractionDialogueBase
     private Interactable interactable;
 
     public bool performed = false;
+    public GameObject HeldLamp => heldLamp;
 
     [Header("Held Lamp")]
     [Tooltip("Separate inactive GameObject containing the held lamp model and its Point Light.")]
@@ -74,6 +75,12 @@ public class lvl3_int_Lamp : Lvl3InteractionDialogueBase
             return;
         }
 
+        if (!EquipHeldLamp(player))
+        {
+            player.currentInteractable = null;
+            return;
+        }
+
         performed = true;
 
         if (lvl3_GameProgress.Instance != null)
@@ -87,11 +94,10 @@ public class lvl3_int_Lamp : Lvl3InteractionDialogueBase
 
         PlayInteractionDialogue(player);
 
-        EquipHeldLamp(player);
         PlayPickupAudio();
 
         player.currentInteractable = null;
-        Destroy(gameObject);
+        RestoreCollectedPickup();
     }
 
     public bool CanPlayerUse(PlayerController player)
@@ -103,28 +109,38 @@ public class lvl3_int_Lamp : Lvl3InteractionDialogueBase
                 player.CompareTag("PlayerB"));
     }
 
-    private void EquipHeldLamp(PlayerController player)
+    public void RestoreCollectedPickup()
+    {
+        performed = true;
+        GetComponent<Interactable>()?.MarkCompleted();
+        SaveLoadManager.Instance?.MarkCollected(gameObject);
+        gameObject.SetActive(false);
+        Destroy(gameObject);
+    }
+
+    private bool EquipHeldLamp(PlayerController player)
     {
         if (heldLamp == null)
-            return;
+            return false;
 
         if (heldLamp.transform.IsChildOf(transform))
         {
             Debug.LogWarning($"{name}: Held Lamp must be a separate object, not a child of the pickup object.", heldLamp);
-            return;
+            return false;
         }
 
         Transform targetLampHolder = GetLampHolder(player);
         if (targetLampHolder == null)
         {
             Debug.LogWarning($"{name}: Assign a Lamp Holder for the player who picks up the lamp.", this);
-            return;
+            return false;
         }
 
         heldLamp.transform.SetParent(targetLampHolder, false);
         heldLamp.transform.localPosition = heldLampLocalPosition;
         heldLamp.transform.localRotation = Quaternion.Euler(heldLampLocalEulerAngles);
         heldLamp.SetActive(true);
+        return true;
     }
 
     private Transform GetLampHolder(PlayerController player)

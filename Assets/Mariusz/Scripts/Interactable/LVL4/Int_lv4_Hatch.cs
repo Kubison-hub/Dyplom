@@ -21,6 +21,7 @@ public class Int_lv4_Hatch : Lvl3InteractionDialogueBase
     [SerializeField] private Lvl3DialogueLine[] sherlockFirstDialogue;
     [SerializeField] private Lvl3DialogueLine[] sherlockRepeatDialogue;
     [SerializeField] private Lvl3DialogueLine[] watsonInRoomDialogue;
+    [SerializeField] private Lvl3DialogueLine[] watsonInRoomRepeatDialogue;
     [SerializeField] private Lvl3DialogueLine[] watsonOpenDialogue;
 
     [Header("Watson Presence")]
@@ -33,6 +34,7 @@ public class Int_lv4_Hatch : Lvl3InteractionDialogueBase
 
     private bool opened;
     private bool sherlockHasExaminedHatch;
+    private bool watsonInRoomDialoguePlayed;
 
     protected override Lvl3DialogueLine[] DefaultDialogueLines => sherlockFirstDialogue;
 
@@ -60,7 +62,13 @@ public class Int_lv4_Hatch : Lvl3InteractionDialogueBase
 
         if (IsWatsonAvailable())
         {
-            PlayDialogue(player, watsonInRoomDialogue);
+            Lvl3DialogueLine[] dialogue = watsonInRoomDialoguePlayed &&
+                                          watsonInRoomRepeatDialogue != null &&
+                                          watsonInRoomRepeatDialogue.Length > 0
+                ? watsonInRoomRepeatDialogue
+                : watsonInRoomDialogue;
+            watsonInRoomDialoguePlayed = true;
+            PlayDialogue(player, dialogue);
             StartCoroutine(RotateWatsonTowardHatch());
             return;
         }

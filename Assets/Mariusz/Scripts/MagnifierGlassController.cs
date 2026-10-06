@@ -115,6 +115,8 @@ public class MagnifierGlassController : MonoBehaviour
     [SerializeField, Range(0f, 90f)] private float maxNormalTiltDegrees = 30f;
     [SerializeField, Min(0f)] private float cameraFollowSpeed = 18f;
     [SerializeField] private float raycastDistance = 100f;
+    [Tooltip("Time used to fade between surface inspection and the normal game view when the ray misses a collider.")]
+    [SerializeField, Min(0f)] private float noHitFadeDuration = 0.12f;
 
     [Header("Inspection Angle By Camera Preset")]
     [Tooltip("Makes the inspection cameras less steep for distant gameplay camera presets without changing close presets.")]
@@ -176,6 +178,7 @@ public class MagnifierGlassController : MonoBehaviour
     private Vector3 loupeCursorFlareBaseScale;
     private Vector3 watsonGripCursorBaseScale;
     private bool hasInspectionHit;
+    private float inspectionVisibility;
     private float defaultLensDistanceFromHit;
     private Vector3 lastRayOrigin;
     private Vector3 lastHitPoint;
@@ -854,6 +857,7 @@ public class MagnifierGlassController : MonoBehaviour
             magnifierMaterial.SetTexture("_SceneTex", loupeSceneTexture);
 
         magnifierMaterial.SetVector("_RenderCenter", new Vector4(0.5f, 0.5f, 0f, 0f));
+        magnifierMaterial.SetFloat("_InspectionVisibility", 0f);
     }
 
     private void ApplyLoupeVisualScale()
@@ -866,6 +870,12 @@ public class MagnifierGlassController : MonoBehaviour
 
     private void UpdateMaterial(Vector2 lensCenterScreen)
     {
+        float targetVisibility = hasInspectionHit ? 1f : 0f;
+        inspectionVisibility = noHitFadeDuration > 0f
+            ? Mathf.MoveTowards(inspectionVisibility, targetVisibility, Time.unscaledDeltaTime / noHitFadeDuration)
+            : targetVisibility;
+        magnifierMaterial.SetFloat("_InspectionVisibility", inspectionVisibility);
+
         Vector2 lensCenterUv = new Vector2(
             lensCenterScreen.x / Screen.width,
             lensCenterScreen.y / Screen.height
@@ -898,7 +908,6 @@ public class MagnifierGlassController : MonoBehaviour
             hasInspectionHit = false;
             ResetLoupeAimTargetSmoothing();
             RestoreLoupeLookAt();
-            ApplyInspectionPose(mainCamera.transform.position, mainCamera.transform.rotation, GetCameraBlend());
             return;
         }
 
@@ -1132,6 +1141,9 @@ public class MagnifierGlassController : MonoBehaviour
     }
     private void SetInspectionCamerasActive(bool active)
     {
+        if (!active)
+            inspectionVisibility = 0f;
+
         if (hiddenCluesCamera != null)
             hiddenCluesCamera.enabled = active;
 

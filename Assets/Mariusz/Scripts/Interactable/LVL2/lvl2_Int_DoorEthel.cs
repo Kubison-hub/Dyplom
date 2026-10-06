@@ -24,6 +24,14 @@ public class lvl2_Int_DoorEthel : MonoBehaviour
     [SerializeField] private Material newMaterial;
     [SerializeField] private Collider intCollider;
 
+    [Header("Save Restoration")]
+    [Tooltip("Restores opened doors without resetting their room on Start. Enable only for doors that need this save behavior.")]
+    [SerializeField] private bool restoreOpenedStateOnStart = false;
+
+    public bool UsesSaveStateRestoration => restoreOpenedStateOnStart;
+    public bool IsOpen => isOpen;
+    public GameObject Blackboard => blackBoard;
+
 
 
     private void Start()
@@ -33,8 +41,52 @@ public class lvl2_Int_DoorEthel : MonoBehaviour
 
         transform.parent = door.transform;
 
+        if (restoreOpenedStateOnStart && isOpen)
+        {
+            RestoreOpenedStateFromSave();
+            return;
+        }
+
         ethelRoom.SetActive(false);
         blackBoard.SetActive(true);
+    }
+
+    public void RestoreOpenedStateFromSave()
+    {
+        if (!restoreOpenedStateOnStart)
+            return;
+
+        if (openCoroutine != null)
+        {
+            StopCoroutine(openCoroutine);
+            openCoroutine = null;
+        }
+        if (fadeCoroutine != null)
+        {
+            StopCoroutine(fadeCoroutine);
+            fadeCoroutine = null;
+        }
+
+        if (!isOpen)
+            return;
+
+        // Apply scene state even when the saved flags were restored earlier.
+        performed = true;
+        openRotation = Quaternion.Euler(openEuler);
+        interactable = GetComponent<Interactable>();
+        if (door != null)
+        {
+            transform.SetParent(door.transform, true);
+            door.transform.localRotation = openRotation;
+        }
+        if (ethelRoom != null)
+            ethelRoom.SetActive(true);
+        if (blackBoard != null)
+            blackBoard.SetActive(false);
+        if (interactable != null)
+            interactable.isInteractableActive = false;
+        if (intCollider != null)
+            intCollider.enabled = false;
     }
 
     public void PerformInteraction(PlayerController player)

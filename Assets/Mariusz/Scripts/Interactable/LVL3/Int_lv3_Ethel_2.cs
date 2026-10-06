@@ -86,6 +86,8 @@ public class Int_lv3_Ethel_2 : MonoBehaviour
 
     private Interactable interactable;
     private bool sequenceStarted;
+    public GameObject Blackboard => blackBoardToDisableOnDoorOpen;
+    public Int_Lvl_3_Leadder BasementExit => exit;
 
     private void Reset() => SetupInteractable();
     private void OnValidate() => SetupInteractable();

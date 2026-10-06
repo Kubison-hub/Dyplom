@@ -72,6 +72,7 @@ public class Int_lv3_Ethel : MonoBehaviour
 
     private Interactable interactable;
     private bool sequenceStarted;
+    public GameObject Blackboard => blackBoardToDisableOnDoorOpen;
 
     private void Reset() => SetupInteractable();
     private void OnValidate() => SetupInteractable();

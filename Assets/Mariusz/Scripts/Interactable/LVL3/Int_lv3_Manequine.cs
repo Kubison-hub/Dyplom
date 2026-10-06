@@ -66,6 +66,7 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
     private Coroutine activateAfterApproachRoutine;
     public bool IsFirstInspection => !hasBeenExamined;
     public bool IsTrapTriggered => triggered;
+    public GameObject TrapBlackboard => blackBoardToEnableOnTrap;
 
     protected override Lvl3DialogueLine[] DefaultDialogueLines => new[]
     {
@@ -420,14 +421,12 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
     // SYSTEM ZAPISU
     // ---------------------------------------------------------------
 
-    // Odtwarza stan po uruchomieniu pulapki: zamkniete drzwi, przepieta sciana,
-    // wylaczony poprzedni pokoj i zapalona czarna plyta.
+    // Odtwarza mechanike pulapki i przepieta sciane. Widocznosc pokoju i plyty
+    // pochodzi z zapisu, bo Ethel moze pozniej ponownie otworzyc ten pokoj.
     // Pomija animacje, dzwieki, obrot postaci i dialog - te maja sie nie powtarzac.
     public void RestoreTrapTriggeredState()
     {
-        if (triggered)
-            return;
-
+        // SaveLoadManager restores this flag before applying the trap's scene state.
         triggered = true;
         hasBeenExamined = true;
         triggerTrapAfterInspectionDialogue = false;
@@ -454,12 +453,6 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
         // Sciana wraca pod rodzica z nowego pokoju.
         if (objectToReparent != null && targetParent != null)
             objectToReparent.SetParent(targetParent, true);
-
-        if (roomToDeactivate != null)
-            roomToDeactivate.SetActive(false);
-
-        if (blackBoardToEnableOnTrap != null)
-            blackBoardToEnableOnTrap.SetActive(true);
 
         if (collidersToEnableWhenClosed != null)
         {

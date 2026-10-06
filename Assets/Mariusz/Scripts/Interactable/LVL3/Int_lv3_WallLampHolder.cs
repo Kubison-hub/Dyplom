@@ -223,6 +223,8 @@ public class Int_lv3_WallLampHolder : Lvl3ClockworkInteraction, IInteractionAppr
         }
     }
 
+    public GameObject MountedLamp => GetMountedLamp();
+
     // Wiesza wskazana lampe na uchwycie bez dzwieku i dialogu.
     // index: 0 = zadna, 1 = heldLamp1, 2 = heldLamp2.
     public void RestoreMountedLamp(int index)
