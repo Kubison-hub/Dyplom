@@ -27,6 +27,11 @@ public class lvl2_Int_Book : Lvl3InteractionDialogueBase
 
     [Header("Inventory")]
     [SerializeField] private Sprite inventoryIcon;
+
+    // Typ przedmiotu jako pole - InventoryManager wykrywa ikony
+    // po parze pol (ItemType + Sprite). Bez tego ikona nie wraca
+    // po wczytaniu zapisu.
+    [SerializeField] private ItemType inventoryItemType = ItemType.Level2BookKey;
     [SerializeField, TextArea] private string inventoryFullText = "Nie mam miejsca w ekwipunku.";
 
     public bool keyFounded = false;
@@ -44,7 +49,7 @@ public class lvl2_Int_Book : Lvl3InteractionDialogueBase
             return;
 
         if (InventoryManager.Instance == null ||
-            !InventoryManager.Instance.TryAddItem(ItemType.Level2BookKey, inventoryIcon))
+            !InventoryManager.Instance.TryAddItem(inventoryItemType, inventoryIcon))
         {
             if (player != null && player.playerCharacter == PlayerCharacter.Watson)
                 PlayerTopText.Instance?.ShowWatsonTopText(inventoryFullText);

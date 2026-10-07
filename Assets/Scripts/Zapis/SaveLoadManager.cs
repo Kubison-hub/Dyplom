@@ -15,7 +15,7 @@ public class SaveLoadManager : MonoBehaviour
     // Bump for incompatible format changes; optional fields retain legacy compatibility.
     // Pliki z inna wersja sa ignorowane - lepiej zaczac od nowa niz wczytac
     // polowe danych i dostac czarny ekran.
-    public const int WERSJA_ZAPISU = 35;
+    public const int WERSJA_ZAPISU = 37;
 
     [Header("Diagnostyka")]
     [Tooltip("Przywracanie wszystkich pol bool w skryptach pod LEVELS. " +
@@ -274,6 +274,7 @@ public class SaveLoadManager : MonoBehaviour
         data.woodBlockSockets = ZbierzGniazdaKlockow();
         data.hatches = ZbierzKlapy();
         data.hatchExitLetters = ZbierzZebraneListy();
+        data.escortNpcEnabled = ZbierzEskorteNpc();
 
         data.triggeredMannequinTraps = new List<string>();
         data.unlockedBasementLadderIDs = new List<string>();
@@ -532,6 +533,7 @@ public class SaveLoadManager : MonoBehaviour
         Krok("gniazda klockow", () => PrzywrocGniazdaKlockow(data.woodBlockSockets));
         Krok("klapy", () => PrzywrocKlapy(data.hatches));
         Krok("zebrane listy", () => PrzywrocZebraneListy(data.hatchExitLetters));
+        Krok("eskorta NPC", () => PrzywrocEskorteNpc(data.escortNpcEnabled));
 
         if (przywracajLicznikiSkryptow)
             Krok("liczniki skryptow", () => PrzywrocLicznikiSkryptow(data.scriptNumbers));
@@ -596,9 +598,13 @@ public class SaveLoadManager : MonoBehaviour
         {
             if (EagleVisionSystem.Instance != null)
             {
+                // Po wczytaniu wizja orla jest zawsze wylaczona. Gracz wlacza ja
+                // klawiszem jak zwykle. Zapisywanie jej stanu powodowalo rozjazd
+                // flagi z efektami i blokowalo eskorte Watsona.
+                EagleVisionSystem.Instance.isActive = false;
                 EagleVisionSystem.Instance.RefreshScan();
-                Debug.Log("LoadGame: odswiezono wizje orla (aktywna: " +
-                          EagleVisionSystem.Instance.isActive + ").");
+
+                Debug.Log("LoadGame: wizja orla ustawiona na wylaczona i odswiezona.");
             }
         });
 
@@ -618,7 +624,8 @@ public class SaveLoadManager : MonoBehaviour
         if (powtorzeniaPlyt > 0)
             StartCoroutine(PonawiajPlyty(data.blackboards, data.removedBlackboardTriggers,
                                          data.npcs, data.wallLamps, data.npcRenderers,
-                                         data.hatches, data.hatchExitLetters));
+                                         data.hatches, data.hatchExitLetters,
+                                         data.escortNpcEnabled));
 
         Sledz("po plytach");
 
@@ -1368,6 +1375,14 @@ public class SaveLoadManager : MonoBehaviour
         if (mb is SaveLoadManager || mb is GameProgressManager || mb is InventoryManager)
             return true;
 
+        // Wizja orla i eskorta Watsona trzymaja stan rozlozony miedzy flage,
+        // efekty wizualne i podswietlenia. Przywrocenie samej flagi tworzy
+        // rozjazd: 'isActive' jest true, ale wizja realnie nie dziala, wiec
+        // klawisz ja WYLACZA zamiast wlaczyc - i Watson traci mozliwosc
+        // odciagania postaci. Te komponenty zostawiamy w spokoju.
+        if (mb is EagleVisionSystem || mb is WatsonEscortController)
+            return true;
+
         // Komponenty interfejsu pomijamy calkowicie. Maja mnostwo pol
         // liczbowych (rozmiary, odstepy, przezroczystosci), a ich nadpisanie
         // psuje wyglad UI po wczytaniu.
@@ -1774,6 +1789,71 @@ public class SaveLoadManager : MonoBehaviour
         }
 
         Debug.Log("LoadGame: przywrocono " + licznik + " z " + zapisane.Count + " licznikow w skryptach.");
+    }
+
+    // Komponent WatsonEscortNPC wlaczony = postac mozna odciagnac.
+    // Wlaczaja go interakcje w trakcie gry, wiec to realny postep fabularny.
+    private List<ScriptFlagSaveData> ZbierzEskorteNpc()
+    {
+        List<ScriptFlagSaveData> lista = new List<ScriptFlagSaveData>();
+
+        foreach (WatsonEscortNPC eskorta in FindObjectsByType<WatsonEscortNPC>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (eskorta == null)
+                continue;
+
+            ScriptFlagSaveData wpis = new ScriptFlagSaveData();
+            wpis.key = BuildObjectID(eskorta.gameObject);
+            wpis.value = eskorta.enabled;
+            lista.Add(wpis);
+        }
+
+        int wlaczonych = 0;
+        foreach (ScriptFlagSaveData wpis in lista)
+        {
+            if (wpis.value)
+                wlaczonych++;
+        }
+
+        Debug.Log("SaveGame: komponentow eskorty: " + lista.Count +
+                  ", wlaczonych: " + wlaczonych + ".");
+        return lista;
+    }
+
+    private void PrzywrocEskorteNpc(List<ScriptFlagSaveData> zapisane)
+    {
+        if (zapisane == null || zapisane.Count == 0)
+            return;
+
+        Dictionary<string, bool> poId = new Dictionary<string, bool>();
+        foreach (ScriptFlagSaveData wpis in zapisane)
+        {
+            if (wpis != null && !string.IsNullOrEmpty(wpis.key))
+                poId[wpis.key] = wpis.value;
+        }
+
+        int licznik = 0;
+
+        foreach (WatsonEscortNPC eskorta in FindObjectsByType<WatsonEscortNPC>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (eskorta == null)
+                continue;
+
+            bool wlaczony;
+            if (!poId.TryGetValue(BuildObjectID(eskorta.gameObject), out wlaczony))
+                continue;
+
+            if (eskorta.enabled != wlaczony)
+            {
+                eskorta.enabled = wlaczony;
+                licznik++;
+            }
+        }
+
+        if (!cichePowtorzenie)
+            Debug.Log("LoadGame: poprawiono " + licznik + " komponentow eskorty.");
     }
 
     private List<ScriptNumberSaveData> ZbierzZebraneListy()
@@ -2773,7 +2853,7 @@ public class SaveLoadManager : MonoBehaviour
         List<BlackboardSaveData> plyty, List<string> wyzwalacze,
         List<NpcSaveData> npc, List<WallLampSaveData> uchwyty,
         List<ScriptFlagSaveData> renderery, List<ScriptFlagSaveData> klapy,
-        List<ScriptNumberSaveData> listy)
+        List<ScriptNumberSaveData> listy, List<ScriptFlagSaveData> eskorta)
     {
         for (int i = 0; i < powtorzeniaPlyt; i++)
         {
@@ -2788,6 +2868,7 @@ public class SaveLoadManager : MonoBehaviour
             PrzywrocStanPokoi();
             PrzywrocKlapy(klapy);
             PrzywrocZebraneListy(listy);
+            PrzywrocEskorteNpc(eskorta);
             cichePowtorzenie = false;
 
             Sledz("powtorzenie plyt " + (i + 1));

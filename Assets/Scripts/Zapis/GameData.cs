@@ -152,6 +152,12 @@ public class GameData
     // licznikow jest wylaczone - a bez tego gra blokuje zejscie do piwnicy.
     public List<ScriptNumberSaveData> hatchExitLetters;
 
+    // Wlaczenie komponentow WatsonEscortNPC - to one sa "umiejetnoscia"
+    // odciagania postaci. Wlaczaja je interakcje (tutorial, mechanizm
+    // gramofonu, drzwi Ethel), a postacie siedza pod NPCs, czyli POZA
+    // drzewem LEVELS, wiec ich stan nie byl wczesniej zapisywany.
+    public List<ScriptFlagSaveData> escortNpcEnabled;
+
     // --- Cele kamer postaci (LookAt) ---
     // Scena startuje z kamera wycelowana w Selme (seans), a przesuwa ja dopiero
     // dialog otwierajacy. Po wczytaniu ten dialog nie leci, wiec cel trzeba zapisac.

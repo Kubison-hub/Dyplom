@@ -118,7 +118,26 @@ public class InventoryManager : MonoBehaviour
                     poleIkony = pole;
             }
 
-            if (poleTypu == null || poleIkony == null)
+            if (poleIkony == null)
+                continue;
+
+            // Czesc skryptow (np. WoodBlockButtonPickupBase) udostepnia typ
+            // przedmiotu jako wlasciwosc, a nie pole - sprawdzamy oba.
+            PropertyInfo wlasciwoscTypu = null;
+
+            if (poleTypu == null)
+            {
+                foreach (PropertyInfo wlasciwosc in typ.GetProperties(flagi))
+                {
+                    if (wlasciwosc.PropertyType == typeof(ItemType) && wlasciwosc.CanRead)
+                    {
+                        wlasciwoscTypu = wlasciwosc;
+                        break;
+                    }
+                }
+            }
+
+            if (poleTypu == null && wlasciwoscTypu == null)
                 continue;
 
             Sprite ikona;
@@ -127,7 +146,9 @@ public class InventoryManager : MonoBehaviour
             try
             {
                 ikona = poleIkony.GetValue(mb) as Sprite;
-                typPrzedmiotu = (ItemType)poleTypu.GetValue(mb);
+                typPrzedmiotu = poleTypu != null
+                    ? (ItemType)poleTypu.GetValue(mb)
+                    : (ItemType)wlasciwoscTypu.GetValue(mb);
             }
             catch (System.Exception)
             {

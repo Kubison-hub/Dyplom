@@ -10,6 +10,11 @@ public class Int_lv3_ClockKey : Lvl3ClockworkInteraction
     [SerializeField] private GameObject objectToHide;
     [SerializeField] private Sprite inventoryIcon;
 
+    // Typ przedmiotu jako pole - InventoryManager wykrywa ikony
+    // po parze pol (ItemType + Sprite). Bez tego ikona nie wraca
+    // po wczytaniu zapisu.
+    [SerializeField] private ItemType inventoryItemType = ItemType.Wahadlo;
+
     [Header("Pickup Audio")]
     [SerializeField] private AudioSource pickupAudioSource;
     [SerializeField] private AudioClip pickupAudioClip;
@@ -67,7 +72,7 @@ public class Int_lv3_ClockKey : Lvl3ClockworkInteraction
         SetPickupPresentationVisible(target, false);
 
         if (InventoryManager.Instance == null ||
-            !InventoryManager.Instance.TryAddItem(ItemType.Wahadlo, inventoryIcon))
+            !InventoryManager.Instance.TryAddItem(inventoryItemType, inventoryIcon))
         {
             SetPickupPresentationVisible(target, true);
             collected = false;
