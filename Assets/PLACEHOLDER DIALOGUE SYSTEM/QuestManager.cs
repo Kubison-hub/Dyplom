@@ -81,14 +81,14 @@ public class QuestManager : MonoBehaviour
             Debug.Log("QuestManager: Przedmioty pojawi³y siê na mapie!");
 
             // 2. Wyœwietl PO£¥CZONY Tutorial (Przedmioty + Klawisz J)
-            if (TutorialManager.Instance != null)
+            // if (TutorialManager.Instance != null)
             {
-                string trescKomunikatu =
-                    "Na mapie pojawi³y siê przedmioty. PodejdŸ do nich, aby je zebraæ.\n\n" +
-                    "Wskazówka: Wciœnij 'J', aby w³¹czyæ tryb Detektywa i ³atwiej je znaleŸæ.";
+                //string trescKomunikatu =
+                //    "Na mapie pojawi³y siê przedmioty. PodejdŸ do nich, aby je zebraæ.\n\n" +
+                //    "Wskazówka: Wciœnij 'J', aby w³¹czyæ tryb Detektywa i ³atwiej je znaleŸæ.";
 
-                // U¿ywamy unikalnego ID, ¿eby pokaza³o siê to tylko raz
-                TutorialManager.Instance.PokazTutorial(trescKomunikatu, "ItemsAndDetectiveMode");
+                //// U¿ywamy unikalnego ID, ¿eby pokaza³o siê to tylko raz
+                //TutorialManager.Instance.PokazTutorial(trescKomunikatu, "ItemsAndDetectiveMode");
             }
         }
     }
