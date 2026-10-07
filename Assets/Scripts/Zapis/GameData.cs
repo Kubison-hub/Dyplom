@@ -26,6 +26,9 @@ public class GameData
     // Obsluguje je GameProgressManager.
     public List<string> completedInteractionIDs;
 
+    // Optional in older saves: door reparenting keyed by the interaction's stable SaveId.
+    public List<ScriptFlagSaveData> interactionDoorParents;
+
     // --- Panel zadan (lista celow w lewym gornym rogu) ---
     public CluesLogSaveData questLog;
 

@@ -274,6 +274,7 @@ public class SaveLoadManager : MonoBehaviour
         data.woodBlockSockets = ZbierzGniazdaKlockow();
         data.hatches = ZbierzKlapy();
         data.hatchExitLetters = ZbierzZebraneListy();
+        data.interactionDoorParents = ZbierzRodzicowDrzwiInterakcji();
         data.escortNpcEnabled = ZbierzEskorteNpc();
 
         data.triggeredMannequinTraps = new List<string>();
@@ -460,6 +461,9 @@ public class SaveLoadManager : MonoBehaviour
                              "Zrob nowy zapis, zeby nadpisac stary plik.");
             return;
         }
+
+        // Restore hierarchy before matching saved paths, positions and animators.
+        Krok("rodzice drzwi interakcji", () => PrzywrocRodzicowDrzwiInterakcji(data));
 
         // --- Aktywne grupy poziomow: MUSZA byc pierwsze ---
         // Reszta (pozycje, NPC, przedmioty) odnosi sie do obiektow wewnatrz
@@ -1854,6 +1858,71 @@ public class SaveLoadManager : MonoBehaviour
 
         if (!cichePowtorzenie)
             Debug.Log("LoadGame: poprawiono " + licznik + " komponentow eskorty.");
+    }
+
+    private List<ScriptFlagSaveData> ZbierzRodzicowDrzwiInterakcji()
+    {
+        var result = new List<ScriptFlagSaveData>();
+        foreach (var table in FindObjectsByType<int_lv3_easyTable>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+            DodajRodzicaDrzwi(result, table, table.HasSavedDoorParent);
+        foreach (var door in FindObjectsByType<Int_lv4_HiddenDoor>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+            DodajRodzicaDrzwi(result, door, door.HasSavedDoorParent);
+        return result;
+    }
+
+    private static void DodajRodzicaDrzwi(List<ScriptFlagSaveData> result,
+        MonoBehaviour owner, bool reparented)
+    {
+        var interaction = owner.GetComponent<Interactable>();
+        if (interaction == null || string.IsNullOrEmpty(interaction.SaveId))
+        {
+            Debug.LogWarning(owner.name + ": cannot save door parent without an Interactable SaveId.", owner);
+            return;
+        }
+        result.Add(new ScriptFlagSaveData { key = interaction.SaveId, value = reparented });
+    }
+
+    private static void PrzywrocRodzicowDrzwiInterakcji(GameData data)
+    {
+        var savedParents = new Dictionary<string, bool>();
+        if (data.interactionDoorParents != null)
+            foreach (var entry in data.interactionDoorParents)
+                if (entry != null && !string.IsNullOrEmpty(entry.key))
+                    savedParents[entry.key] = entry.value;
+
+        var flags = new Dictionary<string, bool>();
+        if (data.levelFlags != null)
+            foreach (var entry in data.levelFlags)
+                if (entry != null && !string.IsNullOrEmpty(entry.key))
+                    flags[entry.key] = entry.value;
+
+        foreach (var table in FindObjectsByType<int_lv3_easyTable>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+            if (CzyPrzywrocicRodzicaDrzwi(table, "completed", data, savedParents, flags))
+                table.RestoreDoorParentFromSave();
+        foreach (var door in FindObjectsByType<Int_lv4_HiddenDoor>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+            if (CzyPrzywrocicRodzicaDrzwi(door, "opened", data, savedParents, flags))
+                door.RestoreDoorParentFromSave();
+    }
+
+    private static bool CzyPrzywrocicRodzicaDrzwi(MonoBehaviour owner, string flagName,
+        GameData data, Dictionary<string, bool> savedParents, Dictionary<string, bool> flags)
+    {
+        var interaction = owner.GetComponent<Interactable>();
+        bool value;
+        if (interaction != null && !string.IsNullOrEmpty(interaction.SaveId))
+        {
+            if (savedParents.TryGetValue(interaction.SaveId, out value))
+                return value;
+            if (data.interactionDoorParents == null && data.completedInteractionIDs != null &&
+                data.completedInteractionIDs.Contains(interaction.SaveId))
+                return true;
+        }
+        return data.interactionDoorParents == null &&
+            flags.TryGetValue(KluczFlagi(owner.gameObject, owner.GetType(), flagName), out value) && value;
     }
 
     private List<ScriptNumberSaveData> ZbierzZebraneListy()

@@ -81429,6 +81429,7 @@ MonoBehaviour:
   useNearestNavMeshApproach: 1
   objectToHide: {fileID: 8343581510908613268}
   inventoryIcon: {fileID: 21300000, guid: 31625bfe921f04a43a1af52ac039778a, type: 3}
+  inventoryItemType: 4
   pickupAudioSource: {fileID: 919132148493311662}
   pickupAudioClip: {fileID: 8300000, guid: 6b7d17db72c5082468280f8a76e8001d, type: 3}
   sherlockPickupText: "Lalka? Na pewno nale\u017Cy do ma\u0142ej Ethel."
@@ -98180,7 +98181,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3426436152820307530, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4647247904324467638, guid: 440ff0fcf044ff8468e4bbca78a063a2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -120851,7 +120852,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &864320114
 Transform:
   m_ObjectHideFlags: 0
@@ -151038,7 +151039,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mode: 0
-  size: {x: 23.002018, y: 6.8060913, z: 25.002007}
+  size: {x: 23.002018, y: 6.897091, z: 33.819008}
   overrideRendererFilters: 0
   minRendererVolumeSize: 0.1
   objectLayerMask:
@@ -151078,7 +151079,7 @@ Transform:
   m_GameObject: {fileID: 1069084056}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -8.001009, y: 1.6030456, z: -4.0010004}
+  m_LocalPosition: {x: -8.001009, y: 1.5575455, z: -8.409503}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -203958,6 +203959,7 @@ MonoBehaviour:
   intRenderer: {fileID: 703657783}
   audioFX: {fileID: 1427473848}
   inventoryIcon: {fileID: 21300000, guid: 7b7b504adf26dcd4685e2fec6c17e192, type: 3}
+  inventoryItemType: 10
   inventoryFullText: Nie mam miejsca w ekwipunku.
   keyFounded: 0
 --- !u!82 &1427473848
@@ -352084,6 +352086,7 @@ MonoBehaviour:
   keyhole: {fileID: 615319737}
   objectToHide: {fileID: 5162058515862573111}
   inventoryIcon: {fileID: 21300000, guid: ebcd09e7b1bc21e4094adcfd65b110fc, type: 3}
+  inventoryItemType: 3
   pickupAudioSource: {fileID: 7883348066077630993}
   pickupAudioClip: {fileID: 8300000, guid: 6b7d17db72c5082468280f8a76e8001d, type: 3}
   pickupDialogueLines:

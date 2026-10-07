@@ -123,6 +123,15 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
     public bool Opened { get; private set; }
     public bool IsCompleted => completed || GetComponent<Interactable>().IsCompleted;
 
+    public bool HasSavedDoorParent => objectToReparentBeforeDoorOpens != null &&
+        newParentBeforeDoorOpens != null &&
+        objectToReparentBeforeDoorOpens.parent == newParentBeforeDoorOpens;
+
+    public void RestoreDoorParentFromSave()
+    {
+        ReparentObjectBeforeDoorOpens();
+    }
+
     protected override Lvl3DialogueLine[] DefaultDialogueLines => firstInteractionDialogue;
 
     private struct BackgroundMaterialTarget
@@ -388,6 +397,9 @@ public class int_lv3_easyTable : Lvl3InteractionDialogueBase
     private void ReparentObjectBeforeDoorOpens()
     {
         if (objectToReparentBeforeDoorOpens == null || newParentBeforeDoorOpens == null)
+            return;
+
+        if (objectToReparentBeforeDoorOpens.parent == newParentBeforeDoorOpens)
             return;
 
         objectToReparentBeforeDoorOpens.SetParent(

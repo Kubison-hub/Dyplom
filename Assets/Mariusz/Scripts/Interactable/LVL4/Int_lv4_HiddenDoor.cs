@@ -86,6 +86,18 @@ public class Int_lv4_HiddenDoor : Lvl3InteractionDialogueBase
     private bool openingSequenceReadyForConversation;
     private bool conversationAfterKeyUseStarted;
 
+    private Transform DoorReparentTarget => objectToReparentBeforeOpening != null
+        ? objectToReparentBeforeOpening
+        : doorAnimator != null ? doorAnimator.transform : null;
+
+    public bool HasSavedDoorParent => DoorReparentTarget != null &&
+        newParentBeforeOpening != null && DoorReparentTarget.parent == newParentBeforeOpening;
+
+    public void RestoreDoorParentFromSave()
+    {
+        ReparentDoorBeforeOpening();
+    }
+
     protected override Lvl3DialogueLine[] DefaultDialogueLines => keyFoundDialogue;
 
     private void Awake()
@@ -352,9 +364,7 @@ public class Int_lv4_HiddenDoor : Lvl3InteractionDialogueBase
         if (newParentBeforeOpening == null)
             return;
 
-        Transform target = objectToReparentBeforeOpening;
-        if (target == null && doorAnimator != null)
-            target = doorAnimator.transform;
+        Transform target = DoorReparentTarget;
 
         if (target != null && target.parent != newParentBeforeOpening)
             target.SetParent(newParentBeforeOpening, true);
