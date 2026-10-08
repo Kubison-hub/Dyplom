@@ -254,7 +254,7 @@ public class DetectiveIdeaPoint : MonoBehaviour
         SetVisible(false);
     }
 
-    public bool RevealFromExternalSource()
+    public bool RevealFromExternalSource(bool immediately = false)
     {
         if (!CanDiscoverExternally)
         {
@@ -266,6 +266,17 @@ public class DetectiveIdeaPoint : MonoBehaviour
         {
             Debug.LogWarning($"{name}: DetectiveIdeaManager is missing, so the point cannot be revealed.");
             return false;
+        }
+
+        if (immediately)
+        {
+            if (externalRevealCoroutine != null)
+            {
+                StopCoroutine(externalRevealCoroutine);
+                externalRevealCoroutine = null;
+            }
+            DetectiveIdeaManager.Instance.DiscoverPoint(this);
+            return true;
         }
 
         if (externalRevealCoroutine == null)

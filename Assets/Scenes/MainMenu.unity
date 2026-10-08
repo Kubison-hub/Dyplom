@@ -2044,12 +2044,12 @@ PrefabInstance:
     - target: {fileID: 1460160271564723240, guid: bfd884273cd9d8948ac82cc111a9c06f, type: 3}
       propertyPath: m_text
       value: "<b>Maja Bartnicka</b>\r\nProducent \xB7 Narracja \xB7 Projektant quest\xF3w
-        \xB7 Artysta 2D\r\n\r\n<b>Mariusz Kleszczewski</b>\r\nProjektant poziom\xF3w
-        \xB7 Programista zagadek \u015Brodowiskowych \xB7 Projektant postaci 3D \n\xB7
-        Animacje \xB7 vfx \xB7 Tester \xB7 Ud\u017Awi\u0119kowienie\r\n\r\n<b>Jakub
+        \xB7 Artysta 2D\r\n\r\n<b>Mariusz Kleszczewski</b>\r\nProgramista \xB7 Projektant
+        poziom\xF3w \xB7 Projektant zagadek \u015Brodowiskowych \xB7 Projektant postaci
+        3D \n\xB7 Animacje \xB7 Vfx \xB7 Tester \xB7 Ud\u017Awi\u0119kowienie\r\n\r\n<b>Jakub
         Suchorab</b>\r\nProgramista \xB7 Projektant rozgrywki \xB7 Tester \xB7 Projektant
         muzyki\r\n\r\n<b>Dominik Zwoli\u0144ski</b>\r\nArtysta 3D \xB7 Artysta UI
-        \xB7 Tester"
+        \xB7 Vfx \xB7 Tester"
       objectReference: {fileID: 0}
     - target: {fileID: 1460160271564723240, guid: bfd884273cd9d8948ac82cc111a9c06f, type: 3}
       propertyPath: m_fontSize
@@ -9012,6 +9012,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   przywracajFlagiSkryptow: 1
   sledzonyObiekt: 
+  przywracajLicznikiSkryptow: 0
   powtorzeniaPlyt: 4
   odstepPowtorzenPlyt: 0.5
 --- !u!114 &534910994

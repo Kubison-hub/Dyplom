@@ -115,6 +115,11 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase, IInteracti
     private bool conversationCompleted;
     private bool recordInserted;
     private bool mechanismActivated;
+    private bool afterMovementConversationCompleted;
+    private Coroutine gramophoneSequenceCoroutine;
+    private System.Action releaseGramophoneSequence;
+    private readonly System.Collections.Generic.List<Coroutine> gramophoneMovementCoroutines =
+        new System.Collections.Generic.List<Coroutine>();
 
     public bool CanCollect => canCollect;
     public bool ConversationCompleted => conversationCompleted;
@@ -149,9 +154,17 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase, IInteracti
 
     public new void PerformInteraction(PlayerController player)
     {
-        if (mechanismActivated || beginConversationCoroutine != null || IsDialoguePlaying)
+        if (afterMovementConversationCompleted || gramophoneSequenceCoroutine != null ||
+            beginConversationCoroutine != null || IsDialoguePlaying)
         {
             ClearPlayerInteraction(player);
+            return;
+        }
+
+        if (mechanismActivated)
+        {
+            ClearPlayerInteraction(player);
+            gramophoneSequenceCoroutine = StartCoroutine(MoveCharactersToGramophoneAfterDelay());
             return;
         }
 
@@ -247,9 +260,7 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase, IInteracti
 
         PlayRecordAudio();
         StartCoroutine(RotateInsertedRecord());
-        StartCoroutine(MoveCharactersToGramophoneAfterDelay());
-        CompleteInteraction();
-        CompleteInteractable(gramophoneInteractable);
+        gramophoneSequenceCoroutine = StartCoroutine(MoveCharactersToGramophoneAfterDelay());
         Debug.Log("URUCHOMIENIE MECHANIZMU", this);
     }
 
@@ -281,23 +292,50 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase, IInteracti
         if (pauseMenu != null)
             pauseMenu.enabled = false;
 
+        releaseGramophoneSequence = () =>
+        {
+            StopGramophoneMovement();
+            RestoreDetectiveAgentRotation(sherlock);
+            RestoreDetectiveAgentRotation(watson);
+            PlayerController.SetWorldInputLocked(previousWorldInputLock);
+            if (SwitchCharacter.Instance != null)
+                SwitchCharacter.Instance.canSwitch = previousCanSwitch;
+            if (notebook != null)
+                notebook.enabled = previousNotebookEnabled;
+            if (pauseMenu != null)
+                pauseMenu.enabled = previousPauseMenuEnabled;
+            gramophoneSequenceCoroutine = null;
+        };
+
+        try
+        {
+            yield return RunGramophoneMovementAndConversation();
+        }
+        finally
+        {
+            ReleaseGramophoneSequence();
+        }
+    }
+
+    private IEnumerator RunGramophoneMovementAndConversation()
+    {
         SmartNPC violet = violetSmartNpc;
         if (violet == null && Int_VioletDialog.Instance != null)
             violet = Int_VioletDialog.Instance.smartNPC;
         if (violetSmartNpc == null)
             violetSmartNpc = violet;
 
-        bool violetDone = violet == null || violetGramPoint == null;
+        bool violetDone = false;
         bool sherlockDone = false;
         bool watsonDone = false;
 
-        if (!violetDone)
-            StartCoroutine(MoveVioletAfterDelay(violet, () => violetDone = true));
+        if (violet != null && violetGramPoint != null)
+            gramophoneMovementCoroutines.Add(StartCoroutine(MoveVioletAfterDelay(violet, () => violetDone = true)));
         else
             Debug.LogWarning($"{name}: Violet or VioletGramPoint is not assigned.", this);
 
-        StartCoroutine(MoveDetectiveToGramPoint(sherlock, sherlockGramPoint, () => sherlockDone = true));
-        StartCoroutine(MoveDetectiveToGramPoint(watson, watsonGramPoint, () => watsonDone = true));
+        gramophoneMovementCoroutines.Add(StartCoroutine(MoveDetectiveToGramPoint(sherlock, sherlockGramPoint, () => sherlockDone = true)));
+        gramophoneMovementCoroutines.Add(StartCoroutine(MoveDetectiveToGramPoint(watson, watsonGramPoint, () => watsonDone = true)));
 
         float elapsed = 0f;
         while ((!violetDone || !sherlockDone || !watsonDone) && elapsed < gramophoneMovementTimeout)
@@ -309,6 +347,7 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase, IInteracti
         bool allCharactersArrived = violetDone && sherlockDone && watsonDone;
         if (!allCharactersArrived)
         {
+            StopGramophoneMovement();
             SetVioletWalking(false);
             Debug.LogWarning($"{name}: gramophone character movement timed out.", this);
         }
@@ -317,39 +356,52 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase, IInteracti
         {
             if (afterMovementSmartNpc != null)
             {
-                StartAfterMovementConversation();
-                yield return null;
-
-                while (DialogueEditor.ConversationManager.Instance != null &&
-                       DialogueEditor.ConversationManager.Instance.IsConversationActive)
+                if (StartAfterMovementConversation())
                 {
                     yield return null;
-                }
+                    while (DialogueEditor.ConversationManager.Instance != null &&
+                           DialogueEditor.ConversationManager.Instance.IsConversationActive)
+                        yield return null;
 
-                FindFirstObjectByType<SherlockWatsonHintConditions>(FindObjectsInactive.Include)?
-                    .MarkSelmaEscortConversationComplete();
+                    if (DialogueEditor.ConversationManager.Instance != null)
+                    {
+                        afterMovementConversationCompleted = true;
+                        FindFirstObjectByType<SherlockWatsonHintConditions>(FindObjectsInactive.Include)?
+                            .MarkSelmaEscortConversationComplete();
+                        CompleteInteraction();
+                        CompleteInteractable(gramophoneInteractable);
+                    }
+                }
             }
             else
                 Debug.LogWarning($"{name}: After Movement Smart NPC is not assigned.", this);
         }
 
-        RestoreDetectiveAgentRotation(sherlock);
-        RestoreDetectiveAgentRotation(watson);
-        PlayerController.SetWorldInputLocked(previousWorldInputLock);
-        if (SwitchCharacter.Instance != null)
-            SwitchCharacter.Instance.canSwitch = previousCanSwitch;
-        if (notebook != null)
-            notebook.enabled = previousNotebookEnabled;
-        if (pauseMenu != null)
-            pauseMenu.enabled = previousPauseMenuEnabled;
+        if (!afterMovementConversationCompleted)
+            Debug.LogWarning($"{name}: Violet conversation is still pending. Use the gramophone again to retry.", this);
     }
 
-    private void StartAfterMovementConversation()
+    private void ReleaseGramophoneSequence()
+    {
+        System.Action release = releaseGramophoneSequence;
+        releaseGramophoneSequence = null;
+        release?.Invoke();
+    }
+
+    private void OnDisable()
+    {
+        if (gramophoneSequenceCoroutine != null)
+            StopCoroutine(gramophoneSequenceCoroutine);
+        ReleaseGramophoneSequence();
+        ClearDialogueOnDisable();
+    }
+
+    private bool StartAfterMovementConversation()
     {
         if (afterMovementSmartNpc == null ||
             DialogueEditor.ConversationManager.Instance == null ||
             DialogueEditor.ConversationManager.Instance.IsConversationActive)
-            return;
+            return false;
 
         bool watsonActive = SwitchCharacter.Instance != null &&
                             SwitchCharacter.Instance.activePlayerIndex == 1;
@@ -362,7 +414,7 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase, IInteracti
             Debug.LogWarning(
                 $"{name}: After Movement Smart NPC has no conversation assigned for the active character.",
                 afterMovementSmartNpc);
-            return;
+            return false;
         }
 
         string playerId = watsonActive ? "PlayerB" : "PlayerA";
@@ -381,26 +433,43 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase, IInteracti
         afterMovementSmartNpc.BeginDialogueCameraFocus(conversation);
         DialogueEditor.ConversationManager.Instance.StartConversation(conversation);
 
+        if (!DialogueEditor.ConversationManager.Instance.IsConversationActive)
+            return false;
+
         if (afterMovementSmartNpc.noteIDToUnlock >= 0 && JournalManager.Instance != null)
             JournalManager.Instance.UnlockNote(afterMovementSmartNpc.noteIDToUnlock);
+        return true;
     }
 
     private IEnumerator MoveVioletAfterDelay(SmartNPC violet, System.Action completed)
     {
         yield return new WaitForSeconds(violetMoveDelay);
 
-        if (violet.navMeshAgent != null)
-        {
-            violet.navMeshAgent.updateRotation = true;
-            violet.navMeshAgent.isStopped = false;
-        }
+        NavMeshAgent agent = violet.navMeshAgent;
+        if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh ||
+            !NavMesh.SamplePosition(violetGramPoint.position, out NavMeshHit target,
+                gramPointNavMeshSampleRadius, NavMesh.AllAreas))
+            yield break;
 
+        agent.updateRotation = true;
+        agent.isStopped = false;
         SetVioletWalking(true);
-        violet.GoToPoint(violetGramPoint.position, () =>
-        {
-            SetVioletWalking(false);
-            StartCoroutine(FinalizeVioletAtGramPoint(violet, completed));
-        });
+        if (!agent.SetDestination(target.position))
+            yield break;
+        while (agent.pathPending)
+            yield return null;
+        while (agent.isActiveAndEnabled && agent.isOnNavMesh &&
+               agent.pathStatus == NavMeshPathStatus.PathComplete &&
+               (agent.remainingDistance > Mathf.Max(gramPointArrivalDistance, agent.stoppingDistance) ||
+                HorizontalDistance(violet.transform.position, target.position) >
+                    Mathf.Max(gramPointArrivalDistance, agent.stoppingDistance)))
+            yield return null;
+        if (!agent.isActiveAndEnabled || !agent.isOnNavMesh ||
+            HorizontalDistance(violet.transform.position, target.position) >
+                Mathf.Max(gramPointArrivalDistance, agent.stoppingDistance))
+            yield break;
+        SetVioletWalking(false);
+        yield return FinalizeVioletAtGramPoint(violet, completed);
     }
 
     private IEnumerator FinalizeVioletAtGramPoint(SmartNPC violet, System.Action completed)
@@ -453,14 +522,13 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase, IInteracti
         if (detective == null || destination == null)
         {
             Debug.LogWarning($"{name}: detective or gramophone destination is not assigned.", this);
-            completed?.Invoke();
             yield break;
         }
 
         NavMeshAgent agent = detective.navMeshAgent != null
             ? detective.navMeshAgent
             : detective.GetComponent<NavMeshAgent>();
-        if (agent == null || !agent.isOnNavMesh ||
+        if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh ||
             !NavMesh.SamplePosition(
                 destination.position,
                 out NavMeshHit target,
@@ -468,21 +536,30 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase, IInteracti
                 NavMesh.AllAreas))
         {
             Debug.LogWarning($"{name}: {detective.name} or '{destination.name}' is outside the NavMesh.", this);
-            completed?.Invoke();
             yield break;
         }
 
         agent.isStopped = false;
         agent.updateRotation = true;
-        agent.SetDestination(target.position);
+        if (!agent.SetDestination(target.position))
+            yield break;
 
         while (agent.pathPending)
             yield return null;
 
         if (agent.pathStatus == NavMeshPathStatus.PathComplete)
         {
-            while (agent.remainingDistance > Mathf.Max(gramPointArrivalDistance, agent.stoppingDistance))
+            while (agent.isActiveAndEnabled && agent.isOnNavMesh &&
+                   agent.pathStatus == NavMeshPathStatus.PathComplete &&
+                   (agent.remainingDistance > Mathf.Max(gramPointArrivalDistance, agent.stoppingDistance) ||
+                    HorizontalDistance(detective.transform.position, target.position) >
+                        Mathf.Max(gramPointArrivalDistance, agent.stoppingDistance)))
                 yield return null;
+
+            if (!agent.isActiveAndEnabled || !agent.isOnNavMesh ||
+                HorizontalDistance(detective.transform.position, target.position) >
+                    Mathf.Max(gramPointArrivalDistance, agent.stoppingDistance))
+                yield break;
 
             agent.ResetPath();
             agent.isStopped = true;
@@ -508,9 +585,34 @@ public sealed class Int_GramophoneController : Int_lv1_NpcDialogBase, IInteracti
         else
         {
             Debug.LogWarning($"{name}: {detective.name} cannot reach '{destination.name}'.", this);
+            yield break;
         }
 
         completed?.Invoke();
+    }
+
+    private void StopGramophoneMovement()
+    {
+        foreach (Coroutine movement in gramophoneMovementCoroutines)
+            if (movement != null)
+                StopCoroutine(movement);
+        gramophoneMovementCoroutines.Clear();
+        if (!afterMovementConversationCompleted)
+        {
+            ResetGramophoneAgent(sherlock != null ? sherlock.navMeshAgent : null);
+            ResetGramophoneAgent(watson != null ? watson.navMeshAgent : null);
+            ResetGramophoneAgent(violetSmartNpc != null ? violetSmartNpc.navMeshAgent : null);
+            SetVioletWalking(false);
+        }
+    }
+
+    private static void ResetGramophoneAgent(NavMeshAgent agent)
+    {
+        if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh)
+            return;
+        agent.ResetPath();
+        agent.updateRotation = true;
+        agent.isStopped = false;
     }
 
     private static void RestoreDetectiveAgentRotation(PlayerController detective)

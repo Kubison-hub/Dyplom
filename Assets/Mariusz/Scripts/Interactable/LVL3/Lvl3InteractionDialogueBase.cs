@@ -100,6 +100,11 @@ public abstract class Lvl3InteractionDialogueBase : MonoBehaviour
 
     private void OnDisable()
     {
+        ClearDialogueOnDisable();
+    }
+
+    protected void ClearDialogueOnDisable()
+    {
         // A dialogue coroutine stops with its GameObject. Clear the text explicitly
         // so a picked-up or removed world object cannot leave a stuck Top Text behind.
         if (activeDialogueOwner == this)

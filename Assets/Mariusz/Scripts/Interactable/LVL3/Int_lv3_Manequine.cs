@@ -62,7 +62,6 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
     private bool triggered;
     private bool hasBeenExamined;
     private bool triggerTrapAfterInspectionDialogue;
-    private bool revealTrapDoorIdeaAfterDialogue;
     private Coroutine activateAfterApproachRoutine;
     public bool IsFirstInspection => !hasBeenExamined;
     public bool IsTrapTriggered => triggered;
@@ -101,7 +100,7 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
         }
 
         hasBeenExamined = true;
-        mannequinIdeaPoint?.RevealFromExternalSource();
+        mannequinIdeaPoint?.RevealFromExternalSource(immediately: true);
         revealBasementExitAfterInspectionDialogue = true;
         triggerTrapAfterInspectionDialogue = true;
         PlayInteractionDialogue(player);
@@ -141,6 +140,7 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
             return;
 
         triggered = true;
+        trapDoorIdeaPoint?.RevealFromExternalSource(immediately: true);
         FindFirstObjectByType<SherlockWatsonHintConditions>(FindObjectsInactive.Include)?
             .MarkTrapTriggered();
 
@@ -184,7 +184,6 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
                 interactable.isInteractableActive = false;
         }
 
-        revealTrapDoorIdeaAfterDialogue = true;
         PlayDialogue(player, trapResultDialogueLines);
     }
 
@@ -373,11 +372,6 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
             return;
         }
 
-        if (!revealTrapDoorIdeaAfterDialogue || lines != trapResultDialogueLines)
-            return;
-
-        revealTrapDoorIdeaAfterDialogue = false;
-        trapDoorIdeaPoint?.RevealFromExternalSource();
     }
 
     private void Setup()
@@ -430,7 +424,8 @@ public class Int_lv3_Manequine : Lvl3InteractionDialogueBase
         triggered = true;
         hasBeenExamined = true;
         triggerTrapAfterInspectionDialogue = false;
-        revealTrapDoorIdeaAfterDialogue = false;
+        mannequinIdeaPoint?.RevealFromExternalSource(immediately: true);
+        trapDoorIdeaPoint?.RevealFromExternalSource(immediately: true);
 
         // Drzwi od razu w stanie zamknietym, bez odtwarzania animacji.
         if (secretDoorAnimators != null)
