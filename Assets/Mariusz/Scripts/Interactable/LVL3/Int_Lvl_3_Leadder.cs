@@ -20,6 +20,10 @@ public class Int_Lvl_3_Leadder : Lvl3InteractionDialogueBase
     [Header("Basement Exposure")]
     [SerializeField] private BasementExposureController basementExposureController;
 
+    [Header("Before Teleport")]
+    [Tooltip("Level 2 root activated before teleporting the group, so dependent objects are available.")]
+    [SerializeField] private GameObject level2;
+
     [Header("After Upper Floor Arrival")]
     [SerializeField] private Int_SetupLastPoints setupLastPoints;
     [Tooltip("Objects activated after Sherlock, Watson and Ethel reach the upper floor.")]
@@ -94,6 +98,9 @@ public class Int_Lvl_3_Leadder : Lvl3InteractionDialogueBase
 
         if (basementExposureController != null)
             yield return basementExposureController.RestoreBeforeLeavingBasement();
+
+        if (level2 != null)
+            level2.SetActive(true);
 
         TeleportPlayer(PlayerCharacter.Sherlock, sherlockIntPoint);
         TeleportPlayer(PlayerCharacter.Watson, watsonIntPoint);

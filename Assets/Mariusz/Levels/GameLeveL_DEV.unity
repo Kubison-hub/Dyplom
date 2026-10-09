@@ -138053,6 +138053,7 @@ MonoBehaviour:
   navMeshSampleRadius: 2
   rotationLockDuration: 0.75
   basementExposureController: {fileID: 907414086}
+  level2: {fileID: 570975920}
   setupLastPoints: {fileID: 598973923}
   activateAfterTeleport:
   - {fileID: 1677510986}
@@ -151040,7 +151041,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mode: 0
-  size: {x: 90.96773, y: 9.517536, z: 25.289434}
+  size: {x: 90.96773, y: 9.517536, z: 25.289433}
   overrideRendererFilters: 0
   minRendererVolumeSize: 0.1
   objectLayerMask:
@@ -151080,7 +151081,7 @@ Transform:
   m_GameObject: {fileID: 1069084056}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -41.983864, y: 0.2473228, z: -3.8572865}
+  m_LocalPosition: {x: -41.983864, y: 0.2473228, z: -3.8572874}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
