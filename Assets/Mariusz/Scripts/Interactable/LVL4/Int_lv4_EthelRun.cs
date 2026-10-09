@@ -69,7 +69,12 @@ public class Int_lv4_EthelRun : MonoBehaviour
             foreach (GameObject target in deactivateOnSequenceStart)
             {
                 if (target != null && target != gameObject)
+                {
+                    // The sequence must survive disabling the level that originally owned it.
+                    if (transform.IsChildOf(target.transform))
+                        transform.SetParent(target.transform.parent, true);
                     target.SetActive(false);
+                }
             }
         }
 
